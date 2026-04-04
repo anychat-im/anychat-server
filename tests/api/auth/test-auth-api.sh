@@ -123,7 +123,8 @@ test_register() {
     "verifyCode": "123456",
     "nickname": "测试用户${TIMESTAMP}",
     "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}"
+    "deviceId": "${TEST_DEVICE_ID}",
+    "clientVersion": "1.0.0"
 }
 EOF
 )
@@ -161,7 +162,8 @@ test_login() {
     "account": "${TEST_PHONE}",
     "password": "${TEST_PASSWORD}",
     "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}"
+    "deviceId": "${TEST_DEVICE_ID}",
+    "clientVersion": "1.0.0"
 }
 EOF
 )
@@ -225,7 +227,8 @@ test_login_with_new_password() {
     "account": "${TEST_PHONE}",
     "password": "${TEST_PASSWORD}",
     "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}_2"
+    "deviceId": "${TEST_DEVICE_ID}_2",
+    "clientVersion": "1.0.0"
 }
 EOF
 )

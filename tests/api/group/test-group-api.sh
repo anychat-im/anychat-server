@@ -134,7 +134,7 @@ setup_test_users() {
 
     # 注册用户1（注册成功后会自动登录返回token）
     print_info "注册用户1: ${TEST_EMAIL_1}"
-    local data1="{\"email\":\"${TEST_EMAIL_1}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"测试用户1_${TIMESTAMP}\",\"deviceType\":\"Web\",\"deviceId\":\"${TEST_DEVICE_ID}_1\"}"
+    local data1="{\"email\":\"${TEST_EMAIL_1}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"测试用户1_${TIMESTAMP}\",\"deviceType\":\"Web\",\"deviceId\":\"${TEST_DEVICE_ID}_1\",\"clientVersion\":\"1.0.0\"}"
     local response1=$(http_post "${API_BASE}/auth/register" "$data1")
 
     USER1_ID=$(echo "$response1" | jq -r '.data.userId // empty')
@@ -149,7 +149,7 @@ setup_test_users() {
 
     # 注册用户2
     print_info "注册用户2: ${TEST_EMAIL_2}"
-    local data2="{\"email\":\"${TEST_EMAIL_2}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"测试用户2_${TIMESTAMP}\",\"deviceType\":\"Web\",\"deviceId\":\"${TEST_DEVICE_ID}_2\"}"
+    local data2="{\"email\":\"${TEST_EMAIL_2}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"测试用户2_${TIMESTAMP}\",\"deviceType\":\"Web\",\"deviceId\":\"${TEST_DEVICE_ID}_2\",\"clientVersion\":\"1.0.0\"}"
     local response2=$(http_post "${API_BASE}/auth/register" "$data2")
 
     USER2_ID=$(echo "$response2" | jq -r '.data.userId // empty')
@@ -164,7 +164,7 @@ setup_test_users() {
 
     # 注册用户3
     print_info "注册用户3: ${TEST_EMAIL_3}"
-    local data3="{\"email\":\"${TEST_EMAIL_3}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"测试用户3_${TIMESTAMP}\",\"deviceType\":\"Web\",\"deviceId\":\"${TEST_DEVICE_ID}_3\"}"
+    local data3="{\"email\":\"${TEST_EMAIL_3}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"测试用户3_${TIMESTAMP}\",\"deviceType\":\"Web\",\"deviceId\":\"${TEST_DEVICE_ID}_3\",\"clientVersion\":\"1.0.0\"}"
     local response3=$(http_post "${API_BASE}/auth/register" "$data3")
 
     USER3_ID=$(echo "$response3" | jq -r '.data.userId // empty')

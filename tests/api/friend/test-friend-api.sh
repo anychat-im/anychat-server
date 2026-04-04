@@ -130,7 +130,8 @@ setup_test_users() {
     "verifyCode": "123456",
     "nickname": "测试用户1_${TIMESTAMP}",
     "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}_1"
+    "deviceId": "${TEST_DEVICE_ID}_1",
+    "clientVersion": "1.0.0"
 }
 EOF
 )
@@ -155,7 +156,8 @@ EOF
     "verifyCode": "123456",
     "nickname": "测试用户2_${TIMESTAMP}",
     "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}_2"
+    "deviceId": "${TEST_DEVICE_ID}_2",
+    "clientVersion": "1.0.0"
 }
 EOF
 )

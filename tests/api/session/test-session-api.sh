@@ -152,7 +152,8 @@ setup_test_users() {
     "verifyCode": "123456",
     "nickname": "SessionTest_${device_suffix}_${TIMESTAMP}",
     "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}_${device_suffix}"
+    "deviceId": "${TEST_DEVICE_ID}_${device_suffix}",
+    "clientVersion": "1.0.0"
 }
 EOF
 )

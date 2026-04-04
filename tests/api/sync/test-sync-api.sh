@@ -94,7 +94,7 @@ setup_user() {
     local reg_resp
     reg_resp=$(curl -s -w "\n%{http_code}" -X POST "${API_BASE}/auth/register" \
         -H "Content-Type: application/json" \
-        -d "{\"email\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"SyncTestUser\",\"deviceId\":\"${TEST_DEVICE_ID}\",\"deviceType\":\"Web\"}")
+        -d "{\"email\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"SyncTestUser\",\"deviceId\":\"${TEST_DEVICE_ID}\",\"deviceType\":\"Web\",\"clientVersion\":\"1.0.0\"}")
     local reg_status
     reg_status=$(echo "$reg_resp" | tail -1)
     local reg_body
@@ -109,7 +109,7 @@ setup_user() {
     local login_resp
     login_resp=$(curl -s -w "\n%{http_code}" -X POST "${API_BASE}/auth/login" \
         -H "Content-Type: application/json" \
-        -d "{\"account\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASSWORD}\",\"deviceId\":\"${TEST_DEVICE_ID}\",\"deviceType\":\"Web\"}")
+        -d "{\"account\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASSWORD}\",\"deviceId\":\"${TEST_DEVICE_ID}\",\"deviceType\":\"Web\",\"clientVersion\":\"1.0.0\"}")
     local login_status
     login_status=$(echo "$login_resp" | tail -1)
     local login_body

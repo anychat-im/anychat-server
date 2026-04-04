@@ -115,7 +115,8 @@ setup_test_user() {
     "verifyCode": "123456",
     "nickname": "文件测试用户_${TIMESTAMP}",
     "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}"
+    "deviceId": "${TEST_DEVICE_ID}",
+    "clientVersion": "1.0.0"
 }
 EOF
 )

@@ -32,12 +32,12 @@ register_and_login() {
 
     curl -s -X POST "${BASE_URL}/auth/register" \
         -H "Content-Type: application/json" \
-        -d "{\"email\":\"${email}\",\"password\":\"${password}\",\"verifyCode\":\"123456\",\"nickname\":\"User${suffix}\",\"deviceId\":\"${device_id}\",\"deviceType\":\"Web\"}" > /dev/null
+        -d "{\"email\":\"${email}\",\"password\":\"${password}\",\"verifyCode\":\"123456\",\"nickname\":\"User${suffix}\",\"deviceId\":\"${device_id}\",\"deviceType\":\"Web\",\"clientVersion\":\"1.0.0\"}" > /dev/null
 
     local resp
     resp=$(curl -s -X POST "${BASE_URL}/auth/login" \
         -H "Content-Type: application/json" \
-        -d "{\"account\":\"${email}\",\"password\":\"${password}\",\"deviceId\":\"${device_id}\",\"deviceType\":\"Web\"}")
+        -d "{\"account\":\"${email}\",\"password\":\"${password}\",\"deviceId\":\"${device_id}\",\"deviceType\":\"Web\",\"clientVersion\":\"1.0.0\"}")
 
     echo "$resp" | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4
 }
