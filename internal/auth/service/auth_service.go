@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/anychat/server/internal/auth/client"
@@ -27,6 +28,7 @@ type AuthService interface {
 	Logout(ctx context.Context, userID string, req *dto.LogoutRequest) error
 	RefreshToken(ctx context.Context, req *dto.RefreshTokenRequest) (*dto.RefreshTokenResponse, error)
 	ChangePassword(ctx context.Context, userID string, req *dto.ChangePasswordRequest) error
+	ResetPassword(ctx context.Context, req *dto.ResetPasswordRequest) error
 	ValidateToken(ctx context.Context, token string) (*jwt.Claims, error)
 }
 
@@ -400,6 +402,55 @@ func (s *authServiceImpl) ChangePassword(ctx context.Context, userID string, req
 	return s.userRepo.UpdatePassword(ctx, userID, passwordHash)
 }
 
+// ResetPassword 重置密码（忘记密码）
+func (s *authServiceImpl) ResetPassword(ctx context.Context, req *dto.ResetPasswordRequest) error {
+	// 判断账号类型
+	targetType := model.TargetTypeSMS
+	if isEmail(req.Account) {
+		targetType = model.TargetTypeEmail
+	}
+
+	// 验证验证码
+	_, err := s.verifySvc.VerifyCode(ctx, &dto.VerifyCodeRequest{
+		Target:     req.Account,
+		TargetType: targetType,
+		Code:       req.VerifyCode,
+		Purpose:    model.PurposeResetPassword,
+	})
+	if err != nil {
+		return err
+	}
+
+	// 获取用户
+	user, err := s.userRepo.GetByAccount(ctx, req.Account)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errors.NewBusiness(errors.CodeUserNotFound, "用户不存在")
+		}
+		return err
+	}
+
+	// 验证新密码强度
+	if !crypto.ValidatePasswordStrength(req.NewPassword) {
+		return errors.NewBusiness(errors.CodePasswordWeak, "密码强度不足")
+	}
+
+	// 生成新密码哈希
+	passwordHash, err := crypto.HashPassword(req.NewPassword)
+	if err != nil {
+		return err
+	}
+
+	// 更新密码
+	err = s.userRepo.UpdatePassword(ctx, user.ID, passwordHash)
+	if err != nil {
+		return err
+	}
+
+	// 使该用户所有会话失效（强制下线）
+	return s.sessionRepo.DeleteByUserID(ctx, user.ID)
+}
+
 // ValidateToken 验证Token
 func (s *authServiceImpl) ValidateToken(ctx context.Context, token string) (*jwt.Claims, error) {
 	claims, err := s.jwtManager.ValidateAccessToken(token)
@@ -414,4 +465,8 @@ func (s *authServiceImpl) resolveVerificationTarget(req *dto.RegisterRequest) (s
 		return req.PhoneNumber, model.TargetTypeSMS
 	}
 	return req.Email, model.TargetTypeEmail
+}
+
+func isEmail(account string) bool {
+	return strings.Contains(account, "@")
 }

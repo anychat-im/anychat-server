@@ -60,14 +60,33 @@ sequenceDiagram
     Client->>AuthService: 发送验证码(target, purpose=reset_password)
     AuthService->>VerifyService: SendCode
     VerifyService-->>Client: 验证码发送成功
-    Client->>AuthService: 重置密码(target, verifyCode, newPassword)
+    Client->>AuthService: 重置密码(account, verifyCode, newPassword)
     AuthService->>VerifyService: VerifyCode
     VerifyService-->>AuthService: 验证成功
     AuthService->>DB: 更新密码
+    AuthService->>DB: 删除该用户所有会话(强制下线)
     AuthService-->>Client: 重置成功
 ```
 
-### 4.2 验证码用途
+### 4.2 API
+
+```protobuf
+message ResetPasswordRequest {
+    string account = 1;       // 手机号或邮箱
+    string verify_code = 2;   // 验证码
+    string new_password = 3; // 新密码
+}
+```
+
+### 4.3 错误码
+
+| 错误码 | 说明 |
+|--------|------|
+| 4001 | 验证码错误/过期 |
+| 2002 | 用户不存在 |
+| 3001 | 新密码强度不足 |
+
+### 4.4 验证码用途
 
 | 用途 | 说明 |
 |------|------|

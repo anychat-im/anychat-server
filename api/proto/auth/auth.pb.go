@@ -696,6 +696,67 @@ func (x *ChangePasswordRequest) GetNewPassword() string {
 	return ""
 }
 
+// ResetPasswordRequest 重置密码请求
+type ResetPasswordRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Account       string                 `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`                            // 手机号或邮箱
+	VerifyCode    string                 `protobuf:"bytes,2,opt,name=verify_code,json=verifyCode,proto3" json:"verify_code,omitempty"`    // 验证码
+	NewPassword   string                 `protobuf:"bytes,3,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"` // 新密码
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetPasswordRequest) Reset() {
+	*x = ResetPasswordRequest{}
+	mi := &file_auth_auth_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetPasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetPasswordRequest) ProtoMessage() {}
+
+func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_auth_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetPasswordRequest.ProtoReflect.Descriptor instead.
+func (*ResetPasswordRequest) Descriptor() ([]byte, []int) {
+	return file_auth_auth_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ResetPasswordRequest) GetAccount() string {
+	if x != nil {
+		return x.Account
+	}
+	return ""
+}
+
+func (x *ResetPasswordRequest) GetVerifyCode() string {
+	if x != nil {
+		return x.VerifyCode
+	}
+	return ""
+}
+
+func (x *ResetPasswordRequest) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
 // ValidateTokenRequest 验证Token请求
 type ValidateTokenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -706,7 +767,7 @@ type ValidateTokenRequest struct {
 
 func (x *ValidateTokenRequest) Reset() {
 	*x = ValidateTokenRequest{}
-	mi := &file_auth_auth_proto_msgTypes[10]
+	mi := &file_auth_auth_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -718,7 +779,7 @@ func (x *ValidateTokenRequest) String() string {
 func (*ValidateTokenRequest) ProtoMessage() {}
 
 func (x *ValidateTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_auth_proto_msgTypes[10]
+	mi := &file_auth_auth_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -731,7 +792,7 @@ func (x *ValidateTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateTokenRequest.ProtoReflect.Descriptor instead.
 func (*ValidateTokenRequest) Descriptor() ([]byte, []int) {
-	return file_auth_auth_proto_rawDescGZIP(), []int{10}
+	return file_auth_auth_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ValidateTokenRequest) GetAccessToken() string {
@@ -754,7 +815,7 @@ type ValidateTokenResponse struct {
 
 func (x *ValidateTokenResponse) Reset() {
 	*x = ValidateTokenResponse{}
-	mi := &file_auth_auth_proto_msgTypes[11]
+	mi := &file_auth_auth_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -766,7 +827,7 @@ func (x *ValidateTokenResponse) String() string {
 func (*ValidateTokenResponse) ProtoMessage() {}
 
 func (x *ValidateTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_auth_proto_msgTypes[11]
+	mi := &file_auth_auth_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -779,7 +840,7 @@ func (x *ValidateTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateTokenResponse.ProtoReflect.Descriptor instead.
 func (*ValidateTokenResponse) Descriptor() ([]byte, []int) {
-	return file_auth_auth_proto_rawDescGZIP(), []int{11}
+	return file_auth_auth_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ValidateTokenResponse) GetValid() bool {
@@ -874,6 +935,11 @@ const file_auth_auth_proto_rawDesc = "" +
 	"\x15ChangePasswordRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12!\n" +
 	"\fold_password\x18\x02 \x01(\tR\voldPassword\x12!\n" +
+	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\"t\n" +
+	"\x14ResetPasswordRequest\x12\x18\n" +
+	"\aaccount\x18\x01 \x01(\tR\aaccount\x12\x1f\n" +
+	"\vverify_code\x18\x02 \x01(\tR\n" +
+	"verifyCode\x12!\n" +
 	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\"9\n" +
 	"\x14ValidateTokenRequest\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"\x84\x01\n" +
@@ -882,14 +948,15 @@ const file_auth_auth_proto_rawDesc = "" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tdevice_id\x18\x03 \x01(\tR\bdeviceId\x12\x1f\n" +
 	"\vdevice_type\x18\x04 \x01(\tR\n" +
-	"deviceType2\xc6\x04\n" +
+	"deviceType2\x92\x05\n" +
 	"\vAuthService\x12m\n" +
 	"\x14SendVerificationCode\x12).anychat.auth.SendVerificationCodeRequest\x1a*.anychat.auth.SendVerificationCodeResponse\x12I\n" +
 	"\bRegister\x12\x1d.anychat.auth.RegisterRequest\x1a\x1e.anychat.auth.RegisterResponse\x12@\n" +
 	"\x05Login\x12\x1a.anychat.auth.LoginRequest\x1a\x1b.anychat.auth.LoginResponse\x12<\n" +
 	"\x06Logout\x12\x1b.anychat.auth.LogoutRequest\x1a\x15.anychat.common.Empty\x12U\n" +
 	"\fRefreshToken\x12!.anychat.auth.RefreshTokenRequest\x1a\".anychat.auth.RefreshTokenResponse\x12L\n" +
-	"\x0eChangePassword\x12#.anychat.auth.ChangePasswordRequest\x1a\x15.anychat.common.Empty\x12X\n" +
+	"\x0eChangePassword\x12#.anychat.auth.ChangePasswordRequest\x1a\x15.anychat.common.Empty\x12J\n" +
+	"\rResetPassword\x12\".anychat.auth.ResetPasswordRequest\x1a\x15.anychat.common.Empty\x12X\n" +
 	"\rValidateToken\x12\".anychat.auth.ValidateTokenRequest\x1a#.anychat.auth.ValidateTokenResponseB1Z/github.com/anychat/server/api/proto/auth;authpbb\x06proto3"
 
 var (
@@ -904,7 +971,7 @@ func file_auth_auth_proto_rawDescGZIP() []byte {
 	return file_auth_auth_proto_rawDescData
 }
 
-var file_auth_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_auth_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_auth_auth_proto_goTypes = []any{
 	(*SendVerificationCodeRequest)(nil),  // 0: anychat.auth.SendVerificationCodeRequest
 	(*SendVerificationCodeResponse)(nil), // 1: anychat.auth.SendVerificationCodeResponse
@@ -916,29 +983,32 @@ var file_auth_auth_proto_goTypes = []any{
 	(*RefreshTokenRequest)(nil),          // 7: anychat.auth.RefreshTokenRequest
 	(*RefreshTokenResponse)(nil),         // 8: anychat.auth.RefreshTokenResponse
 	(*ChangePasswordRequest)(nil),        // 9: anychat.auth.ChangePasswordRequest
-	(*ValidateTokenRequest)(nil),         // 10: anychat.auth.ValidateTokenRequest
-	(*ValidateTokenResponse)(nil),        // 11: anychat.auth.ValidateTokenResponse
-	(*common.UserInfo)(nil),              // 12: anychat.common.UserInfo
-	(*common.Empty)(nil),                 // 13: anychat.common.Empty
+	(*ResetPasswordRequest)(nil),         // 10: anychat.auth.ResetPasswordRequest
+	(*ValidateTokenRequest)(nil),         // 11: anychat.auth.ValidateTokenRequest
+	(*ValidateTokenResponse)(nil),        // 12: anychat.auth.ValidateTokenResponse
+	(*common.UserInfo)(nil),              // 13: anychat.common.UserInfo
+	(*common.Empty)(nil),                 // 14: anychat.common.Empty
 }
 var file_auth_auth_proto_depIdxs = []int32{
-	12, // 0: anychat.auth.LoginResponse.user:type_name -> anychat.common.UserInfo
+	13, // 0: anychat.auth.LoginResponse.user:type_name -> anychat.common.UserInfo
 	0,  // 1: anychat.auth.AuthService.SendVerificationCode:input_type -> anychat.auth.SendVerificationCodeRequest
 	2,  // 2: anychat.auth.AuthService.Register:input_type -> anychat.auth.RegisterRequest
 	4,  // 3: anychat.auth.AuthService.Login:input_type -> anychat.auth.LoginRequest
 	6,  // 4: anychat.auth.AuthService.Logout:input_type -> anychat.auth.LogoutRequest
 	7,  // 5: anychat.auth.AuthService.RefreshToken:input_type -> anychat.auth.RefreshTokenRequest
 	9,  // 6: anychat.auth.AuthService.ChangePassword:input_type -> anychat.auth.ChangePasswordRequest
-	10, // 7: anychat.auth.AuthService.ValidateToken:input_type -> anychat.auth.ValidateTokenRequest
-	1,  // 8: anychat.auth.AuthService.SendVerificationCode:output_type -> anychat.auth.SendVerificationCodeResponse
-	3,  // 9: anychat.auth.AuthService.Register:output_type -> anychat.auth.RegisterResponse
-	5,  // 10: anychat.auth.AuthService.Login:output_type -> anychat.auth.LoginResponse
-	13, // 11: anychat.auth.AuthService.Logout:output_type -> anychat.common.Empty
-	8,  // 12: anychat.auth.AuthService.RefreshToken:output_type -> anychat.auth.RefreshTokenResponse
-	13, // 13: anychat.auth.AuthService.ChangePassword:output_type -> anychat.common.Empty
-	11, // 14: anychat.auth.AuthService.ValidateToken:output_type -> anychat.auth.ValidateTokenResponse
-	8,  // [8:15] is the sub-list for method output_type
-	1,  // [1:8] is the sub-list for method input_type
+	10, // 7: anychat.auth.AuthService.ResetPassword:input_type -> anychat.auth.ResetPasswordRequest
+	11, // 8: anychat.auth.AuthService.ValidateToken:input_type -> anychat.auth.ValidateTokenRequest
+	1,  // 9: anychat.auth.AuthService.SendVerificationCode:output_type -> anychat.auth.SendVerificationCodeResponse
+	3,  // 10: anychat.auth.AuthService.Register:output_type -> anychat.auth.RegisterResponse
+	5,  // 11: anychat.auth.AuthService.Login:output_type -> anychat.auth.LoginResponse
+	14, // 12: anychat.auth.AuthService.Logout:output_type -> anychat.common.Empty
+	8,  // 13: anychat.auth.AuthService.RefreshToken:output_type -> anychat.auth.RefreshTokenResponse
+	14, // 14: anychat.auth.AuthService.ChangePassword:output_type -> anychat.common.Empty
+	14, // 15: anychat.auth.AuthService.ResetPassword:output_type -> anychat.common.Empty
+	12, // 16: anychat.auth.AuthService.ValidateToken:output_type -> anychat.auth.ValidateTokenResponse
+	9,  // [9:17] is the sub-list for method output_type
+	1,  // [1:9] is the sub-list for method input_type
 	1,  // [1:1] is the sub-list for extension type_name
 	1,  // [1:1] is the sub-list for extension extendee
 	0,  // [0:1] is the sub-list for field type_name
@@ -956,7 +1026,7 @@ func file_auth_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_auth_proto_rawDesc), len(file_auth_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

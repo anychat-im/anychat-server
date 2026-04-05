@@ -26,6 +26,9 @@ service AuthService {
   // ChangePassword 修改密码
   rpc ChangePassword(ChangePasswordRequest) returns (common.Empty);
 
+  // ResetPassword 重置密码（忘记密码）
+  rpc ResetPassword(ResetPasswordRequest) returns (common.Empty);
+
   // ValidateToken 验证Token（供gateway调用）
   rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
 }
@@ -106,6 +109,13 @@ message ChangePasswordRequest {
   string user_id = 1;       // 由gateway从JWT提取
   string old_password = 2;
   string new_password = 3;
+}
+
+// ResetPasswordRequest 重置密码请求
+message ResetPasswordRequest {
+  string account = 1;       // 手机号或邮箱
+  string verify_code = 2;   // 验证码
+  string new_password = 3; // 新密码
 }
 
 // ValidateTokenRequest 验证Token请求

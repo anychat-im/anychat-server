@@ -177,6 +177,22 @@ func (s *AuthServer) ChangePassword(ctx context.Context, req *authpb.ChangePassw
 	return &commonpb.Empty{}, nil
 }
 
+// ResetPassword 重置密码（忘记密码）
+func (s *AuthServer) ResetPassword(ctx context.Context, req *authpb.ResetPasswordRequest) (*commonpb.Empty, error) {
+	dtoReq := &dto.ResetPasswordRequest{
+		Account:     req.Account,
+		VerifyCode:  req.VerifyCode,
+		NewPassword: req.NewPassword,
+	}
+
+	err := s.authService.ResetPassword(ctx, dtoReq)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	return &commonpb.Empty{}, nil
+}
+
 // ValidateToken 验证Token（供gateway调用）
 func (s *AuthServer) ValidateToken(ctx context.Context, req *authpb.ValidateTokenRequest) (*authpb.ValidateTokenResponse, error) {
 	// 调用service层
