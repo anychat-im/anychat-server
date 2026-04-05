@@ -1,37 +1,37 @@
 # IM即时通讯后端设计文档
 
-## 1. 背景
+## 文档导航
 
-本文档旨在为AI编程工具提供清晰的后端设计规范，用于实现一个功能完整、可扩展的即时通讯系统。系统采用微服务架构，基于Go语言开发，集成业界成熟的开源组件，支持私聊、群聊、音视频通话、文件传输等核心功能。
+本文档采用 **总-分** 架构设计，通过链接形成导航结构：
 
-## 2. 技术栈
+- **本文档 (backend-design.md)**: 后端总体架构设计入口
+- **各服务总体设计文档**: 指向具体服务的设计
+- **子功能文档**: 逐个拆解每个服务的功能设计
 
-### 2.1 核心技术
-- **开发语言**: Go 1.24+
-- **用户认证**: ZITADEL (身份认证与授权管理)
-- **消息队列**: NATS (实时消息推送与服务间通信)
-- **音视频**: LiveKit (音视频通话与会议)
-- **对象存储**: MinIO (文件、图片、视频存储)
-- **缓存**: Redis 7.0+ (会话缓存、在线状态)
-- **数据库**: PostgreSQL 18.0 (持久化存储)
-- **API网关**: Krakend (接口聚合与路由)
-- **服务通信**: gRPC (微服务间通信)
-- **容器化**: Docker & Docker Compose
-- **文档**: Docsify
-- **客户端SDK**: OpenAPI Generator
+---
 
-### 2.2 开发框架
-- **Web框架**: Gin (HTTP服务)
-- **gRPC框架**: grpc-go
-- **ORM**: GORM (PostgreSQL操作)
-- **配置管理**: Viper
-- **日志**: Zap
-- **监控**: Prometheus + Grafana
-- **链路追踪**: Jaeger
+## 1. 服务目录
 
-## 3. 系统架构
+| 服务 | 目录 | 说明 |
+|------|------|------|
+| Auth Service | [auth/总体设计.md](auth/README.md) | 用户认证服务 |
+| User Service | [user/总体设计.md](user/README.md) | 用户信息管理 |
+| Friend Service | [friend/总体设计.md](friend/README.md) | 好友关系管理 |
+| Group Service | [group/总体设计.md](group/README.md) | 群组管理 |
+| Message Service | [message/总体设计.md](message/README.md) | 消息处理与存储 |
+| Session Service | [session/总体设计.md](session/README.md) | 会话管理 |
+| File Service | [file/总体设计.md](file/README.md) | 文件上传下载 |
+| Push Service | [push/总体设计.md](push/README.md) | 离线推送 |
+| Gateway Service | [gateway/总体设计.md](gateway/README.md) | WebSocket网关 |
+| RTC Service | [rtc/总体设计.md](rtc/README.md) | 音视频通话 |
+| Sync Service | [sync/总体设计.md](sync/README.md) | 数据同步 |
+| Admin Service | [admin/总体设计.md](admin/README.md) | 管理后台服务 |
 
-### 3.1 整体架构图
+---
+
+## 2. 系统架构
+
+### 2.1 整体架构图
 
 ```mermaid
 graph TB
@@ -119,43 +119,224 @@ graph TB
     class Row1,Row2,Row3,InfraRow1,InfraRow2,ExtRow,MonRow transparent
 ```
 
-**架构层次说明：**
+### 2.2 技术栈
 
-1. **客户端层**：多平台客户端通过 HTTPS/WebSocket 连接
-2. **网关层**：Gateway Service (8080) 统一接入，负责 WebSocket 长连接和路由
-3. **微服务层**：12个独立服务，每个暴露 HTTP (8xxx) 和 gRPC (9xxx) 端口
-   - 第一行：Auth、User、Friend、Group Service
-   - 第二行：Message、Session、File、Push Service
-   - 第三行：LiveKit、Sync、Admin Service
-4. **基础设施层**：
-   - PostgreSQL 18.0 (持久化) | Redis 7.0+ (缓存/会话)
-   - NATS JetStream (消息队列) | MinIO (对象存储)
-5. **外部服务 & 监控**：
-   - ZITADEL (认证) | LiveKit (音视频)
-   - Prometheus + Grafana + Jaeger
+| 类别 | 技术 |
+|------|------|
+| 开发语言 | Go 1.24+ |
+| Web框架 | Gin |
+| gRPC框架 | grpc-go |
+| ORM | GORM |
+| 用户认证 | ZITADEL |
+| 消息队列 | NATS JetStream |
+| 音视频 | LiveKit |
+| 对象存储 | MinIO |
+| 缓存 | Redis 7.0+ |
+| 数据库 | PostgreSQL 18.0 |
+| API网关 | Krakend |
+| 容器化 | Docker & Docker Compose |
 
-**通信方式：**
-- 客户端 ↔ 网关：HTTPS/WebSocket
-- 网关 ↔ 服务：gRPC
-- 服务间通信：gRPC (同步) / NATS (异步)
+---
 
+## 3. 各服务详细设计
 
-### 3.2 微服务架构说明
+### 3.1 Auth Service (认证服务)
 
-系统采用微服务架构，各服务职责单一、独立部署、通过gRPC通信。主要微服务包括：
+**职责**: 用户注册、登录、Token管理、多端登录策略
 
-1. **Auth Service**: 用户认证服务（基于ZITADEL）
-2. **User Service**: 用户信息管理
-3. **Friend Service**: 好友关系管理
-4. **Group Service**: 群组管理
-5. **Message Service**: 消息处理与存储
-6. **Session Service**: 会话管理
-7. **File Service**: 文件上传下载（基于MinIO）
-8. **Push Service**: 离线推送
-9. **Gateway Service**: WebSocket长连接网关
-10. **RTC Service**: 音视频服务封装
-11. **Sync Service**: 数据同步服务
-12. **Admin Service**: 管理后台服务
+**核心功能**:
+- 用户注册（手机号/邮箱）
+- 用户登录（账号密码/验证码）
+- Token管理（JWT）
+- 多端登录策略
+
+**详细设计**:
+- [用户注册](auth/register.md)
+- [用户登录](auth/login.md)
+- [Token管理](auth/token.md)
+- [会话管理](auth/session.md)
+- [设备管理](auth/device.md)
+- [密码管理](auth/password.md)
+- [验证码](auth/verification-code.md)
+
+---
+
+### 3.2 User Service (用户管理服务)
+
+**职责**: 用户资料管理、个人设置、二维码
+
+**核心功能**:
+- 用户资料管理
+- 个人设置
+- 二维码功能
+- 推送Token管理
+
+**详细设计**:
+- [用户资料](user/profile.md)
+- [个人设置](user/settings.md)
+- [二维码](user/qrcode.md)
+- [推送Token](user/push-token.md)
+
+---
+
+### 3.3 Friend Service (好友管理服务)
+
+**职责**: 好友关系、好友申请、黑名单
+
+**核心功能**:
+- 好友搜索与添加
+- 好友管理
+- 黑名单管理
+- 通讯录同步
+
+**详细设计**:
+- [好友关系](friend/friendship.md)
+- [好友申请](friend/request.md)
+- [黑名单](friend/blacklist.md)
+
+---
+
+### 3.4 Group Service (群组管理服务)
+
+**职责**: 群组创建、成员管理、群设置
+
+**核心功能**:
+- 群组创建与解散
+- 成员管理
+- 群主与管理员
+- 群组设置
+
+**详细设计**:
+- [群组管理](group/group.md)
+- [群成员管理](group/member.md)
+- [群设置](group/settings.md)
+
+---
+
+### 3.5 Message Service (消息服务)
+
+**职责**: 消息存储、消息路由、消息状态管理
+
+**核心功能**:
+- 消息发送
+- 消息类型支持
+- 消息状态管理
+- 消息操作
+- 消息搜索
+
+**详细设计**:
+- [消息发送](message/send.md)
+- [消息撤回](message/recall.md)
+- [已读回执](message/read-receipt.md)
+- [消息队列架构](message/message-service-architecture.md)
+- [消息队列对比](message/message-queue-comparison.md)
+
+---
+
+### 3.6 Session Service (会话管理服务)
+
+**职责**: 会话列表、会话状态、未读数管理
+
+**核心功能**:
+- 会话管理
+- 会话状态
+- 未读数管理
+
+**详细设计**:
+- [会话管理](session/session.md)
+
+---
+
+### 3.7 File Service (文件服务)
+
+**职责**: 文件上传、下载、管理
+
+**核心功能**:
+- 文件上传
+- 文件下载
+- 文件管理
+
+**详细设计**:
+- [文件上传](file/upload.md)
+
+---
+
+### 3.8 Push Service (推送服务)
+
+**职责**: 离线推送、通知管理
+
+**核心功能**:
+- 离线推送
+- 推送类型
+- 推送策略
+
+**详细设计**:
+- [推送服务](push/push.md)
+- [推送接口](push-notification-interfaces.md)
+
+---
+
+### 3.9 Gateway Service (网关服务)
+
+**职责**: WebSocket长连接管理、消息实时推送
+
+**核心功能**:
+- 连接管理
+- 消息推送
+- 在线状态
+
+**详细设计**:
+- [WebSocket](gateway/websocket.md)
+
+---
+
+### 3.10 RTC Service (音视频服务)
+
+**职责**: 音视频通话、视频会议
+
+**核心功能**:
+- 一对一音视频
+- 群组音视频
+- 视频会议
+
+**详细设计**:
+- [音视频通话](rtc/call.md)
+- [视频会议](rtc/meeting.md)
+
+---
+
+### 3.11 Sync Service (数据同步服务)
+
+**职责**: 跨端数据同步、增量同步
+
+**详细设计**:
+- [数据同步](sync/sync.md)
+
+---
+
+### 3.12 Admin Service (管理后台服务)
+
+**职责**: 系统管理、用户管理、数据统计
+
+**详细设计**:
+- [管理后台](admin/admin.md)
+
+---
+
+## 4. 架构说明
+
+**架构层次**:
+
+1. **客户端层**: 多平台客户端通过 HTTPS/WebSocket 连接
+2. **网关层**: Gateway Service (8080) 统一接入
+3. **微服务层**: 12个独立服务
+4. **基础设施层**: PostgreSQL、Redis、NATS、MinIO
+5. **外部服务**: ZITADEL、LiveKit、监控组件
+
+**通信方式**:
+- 客户端 ↔ 网关: HTTPS/WebSocket
+- 网关 ↔ 服务: gRPC
+- 服务间通信: gRPC (同步) / NATS (异步)
 
 ## 4. 核心模块功能设计
 
