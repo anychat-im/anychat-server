@@ -5,9 +5,9 @@
 验证码能力用于认证相关场景的人机确认与目标归属校验，当前覆盖以下用途：
 
 - `register`：注册账号
-- `reset_password`：重置密码
-- `bind_phone` / `change_phone`：绑定或更换手机号
-- `bind_email` / `change_email`：绑定或更换邮箱
+- `reset_password`：重置密码（已实现）
+- `bind_phone` / `change_phone`：绑定或更换手机号（设计文档：[bind-phone.md](bind-phone.md)、[change-phone.md](change-phone.md)）
+- `bind_email` / `change_email`：绑定或更换邮箱（设计文档：[bind-email.md](bind-email.md)、[change-email.md](change-email.md)）
 - `login`：必要时可扩展为高风险登录校验
 
 该能力由 `auth-service` 负责，对外通过 Auth 接口暴露，对内作为认证流程的一部分完成校验与消费，不额外提供独立公共“验码接口”。

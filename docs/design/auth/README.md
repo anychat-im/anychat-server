@@ -21,6 +21,10 @@
 | 设备管理 | [device.md](device.md) | 设备登录记录 |
 | 密码管理 | [password.md](password.md) | 修改/重置密码 |
 | 验证码 | [verification-code.md](verification-code.md) | 验证码发送与验证 |
+| 绑定手机号 | [bind-phone.md](bind-phone.md) | 绑定手机号 |
+| 更换手机号 | [change-phone.md](change-phone.md) | 更换手机号 |
+| 绑定邮箱 | [bind-email.md](bind-email.md) | 绑定邮箱 |
+| 更换邮箱 | [change-email.md](change-email.md) | 更换邮箱 |
 
 ## 3. 数据模型
 
