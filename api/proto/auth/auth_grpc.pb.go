@@ -20,12 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Register_FullMethodName       = "/anychat.auth.AuthService/Register"
-	AuthService_Login_FullMethodName          = "/anychat.auth.AuthService/Login"
-	AuthService_Logout_FullMethodName         = "/anychat.auth.AuthService/Logout"
-	AuthService_RefreshToken_FullMethodName   = "/anychat.auth.AuthService/RefreshToken"
-	AuthService_ChangePassword_FullMethodName = "/anychat.auth.AuthService/ChangePassword"
-	AuthService_ValidateToken_FullMethodName  = "/anychat.auth.AuthService/ValidateToken"
+	AuthService_SendVerificationCode_FullMethodName = "/anychat.auth.AuthService/SendVerificationCode"
+	AuthService_Register_FullMethodName             = "/anychat.auth.AuthService/Register"
+	AuthService_Login_FullMethodName                = "/anychat.auth.AuthService/Login"
+	AuthService_Logout_FullMethodName               = "/anychat.auth.AuthService/Logout"
+	AuthService_RefreshToken_FullMethodName         = "/anychat.auth.AuthService/RefreshToken"
+	AuthService_ChangePassword_FullMethodName       = "/anychat.auth.AuthService/ChangePassword"
+	AuthService_ValidateToken_FullMethodName        = "/anychat.auth.AuthService/ValidateToken"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -34,6 +35,8 @@ const (
 //
 // AuthService 认证服务
 type AuthServiceClient interface {
+	// SendVerificationCode 发送验证码
+	SendVerificationCode(ctx context.Context, in *SendVerificationCodeRequest, opts ...grpc.CallOption) (*SendVerificationCodeResponse, error)
 	// Register 用户注册
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	// Login 用户登录
@@ -54,6 +57,16 @@ type authServiceClient struct {
 
 func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 	return &authServiceClient{cc}
+}
+
+func (c *authServiceClient) SendVerificationCode(ctx context.Context, in *SendVerificationCodeRequest, opts ...grpc.CallOption) (*SendVerificationCodeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SendVerificationCodeResponse)
+	err := c.cc.Invoke(ctx, AuthService_SendVerificationCode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *authServiceClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
@@ -122,6 +135,8 @@ func (c *authServiceClient) ValidateToken(ctx context.Context, in *ValidateToken
 //
 // AuthService 认证服务
 type AuthServiceServer interface {
+	// SendVerificationCode 发送验证码
+	SendVerificationCode(context.Context, *SendVerificationCodeRequest) (*SendVerificationCodeResponse, error)
 	// Register 用户注册
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	// Login 用户登录
@@ -144,6 +159,9 @@ type AuthServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthServiceServer struct{}
 
+func (UnimplementedAuthServiceServer) SendVerificationCode(context.Context, *SendVerificationCodeRequest) (*SendVerificationCodeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SendVerificationCode not implemented")
+}
 func (UnimplementedAuthServiceServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Register not implemented")
 }
@@ -181,6 +199,24 @@ func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AuthService_ServiceDesc, srv)
+}
+
+func _AuthService_SendVerificationCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendVerificationCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).SendVerificationCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_SendVerificationCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).SendVerificationCode(ctx, req.(*SendVerificationCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -298,6 +334,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "anychat.auth.AuthService",
 	HandlerType: (*AuthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SendVerificationCode",
+			Handler:    _AuthService_SendVerificationCode_Handler,
+		},
 		{
 			MethodName: "Register",
 			Handler:    _AuthService_Register_Handler,

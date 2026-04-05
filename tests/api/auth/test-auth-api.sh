@@ -22,6 +22,7 @@ TEST_PHONE="138${TIMESTAMP:(-8)}"
 TEST_EMAIL="test${TIMESTAMP}@example.com"
 TEST_PASSWORD="Test@123456"
 TEST_DEVICE_ID="test-device-${TIMESTAMP}"
+FIXED_CODE="${VERIFY_DEBUG_FIXED_CODE:-123456}"
 
 # 全局变量
 ACCESS_TOKEN=""
@@ -91,6 +92,33 @@ check_response() {
     fi
 }
 
+send_register_code() {
+    send_code "${TEST_PHONE}" "sms" "register" "${TEST_DEVICE_ID}"
+}
+
+make_phone() {
+    local seed=${1:-0}
+    printf "138%08d" $(((TIMESTAMP + seed) % 100000000))
+}
+
+send_code() {
+    local target=$1
+    local target_type=$2
+    local purpose=$3
+    local device_id=${4:-$TEST_DEVICE_ID}
+    local data=$(cat <<EOF
+{
+    "target": "${target}",
+    "targetType": "${target_type}",
+    "purpose": "${purpose}",
+    "deviceId": "${device_id}"
+}
+EOF
+)
+
+    http_post "${API_BASE}/auth/send-code" "$data"
+}
+
 # ========================================
 # 测试用例
 # ========================================
@@ -112,15 +140,189 @@ test_health_check() {
     fi
 }
 
-# 1. 用户注册
+# 1. 发送短信验证码
+test_send_sms_code() {
+    print_header "1. 发送短信验证码"
+
+    local phone=$(make_phone 1)
+    local response=$(send_code "$phone" "sms" "register" "${TEST_DEVICE_ID}-sms")
+    print_info "响应: $response"
+
+    if check_response "$response"; then
+        local code_id=$(echo "$response" | jq -r '.data.codeId // empty')
+        print_success "短信验证码发送成功"
+        print_info "CodeId: ${code_id}"
+        return 0
+    fi
+
+    return 1
+}
+
+# 2. 发送邮箱验证码
+test_send_email_code() {
+    print_header "2. 发送邮箱验证码"
+
+    local email="send_${TIMESTAMP}@example.com"
+    local response=$(send_code "$email" "email" "register" "${TEST_DEVICE_ID}-email")
+    print_info "响应: $response"
+
+    if check_response "$response"; then
+        local code_id=$(echo "$response" | jq -r '.data.codeId // empty')
+        print_success "邮箱验证码发送成功"
+        print_info "CodeId: ${code_id}"
+        return 0
+    fi
+
+    return 1
+}
+
+# 3. 目标格式错误
+test_invalid_target_format() {
+    print_header "3. 目标格式错误"
+
+    local response=$(send_code "invalid-phone" "sms" "register" "${TEST_DEVICE_ID}-invalid")
+    print_info "响应: $response"
+
+    local code=$(echo "$response" | jq -r '.code // -1')
+    if [ "$code" != "0" ]; then
+        print_success "无效目标格式被正确拒绝"
+        return 0
+    fi
+
+    print_error "无效目标格式不应成功"
+    return 1
+}
+
+# 4. 发送频率限制
+test_rate_limit() {
+    print_header "4. 发送频率限制"
+
+    local target="rate_limit_${TIMESTAMP}@example.com"
+    local failed_count=0
+
+    for _ in 1 2 3; do
+        local response=$(send_code "$target" "email" "register" "${TEST_DEVICE_ID}-rate")
+        local code=$(echo "$response" | jq -r '.code // -1')
+        if [ "$code" != "0" ]; then
+            ((failed_count+=1))
+        fi
+        sleep 0.5
+    done
+
+    if [ $failed_count -gt 0 ]; then
+        print_success "频率限制生效 (触发 ${failed_count} 次)"
+        return 0
+    fi
+
+    print_error "未触发频率限制"
+    return 1
+}
+
+# 5. 使用错误验证码注册
+test_register_with_wrong_code() {
+    print_header "5. 使用错误验证码注册"
+
+    local email="wrong_code_${TIMESTAMP}@example.com"
+    local device_id="${TEST_DEVICE_ID}-wrong"
+    local send_response=$(send_code "$email" "email" "register" "$device_id")
+    print_info "发送验证码响应: $send_response"
+    if ! check_response "$send_response"; then
+        return 1
+    fi
+
+    local data=$(cat <<EOF
+{
+    "email": "${email}",
+    "password": "${TEST_PASSWORD}",
+    "verifyCode": "000000",
+    "nickname": "WrongCodeUser${TIMESTAMP}",
+    "deviceType": "Web",
+    "deviceId": "${device_id}",
+    "clientVersion": "1.0.0"
+}
+EOF
+)
+
+    local response=$(http_post "${API_BASE}/auth/register" "$data")
+    print_info "响应: $response"
+
+    local code=$(echo "$response" | jq -r '.code // -1')
+    if [ "$code" != "0" ]; then
+        print_success "错误验证码被正确拒绝"
+        return 0
+    fi
+
+    print_error "错误验证码不应注册成功"
+    return 1
+}
+
+# 6. 使用固定验证码注册
+test_register_with_fixed_code() {
+    print_header "6. 使用固定验证码注册"
+
+    local email="success_${TIMESTAMP}@example.com"
+    local device_id="${TEST_DEVICE_ID}-success"
+    local send_response=$(send_code "$email" "email" "register" "$device_id")
+    print_info "发送验证码响应: $send_response"
+    if ! check_response "$send_response"; then
+        return 1
+    fi
+
+    local data=$(cat <<EOF
+{
+    "email": "${email}",
+    "password": "${TEST_PASSWORD}",
+    "verifyCode": "${FIXED_CODE}",
+    "nickname": "VerifyFlowUser${TIMESTAMP}",
+    "deviceType": "Web",
+    "deviceId": "${device_id}",
+    "clientVersion": "1.0.0"
+}
+EOF
+)
+
+    local response=$(http_post "${API_BASE}/auth/register" "$data")
+    print_info "响应: $response"
+
+    if check_response "$response"; then
+        print_success "固定验证码注册成功"
+        return 0
+    fi
+
+    return 1
+}
+
+# 7. 发送重置密码验证码
+test_send_reset_password_code() {
+    print_header "7. 发送重置密码验证码"
+
+    local phone=$(make_phone 2)
+    local response=$(send_code "$phone" "sms" "reset_password" "${TEST_DEVICE_ID}-reset")
+    print_info "响应: $response"
+
+    if check_response "$response"; then
+        print_success "重置密码验证码发送成功"
+        return 0
+    fi
+
+    return 1
+}
+
+# 8. 用户注册
 test_register() {
-    print_header "1. 用户注册"
+    print_header "8. 用户注册"
+
+    local send_response=$(send_register_code)
+    print_info "发送验证码响应: $send_response"
+    if ! check_response "$send_response"; then
+        return 1
+    fi
 
     local data=$(cat <<EOF
 {
     "phoneNumber": "${TEST_PHONE}",
     "password": "${TEST_PASSWORD}",
-    "verifyCode": "123456",
+    "verifyCode": "${FIXED_CODE}",
     "nickname": "测试用户${TIMESTAMP}",
     "deviceType": "iOS",
     "deviceId": "${TEST_DEVICE_ID}",
@@ -153,9 +355,9 @@ EOF
     fi
 }
 
-# 2. 用户登录
+# 9. 用户登录
 test_login() {
-    print_header "2. 用户登录"
+    print_header "9. 用户登录"
 
     local data=$(cat <<EOF
 {
@@ -191,9 +393,9 @@ EOF
     fi
 }
 
-# 3. 修改密码
+# 10. 修改密码
 test_change_password() {
-    print_header "3. 修改密码"
+    print_header "10. 修改密码"
 
     local new_password="NewPass@123456"
     local data=$(cat <<EOF
@@ -218,9 +420,9 @@ EOF
     fi
 }
 
-# 4. 使用新密码登录验证
+# 11. 使用新密码登录验证
 test_login_with_new_password() {
-    print_header "4. 使用新密码登录验证"
+    print_header "11. 使用新密码登录验证"
 
     local data=$(cat <<EOF
 {
@@ -249,9 +451,9 @@ EOF
     fi
 }
 
-# 5. 刷新Token
+# 12. 刷新Token
 test_refresh_token() {
-    print_header "5. 刷新Token"
+    print_header "12. 刷新Token"
 
     local data=$(cat <<EOF
 {
@@ -285,9 +487,9 @@ EOF
     fi
 }
 
-# 6. 登出
+# 13. 登出
 test_logout() {
-    print_header "6. 登出"
+    print_header "13. 登出"
 
     local data=$(cat <<EOF
 {
@@ -332,6 +534,21 @@ main() {
     local failed=0
 
     test_health_check || ((failed++))
+    sleep 1
+    test_send_sms_code || ((failed++))
+    sleep 1
+    test_send_email_code || ((failed++))
+    sleep 1
+    test_invalid_target_format || ((failed++))
+    sleep 1
+    test_rate_limit || ((failed++))
+    sleep 1
+    test_register_with_wrong_code || ((failed++))
+    sleep 1
+    test_register_with_fixed_code || ((failed++))
+    sleep 1
+    test_send_reset_password_code || ((failed++))
+    sleep 1
     test_register || ((failed++))
     sleep 1
     test_login || ((failed++))

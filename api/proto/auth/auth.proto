@@ -8,6 +8,9 @@ option go_package = "github.com/anychat/server/api/proto/auth;authpb";
 
 // AuthService 认证服务
 service AuthService {
+  // SendVerificationCode 发送验证码
+  rpc SendVerificationCode(SendVerificationCodeRequest) returns (SendVerificationCodeResponse);
+
   // Register 用户注册
   rpc Register(RegisterRequest) returns (RegisterResponse);
 
@@ -25,6 +28,21 @@ service AuthService {
 
   // ValidateToken 验证Token（供gateway调用）
   rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+}
+
+// SendVerificationCodeRequest 发送验证码请求
+message SendVerificationCodeRequest {
+  string target = 1;         // 手机号或邮箱
+  string target_type = 2;    // sms/email
+  string purpose = 3;        // register/reset_password/bind_phone/change_phone/bind_email/change_email
+  string device_id = 4;
+  string ip_address = 5;
+}
+
+// SendVerificationCodeResponse 发送验证码响应
+message SendVerificationCodeResponse {
+  string code_id = 1;
+  int64 expires_in = 2;
 }
 
 // RegisterRequest 注册请求

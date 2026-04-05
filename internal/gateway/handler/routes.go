@@ -2,8 +2,8 @@ package handler
 
 import (
 	"github.com/anychat/server/internal/gateway/client"
-	gwnotification "github.com/anychat/server/internal/gateway/notification"
 	gwmiddleware "github.com/anychat/server/internal/gateway/middleware"
+	gwnotification "github.com/anychat/server/internal/gateway/notification"
 	"github.com/anychat/server/internal/gateway/websocket"
 	"github.com/anychat/server/pkg/jwt"
 	"github.com/gin-gonic/gin"
@@ -22,7 +22,6 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 	sessionHandler := NewSessionHandler(clientManager)
 	syncHandler := NewSyncHandler(clientManager)
 	rtcHandler := NewRTCHandler(clientManager)
-
 	// API v1
 	v1 := r.Group("/api/v1")
 	{
@@ -31,6 +30,7 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 		// 公开路由（无需认证）
 		auth := v1.Group("/auth")
 		{
+			auth.POST("/send-code", authHandler.SendCode)
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
 			auth.POST("/refresh", authHandler.RefreshToken)

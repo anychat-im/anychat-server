@@ -25,6 +25,27 @@ func NewAuthServer(authService service.AuthService) *AuthServer {
 	}
 }
 
+// SendVerificationCode 发送验证码
+func (s *AuthServer) SendVerificationCode(ctx context.Context, req *authpb.SendVerificationCodeRequest) (*authpb.SendVerificationCodeResponse, error) {
+	dtoReq := &dto.SendVerificationCodeRequest{
+		Target:     req.Target,
+		TargetType: req.TargetType,
+		Purpose:    req.Purpose,
+		DeviceID:   req.DeviceId,
+		IPAddress:  req.IpAddress,
+	}
+
+	resp, err := s.authService.SendVerificationCode(ctx, dtoReq)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	return &authpb.SendVerificationCodeResponse{
+		CodeId:    resp.CodeID,
+		ExpiresIn: resp.ExpiresIn,
+	}, nil
+}
+
 // Register 用户注册
 func (s *AuthServer) Register(ctx context.Context, req *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
 	// Proto -> DTO 转换
@@ -193,6 +214,16 @@ func convertError(err error) error {
 			return status.Error(codes.InvalidArgument, bizErr.Message)
 		case errors.CodeAccountDisabled:
 			return status.Error(codes.PermissionDenied, bizErr.Message)
+		case errors.CodeTargetFormatInvalid,
+			errors.CodeVerifyCodeError,
+			errors.CodeVerifyCodeExpired,
+			errors.CodeVerifyCodeAlreadyUsed,
+			errors.CodeVerifyCodeNotFound:
+			return status.Error(codes.InvalidArgument, bizErr.Message)
+		case errors.CodeSendRateLimited,
+			errors.CodeSendLimitReached,
+			errors.CodeVerifyAttemptsExceeded:
+			return status.Error(codes.ResourceExhausted, bizErr.Message)
 		case errors.CodeRefreshTokenInvalid, errors.CodeRefreshTokenExpired:
 			return status.Error(codes.Unauthenticated, bizErr.Message)
 		default:

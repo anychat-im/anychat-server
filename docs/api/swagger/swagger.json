@@ -962,6 +962,70 @@
                 }
             }
         },
+        "/auth/send-code": {
+            "post": {
+                "description": "发送注册、找回密码或绑定场景使用的短信/邮箱验证码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "认证"
+                ],
+                "summary": "发送验证码",
+                "parameters": [
+                    {
+                        "description": "验证码请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.SendCodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "发送成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_gateway_handler.SendCodeResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/files": {
             "get": {
                 "security": [
@@ -5179,6 +5243,49 @@
                 "verifyCode": {
                     "type": "string",
                     "example": "123456"
+                }
+            }
+        },
+        "internal_gateway_handler.SendCodeRequest": {
+            "type": "object",
+            "required": [
+                "purpose",
+                "target",
+                "targetType"
+            ],
+            "properties": {
+                "deviceId": {
+                    "type": "string",
+                    "example": "device-uuid-123"
+                },
+                "purpose": {
+                    "type": "string",
+                    "example": "register"
+                },
+                "target": {
+                    "type": "string",
+                    "example": "13800138000"
+                },
+                "targetType": {
+                    "type": "string",
+                    "enum": [
+                        "sms",
+                        "email"
+                    ],
+                    "example": "sms"
+                }
+            }
+        },
+        "internal_gateway_handler.SendCodeResponse": {
+            "type": "object",
+            "properties": {
+                "codeId": {
+                    "type": "string",
+                    "example": "vc_20260405_xxx"
+                },
+                "expiresIn": {
+                    "type": "integer",
+                    "example": 300
                 }
             }
         },

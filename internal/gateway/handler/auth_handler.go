@@ -15,6 +15,14 @@ type AuthHandler struct {
 	clientManager *client.Manager
 }
 
+// SendCodeRequest 发送验证码请求
+type SendCodeRequest struct {
+	Target     string `json:"target" binding:"required" example:"13800138000"`
+	TargetType string `json:"targetType" binding:"required" example:"sms" enums:"sms,email"`
+	Purpose    string `json:"purpose" binding:"required" example:"register"`
+	DeviceID   string `json:"deviceId" example:"device-uuid-123"`
+}
+
 // RegisterRequest 用户注册请求
 type RegisterRequest struct {
 	PhoneNumber   *string `json:"phoneNumber" example:"13800138000"`
@@ -54,11 +62,17 @@ type ChangePasswordRequest struct {
 
 // AuthResponse 认证响应
 type AuthResponse struct {
-	UserID       string      `json:"userId" example:"user-123"`
-	AccessToken  string      `json:"accessToken" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
-	RefreshToken string      `json:"refreshToken" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
-	ExpiresIn    int64       `json:"expiresIn" example:"7200"`
-	User         *UserInfo   `json:"user,omitempty"`
+	UserID       string    `json:"userId" example:"user-123"`
+	AccessToken  string    `json:"accessToken" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+	RefreshToken string    `json:"refreshToken" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+	ExpiresIn    int64     `json:"expiresIn" example:"7200"`
+	User         *UserInfo `json:"user,omitempty"`
+}
+
+// SendCodeResponse 发送验证码响应
+type SendCodeResponse struct {
+	CodeID    string `json:"codeId" example:"vc_20260405_xxx"`
+	ExpiresIn int64  `json:"expiresIn" example:"300"`
 }
 
 // UserInfo 用户信息
@@ -75,6 +89,44 @@ func NewAuthHandler(clientManager *client.Manager) *AuthHandler {
 	return &AuthHandler{
 		clientManager: clientManager,
 	}
+}
+
+// SendCode 发送验证码
+// @Summary      发送验证码
+// @Description  发送注册、找回密码或绑定场景使用的短信/邮箱验证码
+// @Tags         认证
+// @Accept       json
+// @Produce      json
+// @Param        request  body      SendCodeRequest  true  "验证码请求"
+// @Success      200      {object}  response.Response{data=SendCodeResponse}  "发送成功"
+// @Failure      400      {object}  response.Response  "参数错误"
+// @Failure      429      {object}  response.Response  "请求过于频繁"
+// @Failure      500      {object}  response.Response  "服务器错误"
+// @Router       /auth/send-code [post]
+func (h *AuthHandler) SendCode(c *gin.Context) {
+	var req SendCodeRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ParamError(c, err.Error())
+		return
+	}
+
+	resp, err := h.clientManager.Auth().SendVerificationCode(c.Request.Context(), &authpb.SendVerificationCodeRequest{
+		Target:     req.Target,
+		TargetType: req.TargetType,
+		Purpose:    req.Purpose,
+		DeviceId:   req.DeviceID,
+		IpAddress:  c.ClientIP(),
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+
+	response.Success(c, gin.H{
+		"codeId":    resp.CodeId,
+		"expiresIn": resp.ExpiresIn,
+	})
 }
 
 // Register 用户注册
@@ -307,6 +359,8 @@ func handleGRPCError(c *gin.Context, err error) {
 		response.Error(c, 401, st.Message())
 	case codes.PermissionDenied:
 		response.Error(c, 403, st.Message())
+	case codes.ResourceExhausted:
+		response.Error(c, 429, st.Message())
 	default:
 		response.InternalError(c, st.Message())
 	}

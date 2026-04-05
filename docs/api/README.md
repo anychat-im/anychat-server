@@ -95,11 +95,17 @@ GATEWAY_URL=http://your-server:8080 ./tests/api/test-all.sh
 **测试内容：**
 
 **Auth Service API** (`tests/api/auth/test-auth-api.sh`):
+- ✓ 发送短信/邮箱验证码
+- ✓ 目标格式校验与发送频率限制
+- ✓ 错误验证码拒绝、固定验证码注册
+- ✓ 重置密码场景验证码发送
 - ✓ 用户注册
 - ✓ 用户登录
 - ✓ Token 刷新
 - ✓ 修改密码
 - ✓ 用户登出
+
+> 验证码流程已合并到 Auth 测试脚本，不再维护单独的 `tests/api/verify/test-verify-api.sh`。
 
 **User Service API** (`tests/api/user/test-user-api.sh`):
 - ✓ 获取个人资料
@@ -123,7 +129,17 @@ GATEWAY_URL=http://your-server:8080 ./tests/api/test-all.sh
 ### 使用 cURL 测试 HTTP API
 
 ```bash
-# 1. 用户注册
+# 1. 发送注册验证码
+curl -X POST http://localhost:8080/api/v1/auth/send-code \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target": "13800138000",
+    "targetType": "sms",
+    "purpose": "register",
+    "deviceId": "device-001"
+  }'
+
+# 2. 用户注册（开发环境默认固定验证码为 123456，可通过 VERIFY_DEBUG_FIXED_CODE 覆盖）
 curl -X POST http://localhost:8080/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -135,7 +151,7 @@ curl -X POST http://localhost:8080/api/v1/auth/register \
     "deviceId": "device-001"
   }'
 
-# 2. 用户登录
+# 3. 用户登录
 curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
@@ -145,10 +161,45 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
     "deviceId": "device-001"
   }'
 
-# 3. 获取个人资料（需要替换 YOUR_ACCESS_TOKEN）
+# 4. 获取个人资料（需要替换 YOUR_ACCESS_TOKEN）
 curl -X GET http://localhost:8080/api/v1/users/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
+
+### 邮箱验证码联调（SMTP）
+
+如果要让 `/api/v1/auth/send-code` 真实发送邮箱验证码，请先为 `auth-service` 配置 SMTP：
+
+```bash
+export EMAIL_HOST=smtp.qq.com
+export EMAIL_PORT=465
+export EMAIL_USERNAME=your_account@qq.com
+export EMAIL_PASSWORD=your_smtp_auth_code
+export EMAIL_FROM_NAME=AnyChat
+export EMAIL_FROM_ADDRESS=your_account@qq.com
+```
+
+说明：
+
+- `EMAIL_PORT=465` 表示 SMTP over SSL
+- `EMAIL_PORT=587` 表示 SMTP + STARTTLS
+- `EMAIL_PASSWORD` 应填写邮箱服务商提供的 SMTP 授权码，而不是登录密码
+- `EMAIL_FROM_ADDRESS` 最好与 `EMAIL_USERNAME` 保持一致
+
+然后重启 `auth-service`，再调用邮箱发码接口：
+
+```bash
+curl -X POST http://localhost:8080/api/v1/auth/send-code \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target": "you@example.com",
+    "targetType": "email",
+    "purpose": "register",
+    "deviceId": "web-mail-test"
+  }'
+```
+
+> 如果 `EMAIL_HOST` 未配置或仍为默认占位值，开发环境下接口仍会返回成功，但不会真正发送邮件。
 
 ### 使用 grpcurl 测试 gRPC API
 

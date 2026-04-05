@@ -12,7 +12,7 @@ api/
 ├── common.sh           # 共享函数库（HTTP请求、打印函数等）
 ├── test-all.sh         # 运行所有API测试的入口脚本
 ├── auth/
-│   └── test-auth-api.sh      # Auth Service API测试（7个用例）
+│   └── test-auth-api.sh      # Auth Service API测试（含验证码流程）
 ├── user/
 │   └── test-user-api.sh      # User Service API测试（9个用例）
 ├── friend/
@@ -35,14 +35,24 @@ api/
 
 ## 测试范围
 
-### Auth Service (7个测试用例)
+### Auth Service (14个测试用例)
 - 健康检查
+- 发送短信验证码
+- 发送邮箱验证码
+- 无效目标格式校验
+- 验证码发送频率限制
+- 错误验证码注册失败
+- 固定验证码注册成功
+- 重置密码验证码发送
 - 用户注册
 - 用户登录
 - 修改密码
 - 新密码登录验证
 - 刷新Token
 - 登出
+
+> 验证码发送/消费相关测试已合并到 `tests/api/auth/test-auth-api.sh`，不再单独维护 verify 测试目录。
+> 若需要验证真实邮箱发信，请先为 `auth-service` 配置 `verify.email.*` / `EMAIL_*` SMTP 参数。
 
 ### User Service (9个测试用例)
 - 获取个人资料

@@ -7,8 +7,8 @@ import (
 	filepb "github.com/anychat/server/api/proto/file"
 	friendpb "github.com/anychat/server/api/proto/friend"
 	grouppb "github.com/anychat/server/api/proto/group"
-	rtcpb "github.com/anychat/server/api/proto/rtc"
 	messagepb "github.com/anychat/server/api/proto/message"
+	rtcpb "github.com/anychat/server/api/proto/rtc"
 	sessionpb "github.com/anychat/server/api/proto/session"
 	syncpb "github.com/anychat/server/api/proto/sync"
 	userpb "github.com/anychat/server/api/proto/user"
@@ -20,20 +20,20 @@ import (
 
 // Manager gRPC客户端管理器
 type Manager struct {
-	authConn     *grpc.ClientConn
-	userConn     *grpc.ClientConn
-	friendConn   *grpc.ClientConn
-	groupConn    *grpc.ClientConn
-	fileConn     *grpc.ClientConn
+	authConn      *grpc.ClientConn
+	userConn      *grpc.ClientConn
+	friendConn    *grpc.ClientConn
+	groupConn     *grpc.ClientConn
+	fileConn      *grpc.ClientConn
 	messageConn   *grpc.ClientConn
 	sessionConn   *grpc.ClientConn
 	syncConn      *grpc.ClientConn
 	rtcConn       *grpc.ClientConn
-	authClient   authpb.AuthServiceClient
-	userClient   userpb.UserServiceClient
-	friendClient friendpb.FriendServiceClient
-	groupClient  grouppb.GroupServiceClient
-	fileClient   filepb.FileServiceClient
+	authClient    authpb.AuthServiceClient
+	userClient    userpb.UserServiceClient
+	friendClient  friendpb.FriendServiceClient
+	groupClient   grouppb.GroupServiceClient
+	fileClient    filepb.FileServiceClient
 	messageClient messagepb.MessageServiceClient
 	sessionClient sessionpb.SessionServiceClient
 	syncClient    syncpb.SyncServiceClient

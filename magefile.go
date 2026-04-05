@@ -455,4 +455,3 @@ func (Docs) Validate() error {
 func ensureSwaggerDir() error {
 	return os.MkdirAll(swaggerDir, 0755)
 }
-

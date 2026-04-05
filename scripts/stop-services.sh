@@ -58,7 +58,7 @@ echo ""
 print_info "端口状态检查:"
 for port in \
     9001 9002 9003 9004 9005 9006 9007 9008 9009 9010 9011 \
-    8011 8080; do
+    8080; do
     if lsof -i :$port 2>/dev/null | grep LISTEN > /dev/null; then
         echo "  端口 $port: 仍被占用"
     else

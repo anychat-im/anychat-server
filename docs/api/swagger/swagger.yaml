@@ -407,6 +407,37 @@ definitions:
     - password
     - verifyCode
     type: object
+  internal_gateway_handler.SendCodeRequest:
+    properties:
+      deviceId:
+        example: device-uuid-123
+        type: string
+      purpose:
+        example: register
+        type: string
+      target:
+        example: "13800138000"
+        type: string
+      targetType:
+        enum:
+        - sms
+        - email
+        example: sms
+        type: string
+    required:
+    - purpose
+    - target
+    - targetType
+    type: object
+  internal_gateway_handler.SendCodeResponse:
+    properties:
+      codeId:
+        example: vc_20260405_xxx
+        type: string
+      expiresIn:
+        example: 300
+        type: integer
+    type: object
   internal_gateway_handler.UpdateProfileRequest:
     properties:
       avatar:
@@ -1225,6 +1256,45 @@ paths:
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       summary: 用户注册
+      tags:
+      - 认证
+  /auth/send-code:
+    post:
+      consumes:
+      - application/json
+      description: 发送注册、找回密码或绑定场景使用的短信/邮箱验证码
+      parameters:
+      - description: 验证码请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.SendCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 发送成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handler.SendCodeResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "429":
+          description: 请求过于频繁
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      summary: 发送验证码
       tags:
       - 认证
   /files:

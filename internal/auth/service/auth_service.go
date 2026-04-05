@@ -21,6 +21,7 @@ import (
 
 // AuthService 认证服务接口
 type AuthService interface {
+	SendVerificationCode(ctx context.Context, req *dto.SendVerificationCodeRequest) (*dto.SendVerificationCodeResponse, error)
 	Register(ctx context.Context, req *dto.RegisterRequest) (*dto.RegisterResponse, error)
 	Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error)
 	Logout(ctx context.Context, userID string, req *dto.LogoutRequest) error
@@ -36,6 +37,7 @@ type authServiceImpl struct {
 	sessionRepo repository.UserSessionRepository
 	jwtManager  *jwt.Manager
 	userClient  *client.UserClient
+	verifySvc   VerificationService
 }
 
 // NewAuthService 创建认证服务
@@ -45,6 +47,7 @@ func NewAuthService(
 	sessionRepo repository.UserSessionRepository,
 	jwtManager *jwt.Manager,
 	userClient *client.UserClient,
+	verifySvc VerificationService,
 ) AuthService {
 	return &authServiceImpl{
 		userRepo:    userRepo,
@@ -52,7 +55,30 @@ func NewAuthService(
 		sessionRepo: sessionRepo,
 		jwtManager:  jwtManager,
 		userClient:  userClient,
+		verifySvc:   verifySvc,
 	}
+}
+
+// SendVerificationCode 发送验证码
+func (s *authServiceImpl) SendVerificationCode(ctx context.Context, req *dto.SendVerificationCodeRequest) (*dto.SendVerificationCodeResponse, error) {
+	if s.verifySvc == nil {
+		return nil, errors.NewBusiness(errors.CodeInternalError, "验证码模块未初始化")
+	}
+
+	resp, err := s.verifySvc.SendCode(ctx, &dto.SendCodeRequest{
+		Target:     req.Target,
+		TargetType: req.TargetType,
+		Purpose:    req.Purpose,
+		DeviceID:   req.DeviceID,
+	}, req.IPAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.SendVerificationCodeResponse{
+		CodeID:    resp.CodeID,
+		ExpiresIn: resp.ExpiresIn,
+	}, nil
 }
 
 // Register 用户注册
@@ -82,9 +108,6 @@ func (s *authServiceImpl) Register(ctx context.Context, req *dto.RegisterRequest
 		return nil, errors.NewBusiness(errors.CodeParamError, "设备类型无效")
 	}
 
-	// TODO: 验证验证码（需要Redis集成）
-	// 这里暂时跳过验证码校验
-
 	// 检查用户是否已存在
 	if req.PhoneNumber != "" {
 		if _, err := s.userRepo.GetByPhone(ctx, req.PhoneNumber); err == nil {
@@ -100,6 +123,20 @@ func (s *authServiceImpl) Register(ctx context.Context, req *dto.RegisterRequest
 		} else if err != gorm.ErrRecordNotFound {
 			return nil, err
 		}
+	}
+
+	if s.verifySvc == nil {
+		return nil, errors.NewBusiness(errors.CodeInternalError, "验证码模块未初始化")
+	}
+
+	target, targetType := s.resolveVerificationTarget(req)
+	if _, err := s.verifySvc.VerifyCode(ctx, &dto.VerifyCodeRequest{
+		Target:     target,
+		TargetType: targetType,
+		Purpose:    model.PurposeRegister,
+		Code:       req.VerifyCode,
+	}); err != nil {
+		return nil, err
 	}
 
 	// 生成密码哈希
@@ -152,12 +189,12 @@ func (s *authServiceImpl) Register(ctx context.Context, req *dto.RegisterRequest
 
 	// 保存会话
 	session := &model.UserSession{
-		UserID:                 userID,
-		DeviceID:               req.DeviceID,
-		AccessToken:            accessToken,
-		RefreshToken:           refreshToken,
-		AccessTokenExpiresAt:   time.Now().Add(2 * time.Hour),
-		RefreshTokenExpiresAt:  time.Now().Add(7 * 24 * time.Hour),
+		UserID:                userID,
+		DeviceID:              req.DeviceID,
+		AccessToken:           accessToken,
+		RefreshToken:          refreshToken,
+		AccessTokenExpiresAt:  time.Now().Add(2 * time.Hour),
+		RefreshTokenExpiresAt: time.Now().Add(7 * 24 * time.Hour),
 	}
 	if err := s.sessionRepo.Create(ctx, session); err != nil {
 		return nil, err
@@ -244,12 +281,12 @@ func (s *authServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (*dt
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			session = &model.UserSession{
-				UserID:                 user.ID,
-				DeviceID:               req.DeviceID,
-				AccessToken:            accessToken,
-				RefreshToken:           refreshToken,
-				AccessTokenExpiresAt:   time.Now().Add(2 * time.Hour),
-				RefreshTokenExpiresAt:  time.Now().Add(7 * 24 * time.Hour),
+				UserID:                user.ID,
+				DeviceID:              req.DeviceID,
+				AccessToken:           accessToken,
+				RefreshToken:          refreshToken,
+				AccessTokenExpiresAt:  time.Now().Add(2 * time.Hour),
+				RefreshTokenExpiresAt: time.Now().Add(7 * 24 * time.Hour),
 			}
 			if err := s.sessionRepo.Create(ctx, session); err != nil {
 				return nil, err
@@ -370,4 +407,11 @@ func (s *authServiceImpl) ValidateToken(ctx context.Context, token string) (*jwt
 		return nil, fmt.Errorf("invalid token: %w", err)
 	}
 	return claims, nil
+}
+
+func (s *authServiceImpl) resolveVerificationTarget(req *dto.RegisterRequest) (string, string) {
+	if req.PhoneNumber != "" {
+		return req.PhoneNumber, model.TargetTypeSMS
+	}
+	return req.Email, model.TargetTypeEmail
 }

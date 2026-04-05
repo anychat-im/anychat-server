@@ -4,35 +4,46 @@ import "errors"
 
 // 通用错误码
 const (
-	CodeSuccess      = 0
-	CodeParamError   = 1     // 参数错误
-	CodeInternalError = 2    // 内部错误
-	CodeUnauthorized = 401   // 未授权
-	CodeForbidden    = 403   // 禁止访问
-	CodeNotFound     = 404   // 资源不存在
+	CodeSuccess       = 0
+	CodeParamError    = 1   // 参数错误
+	CodeInternalError = 2   // 内部错误
+	CodeUnauthorized  = 401 // 未授权
+	CodeForbidden     = 403 // 禁止访问
+	CodeNotFound      = 404 // 资源不存在
 )
 
 // Auth Service 错误码 (10xxx)
 const (
-	CodeUserExists           = 10101 // 用户已存在
-	CodeVerifyCodeError      = 10102 // 验证码错误
-	CodePasswordWeak         = 10103 // 密码强度不足
-	CodeUserNotFound         = 10104 // 用户不存在
-	CodePasswordError        = 10105 // 密码错误
-	CodeAccountDisabled      = 10106 // 账号已被禁用
-	CodeRefreshTokenInvalid  = 10107 // RefreshToken无效
-	CodeRefreshTokenExpired  = 10108 // RefreshToken已过期
-	CodeTokenInvalid         = 10109 // Token无效
-	CodeTokenExpired         = 10110 // Token已过期
+	CodeUserExists          = 10101 // 用户已存在
+	CodePasswordWeak        = 10103 // 密码强度不足
+	CodeUserNotFound        = 10104 // 用户不存在
+	CodePasswordError       = 10105 // 密码错误
+	CodeAccountDisabled     = 10106 // 账号已被禁用
+	CodeRefreshTokenInvalid = 10107 // RefreshToken无效
+	CodeRefreshTokenExpired = 10108 // RefreshToken已过期
+	CodeTokenInvalid        = 10109 // Token无效
+	CodeTokenExpired        = 10110 // Token已过期
+
+	// 验证码子域错误码 (102xx)
+	CodeSendRateLimited        = 10201 // 发送频率过快
+	CodeSendLimitReached       = 10202 // 验证码发送次数已达上限
+	CodeTargetFormatInvalid    = 10203 // 目标格式不正确
+	CodeSMSServiceError        = 10204 // 短信服务错误
+	CodeEmailServiceError      = 10205 // 邮件服务错误
+	CodeVerifyCodeError        = 10206 // 验证码错误
+	CodeVerifyCodeExpired      = 10207 // 验证码已过期
+	CodeVerifyCodeAlreadyUsed  = 10208 // 验证码已验证，请重新获取
+	CodeVerifyCodeNotFound     = 10209 // 验证码不存在
+	CodeVerifyAttemptsExceeded = 10210 // 验证次数过多
 )
 
 // User Service 错误码 (20xxx)
 const (
-	CodeNicknameUsed         = 20101 // 昵称已被使用
-	CodeNicknameSensitive    = 20102 // 昵称包含敏感词
-	CodeUserProfileNotFound  = 20103 // 用户不存在
-	CodeQRCodeExpired        = 20104 // 二维码已过期
-	CodeQRCodeInvalid        = 20105 // 二维码无效
+	CodeNicknameUsed        = 20101 // 昵称已被使用
+	CodeNicknameSensitive   = 20102 // 昵称包含敏感词
+	CodeUserProfileNotFound = 20103 // 用户不存在
+	CodeQRCodeExpired       = 20104 // 二维码已过期
+	CodeQRCodeInvalid       = 20105 // 二维码无效
 )
 
 // Friend Service 错误码 (30xxx)
@@ -58,39 +69,39 @@ const (
 
 // Group Service 错误码 (40xxx)
 const (
-	CodeGroupNotFound            = 40101 // 群组不存在
-	CodeGroupDissolved           = 40102 // 群组已解散
-	CodeGroupMemberTooFew        = 40103 // 群成员数量不足
-	CodeGroupMemberLimitReached  = 40104 // 群成员已达上限
-	CodeNotGroupMember           = 40105 // 不是群成员
-	CodeAlreadyGroupMember       = 40106 // 已经是群成员
-	CodeNoOwnerPermission        = 40107 // 无群主权限
-	CodeNoAdminPermission        = 40108 // 无管理员权限
-	CodeCannotRemoveOwner        = 40109 // 不能移除群主
-	CodeCannotRemoveAdmin        = 40110 // 不能移除管理员
-	CodeGroupNameSensitive       = 40111 // 群名称包含敏感词
-	CodeAnnouncementSensitive    = 40112 // 群公告包含敏感词
-	CodeJoinRequestNotFound      = 40113 // 入群申请不存在
-	CodeJoinRequestProcessed     = 40114 // 入群申请已处理
-	CodeMemberMuted              = 40115 // 群内已被禁言
-	CodeCannotQuitOwnGroup       = 40116 // 不能退出自己的群
-	CodeGroupQRExpired           = 40117 // 群二维码已过期
+	CodeGroupNotFound           = 40101 // 群组不存在
+	CodeGroupDissolved          = 40102 // 群组已解散
+	CodeGroupMemberTooFew       = 40103 // 群成员数量不足
+	CodeGroupMemberLimitReached = 40104 // 群成员已达上限
+	CodeNotGroupMember          = 40105 // 不是群成员
+	CodeAlreadyGroupMember      = 40106 // 已经是群成员
+	CodeNoOwnerPermission       = 40107 // 无群主权限
+	CodeNoAdminPermission       = 40108 // 无管理员权限
+	CodeCannotRemoveOwner       = 40109 // 不能移除群主
+	CodeCannotRemoveAdmin       = 40110 // 不能移除管理员
+	CodeGroupNameSensitive      = 40111 // 群名称包含敏感词
+	CodeAnnouncementSensitive   = 40112 // 群公告包含敏感词
+	CodeJoinRequestNotFound     = 40113 // 入群申请不存在
+	CodeJoinRequestProcessed    = 40114 // 入群申请已处理
+	CodeMemberMuted             = 40115 // 群内已被禁言
+	CodeCannotQuitOwnGroup      = 40116 // 不能退出自己的群
+	CodeGroupQRExpired          = 40117 // 群二维码已过期
 )
 
 // Message Service 错误码 (50xxx)
 const (
-	CodeMessageNotFound          = 50101 // 消息不存在
-	CodeMessageSendFailed        = 50102 // 消息发送失败
-	CodeMessageRecallFailed      = 50103 // 消息撤回失败
-	CodeMessageRecallTimeLimit   = 50104 // 消息撤回时间超限
-	CodeMessageDeleteFailed      = 50105 // 消息删除失败
-	CodeMessagePermissionDenied  = 50106 // 消息权限不足
-	CodeConversationNotFound     = 50107 // 会话不存在
-	CodeSequenceGenerateFailed   = 50108 // 序列号生成失败
-	CodeMarkReadFailed           = 50109 // 标记已读失败
-	CodeGetUnreadCountFailed     = 50110 // 获取未读数失败
-	CodeSearchMessageFailed      = 50111 // 搜索消息失败
-	CodeInvalidOperation         = 50112 // 无效操作
+	CodeMessageNotFound         = 50101 // 消息不存在
+	CodeMessageSendFailed       = 50102 // 消息发送失败
+	CodeMessageRecallFailed     = 50103 // 消息撤回失败
+	CodeMessageRecallTimeLimit  = 50104 // 消息撤回时间超限
+	CodeMessageDeleteFailed     = 50105 // 消息删除失败
+	CodeMessagePermissionDenied = 50106 // 消息权限不足
+	CodeConversationNotFound    = 50107 // 会话不存在
+	CodeSequenceGenerateFailed  = 50108 // 序列号生成失败
+	CodeMarkReadFailed          = 50109 // 标记已读失败
+	CodeGetUnreadCountFailed    = 50110 // 获取未读数失败
+	CodeSearchMessageFailed     = 50111 // 搜索消息失败
+	CodeInvalidOperation        = 50112 // 无效操作
 )
 
 // File Service 错误码 (70xxx)
@@ -115,23 +126,23 @@ const (
 
 // Push Service 错误码 (80xxx)
 const (
-	CodePushFailed          = 80101 // 推送失败
-	CodePushTokenNotFound   = 80102 // 推送 Token 不存在
-	CodePushConfigInvalid   = 80103 // 推送配置无效
+	CodePushFailed        = 80101 // 推送失败
+	CodePushTokenNotFound = 80102 // 推送 Token 不存在
+	CodePushConfigInvalid = 80103 // 推送配置无效
 )
 
 // RTC Service 错误码 (90xxx)
 const (
-	CodeCallNotFound          = 90101 // 通话不存在
-	CodeCallAlreadyActive     = 90102 // 通话已进行中
-	CodeCallPermissionDenied  = 90103 // 无权操作此通话
-	CodeCallInvalidStatus     = 90104 // 通话状态无效
-	CodeMeetingNotFound       = 90105 // 会议室不存在
-	CodeMeetingPasswordWrong  = 90106 // 会议室密码错误
-	CodeMeetingAlreadyEnded   = 90107 // 会议室已结束
-	CodeMeetingPermission     = 90108 // 无权操作此会议室
-	CodeLiveKitTokenFailed    = 90109 // LiveKit Token 生成失败
-	CodeLiveKitRoomFailed     = 90110 // LiveKit 房间操作失败
+	CodeCallNotFound         = 90101 // 通话不存在
+	CodeCallAlreadyActive    = 90102 // 通话已进行中
+	CodeCallPermissionDenied = 90103 // 无权操作此通话
+	CodeCallInvalidStatus    = 90104 // 通话状态无效
+	CodeMeetingNotFound      = 90105 // 会议室不存在
+	CodeMeetingPasswordWrong = 90106 // 会议室密码错误
+	CodeMeetingAlreadyEnded  = 90107 // 会议室已结束
+	CodeMeetingPermission    = 90108 // 无权操作此会议室
+	CodeLiveKitTokenFailed   = 90109 // LiveKit Token 生成失败
+	CodeLiveKitRoomFailed    = 90110 // LiveKit 房间操作失败
 )
 
 // Admin Service 错误码 (12xxx)
@@ -147,23 +158,22 @@ const (
 
 // Session Service 错误码 (60xxx)
 const (
-	CodeSessionNotFound      = 60101 // 会话不存在
-	CodeSessionDeleted       = 60102 // 会话已删除
-	CodeSessionCreateFailed  = 60103 // 会话创建失败
-	CodeUnreadCountFailed    = 60104 // 未读数统计错误
+	CodeSessionNotFound     = 60101 // 会话不存在
+	CodeSessionDeleted      = 60102 // 会话已删除
+	CodeSessionCreateFailed = 60103 // 会话创建失败
+	CodeUnreadCountFailed   = 60104 // 未读数统计错误
 )
 
 // 错误消息映射
 var errorMessages = map[int]string{
-	CodeSuccess:             "成功",
-	CodeParamError:          "参数错误",
-	CodeInternalError:       "内部错误",
-	CodeUnauthorized:        "未授权",
-	CodeForbidden:           "禁止访问",
-	CodeNotFound:            "资源不存在",
+	CodeSuccess:       "成功",
+	CodeParamError:    "参数错误",
+	CodeInternalError: "内部错误",
+	CodeUnauthorized:  "未授权",
+	CodeForbidden:     "禁止访问",
+	CodeNotFound:      "资源不存在",
 
 	CodeUserExists:          "用户已存在",
-	CodeVerifyCodeError:     "验证码错误",
 	CodePasswordWeak:        "密码强度不足",
 	CodeUserNotFound:        "用户不存在",
 	CodePasswordError:       "密码错误",
@@ -244,31 +254,16 @@ var errorMessages = map[int]string{
 	CodeSessionCreateFailed: "会话创建失败",
 	CodeUnreadCountFailed:   "未读数统计错误",
 
-	CodeSyncFailed:         "同步失败",
-	CodeSyncMessagesFailed: "消息补齐失败",
-
-	CodePushFailed:        "推送失败",
-	CodePushTokenNotFound: "推送 Token 不存在",
-	CodePushConfigInvalid: "推送配置无效",
-
-	CodeCallNotFound:         "通话不存在",
-	CodeCallAlreadyActive:    "通话已进行中",
-	CodeCallPermissionDenied: "无权操作此通话",
-	CodeCallInvalidStatus:    "通话状态无效",
-	CodeMeetingNotFound:      "会议室不存在",
-	CodeMeetingPasswordWrong: "会议室密码错误",
-	CodeMeetingAlreadyEnded:  "会议室已结束",
-	CodeMeetingPermission:    "无权操作此会议室",
-	CodeLiveKitTokenFailed:   "LiveKit Token 生成失败",
-	CodeLiveKitRoomFailed:    "LiveKit 房间操作失败",
-
-	CodeAdminNotFound:        "管理员不存在",
-	CodeAdminDisabled:        "管理员账号已禁用",
-	CodeAdminUsernameExists:  "管理员用户名已存在",
-	CodeAdminInvalidPassword: "管理员密码错误",
-	CodeAdminTokenInvalid:    "管理员Token无效",
-	CodeAdminPermission:      "管理员权限不足",
-	CodeConfigKeyNotFound:    "配置项不存在",
+	CodeSendRateLimited:        "发送频率过快，请稍后重试",
+	CodeSendLimitReached:       "验证码发送次数已达上限",
+	CodeTargetFormatInvalid:    "目标格式不正确",
+	CodeSMSServiceError:        "短信服务错误，请稍后重试",
+	CodeEmailServiceError:      "邮件服务错误，请稍后重试",
+	CodeVerifyCodeError:        "验证码错误",
+	CodeVerifyCodeExpired:      "验证码已过期",
+	CodeVerifyCodeAlreadyUsed:  "验证码已验证，请重新获取",
+	CodeVerifyCodeNotFound:     "验证码不存在",
+	CodeVerifyAttemptsExceeded: "验证次数过多，请重新获取验证码",
 }
 
 // GetMessage 获取错误消息
