@@ -14,6 +14,7 @@ import (
 	"github.com/anychat/server/pkg/errors"
 	"github.com/anychat/server/pkg/jwt"
 	"github.com/anychat/server/pkg/logger"
+	"github.com/anychat/server/pkg/notification"
 	"github.com/anychat/server/pkg/validator"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -34,12 +35,13 @@ type AuthService interface {
 
 // authServiceImpl 认证服务实现
 type authServiceImpl struct {
-	userRepo    repository.UserRepository
-	deviceRepo  repository.UserDeviceRepository
-	sessionRepo repository.UserSessionRepository
-	jwtManager  *jwt.Manager
-	userClient  *client.UserClient
-	verifySvc   VerificationService
+	userRepo        repository.UserRepository
+	deviceRepo      repository.UserDeviceRepository
+	sessionRepo     repository.UserSessionRepository
+	jwtManager      *jwt.Manager
+	userClient      *client.UserClient
+	verifySvc       VerificationService
+	notificationPub notification.Publisher
 }
 
 // NewAuthService 创建认证服务
@@ -50,14 +52,16 @@ func NewAuthService(
 	jwtManager *jwt.Manager,
 	userClient *client.UserClient,
 	verifySvc VerificationService,
+	notificationPub notification.Publisher,
 ) AuthService {
 	return &authServiceImpl{
-		userRepo:    userRepo,
-		deviceRepo:  deviceRepo,
-		sessionRepo: sessionRepo,
-		jwtManager:  jwtManager,
-		userClient:  userClient,
-		verifySvc:   verifySvc,
+		userRepo:        userRepo,
+		deviceRepo:      deviceRepo,
+		sessionRepo:     sessionRepo,
+		jwtManager:      jwtManager,
+		userClient:      userClient,
+		verifySvc:       verifySvc,
+		notificationPub: notificationPub,
 	}
 }
 
@@ -244,6 +248,11 @@ func (s *authServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (*dt
 		return nil, errors.NewBusiness(errors.CodeAccountDisabled, "")
 	}
 
+	// 处理同类型设备登录，强制下线旧设备
+	if err := s.handleSameTypeDeviceKick(ctx, user.ID, req.DeviceID, req.DeviceType); err != nil {
+		logger.Warn("Failed to handle same type device kick", zap.Error(err))
+	}
+
 	// 更新或创建设备记录
 	device, err := s.deviceRepo.GetByUserIDAndDeviceID(ctx, user.ID, req.DeviceID)
 	if err != nil {
@@ -318,6 +327,42 @@ func (s *authServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (*dt
 			Email:  user.Email,
 		},
 	}, nil
+}
+
+// handleSameTypeDeviceKick 处理同类型设备登录，强制下线旧设备
+func (s *authServiceImpl) handleSameTypeDeviceKick(ctx context.Context, userID, deviceID, deviceType string) error {
+	devices, err := s.deviceRepo.GetByUserIDAndDeviceType(ctx, userID, deviceType)
+	if err != nil {
+		return err
+	}
+
+	for _, device := range devices {
+		if device.DeviceID == deviceID {
+			continue
+		}
+
+		if err := s.sessionRepo.DeleteByUserIDAndDeviceID(ctx, userID, device.DeviceID); err != nil {
+			logger.Warn("Failed to delete old session", zap.Error(err), zap.String("deviceID", device.DeviceID))
+		}
+
+		if s.notificationPub != nil {
+			notif := notification.NewNotification(
+				notification.TypeAuthForceLogout,
+				userID,
+				notification.PriorityHigh,
+			)
+			notif.Payload = map[string]interface{}{
+				"device_id":   device.DeviceID,
+				"device_type": device.DeviceType,
+				"reason":      "new_device_login",
+			}
+			if err := s.notificationPub.PublishToUser(userID, notif); err != nil {
+				logger.Warn("Failed to publish force logout notification", zap.Error(err))
+			}
+		}
+	}
+
+	return nil
 }
 
 // Logout 用户登出

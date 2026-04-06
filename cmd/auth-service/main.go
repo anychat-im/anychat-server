@@ -22,8 +22,10 @@ import (
 	grpcpkg "github.com/anychat/server/pkg/grpc"
 	"github.com/anychat/server/pkg/jwt"
 	"github.com/anychat/server/pkg/logger"
+	"github.com/anychat/server/pkg/notification"
 	pkgredis "github.com/anychat/server/pkg/redis"
 	"github.com/gin-gonic/gin"
+	"github.com/nats-io/nats.go"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -108,8 +110,18 @@ func main() {
 		},
 	)
 
+	// 连接NATS
+	nc, err := connectNATS()
+	if err != nil {
+		logger.Fatal("Failed to connect to NATS", zap.Error(err))
+	}
+	defer nc.Close()
+	logger.Info("Connected to NATS")
+
+	notificationPub := notification.NewPublisher(nc)
+
 	// 初始化服务
-	authService := service.NewAuthService(userRepo, deviceRepo, sessionRepo, jwtManager, userClient, verifyService)
+	authService := service.NewAuthService(userRepo, deviceRepo, sessionRepo, jwtManager, userClient, verifyService, notificationPub)
 
 	// 初始化gRPC服务器
 	grpcServer := initGRPCServer(authService)
@@ -298,6 +310,22 @@ func initJWT() *jwt.Manager {
 		AccessTokenExpire:  time.Duration(viper.GetInt("jwt.access_token_expire")) * time.Second,
 		RefreshTokenExpire: time.Duration(viper.GetInt("jwt.refresh_token_expire")) * time.Second,
 	})
+}
+
+// connectNATS 连接NATS
+func connectNATS() (*nats.Conn, error) {
+	natsURL := viper.GetString("nats.url")
+	return nats.Connect(natsURL,
+		nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
+			logger.Warn("NATS disconnected", zap.Error(err))
+		}),
+		nats.ReconnectHandler(func(nc *nats.Conn) {
+			logger.Info("NATS reconnected", zap.String("url", nc.ConnectedUrl()))
+		}),
+		nats.ClosedHandler(func(nc *nats.Conn) {
+			logger.Warn("NATS connection closed")
+		}),
+	)
 }
 
 // initGRPCServer 初始化gRPC服务器
