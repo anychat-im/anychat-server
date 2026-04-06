@@ -646,9 +646,10 @@ func (x *RefreshTokenResponse) GetExpiresIn() int64 {
 // ChangePasswordRequest 修改密码请求
 type ChangePasswordRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"` // 由gateway从JWT提取
-	OldPassword   string                 `protobuf:"bytes,2,opt,name=old_password,json=oldPassword,proto3" json:"old_password,omitempty"`
-	NewPassword   string                 `protobuf:"bytes,3,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`       // 由gateway从JWT提取
+	DeviceId      string                 `protobuf:"bytes,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"` // 当前设备ID，用于排除强制下线
+	OldPassword   string                 `protobuf:"bytes,3,opt,name=old_password,json=oldPassword,proto3" json:"old_password,omitempty"`
+	NewPassword   string                 `protobuf:"bytes,4,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -686,6 +687,13 @@ func (*ChangePasswordRequest) Descriptor() ([]byte, []int) {
 func (x *ChangePasswordRequest) GetUserId() string {
 	if x != nil {
 		return x.UserId
+	}
+	return ""
+}
+
+func (x *ChangePasswordRequest) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
 	}
 	return ""
 }
@@ -941,11 +949,12 @@ const file_auth_auth_proto_rawDesc = "" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12\x1d\n" +
 	"\n" +
-	"expires_in\x18\x03 \x01(\x03R\texpiresIn\"v\n" +
+	"expires_in\x18\x03 \x01(\x03R\texpiresIn\"\x93\x01\n" +
 	"\x15ChangePasswordRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12!\n" +
-	"\fold_password\x18\x02 \x01(\tR\voldPassword\x12!\n" +
-	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\"t\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
+	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\x12!\n" +
+	"\fold_password\x18\x03 \x01(\tR\voldPassword\x12!\n" +
+	"\fnew_password\x18\x04 \x01(\tR\vnewPassword\"t\n" +
 	"\x14ResetPasswordRequest\x12\x18\n" +
 	"\aaccount\x18\x01 \x01(\tR\aaccount\x12\x1f\n" +
 	"\vverify_code\x18\x02 \x01(\tR\n" +

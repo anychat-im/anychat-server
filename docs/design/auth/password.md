@@ -17,26 +17,67 @@
 ```mermaid
 sequenceDiagram
     participant Client
+    participant Gateway
     participant AuthService
+    participant Redis
     participant DB
+    participant NATS
 
-    Client->>AuthService: ChangePassword(oldPassword, newPassword)
+    Note over Client,Gateway: HTTP POST /auth/password/change
+    Client->>Gateway: POST /auth/password/change<br/>Header: Authorization: Bearer {token}<br/>Body: {deviceId, oldPassword, newPassword}
+    Gateway->>Gateway: 从JWT解析userId
+    Gateway->>AuthService: gRPC ChangePassword(userId, deviceId, oldPassword, newPassword)
+
     AuthService->>DB: 查询用户
     DB-->>AuthService: 用户信息
-    AuthService->>AuthService: 验证旧密码
-    AuthService->>AuthService: 验证新密码强度
-    AuthService->>AuthService: 生成新密码哈希
+
+    AuthService->>AuthService: 验证旧密码 + 密码强度
     AuthService->>DB: 更新密码
-    DB-->>AuthService: 成功
-    AuthService-->>Client: 修改成功
+
+    AuthService->>DB: 查询用户设备列表
+    DB-->>AuthService: 设备列表
+
+    loop 遍历非当前设备
+        AuthService->>DB: 删除会话
+        AuthService->>NATS: 发布force_logout通知
+    end
+
+    AuthService-->>Gateway: Success
+    Gateway-->>Client: 200 OK
 ```
 
 ### 3.2 API
 
+**HTTP 接口**
+
+```
+POST /auth/password/change
+Content-Type: application/json
+Authorization: Bearer {access_token}
+
+Request:
+{
+    "deviceId": "device-uuid-123",
+    "oldPassword": "oldpass123",
+    "newPassword": "NewPass123"
+}
+
+Response:
+{
+    "code": 0,
+    "message": "success",
+    "data": null
+}
+```
+
+**gRPC 接口**
+
 ```protobuf
 message ChangePasswordRequest {
-    string old_password = 1;
-    string new_password = 2;
+    string user_id = 1;
+    string device_id = 2;
+    string old_password = 3;
+    string new_password = 4;
 }
 ```
 
@@ -54,27 +95,81 @@ message ChangePasswordRequest {
 ```mermaid
 sequenceDiagram
     participant Client
+    participant Gateway
     participant AuthService
     participant VerifyService
+    participant Redis
+    participant DB
+    participant NATS
 
-    Client->>AuthService: 发送验证码(target, purpose=reset_password)
-    AuthService->>VerifyService: SendCode
-    VerifyService-->>Client: 验证码发送成功
-    Client->>AuthService: 重置密码(account, verifyCode, newPassword)
-    AuthService->>VerifyService: VerifyCode
-    VerifyService-->>AuthService: 验证成功
+    Note over Client,Gateway: Step 1: 发送验证码
+    Client->>Gateway: POST /auth/verify/send<br/>Body: {target, purpose: reset_password, deviceId}
+    Gateway->>AuthService: gRPC SendVerificationCode(target, purpose, deviceId)
+
+    AuthService->>Redis: 存储验证码
+    AuthService->>VerifyService: 发送验证码(邮件/短信)
+
+    AuthService-->>Gateway: Success
+    Gateway-->>Client: 200 OK
+
+    Note over Client,Gateway: Step 2: 重置密码
+    Client->>Gateway: POST /auth/password/reset<br/>Body: {account, verifyCode, newPassword}
+    Gateway->>AuthService: gRPC ResetPassword(account, verifyCode, newPassword)
+
+    AuthService->>Redis: 验证验证码
+    alt 验证码错误
+        AuthService-->>Gateway: Error
+        Gateway-->>Client: 400错误
+    end
+
+    AuthService->>DB: 查询用户
+    DB-->>AuthService: 用户信息
+
+    AuthService->>AuthService: 验证密码强度
     AuthService->>DB: 更新密码
-    AuthService->>DB: 删除该用户所有会话(强制下线)
-    AuthService-->>Client: 重置成功
+
+    AuthService->>DB: 查询用户设备列表
+    DB-->>AuthService: 设备列表
+
+    loop 遍历每个设备
+        AuthService->>DB: 删除会话
+        AuthService->>NATS: 发布force_logout通知
+    end
+
+    AuthService-->>Gateway: Success
+    Gateway-->>Client: 200 OK
 ```
 
 ### 4.2 API
 
+**HTTP 接口**
+
+```
+POST /auth/password/reset
+Content-Type: application/json
+
+Request:
+{
+    "account": "13800138000",
+    "verifyCode": "123456",
+    "newPassword": "NewPass123"
+}
+
+Response:
+{
+    "code": 0,
+    "message": "success",
+    "data": null
+}
+```
+
+**gRPC 接口**
+
 ```protobuf
 message ResetPasswordRequest {
-    string account = 1;       // 手机号或邮箱
-    string verify_code = 2;   // 验证码
-    string new_password = 3; // 新密码
+    string account = 1;
+    string verify_code = 2;
+    string new_password = 3;
 }
 ```
 
@@ -104,7 +199,48 @@ message ResetPasswordRequest {
 - 必须包含大小写字母
 - 必须包含数字
 
-## 6. 安全考虑
+## 6. 强制下线机制
+
+### 6.1 触发场景
+
+| 场景 | 说明 |
+|------|------|
+| 修改密码 | 当前设备外所有其他设备强制下线 |
+| 重置密码 | 所有设备强制下线 |
+
+### 6.2 通知消息
+
+强制下线时发送 `auth.force_logout` 通知，推送到用户所有在线设备：
+
+**通知主题**: `notification.auth.force_logout.{user_id}`
+
+**Payload**:
+
+```json
+{
+    "type": "auth.force_logout",
+    "user_id": "user-uuid",
+    "priority": "high",
+    "payload": {
+        "device_id": "device-uuid",
+        "device_type": "ios",
+        "reason": "password_changed",
+        "timestamp": 1704067200
+    }
+}
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| type | string | 固定为 `auth.force_logout` |
+| user_id | string | 用户ID |
+| priority | string | 优先级 `high` |
+| payload.device_id | string | 被下线的设备ID |
+| payload.device_type | string | 设备类型 |
+| payload.reason | string | 下线原因：`password_changed` / `password_reset` |
+| payload.timestamp | int64 | 时间戳 |
+
+### 6.3 安全考虑
 
 1. **密码存储**: bcrypt 加密
 2. **传输安全**: HTTPS 传输

@@ -79,6 +79,7 @@ type RefreshTokenResponse struct {
 type ChangePasswordRequest struct {
 	OldPassword string `json:"oldPassword" binding:"required"`
 	NewPassword string `json:"newPassword" binding:"required,min=8,max=32"`
+	DeviceID    string `json:"deviceId" binding:"required"`
 }
 
 // ResetPasswordRequest 重置密码请求

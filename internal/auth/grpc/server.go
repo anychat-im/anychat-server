@@ -167,6 +167,7 @@ func (s *AuthServer) ChangePassword(ctx context.Context, req *authpb.ChangePassw
 	dtoReq := &dto.ChangePasswordRequest{
 		OldPassword: req.OldPassword,
 		NewPassword: req.NewPassword,
+		DeviceID:    req.DeviceId,
 	}
 
 	// 调用service层

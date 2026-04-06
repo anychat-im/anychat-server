@@ -21,6 +21,9 @@ Follow standard Go formatting; run `mage fmt` before opening a PR. Keep package 
 ## Testing Guidelines
 Unit tests use Go's `testing` package with `stretchr/testify`; place them next to the code as `*_test.go`. API coverage uses shell scripts named `test-<domain>-api.sh` under `tests/api/`. For new handlers or repository logic, add at least one focused Go test and update the relevant API script when behavior changes. Use `mage test:coverage` to produce `coverage.out` and `coverage.html`.
 
+## Design Document Guidelines
+All design documents should follow the principles defined in `docs/design/design_guide.md`, including sequence diagram participant order and documentation requirements.
+
 ## Commit & Pull Request Guidelines
 Recent history follows Conventional Commit style, for example `feat(auth): ...`, `fix(docs): ...`, `test: ...`, and `docs: ...`. Keep commits scoped to one service or concern. PRs should summarize affected services, note config or migration changes, link related issues, and include example requests/responses when API contracts change. If docs or specs change, update them in the same PR.
 

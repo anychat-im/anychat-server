@@ -57,6 +57,7 @@ type LogoutRequest struct {
 
 // ChangePasswordRequest 修改密码请求
 type ChangePasswordRequest struct {
+	DeviceID    string `json:"deviceId" binding:"required" example:"device-uuid-123"`
 	OldPassword string `json:"oldPassword" binding:"required" example:"oldpass123"`
 	NewPassword string `json:"newPassword" binding:"required" example:"newpass123"`
 }
@@ -330,6 +331,7 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 	// 调用auth-service gRPC
 	_, err := h.clientManager.Auth().ChangePassword(c.Request.Context(), &authpb.ChangePasswordRequest{
 		UserId:      userID,
+		DeviceId:    req.DeviceID,
 		OldPassword: req.OldPassword,
 		NewPassword: req.NewPassword,
 	})

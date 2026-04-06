@@ -365,6 +365,43 @@ func (s *authServiceImpl) handleSameTypeDeviceKick(ctx context.Context, userID, 
 	return nil
 }
 
+// forceLogoutOtherDevices 强制下线其他设备
+func (s *authServiceImpl) forceLogoutOtherDevices(ctx context.Context, userID, excludeDeviceID, reason string) error {
+	devices, err := s.deviceRepo.GetByUserID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	for _, device := range devices {
+		if device.DeviceID == excludeDeviceID {
+			continue
+		}
+
+		if err := s.sessionRepo.DeleteByUserIDAndDeviceID(ctx, userID, device.DeviceID); err != nil {
+			logger.Warn("Failed to delete session", zap.Error(err), zap.String("deviceID", device.DeviceID))
+			continue
+		}
+
+		if s.notificationPub != nil {
+			notif := notification.NewNotification(
+				notification.TypeAuthForceLogout,
+				userID,
+				notification.PriorityHigh,
+			)
+			notif.Payload = map[string]interface{}{
+				"device_id":   device.DeviceID,
+				"device_type": device.DeviceType,
+				"reason":      reason,
+			}
+			if err := s.notificationPub.PublishToUser(userID, notif); err != nil {
+				logger.Warn("Failed to publish force logout notification", zap.Error(err))
+			}
+		}
+	}
+
+	return nil
+}
+
 // Logout 用户登出
 func (s *authServiceImpl) Logout(ctx context.Context, userID string, req *dto.LogoutRequest) error {
 	// 删除会话
@@ -445,7 +482,12 @@ func (s *authServiceImpl) ChangePassword(ctx context.Context, userID string, req
 	}
 
 	// 更新密码
-	return s.userRepo.UpdatePassword(ctx, userID, passwordHash)
+	if err := s.userRepo.UpdatePassword(ctx, userID, passwordHash); err != nil {
+		return err
+	}
+
+	// 强制下线其他设备（排除当前设备）
+	return s.forceLogoutOtherDevices(ctx, userID, req.DeviceID, "password_changed")
 }
 
 // ResetPassword 重置密码（忘记密码）
@@ -494,7 +536,40 @@ func (s *authServiceImpl) ResetPassword(ctx context.Context, req *dto.ResetPassw
 	}
 
 	// 使该用户所有会话失效（强制下线）
-	return s.sessionRepo.DeleteByUserID(ctx, user.ID)
+	return s.forceLogoutAllDevices(ctx, user.ID, "password_reset")
+}
+
+// forceLogoutAllDevices 强制下线所有设备
+func (s *authServiceImpl) forceLogoutAllDevices(ctx context.Context, userID, reason string) error {
+	devices, err := s.deviceRepo.GetByUserID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	for _, device := range devices {
+		if err := s.sessionRepo.DeleteByUserIDAndDeviceID(ctx, userID, device.DeviceID); err != nil {
+			logger.Warn("Failed to delete session", zap.Error(err), zap.String("deviceID", device.DeviceID))
+			continue
+		}
+
+		if s.notificationPub != nil {
+			notif := notification.NewNotification(
+				notification.TypeAuthForceLogout,
+				userID,
+				notification.PriorityHigh,
+			)
+			notif.Payload = map[string]interface{}{
+				"device_id":   device.DeviceID,
+				"device_type": device.DeviceType,
+				"reason":      reason,
+			}
+			if err := s.notificationPub.PublishToUser(userID, notif); err != nil {
+				logger.Warn("Failed to publish force logout notification", zap.Error(err))
+			}
+		}
+	}
+
+	return nil
 }
 
 // ValidateToken 验证Token

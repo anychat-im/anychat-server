@@ -108,8 +108,9 @@ message RefreshTokenResponse {
 // ChangePasswordRequest 修改密码请求
 message ChangePasswordRequest {
   string user_id = 1;       // 由gateway从JWT提取
-  string old_password = 2;
-  string new_password = 3;
+  string device_id = 2;     // 当前设备ID，用于排除强制下线
+  string old_password = 3;
+  string new_password = 4;
 }
 
 // ResetPasswordRequest 重置密码请求
