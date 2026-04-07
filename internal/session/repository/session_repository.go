@@ -25,6 +25,8 @@ type SessionRepository interface {
 	SetPinned(ctx context.Context, userID, sessionID string, pinned bool, pinTime *time.Time) error
 	// SetMuted 设置免打扰状态
 	SetMuted(ctx context.Context, userID, sessionID string, muted bool) error
+	// SetBurnAfterReading 设置阅后即焚时长
+	SetBurnAfterReading(ctx context.Context, userID, sessionID string, duration int32) error
 	// ClearUnread 清除未读数
 	ClearUnread(ctx context.Context, userID, sessionID string) error
 	// IncrUnread 增加未读数
@@ -123,6 +125,13 @@ func (r *sessionRepositoryImpl) SetMuted(ctx context.Context, userID, sessionID 
 	return r.db.WithContext(ctx).Model(&model.Session{}).
 		Where("session_id = ? AND user_id = ?", sessionID, userID).
 		Update("is_muted", muted).Error
+}
+
+// SetBurnAfterReading 设置阅后即焚时长
+func (r *sessionRepositoryImpl) SetBurnAfterReading(ctx context.Context, userID, sessionID string, duration int32) error {
+	return r.db.WithContext(ctx).Model(&model.Session{}).
+		Where("session_id = ? AND user_id = ?", sessionID, userID).
+		Update("burn_after_reading", duration).Error
 }
 
 // ClearUnread 清除未读数

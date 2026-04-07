@@ -2,7 +2,7 @@
 
 ## 1. 概述
 
-会话管理提供会话列表、置顶、免打扰、未读数等核心功能。
+会话管理提供会话列表、置顶、免打扰、未读数、阅后即焚、自动清空、草稿等核心功能。
 
 ## 2. 功能列表
 
@@ -12,6 +12,8 @@
 - [x] 会话置顶
 - [x] 会话免打扰
 - [x] 未读数管理
+- [x] 阅后即焚
+- [x] 自动清空会话消息
 
 ## 3. 数据模型
 
@@ -19,18 +21,21 @@
 
 ```go
 type Session struct {
-    ID             string    // 会话ID
-    UserID         string    // 用户ID
-    ConversationID string    // 会话ID（关联MessageService）
-    ConversationType int    // 会话类型: 1-单聊 2-群聊
-    LastMessageID  string    // 最后一条消息ID
-    LastMessageSeq int64    // 最后消息序列号
-    LastMessageContent string // 最后消息摘要
-    UnreadCount    int32     // 未读数
-    IsPinned       bool      // 是否置顶
-    IsMuted        bool      // 是否免打扰
-    CreatedAt      time.Time
-    UpdatedAt      time.Time
+    SessionID          string     // 会话ID
+    SessionType        string     // 会话类型: single/group/system
+    UserID             string     // 用户ID
+    TargetID           string     // 目标ID(用户或群组)
+    LastMessageID      string     // 最后一条消息ID
+    LastMessageContent string     // 最后消息摘要
+    LastMessageTime    *time.Time // 最后消息时间
+    UnreadCount        int32      // 未读数
+    IsPinned           bool       // 是否置顶
+    IsMuted            bool       // 是否免打扰
+    PinTime            *time.Time // 置顶时间
+    BurnAfterReading   int32      // 阅后即焚时长(秒),0表示未启用
+    AutoClearDuration  int32      // 自动清空时长(秒),0表示未启用
+    CreatedAt          time.Time
+    UpdatedAt          time.Time
 }
 ```
 
@@ -115,6 +120,44 @@ sequenceDiagram
     Gateway-->>Client: 200 OK
 ```
 
+### 4.5 阅后即焚
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Gateway
+    participant SessionService
+    participant DB
+
+    Client->>Gateway: PUT /session/burn<br/>Header: Authorization: Bearer {token}<br/>Body: {session_id, duration: 30}
+    Gateway->>Gateway: 从JWT解析userId
+    Gateway->>SessionService: gRPC SetBurnAfterReading(userId, sessionId, duration)
+    SessionService->>DB: 更新阅后即焚时长
+    DB-->>SessionService: 成功
+    SessionService-->>Gateway: 成功
+    Gateway-->>Client: 200 OK
+```
+> duration为0表示取消阅后即焚
+
+### 4.6 自动清空
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Gateway
+    participant SessionService
+    participant DB
+
+    Client->>Gateway: PUT /session/auto_clear<br/>Header: Authorization: Bearer {token}<br/>Body: {session_id, duration: 86400}
+    Gateway->>Gateway: 从JWT解析userId
+    Gateway->>SessionService: gRPC SetAutoClear(userId, sessionId, duration)
+    SessionService->>DB: 更新自动清空时长
+    DB-->>SessionService: 成功
+    SessionService-->>Gateway: 成功
+    Gateway-->>Client: 200 OK
+```
+> duration为0表示取消自动清空
+
 ## 5. API设计
 
 ### 5.1 获取会话列表
@@ -147,9 +190,27 @@ message SetMutedRequest {
 }
 ```
 
+### 5.3 阅后即焚/自动清空
+
+```protobuf
+message SetBurnAfterReadingRequest {
+    string user_id = 1;
+    string session_id = 2;
+    int32 duration = 3;  // 秒,0表示取消
+}
+
+message SetAutoClearRequest {
+    string user_id = 1;
+    string session_id = 2;
+    int32 duration = 3;  // 秒,0表示取消
+}
+```
+
 ## 6. 通知主题
 
 - `notification.session.pin_updated.{user_id}` - 置顶状态变更
 - `notification.session.mute_updated.{user_id}` - 免打扰状态变更
 - `notification.session.deleted.{user_id}` - 会话删除
 - `notification.session.unread_updated.{user_id}` - 未读数变更
+- `notification.session.burn_updated.{user_id}` - 阅后即焚配置变更
+- `notification.session.auto_clear_updated.{user_id}` - 自动清空配置变更

@@ -29,6 +29,7 @@ const (
 	SessionService_ClearUnread_FullMethodName           = "/anychat.session.SessionService/ClearUnread"
 	SessionService_GetTotalUnread_FullMethodName        = "/anychat.session.SessionService/GetTotalUnread"
 	SessionService_IncrUnread_FullMethodName            = "/anychat.session.SessionService/IncrUnread"
+	SessionService_SetBurnAfterReading_FullMethodName   = "/anychat.session.SessionService/SetBurnAfterReading"
 )
 
 // SessionServiceClient is the client API for SessionService service.
@@ -55,6 +56,8 @@ type SessionServiceClient interface {
 	GetTotalUnread(ctx context.Context, in *GetTotalUnreadRequest, opts ...grpc.CallOption) (*GetTotalUnreadResponse, error)
 	// IncrUnread 增加会话未读数（消息到达时由消息服务调用）
 	IncrUnread(ctx context.Context, in *IncrUnreadRequest, opts ...grpc.CallOption) (*common.Empty, error)
+	// SetBurnAfterReading 设置阅后即焚时长（秒），0表示取消
+	SetBurnAfterReading(ctx context.Context, in *SetBurnAfterReadingRequest, opts ...grpc.CallOption) (*common.Empty, error)
 }
 
 type sessionServiceClient struct {
@@ -155,6 +158,16 @@ func (c *sessionServiceClient) IncrUnread(ctx context.Context, in *IncrUnreadReq
 	return out, nil
 }
 
+func (c *sessionServiceClient) SetBurnAfterReading(ctx context.Context, in *SetBurnAfterReadingRequest, opts ...grpc.CallOption) (*common.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.Empty)
+	err := c.cc.Invoke(ctx, SessionService_SetBurnAfterReading_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SessionServiceServer is the server API for SessionService service.
 // All implementations must embed UnimplementedSessionServiceServer
 // for forward compatibility.
@@ -179,6 +192,8 @@ type SessionServiceServer interface {
 	GetTotalUnread(context.Context, *GetTotalUnreadRequest) (*GetTotalUnreadResponse, error)
 	// IncrUnread 增加会话未读数（消息到达时由消息服务调用）
 	IncrUnread(context.Context, *IncrUnreadRequest) (*common.Empty, error)
+	// SetBurnAfterReading 设置阅后即焚时长（秒），0表示取消
+	SetBurnAfterReading(context.Context, *SetBurnAfterReadingRequest) (*common.Empty, error)
 	mustEmbedUnimplementedSessionServiceServer()
 }
 
@@ -215,6 +230,9 @@ func (UnimplementedSessionServiceServer) GetTotalUnread(context.Context, *GetTot
 }
 func (UnimplementedSessionServiceServer) IncrUnread(context.Context, *IncrUnreadRequest) (*common.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method IncrUnread not implemented")
+}
+func (UnimplementedSessionServiceServer) SetBurnAfterReading(context.Context, *SetBurnAfterReadingRequest) (*common.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetBurnAfterReading not implemented")
 }
 func (UnimplementedSessionServiceServer) mustEmbedUnimplementedSessionServiceServer() {}
 func (UnimplementedSessionServiceServer) testEmbeddedByValue()                        {}
@@ -399,6 +417,24 @@ func _SessionService_IncrUnread_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SessionService_SetBurnAfterReading_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetBurnAfterReadingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SessionServiceServer).SetBurnAfterReading(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SessionService_SetBurnAfterReading_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SessionServiceServer).SetBurnAfterReading(ctx, req.(*SetBurnAfterReadingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SessionService_ServiceDesc is the grpc.ServiceDesc for SessionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -441,6 +477,10 @@ var SessionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "IncrUnread",
 			Handler:    _SessionService_IncrUnread_Handler,
+		},
+		{
+			MethodName: "SetBurnAfterReading",
+			Handler:    _SessionService_SetBurnAfterReading_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

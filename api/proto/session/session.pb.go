@@ -36,7 +36,8 @@ type Session struct {
 	UnreadCount        int32                  `protobuf:"varint,8,opt,name=unread_count,json=unreadCount,proto3" json:"unread_count,omitempty"`
 	IsPinned           bool                   `protobuf:"varint,9,opt,name=is_pinned,json=isPinned,proto3" json:"is_pinned,omitempty"`
 	IsMuted            bool                   `protobuf:"varint,10,opt,name=is_muted,json=isMuted,proto3" json:"is_muted,omitempty"`
-	PinTime            *timestamp.Timestamp   `protobuf:"bytes,11,opt,name=pin_time,json=pinTime,proto3" json:"pin_time,omitempty"` // 置顶时间（用于排序）
+	PinTime            *timestamp.Timestamp   `protobuf:"bytes,11,opt,name=pin_time,json=pinTime,proto3" json:"pin_time,omitempty"`                               // 置顶时间（用于排序）
+	BurnAfterReading   int32                  `protobuf:"varint,14,opt,name=burn_after_reading,json=burnAfterReading,proto3" json:"burn_after_reading,omitempty"` // 阅后即焚时长(秒),0表示未启用
 	CreatedAt          *timestamp.Timestamp   `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt          *timestamp.Timestamp   `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields      protoimpl.UnknownFields
@@ -148,6 +149,13 @@ func (x *Session) GetPinTime() *timestamp.Timestamp {
 		return x.PinTime
 	}
 	return nil
+}
+
+func (x *Session) GetBurnAfterReading() int32 {
+	if x != nil {
+		return x.BurnAfterReading
+	}
+	return 0
 }
 
 func (x *Session) GetCreatedAt() *timestamp.Timestamp {
@@ -795,11 +803,72 @@ func (x *IncrUnreadRequest) GetCount() int32 {
 	return 0
 }
 
+// SetBurnAfterReadingRequest 设置阅后即焚请求
+type SetBurnAfterReadingRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	SessionId     string                 `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	Duration      int32                  `protobuf:"varint,3,opt,name=duration,proto3" json:"duration,omitempty"` // 秒,0表示取消
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetBurnAfterReadingRequest) Reset() {
+	*x = SetBurnAfterReadingRequest{}
+	mi := &file_session_session_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetBurnAfterReadingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetBurnAfterReadingRequest) ProtoMessage() {}
+
+func (x *SetBurnAfterReadingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_session_session_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetBurnAfterReadingRequest.ProtoReflect.Descriptor instead.
+func (*SetBurnAfterReadingRequest) Descriptor() ([]byte, []int) {
+	return file_session_session_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *SetBurnAfterReadingRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *SetBurnAfterReadingRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *SetBurnAfterReadingRequest) GetDuration() int32 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
 var File_session_session_proto protoreflect.FileDescriptor
 
 const file_session_session_proto_rawDesc = "" +
 	"\n" +
-	"\x15session/session.proto\x12\x0fanychat.session\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13common/common.proto\"\xab\x04\n" +
+	"\x15session/session.proto\x12\x0fanychat.session\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13common/common.proto\"\xd9\x04\n" +
 	"\aSession\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12!\n" +
@@ -813,7 +882,8 @@ const file_session_session_proto_rawDesc = "" +
 	"\tis_pinned\x18\t \x01(\bR\bisPinned\x12\x19\n" +
 	"\bis_muted\x18\n" +
 	" \x01(\bR\aisMuted\x125\n" +
-	"\bpin_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\apinTime\x129\n" +
+	"\bpin_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\apinTime\x12,\n" +
+	"\x12burn_after_reading\x18\x0e \x01(\x05R\x10burnAfterReading\x129\n" +
 	"\n" +
 	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
@@ -863,7 +933,12 @@ const file_session_session_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tR\tsessionId\x12\x14\n" +
-	"\x05count\x18\x03 \x01(\x05R\x05count2\xea\x05\n" +
+	"\x05count\x18\x03 \x01(\x05R\x05count\"p\n" +
+	"\x1aSetBurnAfterReadingRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x02 \x01(\tR\tsessionId\x12\x1a\n" +
+	"\bduration\x18\x03 \x01(\x05R\bduration2\xc5\x06\n" +
 	"\x0eSessionService\x12X\n" +
 	"\vGetSessions\x12#.anychat.session.GetSessionsRequest\x1a$.anychat.session.GetSessionsResponse\x12J\n" +
 	"\n" +
@@ -875,7 +950,8 @@ const file_session_session_proto_rawDesc = "" +
 	"\vClearUnread\x12#.anychat.session.ClearUnreadRequest\x1a\x15.anychat.common.Empty\x12a\n" +
 	"\x0eGetTotalUnread\x12&.anychat.session.GetTotalUnreadRequest\x1a'.anychat.session.GetTotalUnreadResponse\x12G\n" +
 	"\n" +
-	"IncrUnread\x12\".anychat.session.IncrUnreadRequest\x1a\x15.anychat.common.EmptyB7Z5github.com/anychat/server/api/proto/session;sessionpbb\x06proto3"
+	"IncrUnread\x12\".anychat.session.IncrUnreadRequest\x1a\x15.anychat.common.Empty\x12Y\n" +
+	"\x13SetBurnAfterReading\x12+.anychat.session.SetBurnAfterReadingRequest\x1a\x15.anychat.common.EmptyB7Z5github.com/anychat/server/api/proto/session;sessionpbb\x06proto3"
 
 var (
 	file_session_session_proto_rawDescOnce sync.Once
@@ -889,7 +965,7 @@ func file_session_session_proto_rawDescGZIP() []byte {
 	return file_session_session_proto_rawDescData
 }
 
-var file_session_session_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_session_session_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_session_session_proto_goTypes = []any{
 	(*Session)(nil),                      // 0: anychat.session.Session
 	(*GetSessionsRequest)(nil),           // 1: anychat.session.GetSessionsRequest
@@ -903,14 +979,15 @@ var file_session_session_proto_goTypes = []any{
 	(*GetTotalUnreadRequest)(nil),        // 9: anychat.session.GetTotalUnreadRequest
 	(*GetTotalUnreadResponse)(nil),       // 10: anychat.session.GetTotalUnreadResponse
 	(*IncrUnreadRequest)(nil),            // 11: anychat.session.IncrUnreadRequest
-	(*timestamp.Timestamp)(nil),          // 12: google.protobuf.Timestamp
-	(*common.Empty)(nil),                 // 13: anychat.common.Empty
+	(*SetBurnAfterReadingRequest)(nil),   // 12: anychat.session.SetBurnAfterReadingRequest
+	(*timestamp.Timestamp)(nil),          // 13: google.protobuf.Timestamp
+	(*common.Empty)(nil),                 // 14: anychat.common.Empty
 }
 var file_session_session_proto_depIdxs = []int32{
-	12, // 0: anychat.session.Session.last_message_time:type_name -> google.protobuf.Timestamp
-	12, // 1: anychat.session.Session.pin_time:type_name -> google.protobuf.Timestamp
-	12, // 2: anychat.session.Session.created_at:type_name -> google.protobuf.Timestamp
-	12, // 3: anychat.session.Session.updated_at:type_name -> google.protobuf.Timestamp
+	13, // 0: anychat.session.Session.last_message_time:type_name -> google.protobuf.Timestamp
+	13, // 1: anychat.session.Session.pin_time:type_name -> google.protobuf.Timestamp
+	13, // 2: anychat.session.Session.created_at:type_name -> google.protobuf.Timestamp
+	13, // 3: anychat.session.Session.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: anychat.session.GetSessionsResponse.sessions:type_name -> anychat.session.Session
 	1,  // 5: anychat.session.SessionService.GetSessions:input_type -> anychat.session.GetSessionsRequest
 	3,  // 6: anychat.session.SessionService.GetSession:input_type -> anychat.session.GetSessionRequest
@@ -921,17 +998,19 @@ var file_session_session_proto_depIdxs = []int32{
 	8,  // 11: anychat.session.SessionService.ClearUnread:input_type -> anychat.session.ClearUnreadRequest
 	9,  // 12: anychat.session.SessionService.GetTotalUnread:input_type -> anychat.session.GetTotalUnreadRequest
 	11, // 13: anychat.session.SessionService.IncrUnread:input_type -> anychat.session.IncrUnreadRequest
-	2,  // 14: anychat.session.SessionService.GetSessions:output_type -> anychat.session.GetSessionsResponse
-	0,  // 15: anychat.session.SessionService.GetSession:output_type -> anychat.session.Session
-	0,  // 16: anychat.session.SessionService.CreateOrUpdateSession:output_type -> anychat.session.Session
-	13, // 17: anychat.session.SessionService.DeleteSession:output_type -> anychat.common.Empty
-	13, // 18: anychat.session.SessionService.SetPinned:output_type -> anychat.common.Empty
-	13, // 19: anychat.session.SessionService.SetMuted:output_type -> anychat.common.Empty
-	13, // 20: anychat.session.SessionService.ClearUnread:output_type -> anychat.common.Empty
-	10, // 21: anychat.session.SessionService.GetTotalUnread:output_type -> anychat.session.GetTotalUnreadResponse
-	13, // 22: anychat.session.SessionService.IncrUnread:output_type -> anychat.common.Empty
-	14, // [14:23] is the sub-list for method output_type
-	5,  // [5:14] is the sub-list for method input_type
+	12, // 14: anychat.session.SessionService.SetBurnAfterReading:input_type -> anychat.session.SetBurnAfterReadingRequest
+	2,  // 15: anychat.session.SessionService.GetSessions:output_type -> anychat.session.GetSessionsResponse
+	0,  // 16: anychat.session.SessionService.GetSession:output_type -> anychat.session.Session
+	0,  // 17: anychat.session.SessionService.CreateOrUpdateSession:output_type -> anychat.session.Session
+	14, // 18: anychat.session.SessionService.DeleteSession:output_type -> anychat.common.Empty
+	14, // 19: anychat.session.SessionService.SetPinned:output_type -> anychat.common.Empty
+	14, // 20: anychat.session.SessionService.SetMuted:output_type -> anychat.common.Empty
+	14, // 21: anychat.session.SessionService.ClearUnread:output_type -> anychat.common.Empty
+	10, // 22: anychat.session.SessionService.GetTotalUnread:output_type -> anychat.session.GetTotalUnreadResponse
+	14, // 23: anychat.session.SessionService.IncrUnread:output_type -> anychat.common.Empty
+	14, // 24: anychat.session.SessionService.SetBurnAfterReading:output_type -> anychat.common.Empty
+	15, // [15:25] is the sub-list for method output_type
+	5,  // [5:15] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
@@ -949,7 +1028,7 @@ func file_session_session_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_session_session_proto_rawDesc), len(file_session_session_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

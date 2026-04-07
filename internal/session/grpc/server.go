@@ -134,3 +134,15 @@ func (s *Server) IncrUnread(ctx context.Context, req *sessionpb.IncrUnreadReques
 	}
 	return &commonpb.Empty{}, nil
 }
+
+// SetBurnAfterReading 设置阅后即焚
+func (s *Server) SetBurnAfterReading(ctx context.Context, req *sessionpb.SetBurnAfterReadingRequest) (*commonpb.Empty, error) {
+	if req.UserId == "" || req.SessionId == "" {
+		return nil, status.Error(codes.InvalidArgument, "user_id and session_id are required")
+	}
+	if err := s.sessionService.SetBurnAfterReading(ctx, req.UserId, req.SessionId, req.Duration); err != nil {
+		logger.Error("SetBurnAfterReading failed", zap.String("sessionID", req.SessionId), zap.Error(err))
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &commonpb.Empty{}, nil
+}

@@ -245,3 +245,44 @@ func (h *SessionHandler) GetTotalUnread(c *gin.Context) {
 	}
 	response.Success(c, resp)
 }
+
+// setBurnAfterReadingRequest 阅后即焚请求体
+type setBurnAfterReadingRequest struct {
+	Duration int32 `json:"duration"` // 秒,0表示取消
+}
+
+// SetBurnAfterReading 设置阅后即焚
+// @Summary      设置阅后即焚
+// @Description  设置会话阅后即焚时长，0表示取消
+// @Tags         会话
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        sessionId  path  string                     true  "会话ID"
+// @Param        request    body  setBurnAfterReadingRequest  true  "阅后即焚时长(秒)"
+// @Success      200  {object}  response.Response  "成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      500  {object}  response.Response  "服务器错误"
+// @Router       /sessions/{sessionId}/burn [put]
+func (h *SessionHandler) SetBurnAfterReading(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
+	sessionID := c.Param("sessionId")
+
+	var req setBurnAfterReadingRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err := h.clientManager.Session().SetBurnAfterReading(c.Request.Context(), &sessionpb.SetBurnAfterReadingRequest{
+		UserId:    userID,
+		SessionId: sessionID,
+		Duration:  req.Duration,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+	response.Success(c, nil)
+}

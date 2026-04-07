@@ -90,4 +90,5 @@ const (
 	TypeSessionPinUpdated    = "session.pin_updated"    // 置顶状态更新
 	TypeSessionDeleted       = "session.deleted"        // 会话删除
 	TypeSessionMuteUpdated   = "session.mute_updated"   // 免打扰设置更新
+	TypeSessionBurnUpdated   = "session.burn_updated"   // 阅后即焚配置变更
 )

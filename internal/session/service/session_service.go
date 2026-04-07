@@ -24,6 +24,7 @@ type SessionService interface {
 	DeleteSession(ctx context.Context, userID, sessionID string) error
 	SetPinned(ctx context.Context, userID, sessionID string, pinned bool) error
 	SetMuted(ctx context.Context, userID, sessionID string, muted bool) error
+	SetBurnAfterReading(ctx context.Context, userID, sessionID string, duration int32) error
 	ClearUnread(ctx context.Context, userID, sessionID string) error
 	GetTotalUnread(ctx context.Context, userID string) (int32, error)
 	IncrUnread(ctx context.Context, userID, sessionID string, count int32) error
@@ -195,6 +196,25 @@ func (s *sessionServiceImpl) SetMuted(ctx context.Context, userID, sessionID str
 	return nil
 }
 
+// SetBurnAfterReading 设置阅后即焚时长并发送通知
+func (s *sessionServiceImpl) SetBurnAfterReading(ctx context.Context, userID, sessionID string, duration int32) error {
+	if err := s.sessionRepo.SetBurnAfterReading(ctx, userID, sessionID, duration); err != nil {
+		return fmt.Errorf("failed to set burn after reading: %w", err)
+	}
+
+	// 发布阅后即焚配置变更通知（多端同步）
+	notif := notification.NewNotification(notification.TypeSessionBurnUpdated, userID, notification.PriorityNormal).
+		AddPayloadField("session_id", sessionID).
+		AddPayloadField("burn_after_reading", duration)
+	if err := s.notificationPub.PublishToUser(userID, notif); err != nil {
+		logger.Warn("Failed to publish session burn notification",
+			zap.String("userID", userID),
+			zap.Error(err))
+	}
+
+	return nil
+}
+
 // ClearUnread 清除未读数并发送通知
 func (s *sessionServiceImpl) ClearUnread(ctx context.Context, userID, sessionID string) error {
 	if err := s.sessionRepo.ClearUnread(ctx, userID, sessionID); err != nil {
@@ -260,6 +280,7 @@ func toProtoSession(s *model.Session) *sessionpb.Session {
 		UnreadCount:        s.UnreadCount,
 		IsPinned:           s.IsPinned,
 		IsMuted:            s.IsMuted,
+		BurnAfterReading:   s.BurnAfterReading,
 		CreatedAt:          timestamppb.New(s.CreatedAt),
 		UpdatedAt:          timestamppb.New(s.UpdatedAt),
 	}

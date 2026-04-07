@@ -7,7 +7,7 @@ import (
 // Session 会话模型
 type Session struct {
 	SessionID          string     `gorm:"column:session_id;primaryKey"`
-	SessionType        string     `gorm:"column:session_type;not null"`        // single/group/system
+	SessionType        string     `gorm:"column:session_type;not null"` // single/group/system
 	UserID             string     `gorm:"column:user_id;not null"`
 	TargetID           string     `gorm:"column:target_id;not null"`
 	LastMessageID      string     `gorm:"column:last_message_id"`
@@ -17,6 +17,7 @@ type Session struct {
 	IsPinned           bool       `gorm:"column:is_pinned;default:false"`
 	IsMuted            bool       `gorm:"column:is_muted;default:false"`
 	PinTime            *time.Time `gorm:"column:pin_time"`
+	BurnAfterReading   int32      `gorm:"column:burn_after_reading;default:0"` // 阅后即焚时长(秒),0表示未启用
 	CreatedAt          time.Time  `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt          time.Time  `gorm:"column:updated_at;autoUpdateTime"`
 }

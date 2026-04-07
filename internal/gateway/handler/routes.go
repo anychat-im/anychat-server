@@ -164,6 +164,7 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 				sessions.DELETE("/:sessionId", sessionHandler.DeleteSession)
 				sessions.PUT("/:sessionId/pin", sessionHandler.SetPinned)
 				sessions.PUT("/:sessionId/mute", sessionHandler.SetMuted)
+				sessions.PUT("/:sessionId/burn", sessionHandler.SetBurnAfterReading)
 				sessions.POST("/:sessionId/read", sessionHandler.MarkRead)
 			}
 

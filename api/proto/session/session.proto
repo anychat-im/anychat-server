@@ -35,6 +35,9 @@ service SessionService {
 
   // IncrUnread 增加会话未读数（消息到达时由消息服务调用）
   rpc IncrUnread(IncrUnreadRequest) returns (common.Empty);
+
+  // SetBurnAfterReading 设置阅后即焚时长（秒），0表示取消
+  rpc SetBurnAfterReading(SetBurnAfterReadingRequest) returns (common.Empty);
 }
 
 // Session 会话
@@ -50,6 +53,7 @@ message Session {
   bool is_pinned = 9;
   bool is_muted = 10;
   google.protobuf.Timestamp pin_time = 11;       // 置顶时间（用于排序）
+  int32 burn_after_reading = 14;                // 阅后即焚时长(秒),0表示未启用
   google.protobuf.Timestamp created_at = 12;
   google.protobuf.Timestamp updated_at = 13;
 }
@@ -124,4 +128,11 @@ message IncrUnreadRequest {
   string user_id = 1;
   string session_id = 2;
   int32 count = 3;
+}
+
+// SetBurnAfterReadingRequest 设置阅后即焚请求
+message SetBurnAfterReadingRequest {
+  string user_id = 1;
+  string session_id = 2;
+  int32 duration = 3;  // 秒,0表示取消
 }
