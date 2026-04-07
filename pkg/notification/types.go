@@ -14,13 +14,18 @@ const (
 
 // Group Service 通知类型
 const (
-	TypeGroupInvited      = "group.invited"       // 群组邀请
-	TypeGroupMemberJoined = "group.member_joined" // 成员加入
-	TypeGroupMemberLeft   = "group.member_left"   // 成员退出
-	TypeGroupInfoUpdated  = "group.info_updated"  // 群组信息更新
-	TypeGroupRoleChanged  = "group.role_changed"  // 角色变更
-	TypeGroupMuted        = "group.muted"         // 群组禁言
-	TypeGroupDisbanded    = "group.disbanded"     // 群组解散
+	TypeGroupInvited         = "group.invited"          // 群组邀请
+	TypeGroupMemberJoined    = "group.member_joined"    // 成员加入
+	TypeGroupMemberLeft      = "group.member_left"      // 成员退出
+	TypeGroupMemberMuted     = "group.member_muted"     // 成员禁言
+	TypeGroupMemberUnmuted   = "group.member_unmuted"   // 成员解除禁言
+	TypeGroupInfoUpdated     = "group.info_updated"     // 群组信息更新
+	TypeGroupSettingsUpdated = "group.settings_updated" // 群设置更新
+	TypeGroupRoleChanged     = "group.role_changed"     // 角色变更
+	TypeGroupMuted           = "group.muted"            // 群组禁言
+	TypeGroupMessagePinned   = "group.message_pinned"   // 群消息置顶
+	TypeGroupMessageUnpinned = "group.message_unpinned" // 群消息取消置顶
+	TypeGroupDisbanded       = "group.disbanded"        // 群组解散
 )
 
 // Message Service 通知类型

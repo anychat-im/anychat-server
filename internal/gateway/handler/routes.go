@@ -125,10 +125,18 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 				groups.GET("/:id/members", groupHandler.GetGroupMembers)
 				groups.POST("/:id/members", groupHandler.InviteMembers)
 				groups.DELETE("/:id/members/:userId", groupHandler.RemoveMember)
+				groups.PUT("/:id/members/:userId/mute", groupHandler.MuteMember)
+				groups.DELETE("/:id/members/:userId/mute", groupHandler.UnmuteMember)
 				groups.PUT("/:id/members/:userId/role", groupHandler.UpdateMemberRole)
 				groups.PUT("/:id/nickname", groupHandler.UpdateMemberNickname)
 				groups.POST("/:id/quit", groupHandler.QuitGroup)
 				groups.POST("/:id/transfer", groupHandler.TransferOwnership)
+				groups.GET("/:id/settings", groupHandler.GetGroupSettings)
+				groups.PUT("/:id/settings", groupHandler.UpdateGroupSettings)
+				groups.PUT("/:id/mute", groupHandler.SetGroupMute)
+				groups.POST("/:id/pin", groupHandler.PinGroupMessage)
+				groups.DELETE("/:id/pin/:messageId", groupHandler.UnpinGroupMessage)
+				groups.GET("/:id/pins", groupHandler.GetPinnedMessages)
 
 				// 入群申请
 				groups.POST("/:id/join", groupHandler.JoinGroup)

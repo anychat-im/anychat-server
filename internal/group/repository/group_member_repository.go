@@ -15,7 +15,7 @@ type GroupMemberRepository interface {
 	RemoveMember(ctx context.Context, groupID, userID string) error
 	UpdateRole(ctx context.Context, groupID, userID, role string) error
 	UpdateNickname(ctx context.Context, groupID, userID, nickname string) error
-	UpdateMuted(ctx context.Context, groupID, userID string, muted bool) error
+	UpdateMutedUntil(ctx context.Context, groupID, userID string, mutedUntil *time.Time) error
 	GetMember(ctx context.Context, groupID, userID string) (*model.GroupMember, error)
 	GetMembers(ctx context.Context, groupID string, page, pageSize int) ([]*model.GroupMember, int64, error)
 	GetMembersByRole(ctx context.Context, groupID, role string) ([]*model.GroupMember, error)
@@ -76,13 +76,13 @@ func (r *groupMemberRepositoryImpl) UpdateNickname(ctx context.Context, groupID,
 }
 
 // UpdateMuted 更新禁言状态
-func (r *groupMemberRepositoryImpl) UpdateMuted(ctx context.Context, groupID, userID string, muted bool) error {
+func (r *groupMemberRepositoryImpl) UpdateMutedUntil(ctx context.Context, groupID, userID string, mutedUntil *time.Time) error {
 	return r.db.WithContext(ctx).
 		Model(&model.GroupMember{}).
 		Where("group_id = ? AND user_id = ?", groupID, userID).
 		Updates(map[string]interface{}{
-			"is_muted":   muted,
-			"updated_at": time.Now(),
+			"muted_until": mutedUntil,
+			"updated_at":  time.Now(),
 		}).Error
 }
 

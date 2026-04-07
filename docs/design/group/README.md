@@ -8,35 +8,33 @@
 - 群组创建与解散
 - 成员管理（邀请、申请、移除、退出）
 - 群主与管理员管理
-- 群组设置（名称、头像、公告、权限）
-- 群成员设置（群昵称、免打扰、置顶）
+- 群组设置（名称、头像、公告、群简介、权限）
+- 群成员设置（群昵称、免打扰、置顶聊天）
+- 群置顶消息
 - 群组信息同步
 
 ## 2. 文档导航
 
 | 功能 | 文档 | 说明 |
 |------|------|------|
-| 群组管理 | [group.md](group.md) | 群组创建、解散、信息 |
-| 群成员管理 | [member.md](member.md) | 成员邀请、移除、角色管理 |
-| 群设置 | [settings.md](settings.md) | 群名称、公告、权限设置 |
+| 群组管理 | [group.md](group.md) | 群组创建、解散、信息、设置 |
+| 群成员管理 | [member.md](member.md) | 成员邀请、移除、角色管理、禁言 |
+| 更新群设置 | [settings.md](settings.md) |入群验证、邀请权限、查看历史、加好友、成员修改权 |
 
 ## 3. 数据模型
 
-- **Group**: 群组基本信息
-- **GroupMember**: 群成员关系
-- **GroupSettings**: 群组设置
-- **GroupAdmin**: 群管理员
-- **GroupMute**: 群禁言记录
+- **Group**: 群组基本信息 (含群设置)
+- **GroupMember**: 群成员关系 (含个人置顶、禁言)
 - **GroupJoinRequest**: 入群申请
+- **GroupPinnedMessage**: 群置顶消息
 
 ## 4. 推送通知
 
+> 详细通知主题见各子文档：
+> - 群组通用: group.md
+> - 成员相关: member.md
+
 - `notification.group.invited.{user_id}` - 群组邀请通知
-- `notification.group.member_joined.{group_id}` - 新成员加入通知
-- `notification.group.member_left.{group_id}` - 成员退出/被移除通知
-- `notification.group.info_updated.{group_id}` - 群组信息更新通知
-- `notification.group.role_changed.{group_id}` - 成员角色变更通知
-- `notification.group.muted.{group_id}` - 群组禁言通知
 - `notification.group.disbanded.{group_id}` - 群组解散通知
 
 ## 5. 依赖服务

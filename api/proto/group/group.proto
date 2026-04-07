@@ -61,6 +61,24 @@ service GroupService {
   // GetJoinRequests 获取入群申请列表
   rpc GetJoinRequests(GetJoinRequestsRequest) returns (GetJoinRequestsResponse);
 
+  // PinGroupMessage 置顶群消息
+  rpc PinGroupMessage(PinGroupMessageRequest) returns (common.Empty);
+
+  // UnpinGroupMessage 取消置顶群消息
+  rpc UnpinGroupMessage(UnpinGroupMessageRequest) returns (common.Empty);
+
+  // GetPinnedMessages 获取群置顶消息列表
+  rpc GetPinnedMessages(GetPinnedMessagesRequest) returns (GetPinnedMessagesResponse);
+
+  // SetGroupMute 设置全体禁言
+  rpc SetGroupMute(SetGroupMuteRequest) returns (common.Empty);
+
+  // MuteMember 禁言成员
+  rpc MuteMember(MuteMemberRequest) returns (common.Empty);
+
+  // UnmuteMember 解除禁言
+  rpc UnmuteMember(UnmuteMemberRequest) returns (common.Empty);
+
   // UpdateGroupSettings 更新群组设置
   rpc UpdateGroupSettings(UpdateGroupSettingsRequest) returns (common.Empty);
 
@@ -79,6 +97,7 @@ message GetGroupInfoResponse {
   string name = 2;
   string avatar = 3;
   string announcement = 4;
+  string description = 13;
   string owner_id = 5;
   int32 member_count = 6;
   int32 max_members = 7;
@@ -105,9 +124,10 @@ message GroupMember {
   string user_id = 1;
   optional string group_nickname = 2;
   string role = 3;  // owner/admin/member
-  bool is_muted = 4;
+  reserved 4;
   google.protobuf.Timestamp joined_at = 5;
   optional common.UserInfo user_info = 6;
+  optional google.protobuf.Timestamp muted_until = 7;
 }
 
 message IsMemberRequest {
@@ -146,7 +166,7 @@ message CreateGroupRequest {
   string name = 2;
   optional string avatar = 3;
   repeated string member_ids = 4;
-  optional bool join_verify = 5;
+  reserved 5;
 }
 
 message CreateGroupResponse {
@@ -164,7 +184,7 @@ message UpdateGroupRequest {
   optional string name = 3;
   optional string avatar = 4;
   optional string announcement = 5;
-  optional bool join_verify = 6;
+  optional string description = 6;
 }
 
 message DissolveGroupRequest {
@@ -229,6 +249,7 @@ message HandleJoinRequestRequest {
 message GetJoinRequestsRequest {
   string group_id = 1;
   optional string status = 2;  // pending/accepted/rejected
+  string user_id = 3;
 }
 
 message GetJoinRequestsResponse {
@@ -247,13 +268,68 @@ message JoinRequest {
   optional common.UserInfo user_info = 8;
 }
 
+message PinGroupMessageRequest {
+  string user_id = 1;
+  string group_id = 2;
+  string message_id = 3;
+}
+
+message UnpinGroupMessageRequest {
+  string user_id = 1;
+  string group_id = 2;
+  string message_id = 3;
+}
+
+message GetPinnedMessagesRequest {
+  string user_id = 1;
+  string group_id = 2;
+}
+
+message PinnedMessage {
+  string message_id = 1;
+  string content = 2;
+  string pinned_by = 3;
+  int64 pinned_at = 4;
+}
+
+message GetPinnedMessagesResponse {
+  repeated PinnedMessage messages = 1;
+}
+
+message SetGroupMuteRequest {
+  string user_id = 1;
+  string group_id = 2;
+  bool enabled = 3;
+}
+
+enum MuteType {
+  MUTE_TYPE_PERMANENT = 0;
+  MUTE_TYPE_TEMPORARY = 1;
+}
+
+message MuteMemberRequest {
+  string user_id = 1;
+  string group_id = 2;
+  string target_user_id = 3;
+  MuteType type = 4;
+  int32 duration_minutes = 5;
+}
+
+message UnmuteMemberRequest {
+  string user_id = 1;
+  string group_id = 2;
+  string target_user_id = 3;
+}
+
 message UpdateGroupSettingsRequest {
   string user_id = 1;
   string group_id = 2;
-  optional bool allow_member_invite = 3;
-  optional bool allow_view_history = 4;
-  optional bool allow_add_friend = 5;
-  optional bool show_member_nickname = 6;
+  optional bool join_verify = 3;
+  optional bool allow_member_invite = 4;
+  optional bool allow_view_history = 5;
+  optional bool allow_add_friend = 6;
+  optional bool allow_member_modify = 7;
+  optional bool show_member_nickname = 8 [deprecated = true];
 }
 
 message GetGroupSettingsRequest {
@@ -262,8 +338,10 @@ message GetGroupSettingsRequest {
 
 message GetGroupSettingsResponse {
   string group_id = 1;
-  bool allow_member_invite = 2;
-  bool allow_view_history = 3;
-  bool allow_add_friend = 4;
-  bool show_member_nickname = 5;
+  bool join_verify = 2;
+  bool allow_member_invite = 3;
+  bool allow_view_history = 4;
+  bool allow_add_friend = 5;
+  bool allow_member_modify = 6;
+  bool show_member_nickname = 7 [deprecated = true];
 }

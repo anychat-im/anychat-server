@@ -4,14 +4,14 @@ import "time"
 
 // GroupMember 群成员模型
 type GroupMember struct {
-	ID            int64     `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	GroupID       string    `gorm:"column:group_id;not null;uniqueIndex:uk_group_user" json:"groupId"`
-	UserID        string    `gorm:"column:user_id;not null;uniqueIndex:uk_group_user" json:"userId"`
-	GroupNickname string    `gorm:"column:group_nickname;size:50" json:"groupNickname"`
-	Role          string    `gorm:"column:role;default:member;size:20" json:"role"`
-	IsMuted       bool      `gorm:"column:is_muted;default:false" json:"isMuted"`
-	JoinedAt      time.Time `gorm:"column:joined_at;not null;default:CURRENT_TIMESTAMP" json:"joinedAt"`
-	UpdatedAt     time.Time `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP" json:"updatedAt"`
+	ID            int64      `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
+	GroupID       string     `gorm:"column:group_id;not null;uniqueIndex:uk_group_user" json:"groupId"`
+	UserID        string     `gorm:"column:user_id;not null;uniqueIndex:uk_group_user" json:"userId"`
+	GroupNickname string     `gorm:"column:group_nickname;size:50" json:"groupNickname"`
+	Role          string     `gorm:"column:role;default:member;size:20" json:"role"`
+	MutedUntil    *time.Time `gorm:"column:muted_until" json:"mutedUntil"`
+	JoinedAt      time.Time  `gorm:"column:joined_at;not null;default:CURRENT_TIMESTAMP" json:"joinedAt"`
+	UpdatedAt     time.Time  `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP" json:"updatedAt"`
 }
 
 // TableName 表名
@@ -25,6 +25,8 @@ const (
 	GroupRoleAdmin  = "admin"  // 管理员
 	GroupRoleMember = "member" // 普通成员
 )
+
+var PermanentMutedUntil = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
 
 // IsOwner 是否是群主
 func (gm *GroupMember) IsOwner() bool {
@@ -52,4 +54,22 @@ func (gm *GroupMember) CanRemoveMember(targetRole string) bool {
 		return targetRole == GroupRoleMember
 	}
 	return false
+}
+
+// CanMuteMember 是否可以禁言指定角色的成员
+func (gm *GroupMember) CanMuteMember(targetRole string) bool {
+	return gm.CanRemoveMember(targetRole)
+}
+
+// IsMutedNow 当前是否仍在禁言中
+func (gm *GroupMember) IsMutedNow() bool {
+	return gm.MutedUntil != nil && gm.MutedUntil.After(time.Now())
+}
+
+// IsPermanentlyMuted 是否永久禁言
+func (gm *GroupMember) IsPermanentlyMuted() bool {
+	if gm.MutedUntil == nil {
+		return false
+	}
+	return gm.MutedUntil.Equal(PermanentMutedUntil) || gm.MutedUntil.After(PermanentMutedUntil)
 }

@@ -39,6 +39,7 @@ GROUP_ID=""
 JOIN_REQUEST_ID=""
 TEST_PASSED=0
 TEST_FAILED=0
+TEST_PIN_MESSAGE_ID="test-pin-msg-${TIMESTAMP}"
 
 # 打印函数
 print_header() {
@@ -426,9 +427,47 @@ test_get_my_groups() {
     fi
 }
 
-# 测试15：解散群组
+# 测试15：开启/关闭全体禁言
+test_set_group_mute() {
+    print_header "测试15：开启/关闭全体禁言"
+
+    if [ -z "$GROUP_ID" ]; then
+        print_error "跳过测试 - 群组ID为空"
+        return 1
+    fi
+
+    local enable_data="{\"enabled\":true}"
+    local enable_resp=$(http_put "${API_BASE}/groups/${GROUP_ID}/mute" "$enable_data" "$USER1_TOKEN")
+    check_response "$enable_resp" "0" "开启全体禁言"
+
+    local disable_data="{\"enabled\":false}"
+    local disable_resp=$(http_put "${API_BASE}/groups/${GROUP_ID}/mute" "$disable_data" "$USER1_TOKEN")
+    check_response "$disable_resp" "0" "关闭全体禁言"
+}
+
+# 测试16：置顶/取消置顶消息
+test_pin_unpin_message() {
+    print_header "测试16：置顶/取消置顶消息"
+
+    if [ -z "$GROUP_ID" ]; then
+        print_error "跳过测试 - 群组ID为空"
+        return 1
+    fi
+
+    local pin_data="{\"messageId\":\"${TEST_PIN_MESSAGE_ID}\"}"
+    local pin_resp=$(http_post "${API_BASE}/groups/${GROUP_ID}/pin" "$pin_data" "$USER1_TOKEN")
+    check_response "$pin_resp" "0" "置顶消息"
+
+    local list_resp=$(http_get "${API_BASE}/groups/${GROUP_ID}/pins" "$USER1_TOKEN")
+    check_response "$list_resp" "0" "获取置顶消息列表"
+
+    local unpin_resp=$(http_delete "${API_BASE}/groups/${GROUP_ID}/pin/${TEST_PIN_MESSAGE_ID}" "$USER1_TOKEN")
+    check_response "$unpin_resp" "0" "取消置顶消息"
+}
+
+# 测试17：解散群组
 test_dissolve_group() {
-    print_header "测试15：解散群组"
+    print_header "测试17：解散群组"
 
     if [ -z "$GROUP_ID" ]; then
         print_error "跳过测试 - 群组ID为空"
@@ -496,6 +535,8 @@ main() {
     test_remove_member
     test_quit_group
     test_get_my_groups
+    test_set_group_mute
+    test_pin_unpin_message
     test_dissolve_group
 
     # 打印结果

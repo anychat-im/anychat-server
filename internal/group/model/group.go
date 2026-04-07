@@ -9,10 +9,10 @@ type Group struct {
 	Name         string    `gorm:"column:name;not null;size:100" json:"name"`
 	Avatar       string    `gorm:"column:avatar;size:255" json:"avatar"`
 	Announcement string    `gorm:"column:announcement;type:text" json:"announcement"`
+	Description  string    `gorm:"column:description;type:text" json:"description"`
 	OwnerID      string    `gorm:"column:owner_id;not null" json:"ownerId"`
 	MemberCount  int32     `gorm:"column:member_count;default:0" json:"memberCount"`
 	MaxMembers   int32     `gorm:"column:max_members;default:500" json:"maxMembers"`
-	JoinVerify   bool      `gorm:"column:join_verify;default:true" json:"joinVerify"`
 	IsMuted      bool      `gorm:"column:is_muted;default:false" json:"isMuted"`
 	Status       int16     `gorm:"column:status;default:1" json:"status"`
 	CreatedAt    time.Time `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP" json:"createdAt"`

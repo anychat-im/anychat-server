@@ -23,6 +23,52 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type MuteType int32
+
+const (
+	MuteType_MUTE_TYPE_PERMANENT MuteType = 0
+	MuteType_MUTE_TYPE_TEMPORARY MuteType = 1
+)
+
+// Enum value maps for MuteType.
+var (
+	MuteType_name = map[int32]string{
+		0: "MUTE_TYPE_PERMANENT",
+		1: "MUTE_TYPE_TEMPORARY",
+	}
+	MuteType_value = map[string]int32{
+		"MUTE_TYPE_PERMANENT": 0,
+		"MUTE_TYPE_TEMPORARY": 1,
+	}
+)
+
+func (x MuteType) Enum() *MuteType {
+	p := new(MuteType)
+	*p = x
+	return p
+}
+
+func (x MuteType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MuteType) Descriptor() protoreflect.EnumDescriptor {
+	return file_group_group_proto_enumTypes[0].Descriptor()
+}
+
+func (MuteType) Type() protoreflect.EnumType {
+	return &file_group_group_proto_enumTypes[0]
+}
+
+func (x MuteType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MuteType.Descriptor instead.
+func (MuteType) EnumDescriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{0}
+}
+
 type GetGroupInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GroupId       string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
@@ -73,6 +119,7 @@ type GetGroupInfoResponse struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Avatar        string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	Announcement  string                 `protobuf:"bytes,4,opt,name=announcement,proto3" json:"announcement,omitempty"`
+	Description   string                 `protobuf:"bytes,13,opt,name=description,proto3" json:"description,omitempty"`
 	OwnerId       string                 `protobuf:"bytes,5,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
 	MemberCount   int32                  `protobuf:"varint,6,opt,name=member_count,json=memberCount,proto3" json:"member_count,omitempty"`
 	MaxMembers    int32                  `protobuf:"varint,7,opt,name=max_members,json=maxMembers,proto3" json:"max_members,omitempty"`
@@ -139,6 +186,13 @@ func (x *GetGroupInfoResponse) GetAvatar() string {
 func (x *GetGroupInfoResponse) GetAnnouncement() string {
 	if x != nil {
 		return x.Announcement
+	}
+	return ""
+}
+
+func (x *GetGroupInfoResponse) GetDescription() string {
+	if x != nil {
+		return x.Description
 	}
 	return ""
 }
@@ -324,9 +378,9 @@ type GroupMember struct {
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	GroupNickname *string                `protobuf:"bytes,2,opt,name=group_nickname,json=groupNickname,proto3,oneof" json:"group_nickname,omitempty"`
 	Role          string                 `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"` // owner/admin/member
-	IsMuted       bool                   `protobuf:"varint,4,opt,name=is_muted,json=isMuted,proto3" json:"is_muted,omitempty"`
 	JoinedAt      *timestamp.Timestamp   `protobuf:"bytes,5,opt,name=joined_at,json=joinedAt,proto3" json:"joined_at,omitempty"`
 	UserInfo      *common.UserInfo       `protobuf:"bytes,6,opt,name=user_info,json=userInfo,proto3,oneof" json:"user_info,omitempty"`
+	MutedUntil    *timestamp.Timestamp   `protobuf:"bytes,7,opt,name=muted_until,json=mutedUntil,proto3,oneof" json:"muted_until,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -382,13 +436,6 @@ func (x *GroupMember) GetRole() string {
 	return ""
 }
 
-func (x *GroupMember) GetIsMuted() bool {
-	if x != nil {
-		return x.IsMuted
-	}
-	return false
-}
-
 func (x *GroupMember) GetJoinedAt() *timestamp.Timestamp {
 	if x != nil {
 		return x.JoinedAt
@@ -399,6 +446,13 @@ func (x *GroupMember) GetJoinedAt() *timestamp.Timestamp {
 func (x *GroupMember) GetUserInfo() *common.UserInfo {
 	if x != nil {
 		return x.UserInfo
+	}
+	return nil
+}
+
+func (x *GroupMember) GetMutedUntil() *timestamp.Timestamp {
+	if x != nil {
+		return x.MutedUntil
 	}
 	return nil
 }
@@ -701,7 +755,6 @@ type CreateGroupRequest struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Avatar        *string                `protobuf:"bytes,3,opt,name=avatar,proto3,oneof" json:"avatar,omitempty"`
 	MemberIds     []string               `protobuf:"bytes,4,rep,name=member_ids,json=memberIds,proto3" json:"member_ids,omitempty"`
-	JoinVerify    *bool                  `protobuf:"varint,5,opt,name=join_verify,json=joinVerify,proto3,oneof" json:"join_verify,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -762,13 +815,6 @@ func (x *CreateGroupRequest) GetMemberIds() []string {
 		return x.MemberIds
 	}
 	return nil
-}
-
-func (x *CreateGroupRequest) GetJoinVerify() bool {
-	if x != nil && x.JoinVerify != nil {
-		return *x.JoinVerify
-	}
-	return false
 }
 
 type CreateGroupResponse struct {
@@ -862,7 +908,7 @@ type UpdateGroupRequest struct {
 	Name          *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Avatar        *string                `protobuf:"bytes,4,opt,name=avatar,proto3,oneof" json:"avatar,omitempty"`
 	Announcement  *string                `protobuf:"bytes,5,opt,name=announcement,proto3,oneof" json:"announcement,omitempty"`
-	JoinVerify    *bool                  `protobuf:"varint,6,opt,name=join_verify,json=joinVerify,proto3,oneof" json:"join_verify,omitempty"`
+	Description   *string                `protobuf:"bytes,6,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -932,11 +978,11 @@ func (x *UpdateGroupRequest) GetAnnouncement() string {
 	return ""
 }
 
-func (x *UpdateGroupRequest) GetJoinVerify() bool {
-	if x != nil && x.JoinVerify != nil {
-		return *x.JoinVerify
+func (x *UpdateGroupRequest) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
-	return false
+	return ""
 }
 
 type DissolveGroupRequest struct {
@@ -1535,6 +1581,7 @@ type GetJoinRequestsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GroupId       string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	Status        *string                `protobuf:"bytes,2,opt,name=status,proto3,oneof" json:"status,omitempty"` // pending/accepted/rejected
+	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1579,6 +1626,13 @@ func (x *GetJoinRequestsRequest) GetGroupId() string {
 func (x *GetJoinRequestsRequest) GetStatus() string {
 	if x != nil && x.Status != nil {
 		return *x.Status
+	}
+	return ""
+}
+
+func (x *GetJoinRequestsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
 	}
 	return ""
 }
@@ -1735,21 +1789,504 @@ func (x *JoinRequest) GetUserInfo() *common.UserInfo {
 	return nil
 }
 
+type PinGroupMessageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	MessageId     string                 `protobuf:"bytes,3,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PinGroupMessageRequest) Reset() {
+	*x = PinGroupMessageRequest{}
+	mi := &file_group_group_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PinGroupMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PinGroupMessageRequest) ProtoMessage() {}
+
+func (x *PinGroupMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_group_group_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PinGroupMessageRequest.ProtoReflect.Descriptor instead.
+func (*PinGroupMessageRequest) Descriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *PinGroupMessageRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *PinGroupMessageRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *PinGroupMessageRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+type UnpinGroupMessageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	MessageId     string                 `protobuf:"bytes,3,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnpinGroupMessageRequest) Reset() {
+	*x = UnpinGroupMessageRequest{}
+	mi := &file_group_group_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnpinGroupMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnpinGroupMessageRequest) ProtoMessage() {}
+
+func (x *UnpinGroupMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_group_group_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnpinGroupMessageRequest.ProtoReflect.Descriptor instead.
+func (*UnpinGroupMessageRequest) Descriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *UnpinGroupMessageRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UnpinGroupMessageRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *UnpinGroupMessageRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+type GetPinnedMessagesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPinnedMessagesRequest) Reset() {
+	*x = GetPinnedMessagesRequest{}
+	mi := &file_group_group_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPinnedMessagesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPinnedMessagesRequest) ProtoMessage() {}
+
+func (x *GetPinnedMessagesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_group_group_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPinnedMessagesRequest.ProtoReflect.Descriptor instead.
+func (*GetPinnedMessagesRequest) Descriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *GetPinnedMessagesRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetPinnedMessagesRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+type PinnedMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	PinnedBy      string                 `protobuf:"bytes,3,opt,name=pinned_by,json=pinnedBy,proto3" json:"pinned_by,omitempty"`
+	PinnedAt      int64                  `protobuf:"varint,4,opt,name=pinned_at,json=pinnedAt,proto3" json:"pinned_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PinnedMessage) Reset() {
+	*x = PinnedMessage{}
+	mi := &file_group_group_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PinnedMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PinnedMessage) ProtoMessage() {}
+
+func (x *PinnedMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_group_group_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PinnedMessage.ProtoReflect.Descriptor instead.
+func (*PinnedMessage) Descriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *PinnedMessage) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+func (x *PinnedMessage) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *PinnedMessage) GetPinnedBy() string {
+	if x != nil {
+		return x.PinnedBy
+	}
+	return ""
+}
+
+func (x *PinnedMessage) GetPinnedAt() int64 {
+	if x != nil {
+		return x.PinnedAt
+	}
+	return 0
+}
+
+type GetPinnedMessagesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Messages      []*PinnedMessage       `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPinnedMessagesResponse) Reset() {
+	*x = GetPinnedMessagesResponse{}
+	mi := &file_group_group_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPinnedMessagesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPinnedMessagesResponse) ProtoMessage() {}
+
+func (x *GetPinnedMessagesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_group_group_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPinnedMessagesResponse.ProtoReflect.Descriptor instead.
+func (*GetPinnedMessagesResponse) Descriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *GetPinnedMessagesResponse) GetMessages() []*PinnedMessage {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
+type SetGroupMuteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	Enabled       bool                   `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetGroupMuteRequest) Reset() {
+	*x = SetGroupMuteRequest{}
+	mi := &file_group_group_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetGroupMuteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetGroupMuteRequest) ProtoMessage() {}
+
+func (x *SetGroupMuteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_group_group_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetGroupMuteRequest.ProtoReflect.Descriptor instead.
+func (*SetGroupMuteRequest) Descriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *SetGroupMuteRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *SetGroupMuteRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *SetGroupMuteRequest) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+type MuteMemberRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	UserId          string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	GroupId         string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	TargetUserId    string                 `protobuf:"bytes,3,opt,name=target_user_id,json=targetUserId,proto3" json:"target_user_id,omitempty"`
+	Type            MuteType               `protobuf:"varint,4,opt,name=type,proto3,enum=anychat.group.MuteType" json:"type,omitempty"`
+	DurationMinutes int32                  `protobuf:"varint,5,opt,name=duration_minutes,json=durationMinutes,proto3" json:"duration_minutes,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *MuteMemberRequest) Reset() {
+	*x = MuteMemberRequest{}
+	mi := &file_group_group_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MuteMemberRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MuteMemberRequest) ProtoMessage() {}
+
+func (x *MuteMemberRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_group_group_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MuteMemberRequest.ProtoReflect.Descriptor instead.
+func (*MuteMemberRequest) Descriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *MuteMemberRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *MuteMemberRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *MuteMemberRequest) GetTargetUserId() string {
+	if x != nil {
+		return x.TargetUserId
+	}
+	return ""
+}
+
+func (x *MuteMemberRequest) GetType() MuteType {
+	if x != nil {
+		return x.Type
+	}
+	return MuteType_MUTE_TYPE_PERMANENT
+}
+
+func (x *MuteMemberRequest) GetDurationMinutes() int32 {
+	if x != nil {
+		return x.DurationMinutes
+	}
+	return 0
+}
+
+type UnmuteMemberRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	TargetUserId  string                 `protobuf:"bytes,3,opt,name=target_user_id,json=targetUserId,proto3" json:"target_user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnmuteMemberRequest) Reset() {
+	*x = UnmuteMemberRequest{}
+	mi := &file_group_group_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnmuteMemberRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnmuteMemberRequest) ProtoMessage() {}
+
+func (x *UnmuteMemberRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_group_group_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnmuteMemberRequest.ProtoReflect.Descriptor instead.
+func (*UnmuteMemberRequest) Descriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *UnmuteMemberRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *UnmuteMemberRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *UnmuteMemberRequest) GetTargetUserId() string {
+	if x != nil {
+		return x.TargetUserId
+	}
+	return ""
+}
+
 type UpdateGroupSettingsRequest struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	UserId             string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	GroupId            string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-	AllowMemberInvite  *bool                  `protobuf:"varint,3,opt,name=allow_member_invite,json=allowMemberInvite,proto3,oneof" json:"allow_member_invite,omitempty"`
-	AllowViewHistory   *bool                  `protobuf:"varint,4,opt,name=allow_view_history,json=allowViewHistory,proto3,oneof" json:"allow_view_history,omitempty"`
-	AllowAddFriend     *bool                  `protobuf:"varint,5,opt,name=allow_add_friend,json=allowAddFriend,proto3,oneof" json:"allow_add_friend,omitempty"`
-	ShowMemberNickname *bool                  `protobuf:"varint,6,opt,name=show_member_nickname,json=showMemberNickname,proto3,oneof" json:"show_member_nickname,omitempty"`
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	UserId            string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	GroupId           string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	JoinVerify        *bool                  `protobuf:"varint,3,opt,name=join_verify,json=joinVerify,proto3,oneof" json:"join_verify,omitempty"`
+	AllowMemberInvite *bool                  `protobuf:"varint,4,opt,name=allow_member_invite,json=allowMemberInvite,proto3,oneof" json:"allow_member_invite,omitempty"`
+	AllowViewHistory  *bool                  `protobuf:"varint,5,opt,name=allow_view_history,json=allowViewHistory,proto3,oneof" json:"allow_view_history,omitempty"`
+	AllowAddFriend    *bool                  `protobuf:"varint,6,opt,name=allow_add_friend,json=allowAddFriend,proto3,oneof" json:"allow_add_friend,omitempty"`
+	AllowMemberModify *bool                  `protobuf:"varint,7,opt,name=allow_member_modify,json=allowMemberModify,proto3,oneof" json:"allow_member_modify,omitempty"`
+	// Deprecated: Marked as deprecated in group/group.proto.
+	ShowMemberNickname *bool `protobuf:"varint,8,opt,name=show_member_nickname,json=showMemberNickname,proto3,oneof" json:"show_member_nickname,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
 
 func (x *UpdateGroupSettingsRequest) Reset() {
 	*x = UpdateGroupSettingsRequest{}
-	mi := &file_group_group_proto_msgTypes[26]
+	mi := &file_group_group_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1761,7 +2298,7 @@ func (x *UpdateGroupSettingsRequest) String() string {
 func (*UpdateGroupSettingsRequest) ProtoMessage() {}
 
 func (x *UpdateGroupSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_group_group_proto_msgTypes[26]
+	mi := &file_group_group_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1774,7 +2311,7 @@ func (x *UpdateGroupSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateGroupSettingsRequest.ProtoReflect.Descriptor instead.
 func (*UpdateGroupSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_group_group_proto_rawDescGZIP(), []int{26}
+	return file_group_group_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *UpdateGroupSettingsRequest) GetUserId() string {
@@ -1789,6 +2326,13 @@ func (x *UpdateGroupSettingsRequest) GetGroupId() string {
 		return x.GroupId
 	}
 	return ""
+}
+
+func (x *UpdateGroupSettingsRequest) GetJoinVerify() bool {
+	if x != nil && x.JoinVerify != nil {
+		return *x.JoinVerify
+	}
+	return false
 }
 
 func (x *UpdateGroupSettingsRequest) GetAllowMemberInvite() bool {
@@ -1812,6 +2356,14 @@ func (x *UpdateGroupSettingsRequest) GetAllowAddFriend() bool {
 	return false
 }
 
+func (x *UpdateGroupSettingsRequest) GetAllowMemberModify() bool {
+	if x != nil && x.AllowMemberModify != nil {
+		return *x.AllowMemberModify
+	}
+	return false
+}
+
+// Deprecated: Marked as deprecated in group/group.proto.
 func (x *UpdateGroupSettingsRequest) GetShowMemberNickname() bool {
 	if x != nil && x.ShowMemberNickname != nil {
 		return *x.ShowMemberNickname
@@ -1828,7 +2380,7 @@ type GetGroupSettingsRequest struct {
 
 func (x *GetGroupSettingsRequest) Reset() {
 	*x = GetGroupSettingsRequest{}
-	mi := &file_group_group_proto_msgTypes[27]
+	mi := &file_group_group_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1840,7 +2392,7 @@ func (x *GetGroupSettingsRequest) String() string {
 func (*GetGroupSettingsRequest) ProtoMessage() {}
 
 func (x *GetGroupSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_group_group_proto_msgTypes[27]
+	mi := &file_group_group_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1853,7 +2405,7 @@ func (x *GetGroupSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGroupSettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetGroupSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_group_group_proto_rawDescGZIP(), []int{27}
+	return file_group_group_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetGroupSettingsRequest) GetGroupId() string {
@@ -1864,19 +2416,22 @@ func (x *GetGroupSettingsRequest) GetGroupId() string {
 }
 
 type GetGroupSettingsResponse struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	GroupId            string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-	AllowMemberInvite  bool                   `protobuf:"varint,2,opt,name=allow_member_invite,json=allowMemberInvite,proto3" json:"allow_member_invite,omitempty"`
-	AllowViewHistory   bool                   `protobuf:"varint,3,opt,name=allow_view_history,json=allowViewHistory,proto3" json:"allow_view_history,omitempty"`
-	AllowAddFriend     bool                   `protobuf:"varint,4,opt,name=allow_add_friend,json=allowAddFriend,proto3" json:"allow_add_friend,omitempty"`
-	ShowMemberNickname bool                   `protobuf:"varint,5,opt,name=show_member_nickname,json=showMemberNickname,proto3" json:"show_member_nickname,omitempty"`
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	GroupId           string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	JoinVerify        bool                   `protobuf:"varint,2,opt,name=join_verify,json=joinVerify,proto3" json:"join_verify,omitempty"`
+	AllowMemberInvite bool                   `protobuf:"varint,3,opt,name=allow_member_invite,json=allowMemberInvite,proto3" json:"allow_member_invite,omitempty"`
+	AllowViewHistory  bool                   `protobuf:"varint,4,opt,name=allow_view_history,json=allowViewHistory,proto3" json:"allow_view_history,omitempty"`
+	AllowAddFriend    bool                   `protobuf:"varint,5,opt,name=allow_add_friend,json=allowAddFriend,proto3" json:"allow_add_friend,omitempty"`
+	AllowMemberModify bool                   `protobuf:"varint,6,opt,name=allow_member_modify,json=allowMemberModify,proto3" json:"allow_member_modify,omitempty"`
+	// Deprecated: Marked as deprecated in group/group.proto.
+	ShowMemberNickname bool `protobuf:"varint,7,opt,name=show_member_nickname,json=showMemberNickname,proto3" json:"show_member_nickname,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
 
 func (x *GetGroupSettingsResponse) Reset() {
 	*x = GetGroupSettingsResponse{}
-	mi := &file_group_group_proto_msgTypes[28]
+	mi := &file_group_group_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1888,7 +2443,7 @@ func (x *GetGroupSettingsResponse) String() string {
 func (*GetGroupSettingsResponse) ProtoMessage() {}
 
 func (x *GetGroupSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_group_group_proto_msgTypes[28]
+	mi := &file_group_group_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1901,7 +2456,7 @@ func (x *GetGroupSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGroupSettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetGroupSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_group_group_proto_rawDescGZIP(), []int{28}
+	return file_group_group_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *GetGroupSettingsResponse) GetGroupId() string {
@@ -1909,6 +2464,13 @@ func (x *GetGroupSettingsResponse) GetGroupId() string {
 		return x.GroupId
 	}
 	return ""
+}
+
+func (x *GetGroupSettingsResponse) GetJoinVerify() bool {
+	if x != nil {
+		return x.JoinVerify
+	}
+	return false
 }
 
 func (x *GetGroupSettingsResponse) GetAllowMemberInvite() bool {
@@ -1932,6 +2494,14 @@ func (x *GetGroupSettingsResponse) GetAllowAddFriend() bool {
 	return false
 }
 
+func (x *GetGroupSettingsResponse) GetAllowMemberModify() bool {
+	if x != nil {
+		return x.AllowMemberModify
+	}
+	return false
+}
+
+// Deprecated: Marked as deprecated in group/group.proto.
 func (x *GetGroupSettingsResponse) GetShowMemberNickname() bool {
 	if x != nil {
 		return x.ShowMemberNickname
@@ -1945,12 +2515,13 @@ const file_group_group_proto_rawDesc = "" +
 	"\n" +
 	"\x11group/group.proto\x12\ranychat.group\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13common/common.proto\"0\n" +
 	"\x13GetGroupInfoRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\tR\agroupId\"\xaa\x03\n" +
+	"\bgroup_id\x18\x01 \x01(\tR\agroupId\"\xcc\x03\n" +
 	"\x14GetGroupInfoResponse\x12\x19\n" +
 	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
 	"\x06avatar\x18\x03 \x01(\tR\x06avatar\x12\"\n" +
-	"\fannouncement\x18\x04 \x01(\tR\fannouncement\x12\x19\n" +
+	"\fannouncement\x18\x04 \x01(\tR\fannouncement\x12 \n" +
+	"\vdescription\x18\r \x01(\tR\vdescription\x12\x19\n" +
 	"\bowner_id\x18\x05 \x01(\tR\aownerId\x12!\n" +
 	"\fmember_count\x18\x06 \x01(\x05R\vmemberCount\x12\x1f\n" +
 	"\vmax_members\x18\a \x01(\x05R\n" +
@@ -1974,17 +2545,19 @@ const file_group_group_proto_rawDesc = "" +
 	"_page_size\"e\n" +
 	"\x17GetGroupMembersResponse\x124\n" +
 	"\amembers\x18\x01 \x03(\v2\x1a.anychat.group.GroupMemberR\amembers\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"\x97\x02\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\xd4\x02\n" +
 	"\vGroupMember\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12*\n" +
 	"\x0egroup_nickname\x18\x02 \x01(\tH\x00R\rgroupNickname\x88\x01\x01\x12\x12\n" +
-	"\x04role\x18\x03 \x01(\tR\x04role\x12\x19\n" +
-	"\bis_muted\x18\x04 \x01(\bR\aisMuted\x127\n" +
+	"\x04role\x18\x03 \x01(\tR\x04role\x127\n" +
 	"\tjoined_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\bjoinedAt\x12:\n" +
-	"\tuser_info\x18\x06 \x01(\v2\x18.anychat.common.UserInfoH\x01R\buserInfo\x88\x01\x01B\x11\n" +
+	"\tuser_info\x18\x06 \x01(\v2\x18.anychat.common.UserInfoH\x01R\buserInfo\x88\x01\x01\x12@\n" +
+	"\vmuted_until\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x02R\n" +
+	"mutedUntil\x88\x01\x01B\x11\n" +
 	"\x0f_group_nicknameB\f\n" +
 	"\n" +
-	"_user_info\"E\n" +
+	"_user_infoB\x0e\n" +
+	"\f_muted_untilJ\x04\b\x04\x10\x05\"E\n" +
 	"\x0fIsMemberRequest\x12\x19\n" +
 	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"C\n" +
@@ -2006,17 +2579,14 @@ const file_group_group_proto_rawDesc = "" +
 	"\x06avatar\x18\x03 \x01(\tR\x06avatar\x12!\n" +
 	"\fmember_count\x18\x04 \x01(\x05R\vmemberCount\x129\n" +
 	"\n" +
-	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xbe\x01\n" +
+	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x8e\x01\n" +
 	"\x12CreateGroupRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1b\n" +
 	"\x06avatar\x18\x03 \x01(\tH\x00R\x06avatar\x88\x01\x01\x12\x1d\n" +
 	"\n" +
-	"member_ids\x18\x04 \x03(\tR\tmemberIds\x12$\n" +
-	"\vjoin_verify\x18\x05 \x01(\bH\x01R\n" +
-	"joinVerify\x88\x01\x01B\t\n" +
-	"\a_avatarB\x0e\n" +
-	"\f_join_verify\"\xe5\x01\n" +
+	"member_ids\x18\x04 \x03(\tR\tmemberIdsB\t\n" +
+	"\a_avatarJ\x04\b\x05\x10\x06\"\xe5\x01\n" +
 	"\x13CreateGroupResponse\x12\x19\n" +
 	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1b\n" +
@@ -2025,19 +2595,18 @@ const file_group_group_proto_rawDesc = "" +
 	"\fmember_count\x18\x05 \x01(\x05R\vmemberCount\x129\n" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\t\n" +
-	"\a_avatar\"\x82\x02\n" +
+	"\a_avatar\"\x83\x02\n" +
 	"\x12UpdateGroupRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x17\n" +
 	"\x04name\x18\x03 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1b\n" +
 	"\x06avatar\x18\x04 \x01(\tH\x01R\x06avatar\x88\x01\x01\x12'\n" +
-	"\fannouncement\x18\x05 \x01(\tH\x02R\fannouncement\x88\x01\x01\x12$\n" +
-	"\vjoin_verify\x18\x06 \x01(\bH\x03R\n" +
-	"joinVerify\x88\x01\x01B\a\n" +
+	"\fannouncement\x18\x05 \x01(\tH\x02R\fannouncement\x88\x01\x01\x12%\n" +
+	"\vdescription\x18\x06 \x01(\tH\x03R\vdescription\x88\x01\x01B\a\n" +
 	"\x05_nameB\t\n" +
 	"\a_avatarB\x0f\n" +
 	"\r_announcementB\x0e\n" +
-	"\f_join_verify\"J\n" +
+	"\f_description\"J\n" +
 	"\x14DissolveGroupRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"k\n" +
@@ -2086,10 +2655,11 @@ const file_group_group_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x02 \x01(\x03R\trequestId\x12\x16\n" +
-	"\x06accept\x18\x03 \x01(\bR\x06accept\"[\n" +
+	"\x06accept\x18\x03 \x01(\bR\x06accept\"t\n" +
 	"\x16GetJoinRequestsRequest\x12\x19\n" +
 	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12\x1b\n" +
-	"\x06status\x18\x02 \x01(\tH\x00R\x06status\x88\x01\x01B\t\n" +
+	"\x06status\x18\x02 \x01(\tH\x00R\x06status\x88\x01\x01\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userIdB\t\n" +
 	"\a_status\"g\n" +
 	"\x17GetJoinRequestsResponse\x126\n" +
 	"\brequests\x18\x01 \x03(\v2\x1a.anychat.group.JoinRequestR\brequests\x12\x14\n" +
@@ -2109,26 +2679,72 @@ const file_group_group_proto_rawDesc = "" +
 	"\n" +
 	"\b_messageB\f\n" +
 	"\n" +
-	"_user_info\"\xfb\x02\n" +
+	"_user_info\"k\n" +
+	"\x16PinGroupMessageRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x03 \x01(\tR\tmessageId\"m\n" +
+	"\x18UnpinGroupMessageRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x03 \x01(\tR\tmessageId\"N\n" +
+	"\x18GetPinnedMessagesRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\x82\x01\n" +
+	"\rPinnedMessage\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x18\n" +
+	"\acontent\x18\x02 \x01(\tR\acontent\x12\x1b\n" +
+	"\tpinned_by\x18\x03 \x01(\tR\bpinnedBy\x12\x1b\n" +
+	"\tpinned_at\x18\x04 \x01(\x03R\bpinnedAt\"U\n" +
+	"\x19GetPinnedMessagesResponse\x128\n" +
+	"\bmessages\x18\x01 \x03(\v2\x1c.anychat.group.PinnedMessageR\bmessages\"c\n" +
+	"\x13SetGroupMuteRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x18\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabled\"\xc5\x01\n" +
+	"\x11MuteMemberRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12$\n" +
+	"\x0etarget_user_id\x18\x03 \x01(\tR\ftargetUserId\x12+\n" +
+	"\x04type\x18\x04 \x01(\x0e2\x17.anychat.group.MuteTypeR\x04type\x12)\n" +
+	"\x10duration_minutes\x18\x05 \x01(\x05R\x0fdurationMinutes\"o\n" +
+	"\x13UnmuteMemberRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12$\n" +
+	"\x0etarget_user_id\x18\x03 \x01(\tR\ftargetUserId\"\x82\x04\n" +
 	"\x1aUpdateGroupSettingsRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
-	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x123\n" +
-	"\x13allow_member_invite\x18\x03 \x01(\bH\x00R\x11allowMemberInvite\x88\x01\x01\x121\n" +
-	"\x12allow_view_history\x18\x04 \x01(\bH\x01R\x10allowViewHistory\x88\x01\x01\x12-\n" +
-	"\x10allow_add_friend\x18\x05 \x01(\bH\x02R\x0eallowAddFriend\x88\x01\x01\x125\n" +
-	"\x14show_member_nickname\x18\x06 \x01(\bH\x03R\x12showMemberNickname\x88\x01\x01B\x16\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12$\n" +
+	"\vjoin_verify\x18\x03 \x01(\bH\x00R\n" +
+	"joinVerify\x88\x01\x01\x123\n" +
+	"\x13allow_member_invite\x18\x04 \x01(\bH\x01R\x11allowMemberInvite\x88\x01\x01\x121\n" +
+	"\x12allow_view_history\x18\x05 \x01(\bH\x02R\x10allowViewHistory\x88\x01\x01\x12-\n" +
+	"\x10allow_add_friend\x18\x06 \x01(\bH\x03R\x0eallowAddFriend\x88\x01\x01\x123\n" +
+	"\x13allow_member_modify\x18\a \x01(\bH\x04R\x11allowMemberModify\x88\x01\x01\x129\n" +
+	"\x14show_member_nickname\x18\b \x01(\bB\x02\x18\x01H\x05R\x12showMemberNickname\x88\x01\x01B\x0e\n" +
+	"\f_join_verifyB\x16\n" +
 	"\x14_allow_member_inviteB\x15\n" +
 	"\x13_allow_view_historyB\x13\n" +
-	"\x11_allow_add_friendB\x17\n" +
+	"\x11_allow_add_friendB\x16\n" +
+	"\x14_allow_member_modifyB\x17\n" +
 	"\x15_show_member_nickname\"4\n" +
 	"\x17GetGroupSettingsRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\tR\agroupId\"\xef\x01\n" +
+	"\bgroup_id\x18\x01 \x01(\tR\agroupId\"\xc4\x02\n" +
 	"\x18GetGroupSettingsResponse\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12.\n" +
-	"\x13allow_member_invite\x18\x02 \x01(\bR\x11allowMemberInvite\x12,\n" +
-	"\x12allow_view_history\x18\x03 \x01(\bR\x10allowViewHistory\x12(\n" +
-	"\x10allow_add_friend\x18\x04 \x01(\bR\x0eallowAddFriend\x120\n" +
-	"\x14show_member_nickname\x18\x05 \x01(\bR\x12showMemberNickname2\x83\f\n" +
+	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12\x1f\n" +
+	"\vjoin_verify\x18\x02 \x01(\bR\n" +
+	"joinVerify\x12.\n" +
+	"\x13allow_member_invite\x18\x03 \x01(\bR\x11allowMemberInvite\x12,\n" +
+	"\x12allow_view_history\x18\x04 \x01(\bR\x10allowViewHistory\x12(\n" +
+	"\x10allow_add_friend\x18\x05 \x01(\bR\x0eallowAddFriend\x12.\n" +
+	"\x13allow_member_modify\x18\x06 \x01(\bR\x11allowMemberModify\x124\n" +
+	"\x14show_member_nickname\x18\a \x01(\bB\x02\x18\x01R\x12showMemberNickname*<\n" +
+	"\bMuteType\x12\x17\n" +
+	"\x13MUTE_TYPE_PERMANENT\x10\x00\x12\x17\n" +
+	"\x13MUTE_TYPE_TEMPORARY\x10\x012\xee\x0f\n" +
 	"\fGroupService\x12W\n" +
 	"\fGetGroupInfo\x12\".anychat.group.GetGroupInfoRequest\x1a#.anychat.group.GetGroupInfoResponse\x12`\n" +
 	"\x0fGetGroupMembers\x12%.anychat.group.GetGroupMembersRequest\x1a&.anychat.group.GetGroupMembersResponse\x12K\n" +
@@ -2145,7 +2761,14 @@ const file_group_group_proto_rawDesc = "" +
 	"\x11TransferOwnership\x12'.anychat.group.TransferOwnershipRequest\x1a\x15.anychat.common.Empty\x12N\n" +
 	"\tJoinGroup\x12\x1f.anychat.group.JoinGroupRequest\x1a .anychat.group.JoinGroupResponse\x12S\n" +
 	"\x11HandleJoinRequest\x12'.anychat.group.HandleJoinRequestRequest\x1a\x15.anychat.common.Empty\x12`\n" +
-	"\x0fGetJoinRequests\x12%.anychat.group.GetJoinRequestsRequest\x1a&.anychat.group.GetJoinRequestsResponse\x12W\n" +
+	"\x0fGetJoinRequests\x12%.anychat.group.GetJoinRequestsRequest\x1a&.anychat.group.GetJoinRequestsResponse\x12O\n" +
+	"\x0fPinGroupMessage\x12%.anychat.group.PinGroupMessageRequest\x1a\x15.anychat.common.Empty\x12S\n" +
+	"\x11UnpinGroupMessage\x12'.anychat.group.UnpinGroupMessageRequest\x1a\x15.anychat.common.Empty\x12f\n" +
+	"\x11GetPinnedMessages\x12'.anychat.group.GetPinnedMessagesRequest\x1a(.anychat.group.GetPinnedMessagesResponse\x12I\n" +
+	"\fSetGroupMute\x12\".anychat.group.SetGroupMuteRequest\x1a\x15.anychat.common.Empty\x12E\n" +
+	"\n" +
+	"MuteMember\x12 .anychat.group.MuteMemberRequest\x1a\x15.anychat.common.Empty\x12I\n" +
+	"\fUnmuteMember\x12\".anychat.group.UnmuteMemberRequest\x1a\x15.anychat.common.Empty\x12W\n" +
 	"\x13UpdateGroupSettings\x12).anychat.group.UpdateGroupSettingsRequest\x1a\x15.anychat.common.Empty\x12c\n" +
 	"\x10GetGroupSettings\x12&.anychat.group.GetGroupSettingsRequest\x1a'.anychat.group.GetGroupSettingsResponseB3Z1github.com/anychat/server/api/proto/group;grouppbb\x06proto3"
 
@@ -2161,94 +2784,119 @@ func file_group_group_proto_rawDescGZIP() []byte {
 	return file_group_group_proto_rawDescData
 }
 
-var file_group_group_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_group_group_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_group_group_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
 var file_group_group_proto_goTypes = []any{
-	(*GetGroupInfoRequest)(nil),         // 0: anychat.group.GetGroupInfoRequest
-	(*GetGroupInfoResponse)(nil),        // 1: anychat.group.GetGroupInfoResponse
-	(*GetGroupMembersRequest)(nil),      // 2: anychat.group.GetGroupMembersRequest
-	(*GetGroupMembersResponse)(nil),     // 3: anychat.group.GetGroupMembersResponse
-	(*GroupMember)(nil),                 // 4: anychat.group.GroupMember
-	(*IsMemberRequest)(nil),             // 5: anychat.group.IsMemberRequest
-	(*IsMemberResponse)(nil),            // 6: anychat.group.IsMemberResponse
-	(*GetUserGroupsRequest)(nil),        // 7: anychat.group.GetUserGroupsRequest
-	(*GetUserGroupsResponse)(nil),       // 8: anychat.group.GetUserGroupsResponse
-	(*GroupInfo)(nil),                   // 9: anychat.group.GroupInfo
-	(*CreateGroupRequest)(nil),          // 10: anychat.group.CreateGroupRequest
-	(*CreateGroupResponse)(nil),         // 11: anychat.group.CreateGroupResponse
-	(*UpdateGroupRequest)(nil),          // 12: anychat.group.UpdateGroupRequest
-	(*DissolveGroupRequest)(nil),        // 13: anychat.group.DissolveGroupRequest
-	(*InviteMembersRequest)(nil),        // 14: anychat.group.InviteMembersRequest
-	(*RemoveMemberRequest)(nil),         // 15: anychat.group.RemoveMemberRequest
-	(*QuitGroupRequest)(nil),            // 16: anychat.group.QuitGroupRequest
-	(*UpdateMemberRoleRequest)(nil),     // 17: anychat.group.UpdateMemberRoleRequest
-	(*UpdateMemberNicknameRequest)(nil), // 18: anychat.group.UpdateMemberNicknameRequest
-	(*TransferOwnershipRequest)(nil),    // 19: anychat.group.TransferOwnershipRequest
-	(*JoinGroupRequest)(nil),            // 20: anychat.group.JoinGroupRequest
-	(*JoinGroupResponse)(nil),           // 21: anychat.group.JoinGroupResponse
-	(*HandleJoinRequestRequest)(nil),    // 22: anychat.group.HandleJoinRequestRequest
-	(*GetJoinRequestsRequest)(nil),      // 23: anychat.group.GetJoinRequestsRequest
-	(*GetJoinRequestsResponse)(nil),     // 24: anychat.group.GetJoinRequestsResponse
-	(*JoinRequest)(nil),                 // 25: anychat.group.JoinRequest
-	(*UpdateGroupSettingsRequest)(nil),  // 26: anychat.group.UpdateGroupSettingsRequest
-	(*GetGroupSettingsRequest)(nil),     // 27: anychat.group.GetGroupSettingsRequest
-	(*GetGroupSettingsResponse)(nil),    // 28: anychat.group.GetGroupSettingsResponse
-	(*timestamp.Timestamp)(nil),         // 29: google.protobuf.Timestamp
-	(*common.UserInfo)(nil),             // 30: anychat.common.UserInfo
-	(*common.Empty)(nil),                // 31: anychat.common.Empty
+	(MuteType)(0),                       // 0: anychat.group.MuteType
+	(*GetGroupInfoRequest)(nil),         // 1: anychat.group.GetGroupInfoRequest
+	(*GetGroupInfoResponse)(nil),        // 2: anychat.group.GetGroupInfoResponse
+	(*GetGroupMembersRequest)(nil),      // 3: anychat.group.GetGroupMembersRequest
+	(*GetGroupMembersResponse)(nil),     // 4: anychat.group.GetGroupMembersResponse
+	(*GroupMember)(nil),                 // 5: anychat.group.GroupMember
+	(*IsMemberRequest)(nil),             // 6: anychat.group.IsMemberRequest
+	(*IsMemberResponse)(nil),            // 7: anychat.group.IsMemberResponse
+	(*GetUserGroupsRequest)(nil),        // 8: anychat.group.GetUserGroupsRequest
+	(*GetUserGroupsResponse)(nil),       // 9: anychat.group.GetUserGroupsResponse
+	(*GroupInfo)(nil),                   // 10: anychat.group.GroupInfo
+	(*CreateGroupRequest)(nil),          // 11: anychat.group.CreateGroupRequest
+	(*CreateGroupResponse)(nil),         // 12: anychat.group.CreateGroupResponse
+	(*UpdateGroupRequest)(nil),          // 13: anychat.group.UpdateGroupRequest
+	(*DissolveGroupRequest)(nil),        // 14: anychat.group.DissolveGroupRequest
+	(*InviteMembersRequest)(nil),        // 15: anychat.group.InviteMembersRequest
+	(*RemoveMemberRequest)(nil),         // 16: anychat.group.RemoveMemberRequest
+	(*QuitGroupRequest)(nil),            // 17: anychat.group.QuitGroupRequest
+	(*UpdateMemberRoleRequest)(nil),     // 18: anychat.group.UpdateMemberRoleRequest
+	(*UpdateMemberNicknameRequest)(nil), // 19: anychat.group.UpdateMemberNicknameRequest
+	(*TransferOwnershipRequest)(nil),    // 20: anychat.group.TransferOwnershipRequest
+	(*JoinGroupRequest)(nil),            // 21: anychat.group.JoinGroupRequest
+	(*JoinGroupResponse)(nil),           // 22: anychat.group.JoinGroupResponse
+	(*HandleJoinRequestRequest)(nil),    // 23: anychat.group.HandleJoinRequestRequest
+	(*GetJoinRequestsRequest)(nil),      // 24: anychat.group.GetJoinRequestsRequest
+	(*GetJoinRequestsResponse)(nil),     // 25: anychat.group.GetJoinRequestsResponse
+	(*JoinRequest)(nil),                 // 26: anychat.group.JoinRequest
+	(*PinGroupMessageRequest)(nil),      // 27: anychat.group.PinGroupMessageRequest
+	(*UnpinGroupMessageRequest)(nil),    // 28: anychat.group.UnpinGroupMessageRequest
+	(*GetPinnedMessagesRequest)(nil),    // 29: anychat.group.GetPinnedMessagesRequest
+	(*PinnedMessage)(nil),               // 30: anychat.group.PinnedMessage
+	(*GetPinnedMessagesResponse)(nil),   // 31: anychat.group.GetPinnedMessagesResponse
+	(*SetGroupMuteRequest)(nil),         // 32: anychat.group.SetGroupMuteRequest
+	(*MuteMemberRequest)(nil),           // 33: anychat.group.MuteMemberRequest
+	(*UnmuteMemberRequest)(nil),         // 34: anychat.group.UnmuteMemberRequest
+	(*UpdateGroupSettingsRequest)(nil),  // 35: anychat.group.UpdateGroupSettingsRequest
+	(*GetGroupSettingsRequest)(nil),     // 36: anychat.group.GetGroupSettingsRequest
+	(*GetGroupSettingsResponse)(nil),    // 37: anychat.group.GetGroupSettingsResponse
+	(*timestamp.Timestamp)(nil),         // 38: google.protobuf.Timestamp
+	(*common.UserInfo)(nil),             // 39: anychat.common.UserInfo
+	(*common.Empty)(nil),                // 40: anychat.common.Empty
 }
 var file_group_group_proto_depIdxs = []int32{
-	29, // 0: anychat.group.GetGroupInfoResponse.created_at:type_name -> google.protobuf.Timestamp
-	29, // 1: anychat.group.GetGroupInfoResponse.updated_at:type_name -> google.protobuf.Timestamp
-	4,  // 2: anychat.group.GetGroupMembersResponse.members:type_name -> anychat.group.GroupMember
-	29, // 3: anychat.group.GroupMember.joined_at:type_name -> google.protobuf.Timestamp
-	30, // 4: anychat.group.GroupMember.user_info:type_name -> anychat.common.UserInfo
-	9,  // 5: anychat.group.GetUserGroupsResponse.groups:type_name -> anychat.group.GroupInfo
-	29, // 6: anychat.group.GroupInfo.updated_at:type_name -> google.protobuf.Timestamp
-	29, // 7: anychat.group.CreateGroupResponse.created_at:type_name -> google.protobuf.Timestamp
-	25, // 8: anychat.group.GetJoinRequestsResponse.requests:type_name -> anychat.group.JoinRequest
-	29, // 9: anychat.group.JoinRequest.created_at:type_name -> google.protobuf.Timestamp
-	30, // 10: anychat.group.JoinRequest.user_info:type_name -> anychat.common.UserInfo
-	0,  // 11: anychat.group.GroupService.GetGroupInfo:input_type -> anychat.group.GetGroupInfoRequest
-	2,  // 12: anychat.group.GroupService.GetGroupMembers:input_type -> anychat.group.GetGroupMembersRequest
-	5,  // 13: anychat.group.GroupService.IsMember:input_type -> anychat.group.IsMemberRequest
-	7,  // 14: anychat.group.GroupService.GetUserGroups:input_type -> anychat.group.GetUserGroupsRequest
-	10, // 15: anychat.group.GroupService.CreateGroup:input_type -> anychat.group.CreateGroupRequest
-	12, // 16: anychat.group.GroupService.UpdateGroup:input_type -> anychat.group.UpdateGroupRequest
-	13, // 17: anychat.group.GroupService.DissolveGroup:input_type -> anychat.group.DissolveGroupRequest
-	14, // 18: anychat.group.GroupService.InviteMembers:input_type -> anychat.group.InviteMembersRequest
-	15, // 19: anychat.group.GroupService.RemoveMember:input_type -> anychat.group.RemoveMemberRequest
-	16, // 20: anychat.group.GroupService.QuitGroup:input_type -> anychat.group.QuitGroupRequest
-	17, // 21: anychat.group.GroupService.UpdateMemberRole:input_type -> anychat.group.UpdateMemberRoleRequest
-	18, // 22: anychat.group.GroupService.UpdateMemberNickname:input_type -> anychat.group.UpdateMemberNicknameRequest
-	19, // 23: anychat.group.GroupService.TransferOwnership:input_type -> anychat.group.TransferOwnershipRequest
-	20, // 24: anychat.group.GroupService.JoinGroup:input_type -> anychat.group.JoinGroupRequest
-	22, // 25: anychat.group.GroupService.HandleJoinRequest:input_type -> anychat.group.HandleJoinRequestRequest
-	23, // 26: anychat.group.GroupService.GetJoinRequests:input_type -> anychat.group.GetJoinRequestsRequest
-	26, // 27: anychat.group.GroupService.UpdateGroupSettings:input_type -> anychat.group.UpdateGroupSettingsRequest
-	27, // 28: anychat.group.GroupService.GetGroupSettings:input_type -> anychat.group.GetGroupSettingsRequest
-	1,  // 29: anychat.group.GroupService.GetGroupInfo:output_type -> anychat.group.GetGroupInfoResponse
-	3,  // 30: anychat.group.GroupService.GetGroupMembers:output_type -> anychat.group.GetGroupMembersResponse
-	6,  // 31: anychat.group.GroupService.IsMember:output_type -> anychat.group.IsMemberResponse
-	8,  // 32: anychat.group.GroupService.GetUserGroups:output_type -> anychat.group.GetUserGroupsResponse
-	11, // 33: anychat.group.GroupService.CreateGroup:output_type -> anychat.group.CreateGroupResponse
-	31, // 34: anychat.group.GroupService.UpdateGroup:output_type -> anychat.common.Empty
-	31, // 35: anychat.group.GroupService.DissolveGroup:output_type -> anychat.common.Empty
-	31, // 36: anychat.group.GroupService.InviteMembers:output_type -> anychat.common.Empty
-	31, // 37: anychat.group.GroupService.RemoveMember:output_type -> anychat.common.Empty
-	31, // 38: anychat.group.GroupService.QuitGroup:output_type -> anychat.common.Empty
-	31, // 39: anychat.group.GroupService.UpdateMemberRole:output_type -> anychat.common.Empty
-	31, // 40: anychat.group.GroupService.UpdateMemberNickname:output_type -> anychat.common.Empty
-	31, // 41: anychat.group.GroupService.TransferOwnership:output_type -> anychat.common.Empty
-	21, // 42: anychat.group.GroupService.JoinGroup:output_type -> anychat.group.JoinGroupResponse
-	31, // 43: anychat.group.GroupService.HandleJoinRequest:output_type -> anychat.common.Empty
-	24, // 44: anychat.group.GroupService.GetJoinRequests:output_type -> anychat.group.GetJoinRequestsResponse
-	31, // 45: anychat.group.GroupService.UpdateGroupSettings:output_type -> anychat.common.Empty
-	28, // 46: anychat.group.GroupService.GetGroupSettings:output_type -> anychat.group.GetGroupSettingsResponse
-	29, // [29:47] is the sub-list for method output_type
-	11, // [11:29] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	38, // 0: anychat.group.GetGroupInfoResponse.created_at:type_name -> google.protobuf.Timestamp
+	38, // 1: anychat.group.GetGroupInfoResponse.updated_at:type_name -> google.protobuf.Timestamp
+	5,  // 2: anychat.group.GetGroupMembersResponse.members:type_name -> anychat.group.GroupMember
+	38, // 3: anychat.group.GroupMember.joined_at:type_name -> google.protobuf.Timestamp
+	39, // 4: anychat.group.GroupMember.user_info:type_name -> anychat.common.UserInfo
+	38, // 5: anychat.group.GroupMember.muted_until:type_name -> google.protobuf.Timestamp
+	10, // 6: anychat.group.GetUserGroupsResponse.groups:type_name -> anychat.group.GroupInfo
+	38, // 7: anychat.group.GroupInfo.updated_at:type_name -> google.protobuf.Timestamp
+	38, // 8: anychat.group.CreateGroupResponse.created_at:type_name -> google.protobuf.Timestamp
+	26, // 9: anychat.group.GetJoinRequestsResponse.requests:type_name -> anychat.group.JoinRequest
+	38, // 10: anychat.group.JoinRequest.created_at:type_name -> google.protobuf.Timestamp
+	39, // 11: anychat.group.JoinRequest.user_info:type_name -> anychat.common.UserInfo
+	30, // 12: anychat.group.GetPinnedMessagesResponse.messages:type_name -> anychat.group.PinnedMessage
+	0,  // 13: anychat.group.MuteMemberRequest.type:type_name -> anychat.group.MuteType
+	1,  // 14: anychat.group.GroupService.GetGroupInfo:input_type -> anychat.group.GetGroupInfoRequest
+	3,  // 15: anychat.group.GroupService.GetGroupMembers:input_type -> anychat.group.GetGroupMembersRequest
+	6,  // 16: anychat.group.GroupService.IsMember:input_type -> anychat.group.IsMemberRequest
+	8,  // 17: anychat.group.GroupService.GetUserGroups:input_type -> anychat.group.GetUserGroupsRequest
+	11, // 18: anychat.group.GroupService.CreateGroup:input_type -> anychat.group.CreateGroupRequest
+	13, // 19: anychat.group.GroupService.UpdateGroup:input_type -> anychat.group.UpdateGroupRequest
+	14, // 20: anychat.group.GroupService.DissolveGroup:input_type -> anychat.group.DissolveGroupRequest
+	15, // 21: anychat.group.GroupService.InviteMembers:input_type -> anychat.group.InviteMembersRequest
+	16, // 22: anychat.group.GroupService.RemoveMember:input_type -> anychat.group.RemoveMemberRequest
+	17, // 23: anychat.group.GroupService.QuitGroup:input_type -> anychat.group.QuitGroupRequest
+	18, // 24: anychat.group.GroupService.UpdateMemberRole:input_type -> anychat.group.UpdateMemberRoleRequest
+	19, // 25: anychat.group.GroupService.UpdateMemberNickname:input_type -> anychat.group.UpdateMemberNicknameRequest
+	20, // 26: anychat.group.GroupService.TransferOwnership:input_type -> anychat.group.TransferOwnershipRequest
+	21, // 27: anychat.group.GroupService.JoinGroup:input_type -> anychat.group.JoinGroupRequest
+	23, // 28: anychat.group.GroupService.HandleJoinRequest:input_type -> anychat.group.HandleJoinRequestRequest
+	24, // 29: anychat.group.GroupService.GetJoinRequests:input_type -> anychat.group.GetJoinRequestsRequest
+	27, // 30: anychat.group.GroupService.PinGroupMessage:input_type -> anychat.group.PinGroupMessageRequest
+	28, // 31: anychat.group.GroupService.UnpinGroupMessage:input_type -> anychat.group.UnpinGroupMessageRequest
+	29, // 32: anychat.group.GroupService.GetPinnedMessages:input_type -> anychat.group.GetPinnedMessagesRequest
+	32, // 33: anychat.group.GroupService.SetGroupMute:input_type -> anychat.group.SetGroupMuteRequest
+	33, // 34: anychat.group.GroupService.MuteMember:input_type -> anychat.group.MuteMemberRequest
+	34, // 35: anychat.group.GroupService.UnmuteMember:input_type -> anychat.group.UnmuteMemberRequest
+	35, // 36: anychat.group.GroupService.UpdateGroupSettings:input_type -> anychat.group.UpdateGroupSettingsRequest
+	36, // 37: anychat.group.GroupService.GetGroupSettings:input_type -> anychat.group.GetGroupSettingsRequest
+	2,  // 38: anychat.group.GroupService.GetGroupInfo:output_type -> anychat.group.GetGroupInfoResponse
+	4,  // 39: anychat.group.GroupService.GetGroupMembers:output_type -> anychat.group.GetGroupMembersResponse
+	7,  // 40: anychat.group.GroupService.IsMember:output_type -> anychat.group.IsMemberResponse
+	9,  // 41: anychat.group.GroupService.GetUserGroups:output_type -> anychat.group.GetUserGroupsResponse
+	12, // 42: anychat.group.GroupService.CreateGroup:output_type -> anychat.group.CreateGroupResponse
+	40, // 43: anychat.group.GroupService.UpdateGroup:output_type -> anychat.common.Empty
+	40, // 44: anychat.group.GroupService.DissolveGroup:output_type -> anychat.common.Empty
+	40, // 45: anychat.group.GroupService.InviteMembers:output_type -> anychat.common.Empty
+	40, // 46: anychat.group.GroupService.RemoveMember:output_type -> anychat.common.Empty
+	40, // 47: anychat.group.GroupService.QuitGroup:output_type -> anychat.common.Empty
+	40, // 48: anychat.group.GroupService.UpdateMemberRole:output_type -> anychat.common.Empty
+	40, // 49: anychat.group.GroupService.UpdateMemberNickname:output_type -> anychat.common.Empty
+	40, // 50: anychat.group.GroupService.TransferOwnership:output_type -> anychat.common.Empty
+	22, // 51: anychat.group.GroupService.JoinGroup:output_type -> anychat.group.JoinGroupResponse
+	40, // 52: anychat.group.GroupService.HandleJoinRequest:output_type -> anychat.common.Empty
+	25, // 53: anychat.group.GroupService.GetJoinRequests:output_type -> anychat.group.GetJoinRequestsResponse
+	40, // 54: anychat.group.GroupService.PinGroupMessage:output_type -> anychat.common.Empty
+	40, // 55: anychat.group.GroupService.UnpinGroupMessage:output_type -> anychat.common.Empty
+	31, // 56: anychat.group.GroupService.GetPinnedMessages:output_type -> anychat.group.GetPinnedMessagesResponse
+	40, // 57: anychat.group.GroupService.SetGroupMute:output_type -> anychat.common.Empty
+	40, // 58: anychat.group.GroupService.MuteMember:output_type -> anychat.common.Empty
+	40, // 59: anychat.group.GroupService.UnmuteMember:output_type -> anychat.common.Empty
+	40, // 60: anychat.group.GroupService.UpdateGroupSettings:output_type -> anychat.common.Empty
+	37, // 61: anychat.group.GroupService.GetGroupSettings:output_type -> anychat.group.GetGroupSettingsResponse
+	38, // [38:62] is the sub-list for method output_type
+	14, // [14:38] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_group_group_proto_init() }
@@ -2266,19 +2914,20 @@ func file_group_group_proto_init() {
 	file_group_group_proto_msgTypes[21].OneofWrappers = []any{}
 	file_group_group_proto_msgTypes[23].OneofWrappers = []any{}
 	file_group_group_proto_msgTypes[25].OneofWrappers = []any{}
-	file_group_group_proto_msgTypes[26].OneofWrappers = []any{}
+	file_group_group_proto_msgTypes[34].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_group_group_proto_rawDesc), len(file_group_group_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   29,
+			NumEnums:      1,
+			NumMessages:   37,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_group_group_proto_goTypes,
 		DependencyIndexes: file_group_group_proto_depIdxs,
+		EnumInfos:         file_group_group_proto_enumTypes,
 		MessageInfos:      file_group_group_proto_msgTypes,
 	}.Build()
 	File_group_group_proto = out.File

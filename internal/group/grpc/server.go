@@ -41,6 +41,7 @@ func (s *GroupServer) GetGroupInfo(ctx context.Context, req *grouppb.GetGroupInf
 		Name:         resp.Name,
 		Avatar:       resp.Avatar,
 		Announcement: resp.Announcement,
+		Description:  resp.Description,
 		OwnerId:      resp.OwnerID,
 		MemberCount:  resp.MemberCount,
 		MaxMembers:   resp.MaxMembers,
@@ -74,8 +75,10 @@ func (s *GroupServer) GetGroupMembers(ctx context.Context, req *grouppb.GetGroup
 		member := &grouppb.GroupMember{
 			UserId:   m.UserID,
 			Role:     m.Role,
-			IsMuted:  m.IsMuted,
 			JoinedAt: timestamppb.New(m.JoinedAt),
+		}
+		if m.MutedUntil != nil {
+			member.MutedUntil = timestamppb.New(*m.MutedUntil)
 		}
 		if m.GroupNickname != nil {
 			member.GroupNickname = m.GroupNickname
@@ -152,9 +155,6 @@ func (s *GroupServer) CreateGroup(ctx context.Context, req *grouppb.CreateGroupR
 	if req.Avatar != nil {
 		dtoReq.Avatar = *req.Avatar
 	}
-	if req.JoinVerify != nil {
-		dtoReq.JoinVerify = *req.JoinVerify
-	}
 
 	// 调用service层
 	resp, err := s.groupService.CreateGroup(ctx, req.UserId, dtoReq)
@@ -179,7 +179,7 @@ func (s *GroupServer) UpdateGroup(ctx context.Context, req *grouppb.UpdateGroupR
 		Name:         req.Name,
 		Avatar:       req.Avatar,
 		Announcement: req.Announcement,
-		JoinVerify:   req.JoinVerify,
+		Description:  req.Description,
 	}
 
 	// 调用service层
@@ -326,7 +326,7 @@ func (s *GroupServer) GetJoinRequests(ctx context.Context, req *grouppb.GetJoinR
 		status = req.Status
 	}
 
-	resp, err := s.groupService.GetJoinRequests(ctx, req.GroupId, status)
+	resp, err := s.groupService.GetJoinRequests(ctx, req.UserId, req.GroupId, status)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -361,14 +361,84 @@ func (s *GroupServer) GetJoinRequests(ctx context.Context, req *grouppb.GetJoinR
 	}, nil
 }
 
+// PinGroupMessage 置顶群消息
+func (s *GroupServer) PinGroupMessage(ctx context.Context, req *grouppb.PinGroupMessageRequest) (*commonpb.Empty, error) {
+	if err := s.groupService.PinGroupMessage(ctx, req.UserId, req.GroupId, req.MessageId); err != nil {
+		return nil, convertError(err)
+	}
+	return &commonpb.Empty{}, nil
+}
+
+// UnpinGroupMessage 取消置顶群消息
+func (s *GroupServer) UnpinGroupMessage(ctx context.Context, req *grouppb.UnpinGroupMessageRequest) (*commonpb.Empty, error) {
+	if err := s.groupService.UnpinGroupMessage(ctx, req.UserId, req.GroupId, req.MessageId); err != nil {
+		return nil, convertError(err)
+	}
+	return &commonpb.Empty{}, nil
+}
+
+// GetPinnedMessages 获取置顶消息列表
+func (s *GroupServer) GetPinnedMessages(ctx context.Context, req *grouppb.GetPinnedMessagesRequest) (*grouppb.GetPinnedMessagesResponse, error) {
+	resp, err := s.groupService.GetPinnedMessages(ctx, req.UserId, req.GroupId)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
+	items := make([]*grouppb.PinnedMessage, 0, len(resp.Messages))
+	for _, m := range resp.Messages {
+		items = append(items, &grouppb.PinnedMessage{
+			MessageId: m.MessageID,
+			Content:   m.Content,
+			PinnedBy:  m.PinnedBy,
+			PinnedAt:  m.PinnedAt,
+		})
+	}
+
+	return &grouppb.GetPinnedMessagesResponse{Messages: items}, nil
+}
+
+// SetGroupMute 设置全体禁言
+func (s *GroupServer) SetGroupMute(ctx context.Context, req *grouppb.SetGroupMuteRequest) (*commonpb.Empty, error) {
+	if err := s.groupService.SetGroupMute(ctx, req.UserId, req.GroupId, req.Enabled); err != nil {
+		return nil, convertError(err)
+	}
+	return &commonpb.Empty{}, nil
+}
+
+// MuteMember 禁言成员
+func (s *GroupServer) MuteMember(ctx context.Context, req *grouppb.MuteMemberRequest) (*commonpb.Empty, error) {
+	dtoReq := &dto.MuteMemberRequest{
+		DurationMinutes: req.DurationMinutes,
+	}
+	if req.Type == grouppb.MuteType_MUTE_TYPE_PERMANENT {
+		dtoReq.Type = "permanent"
+	} else {
+		dtoReq.Type = "temporary"
+	}
+
+	if err := s.groupService.MuteMember(ctx, req.UserId, req.GroupId, req.TargetUserId, dtoReq); err != nil {
+		return nil, convertError(err)
+	}
+	return &commonpb.Empty{}, nil
+}
+
+// UnmuteMember 解除禁言
+func (s *GroupServer) UnmuteMember(ctx context.Context, req *grouppb.UnmuteMemberRequest) (*commonpb.Empty, error) {
+	if err := s.groupService.UnmuteMember(ctx, req.UserId, req.GroupId, req.TargetUserId); err != nil {
+		return nil, convertError(err)
+	}
+	return &commonpb.Empty{}, nil
+}
+
 // UpdateGroupSettings 更新群组设置
 func (s *GroupServer) UpdateGroupSettings(ctx context.Context, req *grouppb.UpdateGroupSettingsRequest) (*commonpb.Empty, error) {
 	// Proto -> DTO 转换
 	dtoReq := &dto.UpdateGroupSettingsRequest{
-		AllowMemberInvite:  req.AllowMemberInvite,
-		AllowViewHistory:   req.AllowViewHistory,
-		AllowAddFriend:     req.AllowAddFriend,
-		ShowMemberNickname: req.ShowMemberNickname,
+		JoinVerify:        req.JoinVerify,
+		AllowMemberInvite: req.AllowMemberInvite,
+		AllowViewHistory:  req.AllowViewHistory,
+		AllowAddFriend:    req.AllowAddFriend,
+		AllowMemberModify: req.AllowMemberModify,
 	}
 
 	// 调用service层
@@ -388,11 +458,12 @@ func (s *GroupServer) GetGroupSettings(ctx context.Context, req *grouppb.GetGrou
 	}
 
 	return &grouppb.GetGroupSettingsResponse{
-		GroupId:            resp.GroupID,
-		AllowMemberInvite:  resp.AllowMemberInvite,
-		AllowViewHistory:   resp.AllowViewHistory,
-		AllowAddFriend:     resp.AllowAddFriend,
-		ShowMemberNickname: resp.ShowMemberNickname,
+		GroupId:           resp.GroupID,
+		JoinVerify:        resp.JoinVerify,
+		AllowMemberInvite: resp.AllowMemberInvite,
+		AllowViewHistory:  resp.AllowViewHistory,
+		AllowAddFriend:    resp.AllowAddFriend,
+		AllowMemberModify: resp.AllowMemberModify,
 	}, nil
 }
 

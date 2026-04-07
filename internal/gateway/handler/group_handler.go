@@ -3,12 +3,12 @@ package handler
 import (
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	grouppb "github.com/anychat/server/api/proto/group"
 	"github.com/anychat/server/internal/gateway/client"
 	gwmiddleware "github.com/anychat/server/internal/gateway/middleware"
 	groupdto "github.com/anychat/server/internal/group/dto"
 	"github.com/anychat/server/pkg/response"
+	"github.com/gin-gonic/gin"
 )
 
 type GroupHandler struct {
@@ -42,11 +42,10 @@ func (h *GroupHandler) CreateGroup(c *gin.Context) {
 	}
 
 	resp, err := h.clientManager.Group().CreateGroup(c.Request.Context(), &grouppb.CreateGroupRequest{
-		UserId:     userID,
-		Name:       req.Name,
-		Avatar:     &req.Avatar,
-		MemberIds:  req.MemberIDs,
-		JoinVerify: &req.JoinVerify,
+		UserId:    userID,
+		Name:      req.Name,
+		Avatar:    &req.Avatar,
+		MemberIds: req.MemberIDs,
 	})
 
 	if err != nil {
@@ -109,6 +108,7 @@ func (h *GroupHandler) GetGroupInfo(c *gin.Context) {
 		Name:         resp.Name,
 		Avatar:       resp.Avatar,
 		Announcement: resp.Announcement,
+		Description:  resp.Description,
 		OwnerID:      resp.OwnerId,
 		MemberCount:  resp.MemberCount,
 		MaxMembers:   resp.MaxMembers,
@@ -155,7 +155,7 @@ func (h *GroupHandler) UpdateGroup(c *gin.Context) {
 		Name:         req.Name,
 		Avatar:       req.Avatar,
 		Announcement: req.Announcement,
-		JoinVerify:   req.JoinVerify,
+		Description:  req.Description,
 	})
 
 	if err != nil {
@@ -579,6 +579,55 @@ func (h *GroupHandler) HandleJoinRequest(c *gin.Context) {
 	response.Success(c, nil)
 }
 
+// MuteMember 禁言成员
+func (h *GroupHandler) MuteMember(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
+	groupID := c.Param("id")
+	targetUserID := c.Param("userId")
+
+	var req groupdto.MuteMemberRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ParamError(c, err.Error())
+		return
+	}
+
+	muteType := grouppb.MuteType_MUTE_TYPE_PERMANENT
+	if req.Type == "temporary" {
+		muteType = grouppb.MuteType_MUTE_TYPE_TEMPORARY
+	}
+
+	_, err := h.clientManager.Group().MuteMember(c.Request.Context(), &grouppb.MuteMemberRequest{
+		UserId:          userID,
+		GroupId:         groupID,
+		TargetUserId:    targetUserID,
+		Type:            muteType,
+		DurationMinutes: req.DurationMinutes,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+	response.Success(c, nil)
+}
+
+// UnmuteMember 解除成员禁言
+func (h *GroupHandler) UnmuteMember(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
+	groupID := c.Param("id")
+	targetUserID := c.Param("userId")
+
+	_, err := h.clientManager.Group().UnmuteMember(c.Request.Context(), &grouppb.UnmuteMemberRequest{
+		UserId:       userID,
+		GroupId:      groupID,
+		TargetUserId: targetUserID,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+	response.Success(c, nil)
+}
+
 // GetJoinRequests 获取入群申请列表
 // @Summary      获取入群申请列表
 // @Description  获取指定群组的入群申请列表（需要管理员权限）
@@ -593,6 +642,7 @@ func (h *GroupHandler) HandleJoinRequest(c *gin.Context) {
 // @Failure      403     {object}  response.Response  "无权限"
 // @Router       /groups/{id}/requests [get]
 func (h *GroupHandler) GetJoinRequests(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
 	groupID := c.Param("id")
 
 	var status *string
@@ -603,6 +653,7 @@ func (h *GroupHandler) GetJoinRequests(c *gin.Context) {
 	resp, err := h.clientManager.Group().GetJoinRequests(c.Request.Context(), &grouppb.GetJoinRequestsRequest{
 		GroupId: groupID,
 		Status:  status,
+		UserId:  userID,
 	})
 
 	if err != nil {
@@ -611,6 +662,133 @@ func (h *GroupHandler) GetJoinRequests(c *gin.Context) {
 	}
 
 	response.Success(c, resp)
+}
+
+// PinGroupMessage 置顶群消息
+func (h *GroupHandler) PinGroupMessage(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
+	groupID := c.Param("id")
+
+	var req groupdto.PinGroupMessageRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ParamError(c, err.Error())
+		return
+	}
+
+	_, err := h.clientManager.Group().PinGroupMessage(c.Request.Context(), &grouppb.PinGroupMessageRequest{
+		UserId:    userID,
+		GroupId:   groupID,
+		MessageId: req.MessageID,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+	response.Success(c, nil)
+}
+
+// UnpinGroupMessage 取消置顶群消息
+func (h *GroupHandler) UnpinGroupMessage(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
+	groupID := c.Param("id")
+	messageID := c.Param("messageId")
+
+	_, err := h.clientManager.Group().UnpinGroupMessage(c.Request.Context(), &grouppb.UnpinGroupMessageRequest{
+		UserId:    userID,
+		GroupId:   groupID,
+		MessageId: messageID,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+	response.Success(c, nil)
+}
+
+// GetPinnedMessages 获取群置顶消息列表
+func (h *GroupHandler) GetPinnedMessages(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
+	groupID := c.Param("id")
+
+	resp, err := h.clientManager.Group().GetPinnedMessages(c.Request.Context(), &grouppb.GetPinnedMessagesRequest{
+		UserId:  userID,
+		GroupId: groupID,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+	response.Success(c, resp)
+}
+
+// SetGroupMute 设置全体禁言
+func (h *GroupHandler) SetGroupMute(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
+	groupID := c.Param("id")
+
+	var req groupdto.SetGroupMuteRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ParamError(c, err.Error())
+		return
+	}
+
+	_, err := h.clientManager.Group().SetGroupMute(c.Request.Context(), &grouppb.SetGroupMuteRequest{
+		UserId:  userID,
+		GroupId: groupID,
+		Enabled: req.Enabled,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+	response.Success(c, nil)
+}
+
+// UpdateGroupSettings 更新群设置
+func (h *GroupHandler) UpdateGroupSettings(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
+	groupID := c.Param("id")
+
+	var req groupdto.UpdateGroupSettingsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ParamError(c, err.Error())
+		return
+	}
+
+	_, err := h.clientManager.Group().UpdateGroupSettings(c.Request.Context(), &grouppb.UpdateGroupSettingsRequest{
+		UserId:            userID,
+		GroupId:           groupID,
+		JoinVerify:        req.JoinVerify,
+		AllowMemberInvite: req.AllowMemberInvite,
+		AllowViewHistory:  req.AllowViewHistory,
+		AllowAddFriend:    req.AllowAddFriend,
+		AllowMemberModify: req.AllowMemberModify,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+	response.Success(c, nil)
+}
+
+// GetGroupSettings 获取群设置
+func (h *GroupHandler) GetGroupSettings(c *gin.Context) {
+	groupID := c.Param("id")
+	resp, err := h.clientManager.Group().GetGroupSettings(c.Request.Context(), &grouppb.GetGroupSettingsRequest{
+		GroupId: groupID,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+	response.Success(c, gin.H{
+		"groupId":           resp.GroupId,
+		"joinVerify":        resp.JoinVerify,
+		"allowMemberInvite": resp.AllowMemberInvite,
+		"allowViewHistory":  resp.AllowViewHistory,
+		"allowAddFriend":    resp.AllowAddFriend,
+		"allowMemberModify": resp.AllowMemberModify,
+	})
 }
 
 // Helper function to create int32 pointer

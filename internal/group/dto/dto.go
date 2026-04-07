@@ -6,10 +6,9 @@ import "time"
 
 // CreateGroupRequest 创建群组请求
 type CreateGroupRequest struct {
-	Name       string   `json:"name" binding:"required,min=1,max=100" example:"技术交流群"`
-	Avatar     string   `json:"avatar" binding:"omitempty,url" example:"https://example.com/avatar.jpg"`
-	MemberIDs  []string `json:"memberIds" binding:"required,min=1" example:"user-123,user-456"`
-	JoinVerify bool     `json:"joinVerify" example:"true"`
+	Name      string   `json:"name" binding:"required,min=1,max=100" example:"技术交流群"`
+	Avatar    string   `json:"avatar" binding:"omitempty,url" example:"https://example.com/avatar.jpg"`
+	MemberIDs []string `json:"memberIds" binding:"required,min=1" example:"user-123,user-456"`
 }
 
 // UpdateGroupRequest 更新群信息请求
@@ -17,7 +16,7 @@ type UpdateGroupRequest struct {
 	Name         *string `json:"name,omitempty" binding:"omitempty,min=1,max=100" example:"新群名称"`
 	Avatar       *string `json:"avatar,omitempty" binding:"omitempty,url" example:"https://example.com/new-avatar.jpg"`
 	Announcement *string `json:"announcement,omitempty" binding:"omitempty,max=1000" example:"群公告内容"`
-	JoinVerify   *bool   `json:"joinVerify,omitempty" example:"false"`
+	Description  *string `json:"description,omitempty" binding:"omitempty,max=1000" example:"群简介内容"`
 }
 
 // InviteMembersRequest 邀请成员请求
@@ -52,10 +51,28 @@ type HandleJoinRequestRequest struct {
 
 // UpdateGroupSettingsRequest 更新群组设置请求
 type UpdateGroupSettingsRequest struct {
-	AllowMemberInvite  *bool `json:"allowMemberInvite,omitempty" example:"true"`
-	AllowViewHistory   *bool `json:"allowViewHistory,omitempty" example:"true"`
-	AllowAddFriend     *bool `json:"allowAddFriend,omitempty" example:"true"`
-	ShowMemberNickname *bool `json:"showMemberNickname,omitempty" example:"true"`
+	JoinVerify        *bool `json:"joinVerify,omitempty" example:"true"`
+	AllowMemberInvite *bool `json:"allowMemberInvite,omitempty" example:"true"`
+	AllowViewHistory  *bool `json:"allowViewHistory,omitempty" example:"true"`
+	AllowAddFriend    *bool `json:"allowAddFriend,omitempty" example:"true"`
+	AllowMemberModify *bool `json:"allowMemberModify,omitempty" example:"false"`
+}
+
+// PinGroupMessageRequest 置顶群消息请求
+type PinGroupMessageRequest struct {
+	MessageID string `json:"messageId" binding:"required" example:"msg-123"`
+	Content   string `json:"content,omitempty" example:"消息摘要"`
+}
+
+// SetGroupMuteRequest 设置全体禁言请求
+type SetGroupMuteRequest struct {
+	Enabled bool `json:"enabled" binding:"required" example:"true"`
+}
+
+// MuteMemberRequest 禁言成员请求
+type MuteMemberRequest struct {
+	Type            string `json:"type" binding:"required,oneof=permanent temporary" example:"temporary"`
+	DurationMinutes int32  `json:"durationMinutes,omitempty" example:"60"`
 }
 
 // ========== Response DTOs ==========
@@ -66,6 +83,7 @@ type GroupResponse struct {
 	Name         string    `json:"name" example:"技术交流群"`
 	Avatar       string    `json:"avatar" example:"https://example.com/avatar.jpg"`
 	Announcement string    `json:"announcement" example:"欢迎加入"`
+	Description  string    `json:"description" example:"群简介"`
 	OwnerID      string    `json:"ownerId" example:"user-123"`
 	MemberCount  int32     `json:"memberCount" example:"10"`
 	MaxMembers   int32     `json:"maxMembers" example:"500"`
@@ -85,12 +103,13 @@ type GroupListResponse struct {
 
 // GroupMemberResponse 群成员响应
 type GroupMemberResponse struct {
-	UserID        string    `json:"userId" example:"user-123"`
-	GroupNickname *string   `json:"groupNickname,omitempty" example:"群内昵称"`
-	Role          string    `json:"role" example:"member"`
-	IsMuted       bool      `json:"isMuted" example:"false"`
-	JoinedAt      time.Time `json:"joinedAt" example:"2024-01-01T00:00:00Z"`
-	UserInfo      *UserInfo `json:"userInfo,omitempty"`
+	UserID        string     `json:"userId" example:"user-123"`
+	GroupNickname *string    `json:"groupNickname,omitempty" example:"群内昵称"`
+	Role          string     `json:"role" example:"member"`
+	IsMuted       bool       `json:"isMuted" example:"false"`
+	MutedUntil    *time.Time `json:"mutedUntil,omitempty" example:"2024-01-01T01:00:00Z"`
+	JoinedAt      time.Time  `json:"joinedAt" example:"2024-01-01T00:00:00Z"`
+	UserInfo      *UserInfo  `json:"userInfo,omitempty"`
 }
 
 // GroupMemberListResponse 群成员列表响应
@@ -127,11 +146,25 @@ type JoinRequestListResponse struct {
 
 // GroupSettingsResponse 群组设置响应
 type GroupSettingsResponse struct {
-	GroupID            string `json:"groupId" example:"group-123"`
-	AllowMemberInvite  bool   `json:"allowMemberInvite" example:"true"`
-	AllowViewHistory   bool   `json:"allowViewHistory" example:"true"`
-	AllowAddFriend     bool   `json:"allowAddFriend" example:"true"`
-	ShowMemberNickname bool   `json:"showMemberNickname" example:"true"`
+	GroupID           string `json:"groupId" example:"group-123"`
+	JoinVerify        bool   `json:"joinVerify" example:"true"`
+	AllowMemberInvite bool   `json:"allowMemberInvite" example:"true"`
+	AllowViewHistory  bool   `json:"allowViewHistory" example:"true"`
+	AllowAddFriend    bool   `json:"allowAddFriend" example:"true"`
+	AllowMemberModify bool   `json:"allowMemberModify" example:"false"`
+}
+
+// PinnedMessageResponse 群置顶消息
+type PinnedMessageResponse struct {
+	MessageID string `json:"messageId" example:"msg-123"`
+	Content   string `json:"content" example:"消息摘要"`
+	PinnedBy  string `json:"pinnedBy" example:"user-123"`
+	PinnedAt  int64  `json:"pinnedAt" example:"1710000000"`
+}
+
+// PinnedMessageListResponse 群置顶消息列表
+type PinnedMessageListResponse struct {
+	Messages []*PinnedMessageResponse `json:"messages"`
 }
 
 // ========== Shared Types ==========

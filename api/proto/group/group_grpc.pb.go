@@ -36,6 +36,12 @@ const (
 	GroupService_JoinGroup_FullMethodName            = "/anychat.group.GroupService/JoinGroup"
 	GroupService_HandleJoinRequest_FullMethodName    = "/anychat.group.GroupService/HandleJoinRequest"
 	GroupService_GetJoinRequests_FullMethodName      = "/anychat.group.GroupService/GetJoinRequests"
+	GroupService_PinGroupMessage_FullMethodName      = "/anychat.group.GroupService/PinGroupMessage"
+	GroupService_UnpinGroupMessage_FullMethodName    = "/anychat.group.GroupService/UnpinGroupMessage"
+	GroupService_GetPinnedMessages_FullMethodName    = "/anychat.group.GroupService/GetPinnedMessages"
+	GroupService_SetGroupMute_FullMethodName         = "/anychat.group.GroupService/SetGroupMute"
+	GroupService_MuteMember_FullMethodName           = "/anychat.group.GroupService/MuteMember"
+	GroupService_UnmuteMember_FullMethodName         = "/anychat.group.GroupService/UnmuteMember"
 	GroupService_UpdateGroupSettings_FullMethodName  = "/anychat.group.GroupService/UpdateGroupSettings"
 	GroupService_GetGroupSettings_FullMethodName     = "/anychat.group.GroupService/GetGroupSettings"
 )
@@ -78,6 +84,18 @@ type GroupServiceClient interface {
 	HandleJoinRequest(ctx context.Context, in *HandleJoinRequestRequest, opts ...grpc.CallOption) (*common.Empty, error)
 	// GetJoinRequests 获取入群申请列表
 	GetJoinRequests(ctx context.Context, in *GetJoinRequestsRequest, opts ...grpc.CallOption) (*GetJoinRequestsResponse, error)
+	// PinGroupMessage 置顶群消息
+	PinGroupMessage(ctx context.Context, in *PinGroupMessageRequest, opts ...grpc.CallOption) (*common.Empty, error)
+	// UnpinGroupMessage 取消置顶群消息
+	UnpinGroupMessage(ctx context.Context, in *UnpinGroupMessageRequest, opts ...grpc.CallOption) (*common.Empty, error)
+	// GetPinnedMessages 获取群置顶消息列表
+	GetPinnedMessages(ctx context.Context, in *GetPinnedMessagesRequest, opts ...grpc.CallOption) (*GetPinnedMessagesResponse, error)
+	// SetGroupMute 设置全体禁言
+	SetGroupMute(ctx context.Context, in *SetGroupMuteRequest, opts ...grpc.CallOption) (*common.Empty, error)
+	// MuteMember 禁言成员
+	MuteMember(ctx context.Context, in *MuteMemberRequest, opts ...grpc.CallOption) (*common.Empty, error)
+	// UnmuteMember 解除禁言
+	UnmuteMember(ctx context.Context, in *UnmuteMemberRequest, opts ...grpc.CallOption) (*common.Empty, error)
 	// UpdateGroupSettings 更新群组设置
 	UpdateGroupSettings(ctx context.Context, in *UpdateGroupSettingsRequest, opts ...grpc.CallOption) (*common.Empty, error)
 	// GetGroupSettings 获取群组设置
@@ -252,6 +270,66 @@ func (c *groupServiceClient) GetJoinRequests(ctx context.Context, in *GetJoinReq
 	return out, nil
 }
 
+func (c *groupServiceClient) PinGroupMessage(ctx context.Context, in *PinGroupMessageRequest, opts ...grpc.CallOption) (*common.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.Empty)
+	err := c.cc.Invoke(ctx, GroupService_PinGroupMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) UnpinGroupMessage(ctx context.Context, in *UnpinGroupMessageRequest, opts ...grpc.CallOption) (*common.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.Empty)
+	err := c.cc.Invoke(ctx, GroupService_UnpinGroupMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) GetPinnedMessages(ctx context.Context, in *GetPinnedMessagesRequest, opts ...grpc.CallOption) (*GetPinnedMessagesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPinnedMessagesResponse)
+	err := c.cc.Invoke(ctx, GroupService_GetPinnedMessages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) SetGroupMute(ctx context.Context, in *SetGroupMuteRequest, opts ...grpc.CallOption) (*common.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.Empty)
+	err := c.cc.Invoke(ctx, GroupService_SetGroupMute_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) MuteMember(ctx context.Context, in *MuteMemberRequest, opts ...grpc.CallOption) (*common.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.Empty)
+	err := c.cc.Invoke(ctx, GroupService_MuteMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) UnmuteMember(ctx context.Context, in *UnmuteMemberRequest, opts ...grpc.CallOption) (*common.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.Empty)
+	err := c.cc.Invoke(ctx, GroupService_UnmuteMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *groupServiceClient) UpdateGroupSettings(ctx context.Context, in *UpdateGroupSettingsRequest, opts ...grpc.CallOption) (*common.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(common.Empty)
@@ -310,6 +388,18 @@ type GroupServiceServer interface {
 	HandleJoinRequest(context.Context, *HandleJoinRequestRequest) (*common.Empty, error)
 	// GetJoinRequests 获取入群申请列表
 	GetJoinRequests(context.Context, *GetJoinRequestsRequest) (*GetJoinRequestsResponse, error)
+	// PinGroupMessage 置顶群消息
+	PinGroupMessage(context.Context, *PinGroupMessageRequest) (*common.Empty, error)
+	// UnpinGroupMessage 取消置顶群消息
+	UnpinGroupMessage(context.Context, *UnpinGroupMessageRequest) (*common.Empty, error)
+	// GetPinnedMessages 获取群置顶消息列表
+	GetPinnedMessages(context.Context, *GetPinnedMessagesRequest) (*GetPinnedMessagesResponse, error)
+	// SetGroupMute 设置全体禁言
+	SetGroupMute(context.Context, *SetGroupMuteRequest) (*common.Empty, error)
+	// MuteMember 禁言成员
+	MuteMember(context.Context, *MuteMemberRequest) (*common.Empty, error)
+	// UnmuteMember 解除禁言
+	UnmuteMember(context.Context, *UnmuteMemberRequest) (*common.Empty, error)
 	// UpdateGroupSettings 更新群组设置
 	UpdateGroupSettings(context.Context, *UpdateGroupSettingsRequest) (*common.Empty, error)
 	// GetGroupSettings 获取群组设置
@@ -371,6 +461,24 @@ func (UnimplementedGroupServiceServer) HandleJoinRequest(context.Context, *Handl
 }
 func (UnimplementedGroupServiceServer) GetJoinRequests(context.Context, *GetJoinRequestsRequest) (*GetJoinRequestsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetJoinRequests not implemented")
+}
+func (UnimplementedGroupServiceServer) PinGroupMessage(context.Context, *PinGroupMessageRequest) (*common.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method PinGroupMessage not implemented")
+}
+func (UnimplementedGroupServiceServer) UnpinGroupMessage(context.Context, *UnpinGroupMessageRequest) (*common.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UnpinGroupMessage not implemented")
+}
+func (UnimplementedGroupServiceServer) GetPinnedMessages(context.Context, *GetPinnedMessagesRequest) (*GetPinnedMessagesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPinnedMessages not implemented")
+}
+func (UnimplementedGroupServiceServer) SetGroupMute(context.Context, *SetGroupMuteRequest) (*common.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetGroupMute not implemented")
+}
+func (UnimplementedGroupServiceServer) MuteMember(context.Context, *MuteMemberRequest) (*common.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method MuteMember not implemented")
+}
+func (UnimplementedGroupServiceServer) UnmuteMember(context.Context, *UnmuteMemberRequest) (*common.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UnmuteMember not implemented")
 }
 func (UnimplementedGroupServiceServer) UpdateGroupSettings(context.Context, *UpdateGroupSettingsRequest) (*common.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateGroupSettings not implemented")
@@ -687,6 +795,114 @@ func _GroupService_GetJoinRequests_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GroupService_PinGroupMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinGroupMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).PinGroupMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_PinGroupMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).PinGroupMessage(ctx, req.(*PinGroupMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_UnpinGroupMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnpinGroupMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).UnpinGroupMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_UnpinGroupMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).UnpinGroupMessage(ctx, req.(*UnpinGroupMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_GetPinnedMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPinnedMessagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).GetPinnedMessages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_GetPinnedMessages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).GetPinnedMessages(ctx, req.(*GetPinnedMessagesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_SetGroupMute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetGroupMuteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).SetGroupMute(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_SetGroupMute_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).SetGroupMute(ctx, req.(*SetGroupMuteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_MuteMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MuteMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).MuteMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_MuteMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).MuteMember(ctx, req.(*MuteMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_UnmuteMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnmuteMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).UnmuteMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_UnmuteMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).UnmuteMember(ctx, req.(*UnmuteMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _GroupService_UpdateGroupSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateGroupSettingsRequest)
 	if err := dec(in); err != nil {
@@ -793,6 +1009,30 @@ var GroupService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetJoinRequests",
 			Handler:    _GroupService_GetJoinRequests_Handler,
+		},
+		{
+			MethodName: "PinGroupMessage",
+			Handler:    _GroupService_PinGroupMessage_Handler,
+		},
+		{
+			MethodName: "UnpinGroupMessage",
+			Handler:    _GroupService_UnpinGroupMessage_Handler,
+		},
+		{
+			MethodName: "GetPinnedMessages",
+			Handler:    _GroupService_GetPinnedMessages_Handler,
+		},
+		{
+			MethodName: "SetGroupMute",
+			Handler:    _GroupService_SetGroupMute_Handler,
+		},
+		{
+			MethodName: "MuteMember",
+			Handler:    _GroupService_MuteMember_Handler,
+		},
+		{
+			MethodName: "UnmuteMember",
+			Handler:    _GroupService_UnmuteMember_Handler,
 		},
 		{
 			MethodName: "UpdateGroupSettings",

@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS groups (
     owner_id VARCHAR(36) NOT NULL,
     member_count INT DEFAULT 0,
     max_members INT DEFAULT 500,
-    join_verify BOOLEAN DEFAULT TRUE,
     is_muted BOOLEAN DEFAULT FALSE,
+    description TEXT,
     status SMALLINT DEFAULT 1,  -- 0-已解散 1-正常
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS group_members (
     user_id VARCHAR(36) NOT NULL,
     group_nickname VARCHAR(50),
     role VARCHAR(20) DEFAULT 'member',  -- owner/admin/member
-    is_muted BOOLEAN DEFAULT FALSE,
+    muted_until TIMESTAMP,
     joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uk_group_user UNIQUE (group_id, user_id)
@@ -39,9 +39,11 @@ CREATE INDEX idx_group_members_joined_at ON group_members(joined_at);
 -- 创建群组设置表
 CREATE TABLE IF NOT EXISTS group_settings (
     group_id VARCHAR(36) PRIMARY KEY,
+    join_verify BOOLEAN DEFAULT TRUE,
     allow_member_invite BOOLEAN DEFAULT TRUE,
     allow_view_history BOOLEAN DEFAULT TRUE,
     allow_add_friend BOOLEAN DEFAULT TRUE,
+    allow_member_modify BOOLEAN DEFAULT FALSE,
     show_member_nickname BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -62,3 +64,16 @@ CREATE TABLE IF NOT EXISTS group_join_requests (
 CREATE INDEX idx_group_join_requests_group_id ON group_join_requests(group_id);
 CREATE INDEX idx_group_join_requests_user_id ON group_join_requests(user_id);
 CREATE INDEX idx_group_join_requests_status ON group_join_requests(status);
+
+-- 创建群置顶消息表
+CREATE TABLE IF NOT EXISTS group_pinned_messages (
+    id BIGSERIAL PRIMARY KEY,
+    group_id VARCHAR(36) NOT NULL,
+    message_id VARCHAR(64) NOT NULL,
+    pinned_by VARCHAR(36) NOT NULL,
+    content TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uk_group_pinned_message UNIQUE (group_id, message_id)
+);
+
+CREATE INDEX idx_group_pinned_messages_group_id ON group_pinned_messages(group_id);

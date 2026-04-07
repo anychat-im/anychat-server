@@ -11,10 +11,12 @@ import (
 	"time"
 
 	grouppb "github.com/anychat/server/api/proto/group"
+	messagepb "github.com/anychat/server/api/proto/message"
 	userpb "github.com/anychat/server/api/proto/user"
 	groupgrpc "github.com/anychat/server/internal/group/grpc"
 	"github.com/anychat/server/internal/group/repository"
 	"github.com/anychat/server/internal/group/service"
+	"github.com/anychat/server/pkg/config"
 	"github.com/anychat/server/pkg/database"
 	grpcpkg "github.com/anychat/server/pkg/grpc"
 	"github.com/anychat/server/pkg/logger"
@@ -27,7 +29,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
-	"github.com/anychat/server/pkg/config"
 )
 
 const (
@@ -65,6 +66,13 @@ func main() {
 	}
 	logger.Info("Connected to user-service")
 
+	// 连接到message-service
+	messageClient, err := connectMessageService()
+	if err != nil {
+		logger.Fatal("Failed to connect to message-service", zap.Error(err))
+	}
+	logger.Info("Connected to message-service")
+
 	// 连接NATS
 	nc, err := connectNATS()
 	if err != nil {
@@ -80,9 +88,10 @@ func main() {
 	memberRepo := repository.NewGroupMemberRepository(db)
 	settingRepo := repository.NewGroupSettingRepository(db)
 	joinRequestRepo := repository.NewGroupJoinRequestRepository(db)
+	pinnedRepo := repository.NewGroupPinnedMessageRepository(db)
 
 	// 初始化服务
-	groupService := service.NewGroupService(groupRepo, memberRepo, settingRepo, joinRequestRepo, userClient, notificationPub, db)
+	groupService := service.NewGroupService(groupRepo, memberRepo, settingRepo, joinRequestRepo, pinnedRepo, messageClient, userClient, notificationPub, db)
 
 	// 初始化gRPC服务器
 	grpcServer := initGRPCServer(groupService)
@@ -163,6 +172,7 @@ func loadConfig() error {
 	viper.SetDefault("log.output", "stdout")
 	viper.SetDefault("nats.url", "nats://localhost:4222")
 	viper.SetDefault("services.user.grpc_addr", "localhost:9002")
+	viper.SetDefault("services.message.grpc_addr", "localhost:9005")
 	viper.SetDefault("services.group.grpc_addr", "localhost:9004")
 
 	// 自动读取环境变量
@@ -221,6 +231,20 @@ func connectUserService() (userpb.UserServiceClient, error) {
 	}
 
 	return userpb.NewUserServiceClient(conn), nil
+}
+
+// connectMessageService 连接到message-service
+func connectMessageService() (messagepb.MessageServiceClient, error) {
+	addr := viper.GetString("services.message.grpc_addr")
+	conn, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to message service: %w", err)
+	}
+
+	return messagepb.NewMessageServiceClient(conn), nil
 }
 
 // connectNATS 连接到NATS
