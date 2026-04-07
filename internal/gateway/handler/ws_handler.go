@@ -172,10 +172,13 @@ func (h *WSHandler) handleSendMessage(c *websocket.Client, payload json.RawMessa
 		grpcReq.AtUsers = req.AtUsers
 	}
 
-	// 获取会话的自动删除时长并设置
-	autoDeleteDuration := h.getAutoDeleteDuration(c.UserID, req.ConversationType, req.ConversationID)
+	// 获取会话的自动删除和阅后即焚时长并设置
+	autoDeleteDuration, burnAfterReadingSeconds := h.getSessionDeleteDurations(c.UserID, req.ConversationType, req.ConversationID)
 	if autoDeleteDuration > 0 {
 		grpcReq.AutoDeleteDuration = &autoDeleteDuration
+	}
+	if burnAfterReadingSeconds > 0 {
+		grpcReq.BurnAfterReadingSeconds = &burnAfterReadingSeconds
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -209,8 +212,8 @@ func (h *WSHandler) handleSendMessage(c *websocket.Client, payload json.RawMessa
 	h.wsManager.SendMessageToUser(c.UserID, wsResp)
 }
 
-// getAutoDeleteDuration 获取会话的自动删除时长
-func (h *WSHandler) getAutoDeleteDuration(userID, conversationType, conversationID string) int32 {
+// getSessionDeleteDurations 获取会话的自动删除和阅后即焚时长
+func (h *WSHandler) getSessionDeleteDurations(userID, conversationType, conversationID string) (int32, int32) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
@@ -236,7 +239,7 @@ func (h *WSHandler) getAutoDeleteDuration(userID, conversationType, conversation
 	}
 
 	if targetID == "" {
-		return 0
+		return 0, 0
 	}
 
 	session, err := h.clientManager.Session().GetSessionByUserAndTarget(ctx, &sessionpb.GetSessionByUserAndTargetRequest{
@@ -246,8 +249,8 @@ func (h *WSHandler) getAutoDeleteDuration(userID, conversationType, conversation
 	})
 	if err != nil {
 		logger.Debug("Failed to get session for auto delete", zap.Error(err))
-		return 0
+		return 0, 0
 	}
 
-	return session.AutoDeleteDuration
+	return session.AutoDeleteDuration, session.BurnAfterReading
 }

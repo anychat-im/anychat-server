@@ -11,7 +11,7 @@ CREATE TABLE sessions (
     is_pinned       BOOLEAN      NOT NULL DEFAULT FALSE,
     is_muted        BOOLEAN      NOT NULL DEFAULT FALSE,
     pin_time        TIMESTAMPTZ,
-    burn_after_reading INT       NOT NULL DEFAULT 0,       -- 阅后即焚时长(秒),0表示未启用
+    burn_after_reading INT       NOT NULL DEFAULT 0,       -- 阅后即焚时长(秒),0表示关闭
     auto_delete_duration INT     NOT NULL DEFAULT 0,       -- 自动删除时长(秒),0表示未启用
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP

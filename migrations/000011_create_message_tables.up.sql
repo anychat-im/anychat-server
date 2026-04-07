@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS messages (
     reply_to VARCHAR(64),  -- 回复的消息ID
     at_users TEXT[],  -- @的用户ID列表
     status SMALLINT DEFAULT 0,  -- 0-正常 1-撤回 2-删除
+    burn_after_reading_seconds INT NOT NULL DEFAULT 0,  -- 阅后即焚时长快照(秒),0表示不启用
+    auto_delete_expire_time TIMESTAMPTZ,  -- 自动删除策略计算出的过期时间
+    burn_after_reading_expire_time TIMESTAMPTZ,  -- 阅后即焚策略计算出的过期时间
     expire_time TIMESTAMPTZ,  -- 消息过期时间,为NULL表示永不过期
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

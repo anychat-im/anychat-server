@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/anychat/server/internal/message/model"
 	"github.com/anychat/server/internal/message/repository"
 	"github.com/anychat/server/pkg/logger"
 	"github.com/anychat/server/pkg/notification"
@@ -67,14 +68,26 @@ func (w *AutoDeleteWorker) cleanup() {
 		default:
 		}
 
-		messageIDs, err := w.messageRepo.GetExpiredMessageIDs(ctx, now, w.batchSize)
+		expiredMessages, err := w.messageRepo.GetExpiredMessages(ctx, now, w.batchSize)
 		if err != nil {
 			logger.Error("Failed to get expired messages", zap.Error(err))
 			break
 		}
 
-		if len(messageIDs) == 0 {
+		if len(expiredMessages) == 0 {
 			break
+		}
+
+		messageIDs := make([]string, 0, len(expiredMessages))
+		reasons := map[string][]string{
+			"auto_delete":        {},
+			"burn_after_reading": {},
+			"both":               {},
+		}
+		for _, msg := range expiredMessages {
+			messageIDs = append(messageIDs, msg.MessageID)
+			reason := inferDeleteReason(msg)
+			reasons[reason] = append(reasons[reason], msg.MessageID)
 		}
 
 		if err := w.messageRepo.BatchUpdateStatus(ctx, messageIDs, 2); err != nil {
@@ -84,13 +97,38 @@ func (w *AutoDeleteWorker) cleanup() {
 
 		logger.Info("Deleted expired messages", zap.Int("count", len(messageIDs)))
 
-		w.publishNotification(ctx, messageIDs)
+		for reason, ids := range reasons {
+			if len(ids) == 0 {
+				continue
+			}
+			w.publishNotification(ctx, ids, reason)
+		}
 	}
 }
 
-func (w *AutoDeleteWorker) publishNotification(ctx context.Context, messageIDs []string) {
+func inferDeleteReason(msg *model.Message) string {
+	hasAuto := msg.AutoDeleteExpireTime != nil
+	hasBurn := msg.BurnAfterReadingExpireTime != nil
+
+	if hasAuto && hasBurn {
+		if msg.AutoDeleteExpireTime.Before(*msg.BurnAfterReadingExpireTime) {
+			return "auto_delete"
+		}
+		if msg.BurnAfterReadingExpireTime.Before(*msg.AutoDeleteExpireTime) {
+			return "burn_after_reading"
+		}
+		return "both"
+	}
+	if hasBurn {
+		return "burn_after_reading"
+	}
+	return "auto_delete"
+}
+
+func (w *AutoDeleteWorker) publishNotification(ctx context.Context, messageIDs []string, reason string) {
 	notif := notification.NewNotification(notification.TypeMessageAutoDeleted, "", notification.PriorityNormal).
-		AddPayloadField("message_ids", messageIDs)
+		AddPayloadField("message_ids", messageIDs).
+		AddPayloadField("reason", reason)
 
 	if err := w.notificationPub.Publish(notif); err != nil {
 		logger.Warn("Failed to publish auto delete notification", zap.Error(err))

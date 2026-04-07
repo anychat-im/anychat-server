@@ -25,6 +25,7 @@ type MessageService interface {
 	RecallMessage(ctx context.Context, messageID, userID string) error
 	DeleteMessage(ctx context.Context, messageID, userID string) error
 	MarkAsRead(ctx context.Context, req *messagepb.MarkAsReadRequest) error
+	AckReadTriggers(ctx context.Context, req *messagepb.AckReadTriggersRequest) (*messagepb.AckReadTriggersResponse, error)
 	GetUnreadCount(ctx context.Context, conversationID, userID string, lastReadSeq *int64) (*messagepb.GetUnreadCountResponse, error)
 	GetReadReceipts(ctx context.Context, conversationID, userID string) (*messagepb.GetReadReceiptsResponse, error)
 	GetConversationSequence(ctx context.Context, conversationID string) (int64, error)
@@ -102,7 +103,11 @@ func (s *messageServiceImpl) SendMessage(ctx context.Context, req *messagepb.Sen
 	// 设置自动删除过期时间
 	if req.AutoDeleteDuration != nil && *req.AutoDeleteDuration > 0 {
 		expireTime := now.Add(time.Duration(*req.AutoDeleteDuration) * time.Second)
+		message.AutoDeleteExpireTime = &expireTime
 		message.ExpireTime = &expireTime
+	}
+	if req.BurnAfterReadingSeconds != nil && *req.BurnAfterReadingSeconds > 0 {
+		message.BurnAfterReadingSeconds = *req.BurnAfterReadingSeconds
 	}
 
 	// 设置可选字段
@@ -284,6 +289,106 @@ func (s *messageServiceImpl) MarkAsRead(ctx context.Context, req *messagepb.Mark
 	}
 
 	return nil
+}
+
+// AckReadTriggers 批量上报阅后即焚阅读触发
+func (s *messageServiceImpl) AckReadTriggers(ctx context.Context, req *messagepb.AckReadTriggersRequest) (*messagepb.AckReadTriggersResponse, error) {
+	if req.UserId == "" {
+		return nil, errors.NewBusiness(errors.CodeParamError, "user_id is required")
+	}
+	if len(req.Events) == 0 {
+		return &messagepb.AckReadTriggersResponse{}, nil
+	}
+
+	messageIDSet := make(map[string]struct{}, len(req.Events))
+	messageIDs := make([]string, 0, len(req.Events))
+	for _, event := range req.Events {
+		if event.GetMessageId() == "" {
+			continue
+		}
+		if _, exists := messageIDSet[event.GetMessageId()]; exists {
+			continue
+		}
+		messageIDSet[event.GetMessageId()] = struct{}{}
+		messageIDs = append(messageIDs, event.GetMessageId())
+	}
+	if len(messageIDs) == 0 {
+		return &messagepb.AckReadTriggersResponse{}, nil
+	}
+
+	var candidates []*model.Message
+	if err := s.db.WithContext(ctx).
+		Model(&model.Message{}).
+		Select("message_id", "sender_id", "burn_after_reading_seconds", "auto_delete_expire_time", "burn_after_reading_expire_time", "expire_time", "status").
+		Where("message_id IN ? AND status = ? AND burn_after_reading_seconds > 0", messageIDs, model.MessageStatusNormal).
+		Find(&candidates).Error; err != nil {
+		logger.Error("Failed to load read trigger candidates", zap.Error(err))
+		return nil, errors.NewBusiness(errors.CodeInternalError, "failed to ack read triggers")
+	}
+
+	now := time.Now()
+	successIDs := make([]string, 0, len(candidates))
+	ignoredSet := make(map[string]struct{}, len(messageIDs))
+	for _, id := range messageIDs {
+		ignoredSet[id] = struct{}{}
+	}
+
+	for _, msg := range candidates {
+		// 发送方不能触发自己的阅后即焚
+		if msg.SenderID == req.UserId {
+			continue
+		}
+
+		successIDs = append(successIDs, msg.MessageID)
+		delete(ignoredSet, msg.MessageID)
+
+		burnExpire := now.Add(time.Duration(msg.BurnAfterReadingSeconds) * time.Second)
+
+		updates := map[string]interface{}{
+			"updated_at": now,
+		}
+		shouldUpdate := false
+
+		if msg.BurnAfterReadingExpireTime == nil || burnExpire.Before(*msg.BurnAfterReadingExpireTime) {
+			updates["burn_after_reading_expire_time"] = burnExpire
+			shouldUpdate = true
+		}
+
+		finalExpire := burnExpire
+		if msg.AutoDeleteExpireTime != nil && msg.AutoDeleteExpireTime.Before(finalExpire) {
+			finalExpire = *msg.AutoDeleteExpireTime
+		}
+		if msg.ExpireTime == nil || finalExpire.Before(*msg.ExpireTime) {
+			updates["expire_time"] = finalExpire
+			shouldUpdate = true
+		}
+
+		if !shouldUpdate {
+			continue
+		}
+
+		if err := s.db.WithContext(ctx).
+			Model(&model.Message{}).
+			Where("message_id = ? AND status = ? AND sender_id <> ? AND burn_after_reading_seconds > 0", msg.MessageID, model.MessageStatusNormal, req.UserId).
+			Updates(updates).Error; err != nil {
+			logger.Error("Failed to update burn expire time",
+				zap.String("messageID", msg.MessageID),
+				zap.Error(err))
+			return nil, errors.NewBusiness(errors.CodeInternalError, "failed to ack read triggers")
+		}
+	}
+
+	ignoredIDs := make([]string, 0, len(ignoredSet))
+	for _, id := range messageIDs {
+		if _, exists := ignoredSet[id]; exists {
+			ignoredIDs = append(ignoredIDs, id)
+		}
+	}
+
+	return &messagepb.AckReadTriggersResponse{
+		SuccessIds: successIDs,
+		IgnoredIds: ignoredIDs,
+	}, nil
 }
 
 // GetUnreadCount 获取未读消息数

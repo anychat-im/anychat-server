@@ -183,18 +183,19 @@ func (x *Message) GetReplyToMessage() *Message {
 
 // SendMessageRequest 发送消息请求
 type SendMessageRequest struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	SenderId           string                 `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
-	ConversationId     string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	ConversationType   string                 `protobuf:"bytes,3,opt,name=conversation_type,json=conversationType,proto3" json:"conversation_type,omitempty"` // single/group
-	ContentType        string                 `protobuf:"bytes,4,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
-	Content            string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"` // JSON string
-	ReplyTo            *string                `protobuf:"bytes,6,opt,name=reply_to,json=replyTo,proto3,oneof" json:"reply_to,omitempty"`
-	AtUsers            []string               `protobuf:"bytes,7,rep,name=at_users,json=atUsers,proto3" json:"at_users,omitempty"`
-	LocalId            *string                `protobuf:"bytes,8,opt,name=local_id,json=localId,proto3,oneof" json:"local_id,omitempty"`                                     // 客户端本地ID（用于关联）
-	AutoDeleteDuration *int32                 `protobuf:"varint,9,opt,name=auto_delete_duration,json=autoDeleteDuration,proto3,oneof" json:"auto_delete_duration,omitempty"` // 自动删除时长(秒),由gateway从session服务获取后传入
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"open.v1"`
+	SenderId                string                 `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	ConversationId          string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	ConversationType        string                 `protobuf:"bytes,3,opt,name=conversation_type,json=conversationType,proto3" json:"conversation_type,omitempty"` // single/group
+	ContentType             string                 `protobuf:"bytes,4,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
+	Content                 string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"` // JSON string
+	ReplyTo                 *string                `protobuf:"bytes,6,opt,name=reply_to,json=replyTo,proto3,oneof" json:"reply_to,omitempty"`
+	AtUsers                 []string               `protobuf:"bytes,7,rep,name=at_users,json=atUsers,proto3" json:"at_users,omitempty"`
+	LocalId                 *string                `protobuf:"bytes,8,opt,name=local_id,json=localId,proto3,oneof" json:"local_id,omitempty"`                                                       // 客户端本地ID（用于关联）
+	AutoDeleteDuration      *int32                 `protobuf:"varint,9,opt,name=auto_delete_duration,json=autoDeleteDuration,proto3,oneof" json:"auto_delete_duration,omitempty"`                   // 自动删除时长(秒),由gateway从session服务获取后传入
+	BurnAfterReadingSeconds *int32                 `protobuf:"varint,10,opt,name=burn_after_reading_seconds,json=burnAfterReadingSeconds,proto3,oneof" json:"burn_after_reading_seconds,omitempty"` // 阅后即焚时长快照(秒),由gateway从session服务获取后传入
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *SendMessageRequest) Reset() {
@@ -286,6 +287,13 @@ func (x *SendMessageRequest) GetLocalId() string {
 func (x *SendMessageRequest) GetAutoDeleteDuration() int32 {
 	if x != nil && x.AutoDeleteDuration != nil {
 		return *x.AutoDeleteDuration
+	}
+	return 0
+}
+
+func (x *SendMessageRequest) GetBurnAfterReadingSeconds() int32 {
+	if x != nil && x.BurnAfterReadingSeconds != nil {
+		return *x.BurnAfterReadingSeconds
 	}
 	return 0
 }
@@ -717,6 +725,173 @@ func (x *MarkAsReadRequest) GetLastReadMessageId() string {
 	return ""
 }
 
+// ReadTriggerEvent 阅后即焚阅读触发事件
+type ReadTriggerEvent struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	MessageId      string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	ClientAt       *int64                 `protobuf:"varint,2,opt,name=client_at,json=clientAt,proto3,oneof" json:"client_at,omitempty"`
+	IdempotencyKey *string                `protobuf:"bytes,3,opt,name=idempotency_key,json=idempotencyKey,proto3,oneof" json:"idempotency_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ReadTriggerEvent) Reset() {
+	*x = ReadTriggerEvent{}
+	mi := &file_message_message_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadTriggerEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadTriggerEvent) ProtoMessage() {}
+
+func (x *ReadTriggerEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_message_message_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadTriggerEvent.ProtoReflect.Descriptor instead.
+func (*ReadTriggerEvent) Descriptor() ([]byte, []int) {
+	return file_message_message_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ReadTriggerEvent) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+func (x *ReadTriggerEvent) GetClientAt() int64 {
+	if x != nil && x.ClientAt != nil {
+		return *x.ClientAt
+	}
+	return 0
+}
+
+func (x *ReadTriggerEvent) GetIdempotencyKey() string {
+	if x != nil && x.IdempotencyKey != nil {
+		return *x.IdempotencyKey
+	}
+	return ""
+}
+
+// AckReadTriggersRequest 批量上报阅读触发
+type AckReadTriggersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Events        []*ReadTriggerEvent    `protobuf:"bytes,2,rep,name=events,proto3" json:"events,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AckReadTriggersRequest) Reset() {
+	*x = AckReadTriggersRequest{}
+	mi := &file_message_message_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AckReadTriggersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AckReadTriggersRequest) ProtoMessage() {}
+
+func (x *AckReadTriggersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_message_message_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AckReadTriggersRequest.ProtoReflect.Descriptor instead.
+func (*AckReadTriggersRequest) Descriptor() ([]byte, []int) {
+	return file_message_message_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *AckReadTriggersRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *AckReadTriggersRequest) GetEvents() []*ReadTriggerEvent {
+	if x != nil {
+		return x.Events
+	}
+	return nil
+}
+
+// AckReadTriggersResponse 批量上报结果
+type AckReadTriggersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SuccessIds    []string               `protobuf:"bytes,1,rep,name=success_ids,json=successIds,proto3" json:"success_ids,omitempty"`
+	IgnoredIds    []string               `protobuf:"bytes,2,rep,name=ignored_ids,json=ignoredIds,proto3" json:"ignored_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AckReadTriggersResponse) Reset() {
+	*x = AckReadTriggersResponse{}
+	mi := &file_message_message_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AckReadTriggersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AckReadTriggersResponse) ProtoMessage() {}
+
+func (x *AckReadTriggersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_message_message_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AckReadTriggersResponse.ProtoReflect.Descriptor instead.
+func (*AckReadTriggersResponse) Descriptor() ([]byte, []int) {
+	return file_message_message_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *AckReadTriggersResponse) GetSuccessIds() []string {
+	if x != nil {
+		return x.SuccessIds
+	}
+	return nil
+}
+
+func (x *AckReadTriggersResponse) GetIgnoredIds() []string {
+	if x != nil {
+		return x.IgnoredIds
+	}
+	return nil
+}
+
 // GetUnreadCountRequest 获取未读数请求
 type GetUnreadCountRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
@@ -729,7 +904,7 @@ type GetUnreadCountRequest struct {
 
 func (x *GetUnreadCountRequest) Reset() {
 	*x = GetUnreadCountRequest{}
-	mi := &file_message_message_proto_msgTypes[9]
+	mi := &file_message_message_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -741,7 +916,7 @@ func (x *GetUnreadCountRequest) String() string {
 func (*GetUnreadCountRequest) ProtoMessage() {}
 
 func (x *GetUnreadCountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_message_message_proto_msgTypes[9]
+	mi := &file_message_message_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -754,7 +929,7 @@ func (x *GetUnreadCountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUnreadCountRequest.ProtoReflect.Descriptor instead.
 func (*GetUnreadCountRequest) Descriptor() ([]byte, []int) {
-	return file_message_message_proto_rawDescGZIP(), []int{9}
+	return file_message_message_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetUnreadCountRequest) GetConversationId() string {
@@ -790,7 +965,7 @@ type GetUnreadCountResponse struct {
 
 func (x *GetUnreadCountResponse) Reset() {
 	*x = GetUnreadCountResponse{}
-	mi := &file_message_message_proto_msgTypes[10]
+	mi := &file_message_message_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -802,7 +977,7 @@ func (x *GetUnreadCountResponse) String() string {
 func (*GetUnreadCountResponse) ProtoMessage() {}
 
 func (x *GetUnreadCountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_message_message_proto_msgTypes[10]
+	mi := &file_message_message_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -815,7 +990,7 @@ func (x *GetUnreadCountResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUnreadCountResponse.ProtoReflect.Descriptor instead.
 func (*GetUnreadCountResponse) Descriptor() ([]byte, []int) {
-	return file_message_message_proto_rawDescGZIP(), []int{10}
+	return file_message_message_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetUnreadCountResponse) GetUnreadCount() int64 {
@@ -850,7 +1025,7 @@ type GetReadReceiptsRequest struct {
 
 func (x *GetReadReceiptsRequest) Reset() {
 	*x = GetReadReceiptsRequest{}
-	mi := &file_message_message_proto_msgTypes[11]
+	mi := &file_message_message_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -862,7 +1037,7 @@ func (x *GetReadReceiptsRequest) String() string {
 func (*GetReadReceiptsRequest) ProtoMessage() {}
 
 func (x *GetReadReceiptsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_message_message_proto_msgTypes[11]
+	mi := &file_message_message_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -875,7 +1050,7 @@ func (x *GetReadReceiptsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReadReceiptsRequest.ProtoReflect.Descriptor instead.
 func (*GetReadReceiptsRequest) Descriptor() ([]byte, []int) {
-	return file_message_message_proto_rawDescGZIP(), []int{11}
+	return file_message_message_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetReadReceiptsRequest) GetConversationId() string {
@@ -906,7 +1081,7 @@ type ReadReceipt struct {
 
 func (x *ReadReceipt) Reset() {
 	*x = ReadReceipt{}
-	mi := &file_message_message_proto_msgTypes[12]
+	mi := &file_message_message_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -918,7 +1093,7 @@ func (x *ReadReceipt) String() string {
 func (*ReadReceipt) ProtoMessage() {}
 
 func (x *ReadReceipt) ProtoReflect() protoreflect.Message {
-	mi := &file_message_message_proto_msgTypes[12]
+	mi := &file_message_message_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -931,7 +1106,7 @@ func (x *ReadReceipt) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadReceipt.ProtoReflect.Descriptor instead.
 func (*ReadReceipt) Descriptor() ([]byte, []int) {
-	return file_message_message_proto_rawDescGZIP(), []int{12}
+	return file_message_message_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ReadReceipt) GetUserId() string {
@@ -979,7 +1154,7 @@ type GetReadReceiptsResponse struct {
 
 func (x *GetReadReceiptsResponse) Reset() {
 	*x = GetReadReceiptsResponse{}
-	mi := &file_message_message_proto_msgTypes[13]
+	mi := &file_message_message_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -991,7 +1166,7 @@ func (x *GetReadReceiptsResponse) String() string {
 func (*GetReadReceiptsResponse) ProtoMessage() {}
 
 func (x *GetReadReceiptsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_message_message_proto_msgTypes[13]
+	mi := &file_message_message_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1004,7 +1179,7 @@ func (x *GetReadReceiptsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReadReceiptsResponse.ProtoReflect.Descriptor instead.
 func (*GetReadReceiptsResponse) Descriptor() ([]byte, []int) {
-	return file_message_message_proto_rawDescGZIP(), []int{13}
+	return file_message_message_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetReadReceiptsResponse) GetReceipts() []*ReadReceipt {
@@ -1024,7 +1199,7 @@ type GetConversationSequenceRequest struct {
 
 func (x *GetConversationSequenceRequest) Reset() {
 	*x = GetConversationSequenceRequest{}
-	mi := &file_message_message_proto_msgTypes[14]
+	mi := &file_message_message_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1036,7 +1211,7 @@ func (x *GetConversationSequenceRequest) String() string {
 func (*GetConversationSequenceRequest) ProtoMessage() {}
 
 func (x *GetConversationSequenceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_message_message_proto_msgTypes[14]
+	mi := &file_message_message_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1049,7 +1224,7 @@ func (x *GetConversationSequenceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConversationSequenceRequest.ProtoReflect.Descriptor instead.
 func (*GetConversationSequenceRequest) Descriptor() ([]byte, []int) {
-	return file_message_message_proto_rawDescGZIP(), []int{14}
+	return file_message_message_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetConversationSequenceRequest) GetConversationId() string {
@@ -1069,7 +1244,7 @@ type GetConversationSequenceResponse struct {
 
 func (x *GetConversationSequenceResponse) Reset() {
 	*x = GetConversationSequenceResponse{}
-	mi := &file_message_message_proto_msgTypes[15]
+	mi := &file_message_message_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1081,7 +1256,7 @@ func (x *GetConversationSequenceResponse) String() string {
 func (*GetConversationSequenceResponse) ProtoMessage() {}
 
 func (x *GetConversationSequenceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_message_message_proto_msgTypes[15]
+	mi := &file_message_message_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1094,7 +1269,7 @@ func (x *GetConversationSequenceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConversationSequenceResponse.ProtoReflect.Descriptor instead.
 func (*GetConversationSequenceResponse) Descriptor() ([]byte, []int) {
-	return file_message_message_proto_rawDescGZIP(), []int{15}
+	return file_message_message_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetConversationSequenceResponse) GetCurrentSeq() int64 {
@@ -1119,7 +1294,7 @@ type SearchMessagesRequest struct {
 
 func (x *SearchMessagesRequest) Reset() {
 	*x = SearchMessagesRequest{}
-	mi := &file_message_message_proto_msgTypes[16]
+	mi := &file_message_message_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1131,7 +1306,7 @@ func (x *SearchMessagesRequest) String() string {
 func (*SearchMessagesRequest) ProtoMessage() {}
 
 func (x *SearchMessagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_message_message_proto_msgTypes[16]
+	mi := &file_message_message_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1144,7 +1319,7 @@ func (x *SearchMessagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchMessagesRequest.ProtoReflect.Descriptor instead.
 func (*SearchMessagesRequest) Descriptor() ([]byte, []int) {
-	return file_message_message_proto_rawDescGZIP(), []int{16}
+	return file_message_message_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *SearchMessagesRequest) GetUserId() string {
@@ -1200,7 +1375,7 @@ type SearchMessagesResponse struct {
 
 func (x *SearchMessagesResponse) Reset() {
 	*x = SearchMessagesResponse{}
-	mi := &file_message_message_proto_msgTypes[17]
+	mi := &file_message_message_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1212,7 +1387,7 @@ func (x *SearchMessagesResponse) String() string {
 func (*SearchMessagesResponse) ProtoMessage() {}
 
 func (x *SearchMessagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_message_message_proto_msgTypes[17]
+	mi := &file_message_message_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1225,7 +1400,7 @@ func (x *SearchMessagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchMessagesResponse.ProtoReflect.Descriptor instead.
 func (*SearchMessagesResponse) Descriptor() ([]byte, []int) {
-	return file_message_message_proto_rawDescGZIP(), []int{17}
+	return file_message_message_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *SearchMessagesResponse) GetMessages() []*Message {
@@ -1271,7 +1446,7 @@ const file_message_message_proto_rawDesc = "" +
 	"\x10reply_to_message\x18\x15 \x01(\v2\x18.anychat.message.MessageH\x02R\x0ereplyToMessage\x88\x01\x01B\v\n" +
 	"\t_reply_toB\x0e\n" +
 	"\f_sender_infoB\x13\n" +
-	"\x11_reply_to_message\"\x89\x03\n" +
+	"\x11_reply_to_message\"\xea\x03\n" +
 	"\x12SendMessageRequest\x12\x1b\n" +
 	"\tsender_id\x18\x01 \x01(\tR\bsenderId\x12'\n" +
 	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12+\n" +
@@ -1281,10 +1456,13 @@ const file_message_message_proto_rawDesc = "" +
 	"\breply_to\x18\x06 \x01(\tH\x00R\areplyTo\x88\x01\x01\x12\x19\n" +
 	"\bat_users\x18\a \x03(\tR\aatUsers\x12\x1e\n" +
 	"\blocal_id\x18\b \x01(\tH\x01R\alocalId\x88\x01\x01\x125\n" +
-	"\x14auto_delete_duration\x18\t \x01(\x05H\x02R\x12autoDeleteDuration\x88\x01\x01B\v\n" +
+	"\x14auto_delete_duration\x18\t \x01(\x05H\x02R\x12autoDeleteDuration\x88\x01\x01\x12@\n" +
+	"\x1aburn_after_reading_seconds\x18\n" +
+	" \x01(\x05H\x03R\x17burnAfterReadingSeconds\x88\x01\x01B\v\n" +
 	"\t_reply_toB\v\n" +
 	"\t_local_idB\x17\n" +
-	"\x15_auto_delete_duration\"\x8a\x01\n" +
+	"\x15_auto_delete_durationB\x1d\n" +
+	"\x1b_burn_after_reading_seconds\"\x8a\x01\n" +
 	"\x13SendMessageResponse\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x1a\n" +
@@ -1321,7 +1499,23 @@ const file_message_message_proto_rawDesc = "" +
 	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\"\n" +
 	"\rlast_read_seq\x18\x04 \x01(\x03R\vlastReadSeq\x124\n" +
 	"\x14last_read_message_id\x18\x05 \x01(\tH\x00R\x11lastReadMessageId\x88\x01\x01B\x17\n" +
-	"\x15_last_read_message_id\"\x94\x01\n" +
+	"\x15_last_read_message_id\"\xa3\x01\n" +
+	"\x10ReadTriggerEvent\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\x12 \n" +
+	"\tclient_at\x18\x02 \x01(\x03H\x00R\bclientAt\x88\x01\x01\x12,\n" +
+	"\x0fidempotency_key\x18\x03 \x01(\tH\x01R\x0eidempotencyKey\x88\x01\x01B\f\n" +
+	"\n" +
+	"_client_atB\x12\n" +
+	"\x10_idempotency_key\"l\n" +
+	"\x16AckReadTriggersRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x129\n" +
+	"\x06events\x18\x02 \x03(\v2!.anychat.message.ReadTriggerEventR\x06events\"[\n" +
+	"\x17AckReadTriggersResponse\x12\x1f\n" +
+	"\vsuccess_ids\x18\x01 \x03(\tR\n" +
+	"successIds\x12\x1f\n" +
+	"\vignored_ids\x18\x02 \x03(\tR\n" +
+	"ignoredIds\"\x94\x01\n" +
 	"\x15GetUnreadCountRequest\x12'\n" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12'\n" +
@@ -1362,7 +1556,7 @@ const file_message_message_proto_rawDesc = "" +
 	"\r_content_type\"d\n" +
 	"\x16SearchMessagesResponse\x124\n" +
 	"\bmessages\x18\x01 \x03(\v2\x18.anychat.message.MessageR\bmessages\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total2\xa9\a\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total2\x8f\b\n" +
 	"\x0eMessageService\x12X\n" +
 	"\vSendMessage\x12#.anychat.message.SendMessageRequest\x1a$.anychat.message.SendMessageResponse\x12X\n" +
 	"\vGetMessages\x12#.anychat.message.GetMessagesRequest\x1a$.anychat.message.GetMessagesResponse\x12R\n" +
@@ -1370,7 +1564,8 @@ const file_message_message_proto_rawDesc = "" +
 	"\rRecallMessage\x12%.anychat.message.RecallMessageRequest\x1a\x15.anychat.common.Empty\x12M\n" +
 	"\rDeleteMessage\x12%.anychat.message.DeleteMessageRequest\x1a\x15.anychat.common.Empty\x12G\n" +
 	"\n" +
-	"MarkAsRead\x12\".anychat.message.MarkAsReadRequest\x1a\x15.anychat.common.Empty\x12a\n" +
+	"MarkAsRead\x12\".anychat.message.MarkAsReadRequest\x1a\x15.anychat.common.Empty\x12d\n" +
+	"\x0fAckReadTriggers\x12'.anychat.message.AckReadTriggersRequest\x1a(.anychat.message.AckReadTriggersResponse\x12a\n" +
 	"\x0eGetUnreadCount\x12&.anychat.message.GetUnreadCountRequest\x1a'.anychat.message.GetUnreadCountResponse\x12d\n" +
 	"\x0fGetReadReceipts\x12'.anychat.message.GetReadReceiptsRequest\x1a(.anychat.message.GetReadReceiptsResponse\x12|\n" +
 	"\x17GetConversationSequence\x12/.anychat.message.GetConversationSequenceRequest\x1a0.anychat.message.GetConversationSequenceResponse\x12a\n" +
@@ -1388,7 +1583,7 @@ func file_message_message_proto_rawDescGZIP() []byte {
 	return file_message_message_proto_rawDescData
 }
 
-var file_message_message_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_message_message_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_message_message_proto_goTypes = []any{
 	(*Message)(nil),                         // 0: anychat.message.Message
 	(*SendMessageRequest)(nil),              // 1: anychat.message.SendMessageRequest
@@ -1399,57 +1594,63 @@ var file_message_message_proto_goTypes = []any{
 	(*RecallMessageRequest)(nil),            // 6: anychat.message.RecallMessageRequest
 	(*DeleteMessageRequest)(nil),            // 7: anychat.message.DeleteMessageRequest
 	(*MarkAsReadRequest)(nil),               // 8: anychat.message.MarkAsReadRequest
-	(*GetUnreadCountRequest)(nil),           // 9: anychat.message.GetUnreadCountRequest
-	(*GetUnreadCountResponse)(nil),          // 10: anychat.message.GetUnreadCountResponse
-	(*GetReadReceiptsRequest)(nil),          // 11: anychat.message.GetReadReceiptsRequest
-	(*ReadReceipt)(nil),                     // 12: anychat.message.ReadReceipt
-	(*GetReadReceiptsResponse)(nil),         // 13: anychat.message.GetReadReceiptsResponse
-	(*GetConversationSequenceRequest)(nil),  // 14: anychat.message.GetConversationSequenceRequest
-	(*GetConversationSequenceResponse)(nil), // 15: anychat.message.GetConversationSequenceResponse
-	(*SearchMessagesRequest)(nil),           // 16: anychat.message.SearchMessagesRequest
-	(*SearchMessagesResponse)(nil),          // 17: anychat.message.SearchMessagesResponse
-	(*timestamp.Timestamp)(nil),             // 18: google.protobuf.Timestamp
-	(*common.UserInfo)(nil),                 // 19: anychat.common.UserInfo
-	(*common.Empty)(nil),                    // 20: anychat.common.Empty
+	(*ReadTriggerEvent)(nil),                // 9: anychat.message.ReadTriggerEvent
+	(*AckReadTriggersRequest)(nil),          // 10: anychat.message.AckReadTriggersRequest
+	(*AckReadTriggersResponse)(nil),         // 11: anychat.message.AckReadTriggersResponse
+	(*GetUnreadCountRequest)(nil),           // 12: anychat.message.GetUnreadCountRequest
+	(*GetUnreadCountResponse)(nil),          // 13: anychat.message.GetUnreadCountResponse
+	(*GetReadReceiptsRequest)(nil),          // 14: anychat.message.GetReadReceiptsRequest
+	(*ReadReceipt)(nil),                     // 15: anychat.message.ReadReceipt
+	(*GetReadReceiptsResponse)(nil),         // 16: anychat.message.GetReadReceiptsResponse
+	(*GetConversationSequenceRequest)(nil),  // 17: anychat.message.GetConversationSequenceRequest
+	(*GetConversationSequenceResponse)(nil), // 18: anychat.message.GetConversationSequenceResponse
+	(*SearchMessagesRequest)(nil),           // 19: anychat.message.SearchMessagesRequest
+	(*SearchMessagesResponse)(nil),          // 20: anychat.message.SearchMessagesResponse
+	(*timestamp.Timestamp)(nil),             // 21: google.protobuf.Timestamp
+	(*common.UserInfo)(nil),                 // 22: anychat.common.UserInfo
+	(*common.Empty)(nil),                    // 23: anychat.common.Empty
 }
 var file_message_message_proto_depIdxs = []int32{
-	18, // 0: anychat.message.Message.expire_time:type_name -> google.protobuf.Timestamp
-	18, // 1: anychat.message.Message.created_at:type_name -> google.protobuf.Timestamp
-	18, // 2: anychat.message.Message.updated_at:type_name -> google.protobuf.Timestamp
-	19, // 3: anychat.message.Message.sender_info:type_name -> anychat.common.UserInfo
+	21, // 0: anychat.message.Message.expire_time:type_name -> google.protobuf.Timestamp
+	21, // 1: anychat.message.Message.created_at:type_name -> google.protobuf.Timestamp
+	21, // 2: anychat.message.Message.updated_at:type_name -> google.protobuf.Timestamp
+	22, // 3: anychat.message.Message.sender_info:type_name -> anychat.common.UserInfo
 	0,  // 4: anychat.message.Message.reply_to_message:type_name -> anychat.message.Message
-	18, // 5: anychat.message.SendMessageResponse.timestamp:type_name -> google.protobuf.Timestamp
+	21, // 5: anychat.message.SendMessageResponse.timestamp:type_name -> google.protobuf.Timestamp
 	0,  // 6: anychat.message.GetMessagesResponse.messages:type_name -> anychat.message.Message
-	0,  // 7: anychat.message.GetUnreadCountResponse.last_message:type_name -> anychat.message.Message
-	18, // 8: anychat.message.ReadReceipt.read_at:type_name -> google.protobuf.Timestamp
-	19, // 9: anychat.message.ReadReceipt.user_info:type_name -> anychat.common.UserInfo
-	12, // 10: anychat.message.GetReadReceiptsResponse.receipts:type_name -> anychat.message.ReadReceipt
-	0,  // 11: anychat.message.SearchMessagesResponse.messages:type_name -> anychat.message.Message
-	1,  // 12: anychat.message.MessageService.SendMessage:input_type -> anychat.message.SendMessageRequest
-	3,  // 13: anychat.message.MessageService.GetMessages:input_type -> anychat.message.GetMessagesRequest
-	5,  // 14: anychat.message.MessageService.GetMessageById:input_type -> anychat.message.GetMessageByIdRequest
-	6,  // 15: anychat.message.MessageService.RecallMessage:input_type -> anychat.message.RecallMessageRequest
-	7,  // 16: anychat.message.MessageService.DeleteMessage:input_type -> anychat.message.DeleteMessageRequest
-	8,  // 17: anychat.message.MessageService.MarkAsRead:input_type -> anychat.message.MarkAsReadRequest
-	9,  // 18: anychat.message.MessageService.GetUnreadCount:input_type -> anychat.message.GetUnreadCountRequest
-	11, // 19: anychat.message.MessageService.GetReadReceipts:input_type -> anychat.message.GetReadReceiptsRequest
-	14, // 20: anychat.message.MessageService.GetConversationSequence:input_type -> anychat.message.GetConversationSequenceRequest
-	16, // 21: anychat.message.MessageService.SearchMessages:input_type -> anychat.message.SearchMessagesRequest
-	2,  // 22: anychat.message.MessageService.SendMessage:output_type -> anychat.message.SendMessageResponse
-	4,  // 23: anychat.message.MessageService.GetMessages:output_type -> anychat.message.GetMessagesResponse
-	0,  // 24: anychat.message.MessageService.GetMessageById:output_type -> anychat.message.Message
-	20, // 25: anychat.message.MessageService.RecallMessage:output_type -> anychat.common.Empty
-	20, // 26: anychat.message.MessageService.DeleteMessage:output_type -> anychat.common.Empty
-	20, // 27: anychat.message.MessageService.MarkAsRead:output_type -> anychat.common.Empty
-	10, // 28: anychat.message.MessageService.GetUnreadCount:output_type -> anychat.message.GetUnreadCountResponse
-	13, // 29: anychat.message.MessageService.GetReadReceipts:output_type -> anychat.message.GetReadReceiptsResponse
-	15, // 30: anychat.message.MessageService.GetConversationSequence:output_type -> anychat.message.GetConversationSequenceResponse
-	17, // 31: anychat.message.MessageService.SearchMessages:output_type -> anychat.message.SearchMessagesResponse
-	22, // [22:32] is the sub-list for method output_type
-	12, // [12:22] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	9,  // 7: anychat.message.AckReadTriggersRequest.events:type_name -> anychat.message.ReadTriggerEvent
+	0,  // 8: anychat.message.GetUnreadCountResponse.last_message:type_name -> anychat.message.Message
+	21, // 9: anychat.message.ReadReceipt.read_at:type_name -> google.protobuf.Timestamp
+	22, // 10: anychat.message.ReadReceipt.user_info:type_name -> anychat.common.UserInfo
+	15, // 11: anychat.message.GetReadReceiptsResponse.receipts:type_name -> anychat.message.ReadReceipt
+	0,  // 12: anychat.message.SearchMessagesResponse.messages:type_name -> anychat.message.Message
+	1,  // 13: anychat.message.MessageService.SendMessage:input_type -> anychat.message.SendMessageRequest
+	3,  // 14: anychat.message.MessageService.GetMessages:input_type -> anychat.message.GetMessagesRequest
+	5,  // 15: anychat.message.MessageService.GetMessageById:input_type -> anychat.message.GetMessageByIdRequest
+	6,  // 16: anychat.message.MessageService.RecallMessage:input_type -> anychat.message.RecallMessageRequest
+	7,  // 17: anychat.message.MessageService.DeleteMessage:input_type -> anychat.message.DeleteMessageRequest
+	8,  // 18: anychat.message.MessageService.MarkAsRead:input_type -> anychat.message.MarkAsReadRequest
+	10, // 19: anychat.message.MessageService.AckReadTriggers:input_type -> anychat.message.AckReadTriggersRequest
+	12, // 20: anychat.message.MessageService.GetUnreadCount:input_type -> anychat.message.GetUnreadCountRequest
+	14, // 21: anychat.message.MessageService.GetReadReceipts:input_type -> anychat.message.GetReadReceiptsRequest
+	17, // 22: anychat.message.MessageService.GetConversationSequence:input_type -> anychat.message.GetConversationSequenceRequest
+	19, // 23: anychat.message.MessageService.SearchMessages:input_type -> anychat.message.SearchMessagesRequest
+	2,  // 24: anychat.message.MessageService.SendMessage:output_type -> anychat.message.SendMessageResponse
+	4,  // 25: anychat.message.MessageService.GetMessages:output_type -> anychat.message.GetMessagesResponse
+	0,  // 26: anychat.message.MessageService.GetMessageById:output_type -> anychat.message.Message
+	23, // 27: anychat.message.MessageService.RecallMessage:output_type -> anychat.common.Empty
+	23, // 28: anychat.message.MessageService.DeleteMessage:output_type -> anychat.common.Empty
+	23, // 29: anychat.message.MessageService.MarkAsRead:output_type -> anychat.common.Empty
+	11, // 30: anychat.message.MessageService.AckReadTriggers:output_type -> anychat.message.AckReadTriggersResponse
+	13, // 31: anychat.message.MessageService.GetUnreadCount:output_type -> anychat.message.GetUnreadCountResponse
+	16, // 32: anychat.message.MessageService.GetReadReceipts:output_type -> anychat.message.GetReadReceiptsResponse
+	18, // 33: anychat.message.MessageService.GetConversationSequence:output_type -> anychat.message.GetConversationSequenceResponse
+	20, // 34: anychat.message.MessageService.SearchMessages:output_type -> anychat.message.SearchMessagesResponse
+	24, // [24:35] is the sub-list for method output_type
+	13, // [13:24] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_message_message_proto_init() }
@@ -1462,16 +1663,17 @@ func file_message_message_proto_init() {
 	file_message_message_proto_msgTypes[3].OneofWrappers = []any{}
 	file_message_message_proto_msgTypes[8].OneofWrappers = []any{}
 	file_message_message_proto_msgTypes[9].OneofWrappers = []any{}
-	file_message_message_proto_msgTypes[10].OneofWrappers = []any{}
 	file_message_message_proto_msgTypes[12].OneofWrappers = []any{}
-	file_message_message_proto_msgTypes[16].OneofWrappers = []any{}
+	file_message_message_proto_msgTypes[13].OneofWrappers = []any{}
+	file_message_message_proto_msgTypes[15].OneofWrappers = []any{}
+	file_message_message_proto_msgTypes[19].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_message_message_proto_rawDesc), len(file_message_message_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

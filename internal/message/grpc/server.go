@@ -169,6 +169,28 @@ func (s *Server) MarkAsRead(ctx context.Context, req *messagepb.MarkAsReadReques
 	return &commonpb.Empty{}, nil
 }
 
+// AckReadTriggers 阅后即焚阅读触发回执
+func (s *Server) AckReadTriggers(ctx context.Context, req *messagepb.AckReadTriggersRequest) (*messagepb.AckReadTriggersResponse, error) {
+	logger.Info("AckReadTriggers called",
+		zap.String("userId", req.UserId),
+		zap.Int("eventCount", len(req.Events)))
+
+	if req.UserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "user_id is required")
+	}
+	if len(req.Events) == 0 {
+		return &messagepb.AckReadTriggersResponse{}, nil
+	}
+
+	resp, err := s.messageService.AckReadTriggers(ctx, req)
+	if err != nil {
+		logger.Error("Failed to ack read triggers", zap.Error(err))
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return resp, nil
+}
+
 // GetUnreadCount 获取未读消息数
 func (s *Server) GetUnreadCount(ctx context.Context, req *messagepb.GetUnreadCountRequest) (*messagepb.GetUnreadCountResponse, error) {
 	logger.Info("GetUnreadCount called",

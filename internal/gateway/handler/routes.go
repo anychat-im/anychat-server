@@ -18,6 +18,7 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 	friendHandler := NewFriendHandler(clientManager)
 	groupHandler := NewGroupHandler(clientManager)
 	fileHandler := NewFileHandler(clientManager)
+	messageHandler := NewMessageHandler(clientManager)
 	wsHandler := NewWSHandler(clientManager, jwtManager, wsManager, subscriber)
 	sessionHandler := NewSessionHandler(clientManager)
 	syncHandler := NewSyncHandler(clientManager)
@@ -153,6 +154,12 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 				files.GET("/:fileId", fileHandler.GetFileInfo)
 				files.DELETE("/:fileId", fileHandler.DeleteFile)
 				files.GET("", fileHandler.ListFiles)
+			}
+
+			// Message路由
+			messages := authorized.Group("/messages")
+			{
+				messages.POST("/read-triggers", messageHandler.AckReadTriggers)
 			}
 
 			// Session路由

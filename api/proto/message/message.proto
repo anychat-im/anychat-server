@@ -27,6 +27,9 @@ service MessageService {
   // MarkAsRead 标记消息已读
   rpc MarkAsRead(MarkAsReadRequest) returns (common.Empty);
 
+  // AckReadTriggers 阅后即焚阅读触发回执
+  rpc AckReadTriggers(AckReadTriggersRequest) returns (AckReadTriggersResponse);
+
   // GetUnreadCount 获取未读消息数
   rpc GetUnreadCount(GetUnreadCountRequest) returns (GetUnreadCountResponse);
 
@@ -72,6 +75,7 @@ message SendMessageRequest {
   repeated string at_users = 7;
   optional string local_id = 8;  // 客户端本地ID（用于关联）
   optional int32 auto_delete_duration = 9;  // 自动删除时长(秒),由gateway从session服务获取后传入
+  optional int32 burn_after_reading_seconds = 10;  // 阅后即焚时长快照(秒),由gateway从session服务获取后传入
 }
 
 // SendMessageResponse 发送消息响应
@@ -121,6 +125,25 @@ message MarkAsReadRequest {
   string user_id = 3;
   int64 last_read_seq = 4;
   optional string last_read_message_id = 5;
+}
+
+// ReadTriggerEvent 阅后即焚阅读触发事件
+message ReadTriggerEvent {
+  string message_id = 1;
+  optional int64 client_at = 2;
+  optional string idempotency_key = 3;
+}
+
+// AckReadTriggersRequest 批量上报阅读触发
+message AckReadTriggersRequest {
+  string user_id = 1;
+  repeated ReadTriggerEvent events = 2;
+}
+
+// AckReadTriggersResponse 批量上报结果
+message AckReadTriggersResponse {
+  repeated string success_ids = 1;
+  repeated string ignored_ids = 2;
 }
 
 // GetUnreadCountRequest 获取未读数请求

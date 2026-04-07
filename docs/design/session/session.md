@@ -133,26 +133,7 @@ sequenceDiagram
 
 ### 4.7 阅后即焚
 
-用户设置后，接收方阅读消息时触发删除。
-
-详见 [自动删除消息](./auto_delete.md) 了解与自动删除的区别。
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Gateway
-    participant SessionService
-    participant DB
-
-    Client->>Gateway: PUT /session/burn<br/>Header: Authorization: Bearer {token}<br/>Body: {session_id, duration: 30}
-    Gateway->>Gateway: 从JWT解析userId
-    Gateway->>SessionService: gRPC SetBurnAfterReading(userId, sessionId, duration)
-    SessionService->>DB: 更新阅后即焚时长
-    DB-->>SessionService: 成功
-    SessionService-->>Gateway: 成功
-    Gateway-->>Client: 200 OK
-```
-> duration为0表示取消阅后即焚
+详见 [阅后即焚](./burn_after_reading.md) 设计文档。
 
 ## 5. API设计
 
@@ -188,13 +169,7 @@ message SetMutedRequest {
 
 ### 5.3 阅后即焚
 
-```protobuf
-message SetBurnAfterReadingRequest {
-    string user_id = 1;
-    string session_id = 2;
-    int32 duration = 3;  // 秒,0表示取消
-}
-```
+详见 [阅后即焚](./burn_after_reading.md) 设计文档。
 
 ### 5.4 自动删除消息
 
