@@ -286,3 +286,43 @@ func (h *SessionHandler) SetBurnAfterReading(c *gin.Context) {
 	}
 	response.Success(c, nil)
 }
+
+type setAutoDeleteRequest struct {
+	Duration int32 `json:"duration"` // 秒,0表示取消
+}
+
+// SetAutoDelete 设置自动删除
+// @Summary      设置自动删除
+// @Description  设置会话自动删除时长，0表示取消
+// @Tags         会话
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        sessionId  path  string                  true  "会话ID"
+// @Param        request    body  setAutoDeleteRequest   true  "自动删除时长(秒)"
+// @Success      200  {object}  response.Response  "成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      500  {object}  response.Response  "服务器错误"
+// @Router       /sessions/{sessionId}/auto_delete [put]
+func (h *SessionHandler) SetAutoDelete(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
+	sessionID := c.Param("sessionId")
+
+	var req setAutoDeleteRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err := h.clientManager.Session().SetAutoDelete(c.Request.Context(), &sessionpb.SetAutoDeleteRequest{
+		UserId:    userID,
+		SessionId: sessionID,
+		Duration:  req.Duration,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+	response.Success(c, nil)
+}

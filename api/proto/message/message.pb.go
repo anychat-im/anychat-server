@@ -35,7 +35,8 @@ type Message struct {
 	Sequence         int64                  `protobuf:"varint,7,opt,name=sequence,proto3" json:"sequence,omitempty"`
 	ReplyTo          *string                `protobuf:"bytes,8,opt,name=reply_to,json=replyTo,proto3,oneof" json:"reply_to,omitempty"`
 	AtUsers          []string               `protobuf:"bytes,9,rep,name=at_users,json=atUsers,proto3" json:"at_users,omitempty"`
-	Status           int32                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"` // 0-正常 1-撤回 2-删除
+	Status           int32                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"`                          // 0-正常 1-撤回 2-删除
+	ExpireTime       *timestamp.Timestamp   `protobuf:"bytes,13,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"` // 消息过期时间,为空表示永不过期
 	CreatedAt        *timestamp.Timestamp   `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt        *timestamp.Timestamp   `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	// 扩展字段（用于客户端显示）
@@ -145,6 +146,13 @@ func (x *Message) GetStatus() int32 {
 	return 0
 }
 
+func (x *Message) GetExpireTime() *timestamp.Timestamp {
+	if x != nil {
+		return x.ExpireTime
+	}
+	return nil
+}
+
 func (x *Message) GetCreatedAt() *timestamp.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -175,17 +183,18 @@ func (x *Message) GetReplyToMessage() *Message {
 
 // SendMessageRequest 发送消息请求
 type SendMessageRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	SenderId         string                 `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
-	ConversationId   string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	ConversationType string                 `protobuf:"bytes,3,opt,name=conversation_type,json=conversationType,proto3" json:"conversation_type,omitempty"` // single/group
-	ContentType      string                 `protobuf:"bytes,4,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
-	Content          string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"` // JSON string
-	ReplyTo          *string                `protobuf:"bytes,6,opt,name=reply_to,json=replyTo,proto3,oneof" json:"reply_to,omitempty"`
-	AtUsers          []string               `protobuf:"bytes,7,rep,name=at_users,json=atUsers,proto3" json:"at_users,omitempty"`
-	LocalId          *string                `protobuf:"bytes,8,opt,name=local_id,json=localId,proto3,oneof" json:"local_id,omitempty"` // 客户端本地ID（用于关联）
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	SenderId           string                 `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	ConversationId     string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	ConversationType   string                 `protobuf:"bytes,3,opt,name=conversation_type,json=conversationType,proto3" json:"conversation_type,omitempty"` // single/group
+	ContentType        string                 `protobuf:"bytes,4,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
+	Content            string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"` // JSON string
+	ReplyTo            *string                `protobuf:"bytes,6,opt,name=reply_to,json=replyTo,proto3,oneof" json:"reply_to,omitempty"`
+	AtUsers            []string               `protobuf:"bytes,7,rep,name=at_users,json=atUsers,proto3" json:"at_users,omitempty"`
+	LocalId            *string                `protobuf:"bytes,8,opt,name=local_id,json=localId,proto3,oneof" json:"local_id,omitempty"`                                     // 客户端本地ID（用于关联）
+	AutoDeleteDuration *int32                 `protobuf:"varint,9,opt,name=auto_delete_duration,json=autoDeleteDuration,proto3,oneof" json:"auto_delete_duration,omitempty"` // 自动删除时长(秒),由gateway从session服务获取后传入
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *SendMessageRequest) Reset() {
@@ -272,6 +281,13 @@ func (x *SendMessageRequest) GetLocalId() string {
 		return *x.LocalId
 	}
 	return ""
+}
+
+func (x *SendMessageRequest) GetAutoDeleteDuration() int32 {
+	if x != nil && x.AutoDeleteDuration != nil {
+		return *x.AutoDeleteDuration
+	}
+	return 0
 }
 
 // SendMessageResponse 发送消息响应
@@ -1230,7 +1246,7 @@ var File_message_message_proto protoreflect.FileDescriptor
 
 const file_message_message_proto_rawDesc = "" +
 	"\n" +
-	"\x15message/message.proto\x12\x0fanychat.message\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13common/common.proto\"\xf8\x04\n" +
+	"\x15message/message.proto\x12\x0fanychat.message\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13common/common.proto\"\xb5\x05\n" +
 	"\aMessage\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12'\n" +
@@ -1243,7 +1259,9 @@ const file_message_message_proto_rawDesc = "" +
 	"\breply_to\x18\b \x01(\tH\x00R\areplyTo\x88\x01\x01\x12\x19\n" +
 	"\bat_users\x18\t \x03(\tR\aatUsers\x12\x16\n" +
 	"\x06status\x18\n" +
-	" \x01(\x05R\x06status\x129\n" +
+	" \x01(\x05R\x06status\x12;\n" +
+	"\vexpire_time\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"expireTime\x129\n" +
 	"\n" +
 	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
@@ -1253,7 +1271,7 @@ const file_message_message_proto_rawDesc = "" +
 	"\x10reply_to_message\x18\x15 \x01(\v2\x18.anychat.message.MessageH\x02R\x0ereplyToMessage\x88\x01\x01B\v\n" +
 	"\t_reply_toB\x0e\n" +
 	"\f_sender_infoB\x13\n" +
-	"\x11_reply_to_message\"\xb9\x02\n" +
+	"\x11_reply_to_message\"\x89\x03\n" +
 	"\x12SendMessageRequest\x12\x1b\n" +
 	"\tsender_id\x18\x01 \x01(\tR\bsenderId\x12'\n" +
 	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12+\n" +
@@ -1262,9 +1280,11 @@ const file_message_message_proto_rawDesc = "" +
 	"\acontent\x18\x05 \x01(\tR\acontent\x12\x1e\n" +
 	"\breply_to\x18\x06 \x01(\tH\x00R\areplyTo\x88\x01\x01\x12\x19\n" +
 	"\bat_users\x18\a \x03(\tR\aatUsers\x12\x1e\n" +
-	"\blocal_id\x18\b \x01(\tH\x01R\alocalId\x88\x01\x01B\v\n" +
+	"\blocal_id\x18\b \x01(\tH\x01R\alocalId\x88\x01\x01\x125\n" +
+	"\x14auto_delete_duration\x18\t \x01(\x05H\x02R\x12autoDeleteDuration\x88\x01\x01B\v\n" +
 	"\t_reply_toB\v\n" +
-	"\t_local_id\"\x8a\x01\n" +
+	"\t_local_idB\x17\n" +
+	"\x15_auto_delete_duration\"\x8a\x01\n" +
 	"\x13SendMessageResponse\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x1a\n" +
@@ -1393,42 +1413,43 @@ var file_message_message_proto_goTypes = []any{
 	(*common.Empty)(nil),                    // 20: anychat.common.Empty
 }
 var file_message_message_proto_depIdxs = []int32{
-	18, // 0: anychat.message.Message.created_at:type_name -> google.protobuf.Timestamp
-	18, // 1: anychat.message.Message.updated_at:type_name -> google.protobuf.Timestamp
-	19, // 2: anychat.message.Message.sender_info:type_name -> anychat.common.UserInfo
-	0,  // 3: anychat.message.Message.reply_to_message:type_name -> anychat.message.Message
-	18, // 4: anychat.message.SendMessageResponse.timestamp:type_name -> google.protobuf.Timestamp
-	0,  // 5: anychat.message.GetMessagesResponse.messages:type_name -> anychat.message.Message
-	0,  // 6: anychat.message.GetUnreadCountResponse.last_message:type_name -> anychat.message.Message
-	18, // 7: anychat.message.ReadReceipt.read_at:type_name -> google.protobuf.Timestamp
-	19, // 8: anychat.message.ReadReceipt.user_info:type_name -> anychat.common.UserInfo
-	12, // 9: anychat.message.GetReadReceiptsResponse.receipts:type_name -> anychat.message.ReadReceipt
-	0,  // 10: anychat.message.SearchMessagesResponse.messages:type_name -> anychat.message.Message
-	1,  // 11: anychat.message.MessageService.SendMessage:input_type -> anychat.message.SendMessageRequest
-	3,  // 12: anychat.message.MessageService.GetMessages:input_type -> anychat.message.GetMessagesRequest
-	5,  // 13: anychat.message.MessageService.GetMessageById:input_type -> anychat.message.GetMessageByIdRequest
-	6,  // 14: anychat.message.MessageService.RecallMessage:input_type -> anychat.message.RecallMessageRequest
-	7,  // 15: anychat.message.MessageService.DeleteMessage:input_type -> anychat.message.DeleteMessageRequest
-	8,  // 16: anychat.message.MessageService.MarkAsRead:input_type -> anychat.message.MarkAsReadRequest
-	9,  // 17: anychat.message.MessageService.GetUnreadCount:input_type -> anychat.message.GetUnreadCountRequest
-	11, // 18: anychat.message.MessageService.GetReadReceipts:input_type -> anychat.message.GetReadReceiptsRequest
-	14, // 19: anychat.message.MessageService.GetConversationSequence:input_type -> anychat.message.GetConversationSequenceRequest
-	16, // 20: anychat.message.MessageService.SearchMessages:input_type -> anychat.message.SearchMessagesRequest
-	2,  // 21: anychat.message.MessageService.SendMessage:output_type -> anychat.message.SendMessageResponse
-	4,  // 22: anychat.message.MessageService.GetMessages:output_type -> anychat.message.GetMessagesResponse
-	0,  // 23: anychat.message.MessageService.GetMessageById:output_type -> anychat.message.Message
-	20, // 24: anychat.message.MessageService.RecallMessage:output_type -> anychat.common.Empty
-	20, // 25: anychat.message.MessageService.DeleteMessage:output_type -> anychat.common.Empty
-	20, // 26: anychat.message.MessageService.MarkAsRead:output_type -> anychat.common.Empty
-	10, // 27: anychat.message.MessageService.GetUnreadCount:output_type -> anychat.message.GetUnreadCountResponse
-	13, // 28: anychat.message.MessageService.GetReadReceipts:output_type -> anychat.message.GetReadReceiptsResponse
-	15, // 29: anychat.message.MessageService.GetConversationSequence:output_type -> anychat.message.GetConversationSequenceResponse
-	17, // 30: anychat.message.MessageService.SearchMessages:output_type -> anychat.message.SearchMessagesResponse
-	21, // [21:31] is the sub-list for method output_type
-	11, // [11:21] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	18, // 0: anychat.message.Message.expire_time:type_name -> google.protobuf.Timestamp
+	18, // 1: anychat.message.Message.created_at:type_name -> google.protobuf.Timestamp
+	18, // 2: anychat.message.Message.updated_at:type_name -> google.protobuf.Timestamp
+	19, // 3: anychat.message.Message.sender_info:type_name -> anychat.common.UserInfo
+	0,  // 4: anychat.message.Message.reply_to_message:type_name -> anychat.message.Message
+	18, // 5: anychat.message.SendMessageResponse.timestamp:type_name -> google.protobuf.Timestamp
+	0,  // 6: anychat.message.GetMessagesResponse.messages:type_name -> anychat.message.Message
+	0,  // 7: anychat.message.GetUnreadCountResponse.last_message:type_name -> anychat.message.Message
+	18, // 8: anychat.message.ReadReceipt.read_at:type_name -> google.protobuf.Timestamp
+	19, // 9: anychat.message.ReadReceipt.user_info:type_name -> anychat.common.UserInfo
+	12, // 10: anychat.message.GetReadReceiptsResponse.receipts:type_name -> anychat.message.ReadReceipt
+	0,  // 11: anychat.message.SearchMessagesResponse.messages:type_name -> anychat.message.Message
+	1,  // 12: anychat.message.MessageService.SendMessage:input_type -> anychat.message.SendMessageRequest
+	3,  // 13: anychat.message.MessageService.GetMessages:input_type -> anychat.message.GetMessagesRequest
+	5,  // 14: anychat.message.MessageService.GetMessageById:input_type -> anychat.message.GetMessageByIdRequest
+	6,  // 15: anychat.message.MessageService.RecallMessage:input_type -> anychat.message.RecallMessageRequest
+	7,  // 16: anychat.message.MessageService.DeleteMessage:input_type -> anychat.message.DeleteMessageRequest
+	8,  // 17: anychat.message.MessageService.MarkAsRead:input_type -> anychat.message.MarkAsReadRequest
+	9,  // 18: anychat.message.MessageService.GetUnreadCount:input_type -> anychat.message.GetUnreadCountRequest
+	11, // 19: anychat.message.MessageService.GetReadReceipts:input_type -> anychat.message.GetReadReceiptsRequest
+	14, // 20: anychat.message.MessageService.GetConversationSequence:input_type -> anychat.message.GetConversationSequenceRequest
+	16, // 21: anychat.message.MessageService.SearchMessages:input_type -> anychat.message.SearchMessagesRequest
+	2,  // 22: anychat.message.MessageService.SendMessage:output_type -> anychat.message.SendMessageResponse
+	4,  // 23: anychat.message.MessageService.GetMessages:output_type -> anychat.message.GetMessagesResponse
+	0,  // 24: anychat.message.MessageService.GetMessageById:output_type -> anychat.message.Message
+	20, // 25: anychat.message.MessageService.RecallMessage:output_type -> anychat.common.Empty
+	20, // 26: anychat.message.MessageService.DeleteMessage:output_type -> anychat.common.Empty
+	20, // 27: anychat.message.MessageService.MarkAsRead:output_type -> anychat.common.Empty
+	10, // 28: anychat.message.MessageService.GetUnreadCount:output_type -> anychat.message.GetUnreadCountResponse
+	13, // 29: anychat.message.MessageService.GetReadReceipts:output_type -> anychat.message.GetReadReceiptsResponse
+	15, // 30: anychat.message.MessageService.GetConversationSequence:output_type -> anychat.message.GetConversationSequenceResponse
+	17, // 31: anychat.message.MessageService.SearchMessages:output_type -> anychat.message.SearchMessagesResponse
+	22, // [22:32] is the sub-list for method output_type
+	12, // [12:22] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_message_message_proto_init() }

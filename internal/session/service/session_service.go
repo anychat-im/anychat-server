@@ -20,11 +20,13 @@ import (
 type SessionService interface {
 	GetSessions(ctx context.Context, req *sessionpb.GetSessionsRequest) (*sessionpb.GetSessionsResponse, error)
 	GetSession(ctx context.Context, userID, sessionID string) (*sessionpb.Session, error)
+	GetSessionByUserAndTarget(ctx context.Context, userID, sessionType, targetID string) (*sessionpb.Session, error)
 	CreateOrUpdateSession(ctx context.Context, req *sessionpb.CreateOrUpdateSessionRequest) (*sessionpb.Session, error)
 	DeleteSession(ctx context.Context, userID, sessionID string) error
 	SetPinned(ctx context.Context, userID, sessionID string, pinned bool) error
 	SetMuted(ctx context.Context, userID, sessionID string, muted bool) error
 	SetBurnAfterReading(ctx context.Context, userID, sessionID string, duration int32) error
+	SetAutoDelete(ctx context.Context, userID, sessionID string, duration int32) error
 	ClearUnread(ctx context.Context, userID, sessionID string) error
 	GetTotalUnread(ctx context.Context, userID string) (int32, error)
 	IncrUnread(ctx context.Context, userID, sessionID string, count int32) error
@@ -87,6 +89,18 @@ func (s *sessionServiceImpl) GetSession(ctx context.Context, userID, sessionID s
 	}
 	if session.UserID != userID {
 		return nil, fmt.Errorf("session not found")
+	}
+	return toProtoSession(session), nil
+}
+
+// GetSessionByUserAndTarget 根据用户ID、会话类型和目标ID获取会话
+func (s *sessionServiceImpl) GetSessionByUserAndTarget(ctx context.Context, userID, sessionType, targetID string) (*sessionpb.Session, error) {
+	session, err := s.sessionRepo.GetByUserAndTarget(ctx, userID, sessionType, targetID)
+	if err == gorm.ErrRecordNotFound {
+		return nil, fmt.Errorf("session not found")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get session: %w", err)
 	}
 	return toProtoSession(session), nil
 }
@@ -215,6 +229,25 @@ func (s *sessionServiceImpl) SetBurnAfterReading(ctx context.Context, userID, se
 	return nil
 }
 
+// SetAutoDelete 设置自动删除时长并发送通知
+func (s *sessionServiceImpl) SetAutoDelete(ctx context.Context, userID, sessionID string, duration int32) error {
+	if err := s.sessionRepo.SetAutoDelete(ctx, userID, sessionID, duration); err != nil {
+		return fmt.Errorf("failed to set auto delete: %w", err)
+	}
+
+	// 发布自动删除配置变更通知（多端同步）
+	notif := notification.NewNotification(notification.TypeSessionAutoDeleteUpdated, userID, notification.PriorityNormal).
+		AddPayloadField("session_id", sessionID).
+		AddPayloadField("auto_delete_duration", duration)
+	if err := s.notificationPub.PublishToUser(userID, notif); err != nil {
+		logger.Warn("Failed to publish session auto delete notification",
+			zap.String("userID", userID),
+			zap.Error(err))
+	}
+
+	return nil
+}
+
 // ClearUnread 清除未读数并发送通知
 func (s *sessionServiceImpl) ClearUnread(ctx context.Context, userID, sessionID string) error {
 	if err := s.sessionRepo.ClearUnread(ctx, userID, sessionID); err != nil {
@@ -281,6 +314,7 @@ func toProtoSession(s *model.Session) *sessionpb.Session {
 		IsPinned:           s.IsPinned,
 		IsMuted:            s.IsMuted,
 		BurnAfterReading:   s.BurnAfterReading,
+		AutoDeleteDuration: s.AutoDeleteDuration,
 		CreatedAt:          timestamppb.New(s.CreatedAt),
 		UpdatedAt:          timestamppb.New(s.UpdatedAt),
 	}

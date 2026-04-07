@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/anychat/server/internal/message/model"
 	"gorm.io/gorm"
@@ -22,6 +23,12 @@ type MessageRepository interface {
 	CountUnreadByConversation(ctx context.Context, conversationID string, lastReadSeq int64) (int64, error)
 	SearchMessages(ctx context.Context, keyword string, conversationID *string, contentType *string, limit, offset int) ([]*model.Message, int64, error)
 	GetByReplyTo(ctx context.Context, replyToMessageID string) ([]*model.Message, error)
+	// GetExpiredMessages 获取过期消息（分页）
+	GetExpiredMessages(ctx context.Context, before time.Time, limit int) ([]*model.Message, error)
+	// BatchUpdateStatus 批量更新消息状态
+	BatchUpdateStatus(ctx context.Context, messageIDs []string, status int16) error
+	// GetExpiredMessageIDs 获取过期消息ID列表（用于通知）
+	GetExpiredMessageIDs(ctx context.Context, before time.Time, limit int) ([]string, error)
 	WithTx(tx *gorm.DB) MessageRepository
 }
 
@@ -199,6 +206,40 @@ func (r *messageRepositoryImpl) GetByReplyTo(ctx context.Context, replyToMessage
 		Order("created_at ASC").
 		Find(&messages).Error
 	return messages, err
+}
+
+// GetExpiredMessages 获取过期消息（分页）
+func (r *messageRepositoryImpl) GetExpiredMessages(ctx context.Context, before time.Time, limit int) ([]*model.Message, error) {
+	var messages []*model.Message
+	err := r.db.WithContext(ctx).
+		Where("expire_time IS NOT NULL AND expire_time <= ? AND status = ?", before, model.MessageStatusNormal).
+		Order("expire_time ASC").
+		Limit(limit).
+		Find(&messages).Error
+	return messages, err
+}
+
+// BatchUpdateStatus 批量更新消息状态
+func (r *messageRepositoryImpl) BatchUpdateStatus(ctx context.Context, messageIDs []string, status int16) error {
+	if len(messageIDs) == 0 {
+		return nil
+	}
+	return r.db.WithContext(ctx).
+		Model(&model.Message{}).
+		Where("message_id IN ?", messageIDs).
+		Update("status", status).Error
+}
+
+// GetExpiredMessageIDs 获取过期消息ID列表（用于通知）
+func (r *messageRepositoryImpl) GetExpiredMessageIDs(ctx context.Context, before time.Time, limit int) ([]string, error) {
+	var messageIDs []string
+	err := r.db.WithContext(ctx).
+		Model(&model.Message{}).
+		Where("expire_time IS NOT NULL AND expire_time <= ? AND status = ?", before, model.MessageStatusNormal).
+		Order("expire_time ASC").
+		Limit(limit).
+		Pluck("message_id", &messageIDs).Error
+	return messageIDs, err
 }
 
 // WithTx 使用事务

@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	messagepb "github.com/anychat/server/api/proto/message"
+	sessionpb "github.com/anychat/server/api/proto/session"
 	"github.com/anychat/server/internal/gateway/client"
 	gwnotification "github.com/anychat/server/internal/gateway/notification"
 	"github.com/anychat/server/internal/gateway/websocket"
@@ -170,6 +172,12 @@ func (h *WSHandler) handleSendMessage(c *websocket.Client, payload json.RawMessa
 		grpcReq.AtUsers = req.AtUsers
 	}
 
+	// 获取会话的自动删除时长并设置
+	autoDeleteDuration := h.getAutoDeleteDuration(c.UserID, req.ConversationType, req.ConversationID)
+	if autoDeleteDuration > 0 {
+		grpcReq.AutoDeleteDuration = &autoDeleteDuration
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -199,4 +207,47 @@ func (h *WSHandler) handleSendMessage(c *websocket.Client, payload json.RawMessa
 		Payload: json.RawMessage(resultData),
 	}
 	h.wsManager.SendMessageToUser(c.UserID, wsResp)
+}
+
+// getAutoDeleteDuration 获取会话的自动删除时长
+func (h *WSHandler) getAutoDeleteDuration(userID, conversationType, conversationID string) int32 {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	var targetID string
+	if conversationType == "single" {
+		// single会话ID格式: single_user1_user2, 需要解析出对方用户ID
+		parts := strings.Split(conversationID, "_")
+		if len(parts) >= 3 {
+			// 找到非当前用户的那个ID
+			for _, p := range parts[1:] {
+				if p != userID {
+					targetID = p
+					break
+				}
+			}
+		}
+	} else if conversationType == "group" {
+		// group会话ID格式: group_groupID
+		parts := strings.Split(conversationID, "_")
+		if len(parts) >= 2 {
+			targetID = parts[1]
+		}
+	}
+
+	if targetID == "" {
+		return 0
+	}
+
+	session, err := h.clientManager.Session().GetSessionByUserAndTarget(ctx, &sessionpb.GetSessionByUserAndTargetRequest{
+		UserId:      userID,
+		SessionType: conversationType,
+		TargetId:    targetID,
+	})
+	if err != nil {
+		logger.Debug("Failed to get session for auto delete", zap.Error(err))
+		return 0
+	}
+
+	return session.AutoDeleteDuration
 }

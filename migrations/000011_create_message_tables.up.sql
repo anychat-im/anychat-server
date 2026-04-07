@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS messages (
     reply_to VARCHAR(64),  -- 回复的消息ID
     at_users TEXT[],  -- @的用户ID列表
     status SMALLINT DEFAULT 0,  -- 0-正常 1-撤回 2-删除
+    expire_time TIMESTAMPTZ,  -- 消息过期时间,为NULL表示永不过期
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uk_conversation_sequence UNIQUE (conversation_id, sequence)
@@ -22,6 +23,7 @@ CREATE INDEX idx_messages_sender_time ON messages(sender_id, created_at DESC);
 CREATE INDEX idx_messages_message_id ON messages(message_id);
 CREATE INDEX idx_messages_status ON messages(status) WHERE status = 0;
 CREATE INDEX idx_messages_created_at ON messages(created_at DESC);
+CREATE INDEX idx_messages_expire_time ON messages(expire_time) WHERE expire_time IS NOT NULL;
 
 -- 创建已读回执表
 CREATE TABLE IF NOT EXISTS message_read_receipts (

@@ -15,6 +15,9 @@ service SessionService {
   // GetSession 获取单个会话详情
   rpc GetSession(GetSessionRequest) returns (Session);
 
+  // GetSessionByUserAndTarget 根据用户ID、会话类型和目标ID获取会话
+  rpc GetSessionByUserAndTarget(GetSessionByUserAndTargetRequest) returns (Session);
+
   // CreateOrUpdateSession 创建或更新会话（消息到达时由消息服务调用）
   rpc CreateOrUpdateSession(CreateOrUpdateSessionRequest) returns (Session);
 
@@ -38,6 +41,9 @@ service SessionService {
 
   // SetBurnAfterReading 设置阅后即焚时长（秒），0表示取消
   rpc SetBurnAfterReading(SetBurnAfterReadingRequest) returns (common.Empty);
+
+  // SetAutoDelete 设置自动删除时长（秒），0表示取消
+  rpc SetAutoDelete(SetAutoDeleteRequest) returns (common.Empty);
 }
 
 // Session 会话
@@ -53,7 +59,8 @@ message Session {
   bool is_pinned = 9;
   bool is_muted = 10;
   google.protobuf.Timestamp pin_time = 11;       // 置顶时间（用于排序）
-  int32 burn_after_reading = 14;                // 阅后即焚时长(秒),0表示未启用
+  int32 burn_after_reading = 14;                 // 阅后即焚时长(秒),0表示未启用
+  int32 auto_delete_duration = 15;               // 自动删除时长(秒),0表示未启用
   google.protobuf.Timestamp created_at = 12;
   google.protobuf.Timestamp updated_at = 13;
 }
@@ -75,6 +82,13 @@ message GetSessionsResponse {
 message GetSessionRequest {
   string user_id = 1;
   string session_id = 2;
+}
+
+// GetSessionByUserAndTargetRequest 根据用户ID、会话类型和目标ID获取会话请求
+message GetSessionByUserAndTargetRequest {
+  string user_id = 1;
+  string session_type = 2;  // single/group
+  string target_id = 3;
 }
 
 // CreateOrUpdateSessionRequest 创建或更新会话请求
@@ -132,6 +146,13 @@ message IncrUnreadRequest {
 
 // SetBurnAfterReadingRequest 设置阅后即焚请求
 message SetBurnAfterReadingRequest {
+  string user_id = 1;
+  string session_id = 2;
+  int32 duration = 3;  // 秒,0表示取消
+}
+
+// SetAutoDeleteRequest 设置自动删除请求
+message SetAutoDeleteRequest {
   string user_id = 1;
   string session_id = 2;
   int32 duration = 3;  // 秒,0表示取消

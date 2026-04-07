@@ -14,6 +14,8 @@ import (
 	messagegrpc "github.com/anychat/server/internal/message/grpc"
 	"github.com/anychat/server/internal/message/repository"
 	"github.com/anychat/server/internal/message/service"
+	"github.com/anychat/server/internal/message/worker"
+	"github.com/anychat/server/pkg/config"
 	"github.com/anychat/server/pkg/database"
 	grpcpkg "github.com/anychat/server/pkg/grpc"
 	"github.com/anychat/server/pkg/logger"
@@ -25,7 +27,6 @@ import (
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
-	"github.com/anychat/server/pkg/config"
 )
 
 const (
@@ -76,6 +77,16 @@ func main() {
 	// 初始化服务
 	messageService := service.NewMessageService(messageRepo, readReceiptRepo, sequenceRepo, notificationPub, db)
 
+	// 初始化并启动自动删除Worker
+	autoDeleteWorker := worker.NewAutoDeleteWorker(
+		messageRepo,
+		notificationPub,
+		1000,
+		1*time.Minute,
+	)
+	autoDeleteWorker.StartAsync()
+	logger.Info("AutoDeleteWorker started")
+
 	// 初始化gRPC服务器
 	grpcServer := initGRPCServer(messageService)
 
@@ -112,6 +123,10 @@ func main() {
 	<-quit
 
 	logger.Info("Shutting down gracefully...")
+
+	// 停止自动删除Worker
+	autoDeleteWorker.Stop()
+	logger.Info("AutoDeleteWorker stopped")
 
 	// 关闭gRPC服务器
 	grpcServer.GracefulStop()

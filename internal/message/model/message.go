@@ -6,19 +6,20 @@ import (
 
 // Message 消息模型
 type Message struct {
-	ID               int64     `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	MessageID        string    `gorm:"column:message_id;not null;uniqueIndex" json:"messageId"`
-	ConversationID   string    `gorm:"column:conversation_id;not null;index:idx_conversation_sequence" json:"conversationId"`
-	ConversationType string    `gorm:"column:conversation_type;not null" json:"conversationType"` // single/group
-	SenderID         string    `gorm:"column:sender_id;not null;index:idx_sender_time" json:"senderId"`
-	ContentType      string    `gorm:"column:content_type;not null" json:"contentType"` // text/image/video/audio/file/location/card
-	Content          string    `gorm:"column:content;type:jsonb;not null" json:"content"`
-	Sequence         int64     `gorm:"column:sequence;not null;uniqueIndex:uk_conversation_sequence" json:"sequence"`
-	ReplyTo          *string   `gorm:"column:reply_to" json:"replyTo,omitempty"`
-	AtUsers          []string  `gorm:"column:at_users;type:text[]" json:"atUsers,omitempty"`
-	Status           int16     `gorm:"column:status;default:0" json:"status"` // 0-正常 1-撤回 2-删除
-	CreatedAt        time.Time `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP;index:idx_created_at" json:"createdAt"`
-	UpdatedAt        time.Time `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP" json:"updatedAt"`
+	ID               int64      `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
+	MessageID        string     `gorm:"column:message_id;not null;uniqueIndex" json:"messageId"`
+	ConversationID   string     `gorm:"column:conversation_id;not null;index:idx_conversation_sequence" json:"conversationId"`
+	ConversationType string     `gorm:"column:conversation_type;not null" json:"conversationType"` // single/group
+	SenderID         string     `gorm:"column:sender_id;not null;index:idx_sender_time" json:"senderId"`
+	ContentType      string     `gorm:"column:content_type;not null" json:"contentType"` // text/image/video/audio/file/location/card
+	Content          string     `gorm:"column:content;type:jsonb;not null" json:"content"`
+	Sequence         int64      `gorm:"column:sequence;not null;uniqueIndex:uk_conversation_sequence" json:"sequence"`
+	ReplyTo          *string    `gorm:"column:reply_to" json:"replyTo,omitempty"`
+	AtUsers          []string   `gorm:"column:at_users;type:text[]" json:"atUsers,omitempty"`
+	Status           int16      `gorm:"column:status;default:0" json:"status"`                                // 0-正常 1-撤回 2-删除
+	ExpireTime       *time.Time `gorm:"column:expire_time;index:idx_expire_time" json:"expireTime,omitempty"` // 消息过期时间,为NULL表示永不过期
+	CreatedAt        time.Time  `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP;index:idx_created_at" json:"createdAt"`
+	UpdatedAt        time.Time  `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP" json:"updatedAt"`
 }
 
 // TableName 表名

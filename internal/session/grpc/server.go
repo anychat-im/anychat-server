@@ -49,6 +49,23 @@ func (s *Server) GetSession(ctx context.Context, req *sessionpb.GetSessionReques
 	return session, nil
 }
 
+// GetSessionByUserAndTarget 根据用户ID、会话类型和目标ID获取会话
+func (s *Server) GetSessionByUserAndTarget(ctx context.Context, req *sessionpb.GetSessionByUserAndTargetRequest) (*sessionpb.Session, error) {
+	if req.UserId == "" || req.SessionType == "" || req.TargetId == "" {
+		return nil, status.Error(codes.InvalidArgument, "user_id, session_type and target_id are required")
+	}
+	session, err := s.sessionService.GetSessionByUserAndTarget(ctx, req.UserId, req.SessionType, req.TargetId)
+	if err != nil {
+		logger.Error("GetSessionByUserAndTarget failed",
+			zap.String("userID", req.UserId),
+			zap.String("sessionType", req.SessionType),
+			zap.String("targetID", req.TargetId),
+			zap.Error(err))
+		return nil, status.Error(codes.NotFound, err.Error())
+	}
+	return session, nil
+}
+
 // CreateOrUpdateSession 创建或更新会话
 func (s *Server) CreateOrUpdateSession(ctx context.Context, req *sessionpb.CreateOrUpdateSessionRequest) (*sessionpb.Session, error) {
 	if req.UserId == "" || req.TargetId == "" || req.SessionType == "" {
@@ -142,6 +159,18 @@ func (s *Server) SetBurnAfterReading(ctx context.Context, req *sessionpb.SetBurn
 	}
 	if err := s.sessionService.SetBurnAfterReading(ctx, req.UserId, req.SessionId, req.Duration); err != nil {
 		logger.Error("SetBurnAfterReading failed", zap.String("sessionID", req.SessionId), zap.Error(err))
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &commonpb.Empty{}, nil
+}
+
+// SetAutoDelete 设置自动删除
+func (s *Server) SetAutoDelete(ctx context.Context, req *sessionpb.SetAutoDeleteRequest) (*commonpb.Empty, error) {
+	if req.UserId == "" || req.SessionId == "" {
+		return nil, status.Error(codes.InvalidArgument, "user_id and session_id are required")
+	}
+	if err := s.sessionService.SetAutoDelete(ctx, req.UserId, req.SessionId, req.Duration); err != nil {
+		logger.Error("SetAutoDelete failed", zap.String("sessionID", req.SessionId), zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &commonpb.Empty{}, nil

@@ -27,6 +27,8 @@ type SessionRepository interface {
 	SetMuted(ctx context.Context, userID, sessionID string, muted bool) error
 	// SetBurnAfterReading 设置阅后即焚时长
 	SetBurnAfterReading(ctx context.Context, userID, sessionID string, duration int32) error
+	// SetAutoDelete 设置自动删除时长
+	SetAutoDelete(ctx context.Context, userID, sessionID string, duration int32) error
 	// ClearUnread 清除未读数
 	ClearUnread(ctx context.Context, userID, sessionID string) error
 	// IncrUnread 增加未读数
@@ -132,6 +134,13 @@ func (r *sessionRepositoryImpl) SetBurnAfterReading(ctx context.Context, userID,
 	return r.db.WithContext(ctx).Model(&model.Session{}).
 		Where("session_id = ? AND user_id = ?", sessionID, userID).
 		Update("burn_after_reading", duration).Error
+}
+
+// SetAutoDelete 设置自动删除时长
+func (r *sessionRepositoryImpl) SetAutoDelete(ctx context.Context, userID, sessionID string, duration int32) error {
+	return r.db.WithContext(ctx).Model(&model.Session{}).
+		Where("session_id = ? AND user_id = ?", sessionID, userID).
+		Update("auto_delete_duration", duration).Error
 }
 
 // ClearUnread 清除未读数

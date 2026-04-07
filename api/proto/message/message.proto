@@ -52,6 +52,7 @@ message Message {
   optional string reply_to = 8;
   repeated string at_users = 9;
   int32 status = 10;  // 0-正常 1-撤回 2-删除
+  google.protobuf.Timestamp expire_time = 13;  // 消息过期时间,为空表示永不过期
   google.protobuf.Timestamp created_at = 11;
   google.protobuf.Timestamp updated_at = 12;
 
@@ -70,6 +71,7 @@ message SendMessageRequest {
   optional string reply_to = 6;
   repeated string at_users = 7;
   optional string local_id = 8;  // 客户端本地ID（用于关联）
+  optional int32 auto_delete_duration = 9;  // 自动删除时长(秒),由gateway从session服务获取后传入
 }
 
 // SendMessageResponse 发送消息响应

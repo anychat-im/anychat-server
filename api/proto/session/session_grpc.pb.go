@@ -20,16 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SessionService_GetSessions_FullMethodName           = "/anychat.session.SessionService/GetSessions"
-	SessionService_GetSession_FullMethodName            = "/anychat.session.SessionService/GetSession"
-	SessionService_CreateOrUpdateSession_FullMethodName = "/anychat.session.SessionService/CreateOrUpdateSession"
-	SessionService_DeleteSession_FullMethodName         = "/anychat.session.SessionService/DeleteSession"
-	SessionService_SetPinned_FullMethodName             = "/anychat.session.SessionService/SetPinned"
-	SessionService_SetMuted_FullMethodName              = "/anychat.session.SessionService/SetMuted"
-	SessionService_ClearUnread_FullMethodName           = "/anychat.session.SessionService/ClearUnread"
-	SessionService_GetTotalUnread_FullMethodName        = "/anychat.session.SessionService/GetTotalUnread"
-	SessionService_IncrUnread_FullMethodName            = "/anychat.session.SessionService/IncrUnread"
-	SessionService_SetBurnAfterReading_FullMethodName   = "/anychat.session.SessionService/SetBurnAfterReading"
+	SessionService_GetSessions_FullMethodName               = "/anychat.session.SessionService/GetSessions"
+	SessionService_GetSession_FullMethodName                = "/anychat.session.SessionService/GetSession"
+	SessionService_GetSessionByUserAndTarget_FullMethodName = "/anychat.session.SessionService/GetSessionByUserAndTarget"
+	SessionService_CreateOrUpdateSession_FullMethodName     = "/anychat.session.SessionService/CreateOrUpdateSession"
+	SessionService_DeleteSession_FullMethodName             = "/anychat.session.SessionService/DeleteSession"
+	SessionService_SetPinned_FullMethodName                 = "/anychat.session.SessionService/SetPinned"
+	SessionService_SetMuted_FullMethodName                  = "/anychat.session.SessionService/SetMuted"
+	SessionService_ClearUnread_FullMethodName               = "/anychat.session.SessionService/ClearUnread"
+	SessionService_GetTotalUnread_FullMethodName            = "/anychat.session.SessionService/GetTotalUnread"
+	SessionService_IncrUnread_FullMethodName                = "/anychat.session.SessionService/IncrUnread"
+	SessionService_SetBurnAfterReading_FullMethodName       = "/anychat.session.SessionService/SetBurnAfterReading"
+	SessionService_SetAutoDelete_FullMethodName             = "/anychat.session.SessionService/SetAutoDelete"
 )
 
 // SessionServiceClient is the client API for SessionService service.
@@ -42,6 +44,8 @@ type SessionServiceClient interface {
 	GetSessions(ctx context.Context, in *GetSessionsRequest, opts ...grpc.CallOption) (*GetSessionsResponse, error)
 	// GetSession 获取单个会话详情
 	GetSession(ctx context.Context, in *GetSessionRequest, opts ...grpc.CallOption) (*Session, error)
+	// GetSessionByUserAndTarget 根据用户ID、会话类型和目标ID获取会话
+	GetSessionByUserAndTarget(ctx context.Context, in *GetSessionByUserAndTargetRequest, opts ...grpc.CallOption) (*Session, error)
 	// CreateOrUpdateSession 创建或更新会话（消息到达时由消息服务调用）
 	CreateOrUpdateSession(ctx context.Context, in *CreateOrUpdateSessionRequest, opts ...grpc.CallOption) (*Session, error)
 	// DeleteSession 删除会话
@@ -58,6 +62,8 @@ type SessionServiceClient interface {
 	IncrUnread(ctx context.Context, in *IncrUnreadRequest, opts ...grpc.CallOption) (*common.Empty, error)
 	// SetBurnAfterReading 设置阅后即焚时长（秒），0表示取消
 	SetBurnAfterReading(ctx context.Context, in *SetBurnAfterReadingRequest, opts ...grpc.CallOption) (*common.Empty, error)
+	// SetAutoDelete 设置自动删除时长（秒），0表示取消
+	SetAutoDelete(ctx context.Context, in *SetAutoDeleteRequest, opts ...grpc.CallOption) (*common.Empty, error)
 }
 
 type sessionServiceClient struct {
@@ -82,6 +88,16 @@ func (c *sessionServiceClient) GetSession(ctx context.Context, in *GetSessionReq
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Session)
 	err := c.cc.Invoke(ctx, SessionService_GetSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sessionServiceClient) GetSessionByUserAndTarget(ctx context.Context, in *GetSessionByUserAndTargetRequest, opts ...grpc.CallOption) (*Session, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Session)
+	err := c.cc.Invoke(ctx, SessionService_GetSessionByUserAndTarget_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -168,6 +184,16 @@ func (c *sessionServiceClient) SetBurnAfterReading(ctx context.Context, in *SetB
 	return out, nil
 }
 
+func (c *sessionServiceClient) SetAutoDelete(ctx context.Context, in *SetAutoDeleteRequest, opts ...grpc.CallOption) (*common.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.Empty)
+	err := c.cc.Invoke(ctx, SessionService_SetAutoDelete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SessionServiceServer is the server API for SessionService service.
 // All implementations must embed UnimplementedSessionServiceServer
 // for forward compatibility.
@@ -178,6 +204,8 @@ type SessionServiceServer interface {
 	GetSessions(context.Context, *GetSessionsRequest) (*GetSessionsResponse, error)
 	// GetSession 获取单个会话详情
 	GetSession(context.Context, *GetSessionRequest) (*Session, error)
+	// GetSessionByUserAndTarget 根据用户ID、会话类型和目标ID获取会话
+	GetSessionByUserAndTarget(context.Context, *GetSessionByUserAndTargetRequest) (*Session, error)
 	// CreateOrUpdateSession 创建或更新会话（消息到达时由消息服务调用）
 	CreateOrUpdateSession(context.Context, *CreateOrUpdateSessionRequest) (*Session, error)
 	// DeleteSession 删除会话
@@ -194,6 +222,8 @@ type SessionServiceServer interface {
 	IncrUnread(context.Context, *IncrUnreadRequest) (*common.Empty, error)
 	// SetBurnAfterReading 设置阅后即焚时长（秒），0表示取消
 	SetBurnAfterReading(context.Context, *SetBurnAfterReadingRequest) (*common.Empty, error)
+	// SetAutoDelete 设置自动删除时长（秒），0表示取消
+	SetAutoDelete(context.Context, *SetAutoDeleteRequest) (*common.Empty, error)
 	mustEmbedUnimplementedSessionServiceServer()
 }
 
@@ -209,6 +239,9 @@ func (UnimplementedSessionServiceServer) GetSessions(context.Context, *GetSessio
 }
 func (UnimplementedSessionServiceServer) GetSession(context.Context, *GetSessionRequest) (*Session, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetSession not implemented")
+}
+func (UnimplementedSessionServiceServer) GetSessionByUserAndTarget(context.Context, *GetSessionByUserAndTargetRequest) (*Session, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetSessionByUserAndTarget not implemented")
 }
 func (UnimplementedSessionServiceServer) CreateOrUpdateSession(context.Context, *CreateOrUpdateSessionRequest) (*Session, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOrUpdateSession not implemented")
@@ -233,6 +266,9 @@ func (UnimplementedSessionServiceServer) IncrUnread(context.Context, *IncrUnread
 }
 func (UnimplementedSessionServiceServer) SetBurnAfterReading(context.Context, *SetBurnAfterReadingRequest) (*common.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBurnAfterReading not implemented")
+}
+func (UnimplementedSessionServiceServer) SetAutoDelete(context.Context, *SetAutoDeleteRequest) (*common.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetAutoDelete not implemented")
 }
 func (UnimplementedSessionServiceServer) mustEmbedUnimplementedSessionServiceServer() {}
 func (UnimplementedSessionServiceServer) testEmbeddedByValue()                        {}
@@ -287,6 +323,24 @@ func _SessionService_GetSession_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SessionServiceServer).GetSession(ctx, req.(*GetSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SessionService_GetSessionByUserAndTarget_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSessionByUserAndTargetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SessionServiceServer).GetSessionByUserAndTarget(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SessionService_GetSessionByUserAndTarget_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SessionServiceServer).GetSessionByUserAndTarget(ctx, req.(*GetSessionByUserAndTargetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -435,6 +489,24 @@ func _SessionService_SetBurnAfterReading_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SessionService_SetAutoDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetAutoDeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SessionServiceServer).SetAutoDelete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SessionService_SetAutoDelete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SessionServiceServer).SetAutoDelete(ctx, req.(*SetAutoDeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SessionService_ServiceDesc is the grpc.ServiceDesc for SessionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -449,6 +521,10 @@ var SessionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSession",
 			Handler:    _SessionService_GetSession_Handler,
+		},
+		{
+			MethodName: "GetSessionByUserAndTarget",
+			Handler:    _SessionService_GetSessionByUserAndTarget_Handler,
 		},
 		{
 			MethodName: "CreateOrUpdateSession",
@@ -481,6 +557,10 @@ var SessionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetBurnAfterReading",
 			Handler:    _SessionService_SetBurnAfterReading_Handler,
+		},
+		{
+			MethodName: "SetAutoDelete",
+			Handler:    _SessionService_SetAutoDelete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

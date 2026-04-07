@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"time"
 
+	messagepb "github.com/anychat/server/api/proto/message"
 	"github.com/anychat/server/internal/message/model"
 	"github.com/anychat/server/internal/message/repository"
-	messagepb "github.com/anychat/server/api/proto/message"
 	"github.com/anychat/server/pkg/errors"
 	"github.com/anychat/server/pkg/logger"
 	"github.com/anychat/server/pkg/notification"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"gorm.io/gorm"
 )
 
 // MessageService 消息服务接口
@@ -48,11 +48,11 @@ type SequenceRepo interface {
 
 // messageServiceImpl 消息服务实现
 type messageServiceImpl struct {
-	messageRepo      MessageRepo
-	readReceiptRepo  ReadReceiptRepo
-	sequenceRepo     SequenceRepo
-	notificationPub  notification.Publisher
-	db               *gorm.DB
+	messageRepo     MessageRepo
+	readReceiptRepo ReadReceiptRepo
+	sequenceRepo    SequenceRepo
+	notificationPub notification.Publisher
+	db              *gorm.DB
 }
 
 // NewMessageService 创建消息服务
@@ -97,6 +97,12 @@ func (s *messageServiceImpl) SendMessage(ctx context.Context, req *messagepb.Sen
 		Status:           model.MessageStatusNormal,
 		CreatedAt:        now,
 		UpdatedAt:        now,
+	}
+
+	// 设置自动删除过期时间
+	if req.AutoDeleteDuration != nil && *req.AutoDeleteDuration > 0 {
+		expireTime := now.Add(time.Duration(*req.AutoDeleteDuration) * time.Second)
+		message.ExpireTime = &expireTime
 	}
 
 	// 设置可选字段
@@ -431,14 +437,14 @@ func (s *messageServiceImpl) publishNewMessageNotification(msg *model.Message, a
 	contentPreview := s.getContentPreview(msg.Content, msg.ContentType)
 
 	payload := map[string]interface{}{
-		"message_id":      msg.MessageID,
-		"conversation_id": msg.ConversationID,
+		"message_id":        msg.MessageID,
+		"conversation_id":   msg.ConversationID,
 		"conversation_type": msg.ConversationType,
-		"from_user_id":    msg.SenderID,
-		"content_type":    msg.ContentType,
-		"content":         contentPreview,
-		"sent_at":         msg.CreatedAt.Unix(),
-		"seq":             msg.Sequence,
+		"from_user_id":      msg.SenderID,
+		"content_type":      msg.ContentType,
+		"content":           contentPreview,
+		"sent_at":           msg.CreatedAt.Unix(),
+		"seq":               msg.Sequence,
 	}
 
 	notif := notification.NewNotification(
@@ -452,7 +458,7 @@ func (s *messageServiceImpl) publishNewMessageNotification(msg *model.Message, a
 		// 单聊：从conversation_id中提取接收者ID
 		// conversation_id格式: conv-{userId1}-{userId2}
 		// TODO: 这里需要根据实际的conversation_id格式来解析
-		_ = notif // 暂时忽略，等待conversation_id解析逻辑
+		_ = notif  // 暂时忽略，等待conversation_id解析逻辑
 		return nil // 暂时跳过
 	} else if msg.ConversationType == model.ConversationTypeGroup {
 		// 群聊：发布到群组主题

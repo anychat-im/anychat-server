@@ -36,8 +36,9 @@ type Session struct {
 	UnreadCount        int32                  `protobuf:"varint,8,opt,name=unread_count,json=unreadCount,proto3" json:"unread_count,omitempty"`
 	IsPinned           bool                   `protobuf:"varint,9,opt,name=is_pinned,json=isPinned,proto3" json:"is_pinned,omitempty"`
 	IsMuted            bool                   `protobuf:"varint,10,opt,name=is_muted,json=isMuted,proto3" json:"is_muted,omitempty"`
-	PinTime            *timestamp.Timestamp   `protobuf:"bytes,11,opt,name=pin_time,json=pinTime,proto3" json:"pin_time,omitempty"`                               // 置顶时间（用于排序）
-	BurnAfterReading   int32                  `protobuf:"varint,14,opt,name=burn_after_reading,json=burnAfterReading,proto3" json:"burn_after_reading,omitempty"` // 阅后即焚时长(秒),0表示未启用
+	PinTime            *timestamp.Timestamp   `protobuf:"bytes,11,opt,name=pin_time,json=pinTime,proto3" json:"pin_time,omitempty"`                                     // 置顶时间（用于排序）
+	BurnAfterReading   int32                  `protobuf:"varint,14,opt,name=burn_after_reading,json=burnAfterReading,proto3" json:"burn_after_reading,omitempty"`       // 阅后即焚时长(秒),0表示未启用
+	AutoDeleteDuration int32                  `protobuf:"varint,15,opt,name=auto_delete_duration,json=autoDeleteDuration,proto3" json:"auto_delete_duration,omitempty"` // 自动删除时长(秒),0表示未启用
 	CreatedAt          *timestamp.Timestamp   `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt          *timestamp.Timestamp   `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields      protoimpl.UnknownFields
@@ -154,6 +155,13 @@ func (x *Session) GetPinTime() *timestamp.Timestamp {
 func (x *Session) GetBurnAfterReading() int32 {
 	if x != nil {
 		return x.BurnAfterReading
+	}
+	return 0
+}
+
+func (x *Session) GetAutoDeleteDuration() int32 {
+	if x != nil {
+		return x.AutoDeleteDuration
 	}
 	return 0
 }
@@ -339,6 +347,67 @@ func (x *GetSessionRequest) GetSessionId() string {
 	return ""
 }
 
+// GetSessionByUserAndTargetRequest 根据用户ID、会话类型和目标ID获取会话请求
+type GetSessionByUserAndTargetRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	SessionType   string                 `protobuf:"bytes,2,opt,name=session_type,json=sessionType,proto3" json:"session_type,omitempty"` // single/group
+	TargetId      string                 `protobuf:"bytes,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSessionByUserAndTargetRequest) Reset() {
+	*x = GetSessionByUserAndTargetRequest{}
+	mi := &file_session_session_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSessionByUserAndTargetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSessionByUserAndTargetRequest) ProtoMessage() {}
+
+func (x *GetSessionByUserAndTargetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_session_session_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSessionByUserAndTargetRequest.ProtoReflect.Descriptor instead.
+func (*GetSessionByUserAndTargetRequest) Descriptor() ([]byte, []int) {
+	return file_session_session_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetSessionByUserAndTargetRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetSessionByUserAndTargetRequest) GetSessionType() string {
+	if x != nil {
+		return x.SessionType
+	}
+	return ""
+}
+
+func (x *GetSessionByUserAndTargetRequest) GetTargetId() string {
+	if x != nil {
+		return x.TargetId
+	}
+	return ""
+}
+
 // CreateOrUpdateSessionRequest 创建或更新会话请求
 type CreateOrUpdateSessionRequest struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
@@ -354,7 +423,7 @@ type CreateOrUpdateSessionRequest struct {
 
 func (x *CreateOrUpdateSessionRequest) Reset() {
 	*x = CreateOrUpdateSessionRequest{}
-	mi := &file_session_session_proto_msgTypes[4]
+	mi := &file_session_session_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -366,7 +435,7 @@ func (x *CreateOrUpdateSessionRequest) String() string {
 func (*CreateOrUpdateSessionRequest) ProtoMessage() {}
 
 func (x *CreateOrUpdateSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_session_session_proto_msgTypes[4]
+	mi := &file_session_session_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -379,7 +448,7 @@ func (x *CreateOrUpdateSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOrUpdateSessionRequest.ProtoReflect.Descriptor instead.
 func (*CreateOrUpdateSessionRequest) Descriptor() ([]byte, []int) {
-	return file_session_session_proto_rawDescGZIP(), []int{4}
+	return file_session_session_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateOrUpdateSessionRequest) GetSessionType() string {
@@ -435,7 +504,7 @@ type DeleteSessionRequest struct {
 
 func (x *DeleteSessionRequest) Reset() {
 	*x = DeleteSessionRequest{}
-	mi := &file_session_session_proto_msgTypes[5]
+	mi := &file_session_session_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -447,7 +516,7 @@ func (x *DeleteSessionRequest) String() string {
 func (*DeleteSessionRequest) ProtoMessage() {}
 
 func (x *DeleteSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_session_session_proto_msgTypes[5]
+	mi := &file_session_session_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -460,7 +529,7 @@ func (x *DeleteSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSessionRequest.ProtoReflect.Descriptor instead.
 func (*DeleteSessionRequest) Descriptor() ([]byte, []int) {
-	return file_session_session_proto_rawDescGZIP(), []int{5}
+	return file_session_session_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DeleteSessionRequest) GetUserId() string {
@@ -489,7 +558,7 @@ type SetPinnedRequest struct {
 
 func (x *SetPinnedRequest) Reset() {
 	*x = SetPinnedRequest{}
-	mi := &file_session_session_proto_msgTypes[6]
+	mi := &file_session_session_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -501,7 +570,7 @@ func (x *SetPinnedRequest) String() string {
 func (*SetPinnedRequest) ProtoMessage() {}
 
 func (x *SetPinnedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_session_session_proto_msgTypes[6]
+	mi := &file_session_session_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -514,7 +583,7 @@ func (x *SetPinnedRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetPinnedRequest.ProtoReflect.Descriptor instead.
 func (*SetPinnedRequest) Descriptor() ([]byte, []int) {
-	return file_session_session_proto_rawDescGZIP(), []int{6}
+	return file_session_session_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *SetPinnedRequest) GetUserId() string {
@@ -550,7 +619,7 @@ type SetMutedRequest struct {
 
 func (x *SetMutedRequest) Reset() {
 	*x = SetMutedRequest{}
-	mi := &file_session_session_proto_msgTypes[7]
+	mi := &file_session_session_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -562,7 +631,7 @@ func (x *SetMutedRequest) String() string {
 func (*SetMutedRequest) ProtoMessage() {}
 
 func (x *SetMutedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_session_session_proto_msgTypes[7]
+	mi := &file_session_session_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -575,7 +644,7 @@ func (x *SetMutedRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetMutedRequest.ProtoReflect.Descriptor instead.
 func (*SetMutedRequest) Descriptor() ([]byte, []int) {
-	return file_session_session_proto_rawDescGZIP(), []int{7}
+	return file_session_session_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SetMutedRequest) GetUserId() string {
@@ -610,7 +679,7 @@ type ClearUnreadRequest struct {
 
 func (x *ClearUnreadRequest) Reset() {
 	*x = ClearUnreadRequest{}
-	mi := &file_session_session_proto_msgTypes[8]
+	mi := &file_session_session_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -622,7 +691,7 @@ func (x *ClearUnreadRequest) String() string {
 func (*ClearUnreadRequest) ProtoMessage() {}
 
 func (x *ClearUnreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_session_session_proto_msgTypes[8]
+	mi := &file_session_session_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -635,7 +704,7 @@ func (x *ClearUnreadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClearUnreadRequest.ProtoReflect.Descriptor instead.
 func (*ClearUnreadRequest) Descriptor() ([]byte, []int) {
-	return file_session_session_proto_rawDescGZIP(), []int{8}
+	return file_session_session_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ClearUnreadRequest) GetUserId() string {
@@ -662,7 +731,7 @@ type GetTotalUnreadRequest struct {
 
 func (x *GetTotalUnreadRequest) Reset() {
 	*x = GetTotalUnreadRequest{}
-	mi := &file_session_session_proto_msgTypes[9]
+	mi := &file_session_session_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -674,7 +743,7 @@ func (x *GetTotalUnreadRequest) String() string {
 func (*GetTotalUnreadRequest) ProtoMessage() {}
 
 func (x *GetTotalUnreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_session_session_proto_msgTypes[9]
+	mi := &file_session_session_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -687,7 +756,7 @@ func (x *GetTotalUnreadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTotalUnreadRequest.ProtoReflect.Descriptor instead.
 func (*GetTotalUnreadRequest) Descriptor() ([]byte, []int) {
-	return file_session_session_proto_rawDescGZIP(), []int{9}
+	return file_session_session_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetTotalUnreadRequest) GetUserId() string {
@@ -707,7 +776,7 @@ type GetTotalUnreadResponse struct {
 
 func (x *GetTotalUnreadResponse) Reset() {
 	*x = GetTotalUnreadResponse{}
-	mi := &file_session_session_proto_msgTypes[10]
+	mi := &file_session_session_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -719,7 +788,7 @@ func (x *GetTotalUnreadResponse) String() string {
 func (*GetTotalUnreadResponse) ProtoMessage() {}
 
 func (x *GetTotalUnreadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_session_session_proto_msgTypes[10]
+	mi := &file_session_session_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -732,7 +801,7 @@ func (x *GetTotalUnreadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTotalUnreadResponse.ProtoReflect.Descriptor instead.
 func (*GetTotalUnreadResponse) Descriptor() ([]byte, []int) {
-	return file_session_session_proto_rawDescGZIP(), []int{10}
+	return file_session_session_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetTotalUnreadResponse) GetTotalUnread() int32 {
@@ -754,7 +823,7 @@ type IncrUnreadRequest struct {
 
 func (x *IncrUnreadRequest) Reset() {
 	*x = IncrUnreadRequest{}
-	mi := &file_session_session_proto_msgTypes[11]
+	mi := &file_session_session_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -766,7 +835,7 @@ func (x *IncrUnreadRequest) String() string {
 func (*IncrUnreadRequest) ProtoMessage() {}
 
 func (x *IncrUnreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_session_session_proto_msgTypes[11]
+	mi := &file_session_session_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -779,7 +848,7 @@ func (x *IncrUnreadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IncrUnreadRequest.ProtoReflect.Descriptor instead.
 func (*IncrUnreadRequest) Descriptor() ([]byte, []int) {
-	return file_session_session_proto_rawDescGZIP(), []int{11}
+	return file_session_session_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *IncrUnreadRequest) GetUserId() string {
@@ -815,7 +884,7 @@ type SetBurnAfterReadingRequest struct {
 
 func (x *SetBurnAfterReadingRequest) Reset() {
 	*x = SetBurnAfterReadingRequest{}
-	mi := &file_session_session_proto_msgTypes[12]
+	mi := &file_session_session_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -827,7 +896,7 @@ func (x *SetBurnAfterReadingRequest) String() string {
 func (*SetBurnAfterReadingRequest) ProtoMessage() {}
 
 func (x *SetBurnAfterReadingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_session_session_proto_msgTypes[12]
+	mi := &file_session_session_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -840,7 +909,7 @@ func (x *SetBurnAfterReadingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetBurnAfterReadingRequest.ProtoReflect.Descriptor instead.
 func (*SetBurnAfterReadingRequest) Descriptor() ([]byte, []int) {
-	return file_session_session_proto_rawDescGZIP(), []int{12}
+	return file_session_session_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *SetBurnAfterReadingRequest) GetUserId() string {
@@ -864,11 +933,72 @@ func (x *SetBurnAfterReadingRequest) GetDuration() int32 {
 	return 0
 }
 
+// SetAutoDeleteRequest 设置自动删除请求
+type SetAutoDeleteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	SessionId     string                 `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	Duration      int32                  `protobuf:"varint,3,opt,name=duration,proto3" json:"duration,omitempty"` // 秒,0表示取消
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetAutoDeleteRequest) Reset() {
+	*x = SetAutoDeleteRequest{}
+	mi := &file_session_session_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetAutoDeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetAutoDeleteRequest) ProtoMessage() {}
+
+func (x *SetAutoDeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_session_session_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetAutoDeleteRequest.ProtoReflect.Descriptor instead.
+func (*SetAutoDeleteRequest) Descriptor() ([]byte, []int) {
+	return file_session_session_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *SetAutoDeleteRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *SetAutoDeleteRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *SetAutoDeleteRequest) GetDuration() int32 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
 var File_session_session_proto protoreflect.FileDescriptor
 
 const file_session_session_proto_rawDesc = "" +
 	"\n" +
-	"\x15session/session.proto\x12\x0fanychat.session\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13common/common.proto\"\xd9\x04\n" +
+	"\x15session/session.proto\x12\x0fanychat.session\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13common/common.proto\"\x8b\x05\n" +
 	"\aSession\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12!\n" +
@@ -883,7 +1013,8 @@ const file_session_session_proto_rawDesc = "" +
 	"\bis_muted\x18\n" +
 	" \x01(\bR\aisMuted\x125\n" +
 	"\bpin_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\apinTime\x12,\n" +
-	"\x12burn_after_reading\x18\x0e \x01(\x05R\x10burnAfterReading\x129\n" +
+	"\x12burn_after_reading\x18\x0e \x01(\x05R\x10burnAfterReading\x120\n" +
+	"\x14auto_delete_duration\x18\x0f \x01(\x05R\x12autoDeleteDuration\x129\n" +
 	"\n" +
 	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
@@ -899,7 +1030,11 @@ const file_session_session_proto_rawDesc = "" +
 	"\x11GetSessionRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x02 \x01(\tR\tsessionId\"\x87\x02\n" +
+	"session_id\x18\x02 \x01(\tR\tsessionId\"{\n" +
+	" GetSessionByUserAndTargetRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12!\n" +
+	"\fsession_type\x18\x02 \x01(\tR\vsessionType\x12\x1b\n" +
+	"\ttarget_id\x18\x03 \x01(\tR\btargetId\"\x87\x02\n" +
 	"\x1cCreateOrUpdateSessionRequest\x12!\n" +
 	"\fsession_type\x18\x01 \x01(\tR\vsessionType\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
@@ -938,11 +1073,17 @@ const file_session_session_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tR\tsessionId\x12\x1a\n" +
-	"\bduration\x18\x03 \x01(\x05R\bduration2\xc5\x06\n" +
+	"\bduration\x18\x03 \x01(\x05R\bduration\"j\n" +
+	"\x14SetAutoDeleteRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x02 \x01(\tR\tsessionId\x12\x1a\n" +
+	"\bduration\x18\x03 \x01(\x05R\bduration2\xfe\a\n" +
 	"\x0eSessionService\x12X\n" +
 	"\vGetSessions\x12#.anychat.session.GetSessionsRequest\x1a$.anychat.session.GetSessionsResponse\x12J\n" +
 	"\n" +
-	"GetSession\x12\".anychat.session.GetSessionRequest\x1a\x18.anychat.session.Session\x12`\n" +
+	"GetSession\x12\".anychat.session.GetSessionRequest\x1a\x18.anychat.session.Session\x12h\n" +
+	"\x19GetSessionByUserAndTarget\x121.anychat.session.GetSessionByUserAndTargetRequest\x1a\x18.anychat.session.Session\x12`\n" +
 	"\x15CreateOrUpdateSession\x12-.anychat.session.CreateOrUpdateSessionRequest\x1a\x18.anychat.session.Session\x12M\n" +
 	"\rDeleteSession\x12%.anychat.session.DeleteSessionRequest\x1a\x15.anychat.common.Empty\x12E\n" +
 	"\tSetPinned\x12!.anychat.session.SetPinnedRequest\x1a\x15.anychat.common.Empty\x12C\n" +
@@ -951,7 +1092,8 @@ const file_session_session_proto_rawDesc = "" +
 	"\x0eGetTotalUnread\x12&.anychat.session.GetTotalUnreadRequest\x1a'.anychat.session.GetTotalUnreadResponse\x12G\n" +
 	"\n" +
 	"IncrUnread\x12\".anychat.session.IncrUnreadRequest\x1a\x15.anychat.common.Empty\x12Y\n" +
-	"\x13SetBurnAfterReading\x12+.anychat.session.SetBurnAfterReadingRequest\x1a\x15.anychat.common.EmptyB7Z5github.com/anychat/server/api/proto/session;sessionpbb\x06proto3"
+	"\x13SetBurnAfterReading\x12+.anychat.session.SetBurnAfterReadingRequest\x1a\x15.anychat.common.Empty\x12M\n" +
+	"\rSetAutoDelete\x12%.anychat.session.SetAutoDeleteRequest\x1a\x15.anychat.common.EmptyB7Z5github.com/anychat/server/api/proto/session;sessionpbb\x06proto3"
 
 var (
 	file_session_session_proto_rawDescOnce sync.Once
@@ -965,52 +1107,58 @@ func file_session_session_proto_rawDescGZIP() []byte {
 	return file_session_session_proto_rawDescData
 }
 
-var file_session_session_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_session_session_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_session_session_proto_goTypes = []any{
-	(*Session)(nil),                      // 0: anychat.session.Session
-	(*GetSessionsRequest)(nil),           // 1: anychat.session.GetSessionsRequest
-	(*GetSessionsResponse)(nil),          // 2: anychat.session.GetSessionsResponse
-	(*GetSessionRequest)(nil),            // 3: anychat.session.GetSessionRequest
-	(*CreateOrUpdateSessionRequest)(nil), // 4: anychat.session.CreateOrUpdateSessionRequest
-	(*DeleteSessionRequest)(nil),         // 5: anychat.session.DeleteSessionRequest
-	(*SetPinnedRequest)(nil),             // 6: anychat.session.SetPinnedRequest
-	(*SetMutedRequest)(nil),              // 7: anychat.session.SetMutedRequest
-	(*ClearUnreadRequest)(nil),           // 8: anychat.session.ClearUnreadRequest
-	(*GetTotalUnreadRequest)(nil),        // 9: anychat.session.GetTotalUnreadRequest
-	(*GetTotalUnreadResponse)(nil),       // 10: anychat.session.GetTotalUnreadResponse
-	(*IncrUnreadRequest)(nil),            // 11: anychat.session.IncrUnreadRequest
-	(*SetBurnAfterReadingRequest)(nil),   // 12: anychat.session.SetBurnAfterReadingRequest
-	(*timestamp.Timestamp)(nil),          // 13: google.protobuf.Timestamp
-	(*common.Empty)(nil),                 // 14: anychat.common.Empty
+	(*Session)(nil),                          // 0: anychat.session.Session
+	(*GetSessionsRequest)(nil),               // 1: anychat.session.GetSessionsRequest
+	(*GetSessionsResponse)(nil),              // 2: anychat.session.GetSessionsResponse
+	(*GetSessionRequest)(nil),                // 3: anychat.session.GetSessionRequest
+	(*GetSessionByUserAndTargetRequest)(nil), // 4: anychat.session.GetSessionByUserAndTargetRequest
+	(*CreateOrUpdateSessionRequest)(nil),     // 5: anychat.session.CreateOrUpdateSessionRequest
+	(*DeleteSessionRequest)(nil),             // 6: anychat.session.DeleteSessionRequest
+	(*SetPinnedRequest)(nil),                 // 7: anychat.session.SetPinnedRequest
+	(*SetMutedRequest)(nil),                  // 8: anychat.session.SetMutedRequest
+	(*ClearUnreadRequest)(nil),               // 9: anychat.session.ClearUnreadRequest
+	(*GetTotalUnreadRequest)(nil),            // 10: anychat.session.GetTotalUnreadRequest
+	(*GetTotalUnreadResponse)(nil),           // 11: anychat.session.GetTotalUnreadResponse
+	(*IncrUnreadRequest)(nil),                // 12: anychat.session.IncrUnreadRequest
+	(*SetBurnAfterReadingRequest)(nil),       // 13: anychat.session.SetBurnAfterReadingRequest
+	(*SetAutoDeleteRequest)(nil),             // 14: anychat.session.SetAutoDeleteRequest
+	(*timestamp.Timestamp)(nil),              // 15: google.protobuf.Timestamp
+	(*common.Empty)(nil),                     // 16: anychat.common.Empty
 }
 var file_session_session_proto_depIdxs = []int32{
-	13, // 0: anychat.session.Session.last_message_time:type_name -> google.protobuf.Timestamp
-	13, // 1: anychat.session.Session.pin_time:type_name -> google.protobuf.Timestamp
-	13, // 2: anychat.session.Session.created_at:type_name -> google.protobuf.Timestamp
-	13, // 3: anychat.session.Session.updated_at:type_name -> google.protobuf.Timestamp
+	15, // 0: anychat.session.Session.last_message_time:type_name -> google.protobuf.Timestamp
+	15, // 1: anychat.session.Session.pin_time:type_name -> google.protobuf.Timestamp
+	15, // 2: anychat.session.Session.created_at:type_name -> google.protobuf.Timestamp
+	15, // 3: anychat.session.Session.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: anychat.session.GetSessionsResponse.sessions:type_name -> anychat.session.Session
 	1,  // 5: anychat.session.SessionService.GetSessions:input_type -> anychat.session.GetSessionsRequest
 	3,  // 6: anychat.session.SessionService.GetSession:input_type -> anychat.session.GetSessionRequest
-	4,  // 7: anychat.session.SessionService.CreateOrUpdateSession:input_type -> anychat.session.CreateOrUpdateSessionRequest
-	5,  // 8: anychat.session.SessionService.DeleteSession:input_type -> anychat.session.DeleteSessionRequest
-	6,  // 9: anychat.session.SessionService.SetPinned:input_type -> anychat.session.SetPinnedRequest
-	7,  // 10: anychat.session.SessionService.SetMuted:input_type -> anychat.session.SetMutedRequest
-	8,  // 11: anychat.session.SessionService.ClearUnread:input_type -> anychat.session.ClearUnreadRequest
-	9,  // 12: anychat.session.SessionService.GetTotalUnread:input_type -> anychat.session.GetTotalUnreadRequest
-	11, // 13: anychat.session.SessionService.IncrUnread:input_type -> anychat.session.IncrUnreadRequest
-	12, // 14: anychat.session.SessionService.SetBurnAfterReading:input_type -> anychat.session.SetBurnAfterReadingRequest
-	2,  // 15: anychat.session.SessionService.GetSessions:output_type -> anychat.session.GetSessionsResponse
-	0,  // 16: anychat.session.SessionService.GetSession:output_type -> anychat.session.Session
-	0,  // 17: anychat.session.SessionService.CreateOrUpdateSession:output_type -> anychat.session.Session
-	14, // 18: anychat.session.SessionService.DeleteSession:output_type -> anychat.common.Empty
-	14, // 19: anychat.session.SessionService.SetPinned:output_type -> anychat.common.Empty
-	14, // 20: anychat.session.SessionService.SetMuted:output_type -> anychat.common.Empty
-	14, // 21: anychat.session.SessionService.ClearUnread:output_type -> anychat.common.Empty
-	10, // 22: anychat.session.SessionService.GetTotalUnread:output_type -> anychat.session.GetTotalUnreadResponse
-	14, // 23: anychat.session.SessionService.IncrUnread:output_type -> anychat.common.Empty
-	14, // 24: anychat.session.SessionService.SetBurnAfterReading:output_type -> anychat.common.Empty
-	15, // [15:25] is the sub-list for method output_type
-	5,  // [5:15] is the sub-list for method input_type
+	4,  // 7: anychat.session.SessionService.GetSessionByUserAndTarget:input_type -> anychat.session.GetSessionByUserAndTargetRequest
+	5,  // 8: anychat.session.SessionService.CreateOrUpdateSession:input_type -> anychat.session.CreateOrUpdateSessionRequest
+	6,  // 9: anychat.session.SessionService.DeleteSession:input_type -> anychat.session.DeleteSessionRequest
+	7,  // 10: anychat.session.SessionService.SetPinned:input_type -> anychat.session.SetPinnedRequest
+	8,  // 11: anychat.session.SessionService.SetMuted:input_type -> anychat.session.SetMutedRequest
+	9,  // 12: anychat.session.SessionService.ClearUnread:input_type -> anychat.session.ClearUnreadRequest
+	10, // 13: anychat.session.SessionService.GetTotalUnread:input_type -> anychat.session.GetTotalUnreadRequest
+	12, // 14: anychat.session.SessionService.IncrUnread:input_type -> anychat.session.IncrUnreadRequest
+	13, // 15: anychat.session.SessionService.SetBurnAfterReading:input_type -> anychat.session.SetBurnAfterReadingRequest
+	14, // 16: anychat.session.SessionService.SetAutoDelete:input_type -> anychat.session.SetAutoDeleteRequest
+	2,  // 17: anychat.session.SessionService.GetSessions:output_type -> anychat.session.GetSessionsResponse
+	0,  // 18: anychat.session.SessionService.GetSession:output_type -> anychat.session.Session
+	0,  // 19: anychat.session.SessionService.GetSessionByUserAndTarget:output_type -> anychat.session.Session
+	0,  // 20: anychat.session.SessionService.CreateOrUpdateSession:output_type -> anychat.session.Session
+	16, // 21: anychat.session.SessionService.DeleteSession:output_type -> anychat.common.Empty
+	16, // 22: anychat.session.SessionService.SetPinned:output_type -> anychat.common.Empty
+	16, // 23: anychat.session.SessionService.SetMuted:output_type -> anychat.common.Empty
+	16, // 24: anychat.session.SessionService.ClearUnread:output_type -> anychat.common.Empty
+	11, // 25: anychat.session.SessionService.GetTotalUnread:output_type -> anychat.session.GetTotalUnreadResponse
+	16, // 26: anychat.session.SessionService.IncrUnread:output_type -> anychat.common.Empty
+	16, // 27: anychat.session.SessionService.SetBurnAfterReading:output_type -> anychat.common.Empty
+	16, // 28: anychat.session.SessionService.SetAutoDelete:output_type -> anychat.common.Empty
+	17, // [17:29] is the sub-list for method output_type
+	5,  // [5:17] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
@@ -1028,7 +1176,7 @@ func file_session_session_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_session_session_proto_rawDesc), len(file_session_session_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
