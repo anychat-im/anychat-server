@@ -62,6 +62,13 @@ type ChangePasswordRequest struct {
 	NewPassword string `json:"newPassword" binding:"required" example:"newpass123"`
 }
 
+// ResetPasswordRequest 重置密码请求（忘记密码）
+type ResetPasswordRequest struct {
+	Account     string `json:"account" binding:"required" example:"13800138000"`
+	VerifyCode  string `json:"verifyCode" binding:"required" example:"123456"`
+	NewPassword string `json:"newPassword" binding:"required" example:"NewPass123"`
+}
+
 // AuthResponse 认证响应
 type AuthResponse struct {
 	UserID       string    `json:"userId" example:"user-123"`
@@ -333,6 +340,41 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 		UserId:      userID,
 		DeviceId:    req.DeviceID,
 		OldPassword: req.OldPassword,
+		NewPassword: req.NewPassword,
+	})
+
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+
+	response.Success(c, nil)
+}
+
+// ResetPassword 重置密码
+// @Summary      重置密码
+// @Description  用户忘记密码，通过验证码重置密码
+// @Tags         认证
+// @Accept       json
+// @Produce      json
+// @Param        request  body      ResetPasswordRequest  true  "重置密码信息"
+// @Success      200      {object}  response.Response  "重置成功"
+// @Failure      400      {object}  response.Response  "参数错误"
+// @Failure      401      {object}  response.Response  "验证码错误"
+// @Failure      500      {object}  response.Response  "服务器错误"
+// @Router       /auth/password/reset [post]
+func (h *AuthHandler) ResetPassword(c *gin.Context) {
+	var req ResetPasswordRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ParamError(c, err.Error())
+		return
+	}
+
+	// 调用auth-service gRPC
+	_, err := h.clientManager.Auth().ResetPassword(c.Request.Context(), &authpb.ResetPasswordRequest{
+		Account:     req.Account,
+		VerifyCode:  req.VerifyCode,
 		NewPassword: req.NewPassword,
 	})
 
