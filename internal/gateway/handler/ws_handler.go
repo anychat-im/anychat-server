@@ -4,11 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"strings"
 	"time"
 
 	messagepb "github.com/anychat/server/api/proto/message"
-	sessionpb "github.com/anychat/server/api/proto/session"
 	"github.com/anychat/server/internal/gateway/client"
 	gwnotification "github.com/anychat/server/internal/gateway/notification"
 	"github.com/anychat/server/internal/gateway/websocket"
@@ -128,13 +126,12 @@ func (h *WSHandler) handleClientMessage(c *websocket.Client, msg *websocket.Mess
 
 // sendMessagePayload 客户端发送消息的payload结构
 type sendMessagePayload struct {
-	ConversationID   string   `json:"conversationId"`
-	ConversationType string   `json:"conversationType"`
-	ContentType      string   `json:"contentType"`
-	Content          string   `json:"content"`
-	ReplyTo          string   `json:"replyTo,omitempty"`
-	AtUsers          []string `json:"atUsers,omitempty"`
-	LocalID          string   `json:"localId,omitempty"`
+	ConversationID string   `json:"conversationId"`
+	ContentType    string   `json:"contentType"`
+	Content        string   `json:"content"`
+	ReplyTo        string   `json:"replyTo,omitempty"`
+	AtUsers        []string `json:"atUsers,omitempty"`
+	LocalID        string   `json:"localId,omitempty"`
 }
 
 // sendMessageResult 发送消息响应结构
@@ -143,6 +140,12 @@ type sendMessageResult struct {
 	Sequence  int64  `json:"sequence"`
 	Timestamp int64  `json:"timestamp"`
 	LocalID   string `json:"localId,omitempty"`
+}
+
+type sendMessageError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+	LocalID string `json:"localId,omitempty"`
 }
 
 // handleSendMessage 解析message.send payload并通过gRPC转发
@@ -156,29 +159,17 @@ func (h *WSHandler) handleSendMessage(c *websocket.Client, payload json.RawMessa
 	}
 
 	grpcReq := &messagepb.SendMessageRequest{
-		SenderId:         c.UserID,
-		ConversationId:   req.ConversationID,
-		ConversationType: req.ConversationType,
-		ContentType:      req.ContentType,
-		Content:          req.Content,
-	}
-	if req.LocalID != "" {
-		grpcReq.LocalId = &req.LocalID
+		SenderId:       c.UserID,
+		ConversationId: req.ConversationID,
+		ContentType:    req.ContentType,
+		Content:        req.Content,
+		LocalId:        req.LocalID,
 	}
 	if req.ReplyTo != "" {
 		grpcReq.ReplyTo = &req.ReplyTo
 	}
 	if len(req.AtUsers) > 0 {
 		grpcReq.AtUsers = req.AtUsers
-	}
-
-	// 获取会话的自动删除和阅后即焚时长并设置
-	autoDeleteDuration, burnAfterReadingSeconds := h.getSessionDeleteDurations(c.UserID, req.ConversationType, req.ConversationID)
-	if autoDeleteDuration > 0 {
-		grpcReq.AutoDeleteDuration = &autoDeleteDuration
-	}
-	if burnAfterReadingSeconds > 0 {
-		grpcReq.BurnAfterReadingSeconds = &burnAfterReadingSeconds
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -189,6 +180,17 @@ func (h *WSHandler) handleSendMessage(c *websocket.Client, payload json.RawMessa
 		logger.Error("Failed to send message via gRPC",
 			zap.String("userID", c.UserID),
 			zap.Error(err))
+
+		wsErr := &sendMessageError{
+			Code:    "send_failed",
+			Message: err.Error(),
+			LocalID: req.LocalID,
+		}
+		errData, _ := json.Marshal(wsErr)
+		h.wsManager.SendMessageToUser(c.UserID, &websocket.Message{
+			Type:    "message.error",
+			Payload: json.RawMessage(errData),
+		})
 		return
 	}
 
@@ -210,47 +212,4 @@ func (h *WSHandler) handleSendMessage(c *websocket.Client, payload json.RawMessa
 		Payload: json.RawMessage(resultData),
 	}
 	h.wsManager.SendMessageToUser(c.UserID, wsResp)
-}
-
-// getSessionDeleteDurations 获取会话的自动删除和阅后即焚时长
-func (h *WSHandler) getSessionDeleteDurations(userID, conversationType, conversationID string) (int32, int32) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-
-	var targetID string
-	if conversationType == "single" {
-		// single会话ID格式: single_user1_user2, 需要解析出对方用户ID
-		parts := strings.Split(conversationID, "_")
-		if len(parts) >= 3 {
-			// 找到非当前用户的那个ID
-			for _, p := range parts[1:] {
-				if p != userID {
-					targetID = p
-					break
-				}
-			}
-		}
-	} else if conversationType == "group" {
-		// group会话ID格式: group_groupID
-		parts := strings.Split(conversationID, "_")
-		if len(parts) >= 2 {
-			targetID = parts[1]
-		}
-	}
-
-	if targetID == "" {
-		return 0, 0
-	}
-
-	session, err := h.clientManager.Session().GetSessionByUserAndTarget(ctx, &sessionpb.GetSessionByUserAndTargetRequest{
-		UserId:      userID,
-		SessionType: conversationType,
-		TargetId:    targetID,
-	})
-	if err != nil {
-		logger.Debug("Failed to get session for auto delete", zap.Error(err))
-		return 0, 0
-	}
-
-	return session.AutoDeleteDuration, session.BurnAfterReading
 }

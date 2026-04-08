@@ -10,7 +10,9 @@ import (
 	"syscall"
 	"time"
 
+	grouppb "github.com/anychat/server/api/proto/group"
 	messagepb "github.com/anychat/server/api/proto/message"
+	sessionpb "github.com/anychat/server/api/proto/session"
 	messagegrpc "github.com/anychat/server/internal/message/grpc"
 	"github.com/anychat/server/internal/message/repository"
 	"github.com/anychat/server/internal/message/service"
@@ -25,6 +27,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 )
@@ -69,13 +72,36 @@ func main() {
 	notificationPub := notification.NewPublisher(nc)
 	logger.Info("Notification publisher initialized")
 
+	// 连接依赖服务
+	sessionConn, sessionClient, err := connectSessionService()
+	if err != nil {
+		logger.Fatal("Failed to connect session-service", zap.Error(err))
+	}
+	defer sessionConn.Close()
+
+	groupConn, groupClient, err := connectGroupService()
+	if err != nil {
+		logger.Fatal("Failed to connect group-service", zap.Error(err))
+	}
+	defer groupConn.Close()
+
 	// 初始化仓库
 	messageRepo := repository.NewMessageRepository(db)
 	readReceiptRepo := repository.NewReadReceiptRepository(db)
 	sequenceRepo := repository.NewSequenceRepository(db)
+	sendIdempotencyRepo := repository.NewSendIdempotencyRepository(db)
 
 	// 初始化服务
-	messageService := service.NewMessageService(messageRepo, readReceiptRepo, sequenceRepo, notificationPub, db)
+	messageService := service.NewMessageService(
+		messageRepo,
+		readReceiptRepo,
+		sequenceRepo,
+		sendIdempotencyRepo,
+		sessionClient,
+		groupClient,
+		notificationPub,
+		db,
+	)
 
 	// 初始化并启动自动删除Worker
 	autoDeleteWorker := worker.NewAutoDeleteWorker(
@@ -168,6 +194,8 @@ func loadConfig() error {
 	viper.SetDefault("log.level", "info")
 	viper.SetDefault("log.output", "stdout")
 	viper.SetDefault("services.message.grpc_addr", "localhost:9005")
+	viper.SetDefault("services.session.grpc_addr", "localhost:9006")
+	viper.SetDefault("services.group.grpc_addr", "localhost:9004")
 
 	// 自动读取环境变量
 	viper.AutomaticEnv()
@@ -240,6 +268,24 @@ func connectNATS() (*nats.Conn, error) {
 	}
 
 	return nc, nil
+}
+
+func connectSessionService() (*grpc.ClientConn, sessionpb.SessionServiceClient, error) {
+	addr := viper.GetString("services.session.grpc_addr")
+	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to connect session service: %w", err)
+	}
+	return conn, sessionpb.NewSessionServiceClient(conn), nil
+}
+
+func connectGroupService() (*grpc.ClientConn, grouppb.GroupServiceClient, error) {
+	addr := viper.GetString("services.group.grpc_addr")
+	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to connect group service: %w", err)
+	}
+	return conn, grouppb.NewGroupServiceClient(conn), nil
 }
 
 // initGRPCServer 初始化gRPC服务器

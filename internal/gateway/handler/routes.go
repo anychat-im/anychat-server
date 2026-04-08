@@ -160,6 +160,8 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 			messages := authorized.Group("/messages")
 			{
 				messages.POST("/read-triggers", messageHandler.AckReadTriggers)
+				messages.POST("/recall", messageHandler.RecallMessage)
+				messages.DELETE("/:messageId", messageHandler.DeleteMessage)
 			}
 
 			// Session路由

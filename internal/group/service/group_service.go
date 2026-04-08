@@ -1323,11 +1323,11 @@ func (s *groupServiceImpl) sendGroupSystemMessage(ctx context.Context, groupID, 
 	}
 
 	_, err = s.messageClient.SendMessage(ctx, &messagepb.SendMessageRequest{
-		SenderId:         operatorID,
-		ConversationId:   groupID,
-		ConversationType: "group",
-		ContentType:      "text",
-		Content:          string(content),
+		SenderId:       operatorID,
+		ConversationId: groupID,
+		ContentType:    "text",
+		Content:        string(content),
+		LocalId:        uuid.NewString(),
 	})
 	return err
 }

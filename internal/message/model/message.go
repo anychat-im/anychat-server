@@ -10,6 +10,7 @@ type Message struct {
 	MessageID                  string     `gorm:"column:message_id;not null;uniqueIndex" json:"messageId"`
 	ConversationID             string     `gorm:"column:conversation_id;not null;index:idx_conversation_sequence" json:"conversationId"`
 	ConversationType           string     `gorm:"column:conversation_type;not null" json:"conversationType"` // single/group
+	TargetID                   string     `gorm:"column:target_id;not null;default:'';index:idx_messages_target_id" json:"targetId"`
 	SenderID                   string     `gorm:"column:sender_id;not null;index:idx_sender_time" json:"senderId"`
 	ContentType                string     `gorm:"column:content_type;not null" json:"contentType"` // text/image/video/audio/file/location/card
 	Content                    string     `gorm:"column:content;type:jsonb;not null" json:"content"`

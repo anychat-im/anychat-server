@@ -33,8 +33,8 @@ func (r *readReceiptRepositoryImpl) Upsert(ctx context.Context, receipt *model.M
 	return r.db.WithContext(ctx).
 		Clauses(
 			// PostgreSQL upsert语法
-			gorm.Expr("ON CONFLICT (conversation_id, user_id) DO UPDATE SET last_read_seq = ?, last_read_message_id = ?, read_at = ?",
-				receipt.LastReadSeq, receipt.LastReadMessageID, receipt.ReadAt),
+			gorm.Expr("ON CONFLICT (conversation_id, user_id) DO UPDATE SET conversation_type = ?, target_id = ?, last_read_seq = ?, last_read_message_id = ?, read_at = ?",
+				receipt.ConversationType, receipt.TargetID, receipt.LastReadSeq, receipt.LastReadMessageID, receipt.ReadAt),
 		).
 		Create(receipt).Error
 }

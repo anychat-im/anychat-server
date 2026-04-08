@@ -20,3 +20,17 @@ CREATE TABLE sessions (
 CREATE UNIQUE INDEX uk_session_user_target ON sessions (user_id, session_type, target_id);
 CREATE INDEX idx_sessions_user_id      ON sessions (user_id);
 CREATE INDEX idx_sessions_updated_at   ON sessions (updated_at);
+
+-- 消息发送幂等表
+CREATE TABLE IF NOT EXISTS message_send_idempotency (
+    id BIGSERIAL PRIMARY KEY,
+    sender_id VARCHAR(36) NOT NULL,
+    conversation_id VARCHAR(64) NOT NULL,
+    local_id VARCHAR(128) NOT NULL,
+    message_id VARCHAR(64) NOT NULL DEFAULT '',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uk_sender_conversation_local UNIQUE (sender_id, conversation_id, local_id)
+);
+
+CREATE INDEX idx_message_idempotency_message_id ON message_send_idempotency(message_id);

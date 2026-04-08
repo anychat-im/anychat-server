@@ -15,9 +15,6 @@ service SessionService {
   // GetSession 获取单个会话详情
   rpc GetSession(GetSessionRequest) returns (Session);
 
-  // GetSessionByUserAndTarget 根据用户ID、会话类型和目标ID获取会话
-  rpc GetSessionByUserAndTarget(GetSessionByUserAndTargetRequest) returns (Session);
-
   // CreateOrUpdateSession 创建或更新会话（消息到达时由消息服务调用）
   rpc CreateOrUpdateSession(CreateOrUpdateSessionRequest) returns (Session);
 

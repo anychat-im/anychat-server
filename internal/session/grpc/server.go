@@ -49,23 +49,6 @@ func (s *Server) GetSession(ctx context.Context, req *sessionpb.GetSessionReques
 	return session, nil
 }
 
-// GetSessionByUserAndTarget 根据用户ID、会话类型和目标ID获取会话
-func (s *Server) GetSessionByUserAndTarget(ctx context.Context, req *sessionpb.GetSessionByUserAndTargetRequest) (*sessionpb.Session, error) {
-	if req.UserId == "" || req.SessionType == "" || req.TargetId == "" {
-		return nil, status.Error(codes.InvalidArgument, "user_id, session_type and target_id are required")
-	}
-	session, err := s.sessionService.GetSessionByUserAndTarget(ctx, req.UserId, req.SessionType, req.TargetId)
-	if err != nil {
-		logger.Error("GetSessionByUserAndTarget failed",
-			zap.String("userID", req.UserId),
-			zap.String("sessionType", req.SessionType),
-			zap.String("targetID", req.TargetId),
-			zap.Error(err))
-		return nil, status.Error(codes.NotFound, err.Error())
-	}
-	return session, nil
-}
-
 // CreateOrUpdateSession 创建或更新会话
 func (s *Server) CreateOrUpdateSession(ctx context.Context, req *sessionpb.CreateOrUpdateSessionRequest) (*sessionpb.Session, error) {
 	if req.UserId == "" || req.TargetId == "" || req.SessionType == "" {

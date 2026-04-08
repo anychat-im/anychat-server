@@ -8,6 +8,7 @@ import (
 	gwmiddleware "github.com/anychat/server/internal/gateway/middleware"
 	"github.com/anychat/server/pkg/response"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/metadata"
 )
 
 // MessageHandler 消息HTTP处理器
@@ -22,6 +23,10 @@ func NewMessageHandler(clientManager *client.Manager) *MessageHandler {
 	}
 }
 
+type recallMessageRequest struct {
+	MessageID string `json:"message_id" binding:"required"`
+}
+
 type ackReadTriggersRequest struct {
 	Events []readTriggerEvent `json:"events" binding:"required,min=1"`
 }
@@ -30,6 +35,77 @@ type readTriggerEvent struct {
 	MessageID      string `json:"message_id" binding:"required"`
 	ClientAt       *int64 `json:"client_at,omitempty"`
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
+}
+
+// RecallMessage 撤回消息
+// @Summary      撤回消息
+// @Description  撤回指定消息，只能撤回自己发送的消息，且需在2分钟内
+// @Tags         消息
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request  body      recallMessageRequest  true  "消息ID"
+// @Success      200      {object}  response.Response  "成功"
+// @Failure      400      {object}  response.Response  "参数错误"
+// @Failure      401      {object}  response.Response  "未授权"
+// @Failure      403      {object}  response.Response  "无权限或已超时"
+// @Failure      404      {object}  response.Response  "消息不存在"
+// @Failure      500      {object}  response.Response  "服务器错误"
+// @Router       /messages/recall [post]
+func (h *MessageHandler) RecallMessage(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
+
+	var req recallMessageRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx := metadata.AppendToOutgoingContext(c.Request.Context(), "x-user-id", userID)
+	_, err := h.clientManager.Message().RecallMessage(ctx, &messagepb.RecallMessageRequest{
+		MessageId: req.MessageID,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+
+	response.Success(c, nil)
+}
+
+// DeleteMessage 删除消息
+// @Summary      删除消息
+// @Description  删除指定消息，只能删除自己发送的消息
+// @Tags         消息
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        messageId  path      string  true  "消息ID"
+// @Success      200      {object}  response.Response  "成功"
+// @Failure      401      {object}  response.Response  "未授权"
+// @Failure      403      {object}  response.Response  "无权限"
+// @Failure      404      {object}  response.Response  "消息不存在"
+// @Failure      500      {object}  response.Response  "服务器错误"
+// @Router       /messages/{messageId} [delete]
+func (h *MessageHandler) DeleteMessage(c *gin.Context) {
+	userID := gwmiddleware.GetUserID(c)
+	messageID := c.Param("messageId")
+
+	if messageID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "message_id is required"})
+		return
+	}
+
+	ctx := metadata.AppendToOutgoingContext(c.Request.Context(), "x-user-id", userID)
+	_, err := h.clientManager.Message().DeleteMessage(ctx, &messagepb.DeleteMessageRequest{
+		MessageId: messageID,
+	})
+	if err != nil {
+		handleGRPCError(c, err)
+		return
+	}
+
+	response.Success(c, nil)
 }
 
 // AckReadTriggers 阅后即焚阅读触发回执
@@ -68,8 +144,8 @@ func (h *MessageHandler) AckReadTriggers(c *gin.Context) {
 		events = append(events, pbEvent)
 	}
 
-	resp, err := h.clientManager.Message().AckReadTriggers(c.Request.Context(), &messagepb.AckReadTriggersRequest{
-		UserId: userID,
+	ctx := metadata.AppendToOutgoingContext(c.Request.Context(), "x-user-id", userID)
+	resp, err := h.clientManager.Message().AckReadTriggers(ctx, &messagepb.AckReadTriggersRequest{
 		Events: events,
 	})
 	if err != nil {

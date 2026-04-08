@@ -37,6 +37,7 @@ type Message struct {
 	AtUsers          []string               `protobuf:"bytes,9,rep,name=at_users,json=atUsers,proto3" json:"at_users,omitempty"`
 	Status           int32                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"`                          // 0-正常 1-撤回 2-删除
 	ExpireTime       *timestamp.Timestamp   `protobuf:"bytes,13,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"` // 消息过期时间,为空表示永不过期
+	TargetId         *string                `protobuf:"bytes,14,opt,name=target_id,json=targetId,proto3,oneof" json:"target_id,omitempty"` // single为对方用户ID，group为群ID
 	CreatedAt        *timestamp.Timestamp   `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt        *timestamp.Timestamp   `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	// 扩展字段（用于客户端显示）
@@ -153,6 +154,13 @@ func (x *Message) GetExpireTime() *timestamp.Timestamp {
 	return nil
 }
 
+func (x *Message) GetTargetId() string {
+	if x != nil && x.TargetId != nil {
+		return *x.TargetId
+	}
+	return ""
+}
+
 func (x *Message) GetCreatedAt() *timestamp.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -183,19 +191,16 @@ func (x *Message) GetReplyToMessage() *Message {
 
 // SendMessageRequest 发送消息请求
 type SendMessageRequest struct {
-	state                   protoimpl.MessageState `protogen:"open.v1"`
-	SenderId                string                 `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
-	ConversationId          string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	ConversationType        string                 `protobuf:"bytes,3,opt,name=conversation_type,json=conversationType,proto3" json:"conversation_type,omitempty"` // single/group
-	ContentType             string                 `protobuf:"bytes,4,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
-	Content                 string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"` // JSON string
-	ReplyTo                 *string                `protobuf:"bytes,6,opt,name=reply_to,json=replyTo,proto3,oneof" json:"reply_to,omitempty"`
-	AtUsers                 []string               `protobuf:"bytes,7,rep,name=at_users,json=atUsers,proto3" json:"at_users,omitempty"`
-	LocalId                 *string                `protobuf:"bytes,8,opt,name=local_id,json=localId,proto3,oneof" json:"local_id,omitempty"`                                                       // 客户端本地ID（用于关联）
-	AutoDeleteDuration      *int32                 `protobuf:"varint,9,opt,name=auto_delete_duration,json=autoDeleteDuration,proto3,oneof" json:"auto_delete_duration,omitempty"`                   // 自动删除时长(秒),由gateway从session服务获取后传入
-	BurnAfterReadingSeconds *int32                 `protobuf:"varint,10,opt,name=burn_after_reading_seconds,json=burnAfterReadingSeconds,proto3,oneof" json:"burn_after_reading_seconds,omitempty"` // 阅后即焚时长快照(秒),由gateway从session服务获取后传入
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	SenderId       string                 `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	ConversationId string                 `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	ContentType    string                 `protobuf:"bytes,3,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
+	Content        string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"` // JSON string
+	ReplyTo        *string                `protobuf:"bytes,5,opt,name=reply_to,json=replyTo,proto3,oneof" json:"reply_to,omitempty"`
+	AtUsers        []string               `protobuf:"bytes,6,rep,name=at_users,json=atUsers,proto3" json:"at_users,omitempty"`
+	LocalId        string                 `protobuf:"bytes,7,opt,name=local_id,json=localId,proto3" json:"local_id,omitempty"` // 客户端本地ID（用于发送幂等）
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *SendMessageRequest) Reset() {
@@ -242,13 +247,6 @@ func (x *SendMessageRequest) GetConversationId() string {
 	return ""
 }
 
-func (x *SendMessageRequest) GetConversationType() string {
-	if x != nil {
-		return x.ConversationType
-	}
-	return ""
-}
-
 func (x *SendMessageRequest) GetContentType() string {
 	if x != nil {
 		return x.ContentType
@@ -278,24 +276,10 @@ func (x *SendMessageRequest) GetAtUsers() []string {
 }
 
 func (x *SendMessageRequest) GetLocalId() string {
-	if x != nil && x.LocalId != nil {
-		return *x.LocalId
+	if x != nil {
+		return x.LocalId
 	}
 	return ""
-}
-
-func (x *SendMessageRequest) GetAutoDeleteDuration() int32 {
-	if x != nil && x.AutoDeleteDuration != nil {
-		return *x.AutoDeleteDuration
-	}
-	return 0
-}
-
-func (x *SendMessageRequest) GetBurnAfterReadingSeconds() int32 {
-	if x != nil && x.BurnAfterReadingSeconds != nil {
-		return *x.BurnAfterReadingSeconds
-	}
-	return 0
 }
 
 // SendMessageResponse 发送消息响应
@@ -545,8 +529,7 @@ func (x *GetMessageByIdRequest) GetMessageId() string {
 // RecallMessageRequest 撤回消息请求
 type RecallMessageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"` // 撤回者ID
+	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"` // 操作用户由调用链路透传的x-user-id元数据提供
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -588,18 +571,10 @@ func (x *RecallMessageRequest) GetMessageId() string {
 	return ""
 }
 
-func (x *RecallMessageRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
 // DeleteMessageRequest 删除消息请求
 type DeleteMessageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"` // 删除者ID
+	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"` // 删除者由调用链路透传的x-user-id元数据提供
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -641,21 +616,12 @@ func (x *DeleteMessageRequest) GetMessageId() string {
 	return ""
 }
 
-func (x *DeleteMessageRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
 // MarkAsReadRequest 标记已读请求
 type MarkAsReadRequest struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
-	ConversationId    string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	ConversationType  string                 `protobuf:"bytes,2,opt,name=conversation_type,json=conversationType,proto3" json:"conversation_type,omitempty"`
-	UserId            string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	LastReadSeq       int64                  `protobuf:"varint,4,opt,name=last_read_seq,json=lastReadSeq,proto3" json:"last_read_seq,omitempty"`
-	LastReadMessageId *string                `protobuf:"bytes,5,opt,name=last_read_message_id,json=lastReadMessageId,proto3,oneof" json:"last_read_message_id,omitempty"`
+	ConversationId    string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"` // 操作用户由调用链路透传的x-user-id元数据提供
+	LastReadSeq       int64                  `protobuf:"varint,2,opt,name=last_read_seq,json=lastReadSeq,proto3" json:"last_read_seq,omitempty"`
+	LastReadMessageId *string                `protobuf:"bytes,3,opt,name=last_read_message_id,json=lastReadMessageId,proto3,oneof" json:"last_read_message_id,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -693,20 +659,6 @@ func (*MarkAsReadRequest) Descriptor() ([]byte, []int) {
 func (x *MarkAsReadRequest) GetConversationId() string {
 	if x != nil {
 		return x.ConversationId
-	}
-	return ""
-}
-
-func (x *MarkAsReadRequest) GetConversationType() string {
-	if x != nil {
-		return x.ConversationType
-	}
-	return ""
-}
-
-func (x *MarkAsReadRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
 	}
 	return ""
 }
@@ -789,8 +741,7 @@ func (x *ReadTriggerEvent) GetIdempotencyKey() string {
 // AckReadTriggersRequest 批量上报阅读触发
 type AckReadTriggersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Events        []*ReadTriggerEvent    `protobuf:"bytes,2,rep,name=events,proto3" json:"events,omitempty"`
+	Events        []*ReadTriggerEvent    `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"` // 操作用户由调用链路透传的x-user-id元数据提供
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -823,13 +774,6 @@ func (x *AckReadTriggersRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use AckReadTriggersRequest.ProtoReflect.Descriptor instead.
 func (*AckReadTriggersRequest) Descriptor() ([]byte, []int) {
 	return file_message_message_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *AckReadTriggersRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
 }
 
 func (x *AckReadTriggersRequest) GetEvents() []*ReadTriggerEvent {
@@ -895,9 +839,8 @@ func (x *AckReadTriggersResponse) GetIgnoredIds() []string {
 // GetUnreadCountRequest 获取未读数请求
 type GetUnreadCountRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	UserId         string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	LastReadSeq    *int64                 `protobuf:"varint,3,opt,name=last_read_seq,json=lastReadSeq,proto3,oneof" json:"last_read_seq,omitempty"`
+	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"` // 操作用户由调用链路透传的x-user-id元数据提供
+	LastReadSeq    *int64                 `protobuf:"varint,2,opt,name=last_read_seq,json=lastReadSeq,proto3,oneof" json:"last_read_seq,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -935,13 +878,6 @@ func (*GetUnreadCountRequest) Descriptor() ([]byte, []int) {
 func (x *GetUnreadCountRequest) GetConversationId() string {
 	if x != nil {
 		return x.ConversationId
-	}
-	return ""
-}
-
-func (x *GetUnreadCountRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
 	}
 	return ""
 }
@@ -1017,8 +953,7 @@ func (x *GetUnreadCountResponse) GetLastMessage() *Message {
 // GetReadReceiptsRequest 获取已读回执请求
 type GetReadReceiptsRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	UserId         string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"` // 操作用户由调用链路透传的x-user-id元数据提供
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1056,13 +991,6 @@ func (*GetReadReceiptsRequest) Descriptor() ([]byte, []int) {
 func (x *GetReadReceiptsRequest) GetConversationId() string {
 	if x != nil {
 		return x.ConversationId
-	}
-	return ""
-}
-
-func (x *GetReadReceiptsRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
 	}
 	return ""
 }
@@ -1282,12 +1210,11 @@ func (x *GetConversationSequenceResponse) GetCurrentSeq() int64 {
 // SearchMessagesRequest 搜索消息请求
 type SearchMessagesRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	UserId         string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Keyword        string                 `protobuf:"bytes,2,opt,name=keyword,proto3" json:"keyword,omitempty"`
-	ConversationId *string                `protobuf:"bytes,3,opt,name=conversation_id,json=conversationId,proto3,oneof" json:"conversation_id,omitempty"`
-	ContentType    *string                `protobuf:"bytes,4,opt,name=content_type,json=contentType,proto3,oneof" json:"content_type,omitempty"`
-	Limit          int32                  `protobuf:"varint,5,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset         int32                  `protobuf:"varint,6,opt,name=offset,proto3" json:"offset,omitempty"`
+	Keyword        string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"` // 操作用户由调用链路透传的x-user-id元数据提供
+	ConversationId *string                `protobuf:"bytes,2,opt,name=conversation_id,json=conversationId,proto3,oneof" json:"conversation_id,omitempty"`
+	ContentType    *string                `protobuf:"bytes,3,opt,name=content_type,json=contentType,proto3,oneof" json:"content_type,omitempty"`
+	Limit          int32                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset         int32                  `protobuf:"varint,5,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1320,13 +1247,6 @@ func (x *SearchMessagesRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use SearchMessagesRequest.ProtoReflect.Descriptor instead.
 func (*SearchMessagesRequest) Descriptor() ([]byte, []int) {
 	return file_message_message_proto_rawDescGZIP(), []int{19}
-}
-
-func (x *SearchMessagesRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
 }
 
 func (x *SearchMessagesRequest) GetKeyword() string {
@@ -1421,7 +1341,7 @@ var File_message_message_proto protoreflect.FileDescriptor
 
 const file_message_message_proto_rawDesc = "" +
 	"\n" +
-	"\x15message/message.proto\x12\x0fanychat.message\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13common/common.proto\"\xb5\x05\n" +
+	"\x15message/message.proto\x12\x0fanychat.message\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13common/common.proto\"\xe5\x05\n" +
 	"\aMessage\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12'\n" +
@@ -1436,33 +1356,29 @@ const file_message_message_proto_rawDesc = "" +
 	"\x06status\x18\n" +
 	" \x01(\x05R\x06status\x12;\n" +
 	"\vexpire_time\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"expireTime\x129\n" +
+	"expireTime\x12 \n" +
+	"\ttarget_id\x18\x0e \x01(\tH\x01R\btargetId\x88\x01\x01\x129\n" +
 	"\n" +
 	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12>\n" +
-	"\vsender_info\x18\x14 \x01(\v2\x18.anychat.common.UserInfoH\x01R\n" +
+	"\vsender_info\x18\x14 \x01(\v2\x18.anychat.common.UserInfoH\x02R\n" +
 	"senderInfo\x88\x01\x01\x12G\n" +
-	"\x10reply_to_message\x18\x15 \x01(\v2\x18.anychat.message.MessageH\x02R\x0ereplyToMessage\x88\x01\x01B\v\n" +
-	"\t_reply_toB\x0e\n" +
+	"\x10reply_to_message\x18\x15 \x01(\v2\x18.anychat.message.MessageH\x03R\x0ereplyToMessage\x88\x01\x01B\v\n" +
+	"\t_reply_toB\f\n" +
+	"\n" +
+	"_target_idB\x0e\n" +
 	"\f_sender_infoB\x13\n" +
-	"\x11_reply_to_message\"\xea\x03\n" +
+	"\x11_reply_to_message\"\xfa\x01\n" +
 	"\x12SendMessageRequest\x12\x1b\n" +
 	"\tsender_id\x18\x01 \x01(\tR\bsenderId\x12'\n" +
-	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12+\n" +
-	"\x11conversation_type\x18\x03 \x01(\tR\x10conversationType\x12!\n" +
-	"\fcontent_type\x18\x04 \x01(\tR\vcontentType\x12\x18\n" +
-	"\acontent\x18\x05 \x01(\tR\acontent\x12\x1e\n" +
-	"\breply_to\x18\x06 \x01(\tH\x00R\areplyTo\x88\x01\x01\x12\x19\n" +
-	"\bat_users\x18\a \x03(\tR\aatUsers\x12\x1e\n" +
-	"\blocal_id\x18\b \x01(\tH\x01R\alocalId\x88\x01\x01\x125\n" +
-	"\x14auto_delete_duration\x18\t \x01(\x05H\x02R\x12autoDeleteDuration\x88\x01\x01\x12@\n" +
-	"\x1aburn_after_reading_seconds\x18\n" +
-	" \x01(\x05H\x03R\x17burnAfterReadingSeconds\x88\x01\x01B\v\n" +
-	"\t_reply_toB\v\n" +
-	"\t_local_idB\x17\n" +
-	"\x15_auto_delete_durationB\x1d\n" +
-	"\x1b_burn_after_reading_seconds\"\x8a\x01\n" +
+	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12!\n" +
+	"\fcontent_type\x18\x03 \x01(\tR\vcontentType\x12\x18\n" +
+	"\acontent\x18\x04 \x01(\tR\acontent\x12\x1e\n" +
+	"\breply_to\x18\x05 \x01(\tH\x00R\areplyTo\x88\x01\x01\x12\x19\n" +
+	"\bat_users\x18\x06 \x03(\tR\aatUsers\x12\x19\n" +
+	"\blocal_id\x18\a \x01(\tR\alocalIdB\v\n" +
+	"\t_reply_to\"\x8a\x01\n" +
 	"\x13SendMessageResponse\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x1a\n" +
@@ -1484,21 +1400,17 @@ const file_message_message_proto_rawDesc = "" +
 	"\bhas_more\x18\x03 \x01(\bR\ahasMore\"6\n" +
 	"\x15GetMessageByIdRequest\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\"N\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\"5\n" +
 	"\x14RecallMessageRequest\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"N\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\"5\n" +
 	"\x14DeleteMessageRequest\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"\xf5\x01\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\"\xaf\x01\n" +
 	"\x11MarkAsReadRequest\x12'\n" +
-	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12+\n" +
-	"\x11conversation_type\x18\x02 \x01(\tR\x10conversationType\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\"\n" +
-	"\rlast_read_seq\x18\x04 \x01(\x03R\vlastReadSeq\x124\n" +
-	"\x14last_read_message_id\x18\x05 \x01(\tH\x00R\x11lastReadMessageId\x88\x01\x01B\x17\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\"\n" +
+	"\rlast_read_seq\x18\x02 \x01(\x03R\vlastReadSeq\x124\n" +
+	"\x14last_read_message_id\x18\x03 \x01(\tH\x00R\x11lastReadMessageId\x88\x01\x01B\x17\n" +
 	"\x15_last_read_message_id\"\xa3\x01\n" +
 	"\x10ReadTriggerEvent\x12\x1d\n" +
 	"\n" +
@@ -1507,28 +1419,25 @@ const file_message_message_proto_rawDesc = "" +
 	"\x0fidempotency_key\x18\x03 \x01(\tH\x01R\x0eidempotencyKey\x88\x01\x01B\f\n" +
 	"\n" +
 	"_client_atB\x12\n" +
-	"\x10_idempotency_key\"l\n" +
-	"\x16AckReadTriggersRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x129\n" +
-	"\x06events\x18\x02 \x03(\v2!.anychat.message.ReadTriggerEventR\x06events\"[\n" +
+	"\x10_idempotency_key\"S\n" +
+	"\x16AckReadTriggersRequest\x129\n" +
+	"\x06events\x18\x01 \x03(\v2!.anychat.message.ReadTriggerEventR\x06events\"[\n" +
 	"\x17AckReadTriggersResponse\x12\x1f\n" +
 	"\vsuccess_ids\x18\x01 \x03(\tR\n" +
 	"successIds\x12\x1f\n" +
 	"\vignored_ids\x18\x02 \x03(\tR\n" +
-	"ignoredIds\"\x94\x01\n" +
+	"ignoredIds\"{\n" +
 	"\x15GetUnreadCountRequest\x12'\n" +
-	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12'\n" +
-	"\rlast_read_seq\x18\x03 \x01(\x03H\x00R\vlastReadSeq\x88\x01\x01B\x10\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12'\n" +
+	"\rlast_read_seq\x18\x02 \x01(\x03H\x00R\vlastReadSeq\x88\x01\x01B\x10\n" +
 	"\x0e_last_read_seq\"\xb8\x01\n" +
 	"\x16GetUnreadCountResponse\x12!\n" +
 	"\funread_count\x18\x01 \x01(\x03R\vunreadCount\x12(\n" +
 	"\x10last_message_seq\x18\x02 \x01(\x03R\x0elastMessageSeq\x12@\n" +
 	"\flast_message\x18\x03 \x01(\v2\x18.anychat.message.MessageH\x00R\vlastMessage\x88\x01\x01B\x0f\n" +
-	"\r_last_message\"Z\n" +
+	"\r_last_message\"A\n" +
 	"\x16GetReadReceiptsRequest\x12'\n" +
-	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"\x98\x02\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\"\x98\x02\n" +
 	"\vReadReceipt\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\"\n" +
 	"\rlast_read_seq\x18\x02 \x01(\x03R\vlastReadSeq\x124\n" +
@@ -1544,14 +1453,13 @@ const file_message_message_proto_rawDesc = "" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\"B\n" +
 	"\x1fGetConversationSequenceResponse\x12\x1f\n" +
 	"\vcurrent_seq\x18\x01 \x01(\x03R\n" +
-	"currentSeq\"\xf3\x01\n" +
-	"\x15SearchMessagesRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x18\n" +
-	"\akeyword\x18\x02 \x01(\tR\akeyword\x12,\n" +
-	"\x0fconversation_id\x18\x03 \x01(\tH\x00R\x0econversationId\x88\x01\x01\x12&\n" +
-	"\fcontent_type\x18\x04 \x01(\tH\x01R\vcontentType\x88\x01\x01\x12\x14\n" +
-	"\x05limit\x18\x05 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x06 \x01(\x05R\x06offsetB\x12\n" +
+	"currentSeq\"\xda\x01\n" +
+	"\x15SearchMessagesRequest\x12\x18\n" +
+	"\akeyword\x18\x01 \x01(\tR\akeyword\x12,\n" +
+	"\x0fconversation_id\x18\x02 \x01(\tH\x00R\x0econversationId\x88\x01\x01\x12&\n" +
+	"\fcontent_type\x18\x03 \x01(\tH\x01R\vcontentType\x88\x01\x01\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x05 \x01(\x05R\x06offsetB\x12\n" +
 	"\x10_conversation_idB\x0f\n" +
 	"\r_content_type\"d\n" +
 	"\x16SearchMessagesResponse\x124\n" +

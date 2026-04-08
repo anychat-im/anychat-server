@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"time"
 
+	grouppb "github.com/anychat/server/api/proto/group"
 	messagepb "github.com/anychat/server/api/proto/message"
+	sessionpb "github.com/anychat/server/api/proto/session"
 	"github.com/anychat/server/internal/message/model"
 	"github.com/anychat/server/internal/message/repository"
 	"github.com/anychat/server/pkg/errors"
@@ -24,12 +26,12 @@ type MessageService interface {
 	GetMessageById(ctx context.Context, messageID string) (*messagepb.Message, error)
 	RecallMessage(ctx context.Context, messageID, userID string) error
 	DeleteMessage(ctx context.Context, messageID, userID string) error
-	MarkAsRead(ctx context.Context, req *messagepb.MarkAsReadRequest) error
-	AckReadTriggers(ctx context.Context, req *messagepb.AckReadTriggersRequest) (*messagepb.AckReadTriggersResponse, error)
+	MarkAsRead(ctx context.Context, userID string, req *messagepb.MarkAsReadRequest) error
+	AckReadTriggers(ctx context.Context, userID string, req *messagepb.AckReadTriggersRequest) (*messagepb.AckReadTriggersResponse, error)
 	GetUnreadCount(ctx context.Context, conversationID, userID string, lastReadSeq *int64) (*messagepb.GetUnreadCountResponse, error)
 	GetReadReceipts(ctx context.Context, conversationID, userID string) (*messagepb.GetReadReceiptsResponse, error)
 	GetConversationSequence(ctx context.Context, conversationID string) (int64, error)
-	SearchMessages(ctx context.Context, req *messagepb.SearchMessagesRequest) (*messagepb.SearchMessagesResponse, error)
+	SearchMessages(ctx context.Context, userID string, req *messagepb.SearchMessagesRequest) (*messagepb.SearchMessagesResponse, error)
 }
 
 // MessageRepo 消息仓库接口
@@ -47,13 +49,21 @@ type SequenceRepo interface {
 	repository.SequenceRepository
 }
 
+// SendIdempotencyRepo 发送幂等仓库接口
+type SendIdempotencyRepo interface {
+	repository.SendIdempotencyRepository
+}
+
 // messageServiceImpl 消息服务实现
 type messageServiceImpl struct {
-	messageRepo     MessageRepo
-	readReceiptRepo ReadReceiptRepo
-	sequenceRepo    SequenceRepo
-	notificationPub notification.Publisher
-	db              *gorm.DB
+	messageRepo         MessageRepo
+	readReceiptRepo     ReadReceiptRepo
+	sequenceRepo        SequenceRepo
+	sendIdempotencyRepo SendIdempotencyRepo
+	sessionClient       sessionpb.SessionServiceClient
+	groupClient         grouppb.GroupServiceClient
+	notificationPub     notification.Publisher
+	db                  *gorm.DB
 }
 
 // NewMessageService 创建消息服务
@@ -61,87 +71,192 @@ func NewMessageService(
 	messageRepo repository.MessageRepository,
 	readReceiptRepo repository.ReadReceiptRepository,
 	sequenceRepo repository.SequenceRepository,
+	sendIdempotencyRepo repository.SendIdempotencyRepository,
+	sessionClient sessionpb.SessionServiceClient,
+	groupClient grouppb.GroupServiceClient,
 	notificationPub notification.Publisher,
 	db *gorm.DB,
 ) MessageService {
 	return &messageServiceImpl{
-		messageRepo:     messageRepo,
-		readReceiptRepo: readReceiptRepo,
-		sequenceRepo:    sequenceRepo,
-		notificationPub: notificationPub,
-		db:              db,
+		messageRepo:         messageRepo,
+		readReceiptRepo:     readReceiptRepo,
+		sequenceRepo:        sequenceRepo,
+		sendIdempotencyRepo: sendIdempotencyRepo,
+		sessionClient:       sessionClient,
+		groupClient:         groupClient,
+		notificationPub:     notificationPub,
+		db:                  db,
 	}
 }
 
 // SendMessage 发送消息
 func (s *messageServiceImpl) SendMessage(ctx context.Context, req *messagepb.SendMessageRequest) (*messagepb.SendMessageResponse, error) {
-	// 1. 生成消息ID
-	messageID := uuid.New().String()
-
-	// 2. 获取下一个序列号（原子操作）
-	sequence, err := s.sequenceRepo.IncrementAndGet(ctx, req.ConversationId)
+	session, err := s.authorizeSend(ctx, req.SenderId, req.ConversationId)
 	if err != nil {
-		logger.Error("Failed to increment sequence", zap.Error(err))
-		return nil, errors.NewBusiness(errors.CodeSequenceGenerateFailed, "")
+		return nil, err
 	}
 
-	// 3. 创建消息记录
-	now := time.Now()
-	message := &model.Message{
-		MessageID:        messageID,
-		ConversationID:   req.ConversationId,
-		ConversationType: req.ConversationType,
-		SenderID:         req.SenderId,
-		ContentType:      req.ContentType,
-		Content:          req.Content,
-		Sequence:         sequence,
-		Status:           model.MessageStatusNormal,
-		CreatedAt:        now,
-		UpdatedAt:        now,
+	localID := req.GetLocalId()
+	if localID == "" {
+		return nil, errors.NewBusiness(errors.CodeParamError, "local_id is required")
+	}
+	if s.sendIdempotencyRepo == nil {
+		return nil, errors.NewBusiness(errors.CodeInternalError, "idempotency repo is not initialized")
 	}
 
-	// 设置自动删除过期时间
-	if req.AutoDeleteDuration != nil && *req.AutoDeleteDuration > 0 {
-		expireTime := now.Add(time.Duration(*req.AutoDeleteDuration) * time.Second)
-		message.AutoDeleteExpireTime = &expireTime
-		message.ExpireTime = &expireTime
-	}
-	if req.BurnAfterReadingSeconds != nil && *req.BurnAfterReadingSeconds > 0 {
-		message.BurnAfterReadingSeconds = *req.BurnAfterReadingSeconds
-	}
+	var message *model.Message
+	created := false
 
-	// 设置可选字段
-	if req.ReplyTo != nil {
-		message.ReplyTo = req.ReplyTo
-	}
-	if len(req.AtUsers) > 0 {
-		message.AtUsers = req.AtUsers
-	}
+	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		messageRepoTx := s.messageRepo.WithTx(tx)
+		sequenceRepoTx := s.sequenceRepo.WithTx(tx)
+		idempotencyRepoTx := s.sendIdempotencyRepo.WithTx(tx)
 
-	// 4. 保存消息到数据库
-	if err := s.messageRepo.Create(ctx, message); err != nil {
-		logger.Error("Failed to create message", zap.Error(err))
+		if err := idempotencyRepoTx.CreateIfNotExists(ctx, &model.MessageSendIdempotency{
+			SenderID:       req.SenderId,
+			ConversationID: req.ConversationId,
+			LocalID:        localID,
+		}); err != nil {
+			return err
+		}
+
+		idempotencyRecord, err := idempotencyRepoTx.GetForUpdateByKey(ctx, req.SenderId, req.ConversationId, localID)
+		if err != nil {
+			return err
+		}
+
+		// 幂等命中：直接返回既有消息
+		if idempotencyRecord.MessageID != "" {
+			existing, err := messageRepoTx.GetByMessageID(ctx, idempotencyRecord.MessageID)
+			if err != nil {
+				return err
+			}
+			message = existing
+			return nil
+		}
+
+		// 创建新消息（与序列号分配在同一事务中）
+		sequence, err := sequenceRepoTx.IncrementAndGet(ctx, req.ConversationId)
+		if err != nil {
+			logger.Error("Failed to increment sequence", zap.Error(err))
+			return errors.NewBusiness(errors.CodeSequenceGenerateFailed, "")
+		}
+
+		now := time.Now()
+		newMessage := &model.Message{
+			MessageID:        uuid.New().String(),
+			ConversationID:   req.ConversationId,
+			ConversationType: session.SessionType,
+			TargetID:         session.TargetId,
+			SenderID:         req.SenderId,
+			ContentType:      req.ContentType,
+			Content:          req.Content,
+			Sequence:         sequence,
+			Status:           model.MessageStatusNormal,
+			CreatedAt:        now,
+			UpdatedAt:        now,
+		}
+
+		if session.AutoDeleteDuration > 0 {
+			expireTime := now.Add(time.Duration(session.AutoDeleteDuration) * time.Second)
+			newMessage.AutoDeleteExpireTime = &expireTime
+			newMessage.ExpireTime = &expireTime
+		}
+		if session.BurnAfterReading > 0 {
+			newMessage.BurnAfterReadingSeconds = session.BurnAfterReading
+		}
+		if req.ReplyTo != nil {
+			newMessage.ReplyTo = req.ReplyTo
+		}
+		if len(req.AtUsers) > 0 {
+			newMessage.AtUsers = req.AtUsers
+		}
+
+		if err := messageRepoTx.Create(ctx, newMessage); err != nil {
+			logger.Error("Failed to create message", zap.Error(err))
+			return errors.NewBusiness(errors.CodeMessageSendFailed, "")
+		}
+
+		if err := idempotencyRepoTx.BindMessageID(ctx, req.SenderId, req.ConversationId, localID, newMessage.MessageID); err != nil {
+			return err
+		}
+
+		message = newMessage
+		created = true
+		return nil
+	})
+	if err != nil {
+		logger.Error("Failed to send message in transaction", zap.Error(err))
+		if errors.IsBusiness(err) {
+			return nil, err
+		}
 		return nil, errors.NewBusiness(errors.CodeMessageSendFailed, "")
 	}
 
-	// 5. 发布新消息通知
-	if err := s.publishNewMessageNotification(message, req.AtUsers); err != nil {
-		logger.Error("Failed to publish message notification", zap.Error(err))
-		// 通知失败不影响消息发送
+	if message == nil {
+		return nil, errors.NewBusiness(errors.CodeMessageSendFailed, "")
 	}
 
-	// 6. 如果有@提及，发布@通知
-	if len(req.AtUsers) > 0 {
-		if err := s.publishMentionNotification(message); err != nil {
-			logger.Error("Failed to publish mention notification", zap.Error(err))
+	if created {
+		if err := s.publishNewMessageNotification(ctx, message, req.AtUsers); err != nil {
+			logger.Error("Failed to publish message notification", zap.Error(err))
+		}
+
+		if len(req.AtUsers) > 0 {
+			if err := s.publishMentionNotification(message); err != nil {
+				logger.Error("Failed to publish mention notification", zap.Error(err))
+			}
 		}
 	}
 
 	return &messagepb.SendMessageResponse{
-		MessageId: messageID,
-		Sequence:  sequence,
-		Timestamp: timestamppb.New(now),
+		MessageId: message.MessageID,
+		Sequence:  message.Sequence,
+		Timestamp: timestamppb.New(message.CreatedAt),
 	}, nil
+}
+
+func (s *messageServiceImpl) authorizeSend(ctx context.Context, senderID, conversationID string) (*sessionpb.Session, error) {
+	if s.sessionClient == nil {
+		return nil, errors.NewBusiness(errors.CodeInternalError, "session client is not initialized")
+	}
+	if senderID == "" || conversationID == "" {
+		return nil, errors.NewBusiness(errors.CodeParamError, "sender_id and conversation_id are required")
+	}
+
+	session, err := s.sessionClient.GetSession(ctx, &sessionpb.GetSessionRequest{
+		UserId:    senderID,
+		SessionId: conversationID,
+	})
+	if err != nil {
+		return nil, errors.NewBusiness(errors.CodeConversationNotFound, "conversation not found")
+	}
+	if session.SessionType != model.ConversationTypeSingle && session.SessionType != model.ConversationTypeGroup {
+		return nil, errors.NewBusiness(errors.CodeParamError, "conversation_type must be single or group")
+	}
+
+	targetID := session.TargetId
+	if targetID == "" {
+		return nil, errors.NewBusiness(errors.CodeParamError, "target_id is required")
+	}
+
+	if session.SessionType == model.ConversationTypeGroup {
+		if s.groupClient == nil {
+			return nil, errors.NewBusiness(errors.CodeInternalError, "group client is not initialized")
+		}
+		memberResp, err := s.groupClient.IsMember(ctx, &grouppb.IsMemberRequest{
+			GroupId: targetID,
+			UserId:  senderID,
+		})
+		if err != nil {
+			return nil, errors.NewBusiness(errors.CodeInternalError, "failed to verify group membership")
+		}
+		if !memberResp.IsMember {
+			return nil, errors.NewBusiness(errors.CodeMessagePermissionDenied, "sender is not a group member")
+		}
+	}
+
+	return session, nil
 }
 
 // GetMessages 获取消息列表
@@ -153,6 +268,7 @@ func (s *messageServiceImpl) GetMessages(ctx context.Context, req *messagepb.Get
 	if req.Limit > 100 {
 		req.Limit = 100 // 最多100条
 	}
+	limit := int(req.Limit)
 
 	// 获取消息列表
 	startSeq := int64(0)
@@ -164,10 +280,16 @@ func (s *messageServiceImpl) GetMessages(ctx context.Context, req *messagepb.Get
 		endSeq = *req.EndSeq
 	}
 
-	messages, err := s.messageRepo.GetByConversation(ctx, req.ConversationId, startSeq, endSeq, int(req.Limit), req.Reverse)
+	messages, err := s.messageRepo.GetByConversation(ctx, req.ConversationId, startSeq, endSeq, limit+1, req.Reverse)
 	if err != nil {
 		logger.Error("Failed to get messages", zap.Error(err))
 		return nil, errors.NewBusiness(errors.CodeInternalError, "Failed to retrieve messages")
+	}
+
+	hasMore := false
+	if len(messages) > limit {
+		hasMore = true
+		messages = messages[:limit]
 	}
 
 	// 转换为protobuf消息
@@ -176,9 +298,6 @@ func (s *messageServiceImpl) GetMessages(ctx context.Context, req *messagepb.Get
 		pbMsg := s.modelToProto(msg)
 		pbMessages = append(pbMessages, pbMsg)
 	}
-
-	// 检查是否还有更多消息
-	hasMore := len(messages) == int(req.Limit)
 
 	return &messagepb.GetMessagesResponse{
 		Messages: pbMessages,
@@ -229,7 +348,7 @@ func (s *messageServiceImpl) RecallMessage(ctx context.Context, messageID, userI
 	}
 
 	// 5. 发布撤回通知
-	if err := s.publishRecallNotification(message, userID); err != nil {
+	if err := s.publishRecallNotification(ctx, message, userID); err != nil {
 		logger.Error("Failed to publish recall notification", zap.Error(err))
 	}
 
@@ -262,12 +381,31 @@ func (s *messageServiceImpl) DeleteMessage(ctx context.Context, messageID, userI
 }
 
 // MarkAsRead 标记消息已读
-func (s *messageServiceImpl) MarkAsRead(ctx context.Context, req *messagepb.MarkAsReadRequest) error {
+func (s *messageServiceImpl) MarkAsRead(ctx context.Context, userID string, req *messagepb.MarkAsReadRequest) error {
+	if s.sessionClient == nil {
+		return errors.NewBusiness(errors.CodeInternalError, "session client is not initialized")
+	}
+	if userID == "" || req.ConversationId == "" {
+		return errors.NewBusiness(errors.CodeParamError, "user_id and conversation_id are required")
+	}
+
+	session, err := s.sessionClient.GetSession(ctx, &sessionpb.GetSessionRequest{
+		UserId:    userID,
+		SessionId: req.ConversationId,
+	})
+	if err != nil {
+		return errors.NewBusiness(errors.CodeConversationNotFound, "conversation not found")
+	}
+	if session.SessionType != model.ConversationTypeSingle && session.SessionType != model.ConversationTypeGroup {
+		return errors.NewBusiness(errors.CodeParamError, "conversation_type must be single or group")
+	}
+
 	// 创建或更新已读回执
 	receipt := &model.MessageReadReceipt{
 		ConversationID:   req.ConversationId,
-		ConversationType: req.ConversationType,
-		UserID:           req.UserId,
+		ConversationType: session.SessionType,
+		TargetID:         session.TargetId,
+		UserID:           userID,
 		LastReadSeq:      req.LastReadSeq,
 		ReadAt:           time.Now(),
 	}
@@ -282,7 +420,7 @@ func (s *messageServiceImpl) MarkAsRead(ctx context.Context, req *messagepb.Mark
 	}
 
 	// 发布已读回执通知（单聊时通知对方）
-	if req.ConversationType == model.ConversationTypeSingle {
+	if session.SessionType == model.ConversationTypeSingle {
 		if err := s.publishReadReceiptNotification(receipt); err != nil {
 			logger.Error("Failed to publish read receipt notification", zap.Error(err))
 		}
@@ -292,8 +430,8 @@ func (s *messageServiceImpl) MarkAsRead(ctx context.Context, req *messagepb.Mark
 }
 
 // AckReadTriggers 批量上报阅后即焚阅读触发
-func (s *messageServiceImpl) AckReadTriggers(ctx context.Context, req *messagepb.AckReadTriggersRequest) (*messagepb.AckReadTriggersResponse, error) {
-	if req.UserId == "" {
+func (s *messageServiceImpl) AckReadTriggers(ctx context.Context, userID string, req *messagepb.AckReadTriggersRequest) (*messagepb.AckReadTriggersResponse, error) {
+	if userID == "" {
 		return nil, errors.NewBusiness(errors.CodeParamError, "user_id is required")
 	}
 	if len(req.Events) == 0 {
@@ -335,7 +473,7 @@ func (s *messageServiceImpl) AckReadTriggers(ctx context.Context, req *messagepb
 
 	for _, msg := range candidates {
 		// 发送方不能触发自己的阅后即焚
-		if msg.SenderID == req.UserId {
+		if msg.SenderID == userID {
 			continue
 		}
 
@@ -369,7 +507,7 @@ func (s *messageServiceImpl) AckReadTriggers(ctx context.Context, req *messagepb
 
 		if err := s.db.WithContext(ctx).
 			Model(&model.Message{}).
-			Where("message_id = ? AND status = ? AND sender_id <> ? AND burn_after_reading_seconds > 0", msg.MessageID, model.MessageStatusNormal, req.UserId).
+			Where("message_id = ? AND status = ? AND sender_id <> ? AND burn_after_reading_seconds > 0", msg.MessageID, model.MessageStatusNormal, userID).
 			Updates(updates).Error; err != nil {
 			logger.Error("Failed to update burn expire time",
 				zap.String("messageID", msg.MessageID),
@@ -393,6 +531,10 @@ func (s *messageServiceImpl) AckReadTriggers(ctx context.Context, req *messagepb
 
 // GetUnreadCount 获取未读消息数
 func (s *messageServiceImpl) GetUnreadCount(ctx context.Context, conversationID, userID string, lastReadSeq *int64) (*messagepb.GetUnreadCountResponse, error) {
+	if err := s.ensureConversationAccessible(ctx, userID, conversationID); err != nil {
+		return nil, err
+	}
+
 	// 如果没有提供lastReadSeq，从已读回执中获取
 	var readSeq int64
 	if lastReadSeq != nil {
@@ -436,6 +578,10 @@ func (s *messageServiceImpl) GetUnreadCount(ctx context.Context, conversationID,
 
 // GetReadReceipts 获取已读回执列表
 func (s *messageServiceImpl) GetReadReceipts(ctx context.Context, conversationID, userID string) (*messagepb.GetReadReceiptsResponse, error) {
+	if err := s.ensureConversationAccessible(ctx, userID, conversationID); err != nil {
+		return nil, err
+	}
+
 	receipts, err := s.readReceiptRepo.GetByConversation(ctx, conversationID)
 	if err != nil {
 		logger.Error("Failed to get read receipts", zap.Error(err))
@@ -471,7 +617,17 @@ func (s *messageServiceImpl) GetConversationSequence(ctx context.Context, conver
 }
 
 // SearchMessages 搜索消息
-func (s *messageServiceImpl) SearchMessages(ctx context.Context, req *messagepb.SearchMessagesRequest) (*messagepb.SearchMessagesResponse, error) {
+func (s *messageServiceImpl) SearchMessages(ctx context.Context, userID string, req *messagepb.SearchMessagesRequest) (*messagepb.SearchMessagesResponse, error) {
+	if userID == "" {
+		return nil, errors.NewBusiness(errors.CodeParamError, "user_id is required")
+	}
+	if req.ConversationId == nil || *req.ConversationId == "" {
+		return nil, errors.NewBusiness(errors.CodeParamError, "conversation_id is required")
+	}
+	if err := s.ensureConversationAccessible(ctx, userID, *req.ConversationId); err != nil {
+		return nil, err
+	}
+
 	// 参数验证
 	if req.Limit <= 0 {
 		req.Limit = 20
@@ -510,6 +666,22 @@ func (s *messageServiceImpl) SearchMessages(ctx context.Context, req *messagepb.
 	}, nil
 }
 
+func (s *messageServiceImpl) ensureConversationAccessible(ctx context.Context, userID, conversationID string) error {
+	if userID == "" || conversationID == "" {
+		return errors.NewBusiness(errors.CodeParamError, "user_id and conversation_id are required")
+	}
+	if s.sessionClient == nil {
+		return errors.NewBusiness(errors.CodeInternalError, "session client is not initialized")
+	}
+	if _, err := s.sessionClient.GetSession(ctx, &sessionpb.GetSessionRequest{
+		UserId:    userID,
+		SessionId: conversationID,
+	}); err != nil {
+		return errors.NewBusiness(errors.CodeConversationNotFound, "conversation not found")
+	}
+	return nil
+}
+
 // modelToProto 将model转换为protobuf消息
 func (s *messageServiceImpl) modelToProto(msg *model.Message) *messagepb.Message {
 	pbMsg := &messagepb.Message{
@@ -525,6 +697,10 @@ func (s *messageServiceImpl) modelToProto(msg *model.Message) *messagepb.Message
 		UpdatedAt:        timestamppb.New(msg.UpdatedAt),
 	}
 
+	if msg.TargetID != "" {
+		pbMsg.TargetId = &msg.TargetID
+	}
+
 	if msg.ReplyTo != nil {
 		pbMsg.ReplyTo = msg.ReplyTo
 	}
@@ -537,7 +713,7 @@ func (s *messageServiceImpl) modelToProto(msg *model.Message) *messagepb.Message
 }
 
 // publishNewMessageNotification 发布新消息通知
-func (s *messageServiceImpl) publishNewMessageNotification(msg *model.Message, atUsers []string) error {
+func (s *messageServiceImpl) publishNewMessageNotification(ctx context.Context, msg *model.Message, atUsers []string) error {
 	// 解析content获取消息摘要
 	contentPreview := s.getContentPreview(msg.Content, msg.ContentType)
 
@@ -545,6 +721,7 @@ func (s *messageServiceImpl) publishNewMessageNotification(msg *model.Message, a
 		"message_id":        msg.MessageID,
 		"conversation_id":   msg.ConversationID,
 		"conversation_type": msg.ConversationType,
+		"target_id":         msg.TargetID,
 		"from_user_id":      msg.SenderID,
 		"content_type":      msg.ContentType,
 		"content":           contentPreview,
@@ -559,18 +736,80 @@ func (s *messageServiceImpl) publishNewMessageNotification(msg *model.Message, a
 	).WithPayload(payload)
 
 	// 根据会话类型决定推送方式
-	if msg.ConversationType == model.ConversationTypeSingle {
-		// 单聊：从conversation_id中提取接收者ID
-		// conversation_id格式: conv-{userId1}-{userId2}
-		// TODO: 这里需要根据实际的conversation_id格式来解析
-		_ = notif  // 暂时忽略，等待conversation_id解析逻辑
-		return nil // 暂时跳过
-	} else if msg.ConversationType == model.ConversationTypeGroup {
-		// 群聊：发布到群组主题
-		return s.notificationPub.PublishToGroup(msg.ConversationID, notif)
+	switch msg.ConversationType {
+	case model.ConversationTypeSingle:
+		if msg.TargetID == "" {
+			logger.Warn("Skip single message notification due to empty target_id",
+				zap.String("messageID", msg.MessageID),
+				zap.String("conversationID", msg.ConversationID))
+			return nil
+		}
+		return s.notificationPub.PublishToUser(msg.TargetID, notif)
+	case model.ConversationTypeGroup:
+		groupID := msg.TargetID
+		if groupID == "" {
+			groupID = msg.ConversationID
+		}
+		excludedUserIDs := map[string]struct{}{msg.SenderID: {}}
+		memberIDs, err := s.listGroupMemberIDs(ctx, msg.SenderID, groupID, excludedUserIDs)
+		if err != nil {
+			return err
+		}
+		if len(memberIDs) == 0 {
+			return nil
+		}
+		return s.notificationPub.PublishToUsers(memberIDs, notif)
 	}
 
 	return nil
+}
+
+func (s *messageServiceImpl) listGroupMemberIDs(ctx context.Context, operatorUserID, groupID string, excludedUserIDs map[string]struct{}) ([]string, error) {
+	if s.groupClient == nil {
+		return nil, errors.NewBusiness(errors.CodeInternalError, "group client is not initialized")
+	}
+
+	const pageSizeValue int32 = 100
+	pageValue := int32(1)
+	pageSize := pageSizeValue
+	memberSet := make(map[string]struct{})
+
+	for {
+		resp, err := s.groupClient.GetGroupMembers(ctx, &grouppb.GetGroupMembersRequest{
+			GroupId:  groupID,
+			UserId:   operatorUserID,
+			Page:     &pageValue,
+			PageSize: &pageSize,
+		})
+		if err != nil {
+			return nil, errors.NewBusiness(errors.CodeInternalError, "failed to load group members")
+		}
+
+		if len(resp.Members) == 0 {
+			break
+		}
+
+		for _, member := range resp.Members {
+			if member.UserId == "" {
+				continue
+			}
+			if _, excluded := excludedUserIDs[member.UserId]; excluded {
+				continue
+			}
+			memberSet[member.UserId] = struct{}{}
+		}
+
+		if int64(pageValue)*int64(pageSizeValue) >= resp.Total {
+			break
+		}
+		pageValue++
+	}
+
+	memberIDs := make([]string, 0, len(memberSet))
+	for userID := range memberSet {
+		memberIDs = append(memberIDs, userID)
+	}
+	return memberIDs, nil
 }
 
 // publishMentionNotification 发布@提及通知
@@ -580,11 +819,15 @@ func (s *messageServiceImpl) publishMentionNotification(msg *model.Message) erro
 	}
 
 	contentPreview := s.getContentPreview(msg.Content, msg.ContentType)
+	groupID := msg.TargetID
+	if groupID == "" {
+		groupID = msg.ConversationID
+	}
 
 	for _, userID := range msg.AtUsers {
 		payload := map[string]interface{}{
 			"message_id":   msg.MessageID,
-			"group_id":     msg.ConversationID,
+			"group_id":     groupID,
 			"from_user_id": msg.SenderID,
 			"content":      contentPreview,
 			"mention_type": "single",
@@ -606,11 +849,12 @@ func (s *messageServiceImpl) publishMentionNotification(msg *model.Message) erro
 }
 
 // publishRecallNotification 发布撤回通知
-func (s *messageServiceImpl) publishRecallNotification(msg *model.Message, operatorUserID string) error {
+func (s *messageServiceImpl) publishRecallNotification(ctx context.Context, msg *model.Message, operatorUserID string) error {
 	payload := map[string]interface{}{
 		"message_id":        msg.MessageID,
 		"conversation_id":   msg.ConversationID,
 		"conversation_type": msg.ConversationType,
+		"target_id":         msg.TargetID,
 		"operator_user_id":  operatorUserID,
 		"recalled_at":       time.Now().Unix(),
 	}
@@ -621,9 +865,41 @@ func (s *messageServiceImpl) publishRecallNotification(msg *model.Message, opera
 		notification.PriorityNormal,
 	).WithPayload(payload)
 
-	// 根据会话类型推送
-	if msg.ConversationType == model.ConversationTypeGroup {
-		return s.notificationPub.PublishToGroup(msg.ConversationID, notif)
+	switch msg.ConversationType {
+	case model.ConversationTypeSingle:
+		receiverSet := map[string]struct{}{}
+		if msg.SenderID != "" {
+			receiverSet[msg.SenderID] = struct{}{}
+		}
+		if msg.TargetID != "" {
+			receiverSet[msg.TargetID] = struct{}{}
+		}
+		if len(receiverSet) == 0 {
+			logger.Warn("Skip recall notification due to empty receivers",
+				zap.String("messageID", msg.MessageID),
+				zap.String("conversationID", msg.ConversationID))
+			return nil
+		}
+
+		receiverIDs := make([]string, 0, len(receiverSet))
+		for userID := range receiverSet {
+			receiverIDs = append(receiverIDs, userID)
+		}
+		return s.notificationPub.PublishToUsers(receiverIDs, notif)
+
+	case model.ConversationTypeGroup:
+		groupID := msg.TargetID
+		if groupID == "" {
+			groupID = msg.ConversationID
+		}
+		memberIDs, err := s.listGroupMemberIDs(ctx, operatorUserID, groupID, nil)
+		if err != nil {
+			return err
+		}
+		if len(memberIDs) == 0 {
+			return nil
+		}
+		return s.notificationPub.PublishToUsers(memberIDs, notif)
 	}
 
 	return nil
@@ -634,6 +910,7 @@ func (s *messageServiceImpl) publishReadReceiptNotification(receipt *model.Messa
 	payload := map[string]interface{}{
 		"conversation_id":   receipt.ConversationID,
 		"conversation_type": receipt.ConversationType,
+		"target_id":         receipt.TargetID,
 		"reader_user_id":    receipt.UserID,
 		"last_read_seq":     receipt.LastReadSeq,
 		"read_at":           receipt.ReadAt.Unix(),
@@ -645,9 +922,17 @@ func (s *messageServiceImpl) publishReadReceiptNotification(receipt *model.Messa
 		notification.PriorityLow,
 	).WithPayload(payload)
 
-	// 单聊已读回执：需要通知对方
-	// TODO: 从conversation_id中提取对方用户ID
-	_ = notif // 暂时忽略，等待conversation_id解析逻辑
+	// 单聊已读回执：通知对方用户
+	if receipt.ConversationType == model.ConversationTypeSingle {
+		if receipt.TargetID == "" {
+			logger.Warn("Skip read receipt notification due to empty target_id",
+				zap.String("conversationID", receipt.ConversationID),
+				zap.String("readerUserID", receipt.UserID))
+			return nil
+		}
+		return s.notificationPub.PublishToUser(receipt.TargetID, notif)
+	}
+
 	return nil
 }
 

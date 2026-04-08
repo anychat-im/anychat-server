@@ -1078,12 +1078,11 @@ const file_session_session_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tR\tsessionId\x12\x1a\n" +
-	"\bduration\x18\x03 \x01(\x05R\bduration2\xfe\a\n" +
+	"\bduration\x18\x03 \x01(\x05R\bduration2\x94\a\n" +
 	"\x0eSessionService\x12X\n" +
 	"\vGetSessions\x12#.anychat.session.GetSessionsRequest\x1a$.anychat.session.GetSessionsResponse\x12J\n" +
 	"\n" +
-	"GetSession\x12\".anychat.session.GetSessionRequest\x1a\x18.anychat.session.Session\x12h\n" +
-	"\x19GetSessionByUserAndTarget\x121.anychat.session.GetSessionByUserAndTargetRequest\x1a\x18.anychat.session.Session\x12`\n" +
+	"GetSession\x12\".anychat.session.GetSessionRequest\x1a\x18.anychat.session.Session\x12`\n" +
 	"\x15CreateOrUpdateSession\x12-.anychat.session.CreateOrUpdateSessionRequest\x1a\x18.anychat.session.Session\x12M\n" +
 	"\rDeleteSession\x12%.anychat.session.DeleteSessionRequest\x1a\x15.anychat.common.Empty\x12E\n" +
 	"\tSetPinned\x12!.anychat.session.SetPinnedRequest\x1a\x15.anychat.common.Empty\x12C\n" +
@@ -1135,30 +1134,28 @@ var file_session_session_proto_depIdxs = []int32{
 	0,  // 4: anychat.session.GetSessionsResponse.sessions:type_name -> anychat.session.Session
 	1,  // 5: anychat.session.SessionService.GetSessions:input_type -> anychat.session.GetSessionsRequest
 	3,  // 6: anychat.session.SessionService.GetSession:input_type -> anychat.session.GetSessionRequest
-	4,  // 7: anychat.session.SessionService.GetSessionByUserAndTarget:input_type -> anychat.session.GetSessionByUserAndTargetRequest
-	5,  // 8: anychat.session.SessionService.CreateOrUpdateSession:input_type -> anychat.session.CreateOrUpdateSessionRequest
-	6,  // 9: anychat.session.SessionService.DeleteSession:input_type -> anychat.session.DeleteSessionRequest
-	7,  // 10: anychat.session.SessionService.SetPinned:input_type -> anychat.session.SetPinnedRequest
-	8,  // 11: anychat.session.SessionService.SetMuted:input_type -> anychat.session.SetMutedRequest
-	9,  // 12: anychat.session.SessionService.ClearUnread:input_type -> anychat.session.ClearUnreadRequest
-	10, // 13: anychat.session.SessionService.GetTotalUnread:input_type -> anychat.session.GetTotalUnreadRequest
-	12, // 14: anychat.session.SessionService.IncrUnread:input_type -> anychat.session.IncrUnreadRequest
-	13, // 15: anychat.session.SessionService.SetBurnAfterReading:input_type -> anychat.session.SetBurnAfterReadingRequest
-	14, // 16: anychat.session.SessionService.SetAutoDelete:input_type -> anychat.session.SetAutoDeleteRequest
-	2,  // 17: anychat.session.SessionService.GetSessions:output_type -> anychat.session.GetSessionsResponse
-	0,  // 18: anychat.session.SessionService.GetSession:output_type -> anychat.session.Session
-	0,  // 19: anychat.session.SessionService.GetSessionByUserAndTarget:output_type -> anychat.session.Session
-	0,  // 20: anychat.session.SessionService.CreateOrUpdateSession:output_type -> anychat.session.Session
-	16, // 21: anychat.session.SessionService.DeleteSession:output_type -> anychat.common.Empty
-	16, // 22: anychat.session.SessionService.SetPinned:output_type -> anychat.common.Empty
-	16, // 23: anychat.session.SessionService.SetMuted:output_type -> anychat.common.Empty
-	16, // 24: anychat.session.SessionService.ClearUnread:output_type -> anychat.common.Empty
-	11, // 25: anychat.session.SessionService.GetTotalUnread:output_type -> anychat.session.GetTotalUnreadResponse
-	16, // 26: anychat.session.SessionService.IncrUnread:output_type -> anychat.common.Empty
-	16, // 27: anychat.session.SessionService.SetBurnAfterReading:output_type -> anychat.common.Empty
-	16, // 28: anychat.session.SessionService.SetAutoDelete:output_type -> anychat.common.Empty
-	17, // [17:29] is the sub-list for method output_type
-	5,  // [5:17] is the sub-list for method input_type
+	5,  // 7: anychat.session.SessionService.CreateOrUpdateSession:input_type -> anychat.session.CreateOrUpdateSessionRequest
+	6,  // 8: anychat.session.SessionService.DeleteSession:input_type -> anychat.session.DeleteSessionRequest
+	7,  // 9: anychat.session.SessionService.SetPinned:input_type -> anychat.session.SetPinnedRequest
+	8,  // 10: anychat.session.SessionService.SetMuted:input_type -> anychat.session.SetMutedRequest
+	9,  // 11: anychat.session.SessionService.ClearUnread:input_type -> anychat.session.ClearUnreadRequest
+	10, // 12: anychat.session.SessionService.GetTotalUnread:input_type -> anychat.session.GetTotalUnreadRequest
+	12, // 13: anychat.session.SessionService.IncrUnread:input_type -> anychat.session.IncrUnreadRequest
+	13, // 14: anychat.session.SessionService.SetBurnAfterReading:input_type -> anychat.session.SetBurnAfterReadingRequest
+	14, // 15: anychat.session.SessionService.SetAutoDelete:input_type -> anychat.session.SetAutoDeleteRequest
+	2,  // 16: anychat.session.SessionService.GetSessions:output_type -> anychat.session.GetSessionsResponse
+	0,  // 17: anychat.session.SessionService.GetSession:output_type -> anychat.session.Session
+	0,  // 18: anychat.session.SessionService.CreateOrUpdateSession:output_type -> anychat.session.Session
+	16, // 19: anychat.session.SessionService.DeleteSession:output_type -> anychat.common.Empty
+	16, // 20: anychat.session.SessionService.SetPinned:output_type -> anychat.common.Empty
+	16, // 21: anychat.session.SessionService.SetMuted:output_type -> anychat.common.Empty
+	16, // 22: anychat.session.SessionService.ClearUnread:output_type -> anychat.common.Empty
+	11, // 23: anychat.session.SessionService.GetTotalUnread:output_type -> anychat.session.GetTotalUnreadResponse
+	16, // 24: anychat.session.SessionService.IncrUnread:output_type -> anychat.common.Empty
+	16, // 25: anychat.session.SessionService.SetBurnAfterReading:output_type -> anychat.common.Empty
+	16, // 26: anychat.session.SessionService.SetAutoDelete:output_type -> anychat.common.Empty
+	16, // [16:27] is the sub-list for method output_type
+	5,  // [5:16] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name

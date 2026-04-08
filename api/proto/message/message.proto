@@ -56,6 +56,7 @@ message Message {
   repeated string at_users = 9;
   int32 status = 10;  // 0-正常 1-撤回 2-删除
   google.protobuf.Timestamp expire_time = 13;  // 消息过期时间,为空表示永不过期
+  optional string target_id = 14;  // single为对方用户ID，group为群ID
   google.protobuf.Timestamp created_at = 11;
   google.protobuf.Timestamp updated_at = 12;
 
@@ -68,14 +69,11 @@ message Message {
 message SendMessageRequest {
   string sender_id = 1;
   string conversation_id = 2;
-  string conversation_type = 3;  // single/group
-  string content_type = 4;
-  string content = 5;  // JSON string
-  optional string reply_to = 6;
-  repeated string at_users = 7;
-  optional string local_id = 8;  // 客户端本地ID（用于关联）
-  optional int32 auto_delete_duration = 9;  // 自动删除时长(秒),由gateway从session服务获取后传入
-  optional int32 burn_after_reading_seconds = 10;  // 阅后即焚时长快照(秒),由gateway从session服务获取后传入
+  string content_type = 3;
+  string content = 4;  // JSON string
+  optional string reply_to = 5;
+  repeated string at_users = 6;
+  string local_id = 7;  // 客户端本地ID（用于发送幂等）
 }
 
 // SendMessageResponse 发送消息响应
@@ -108,23 +106,19 @@ message GetMessageByIdRequest {
 
 // RecallMessageRequest 撤回消息请求
 message RecallMessageRequest {
-  string message_id = 1;
-  string user_id = 2;  // 撤回者ID
+  string message_id = 1;  // 操作用户由调用链路透传的x-user-id元数据提供
 }
 
 // DeleteMessageRequest 删除消息请求
 message DeleteMessageRequest {
-  string message_id = 1;
-  string user_id = 2;  // 删除者ID
+  string message_id = 1;  // 删除者由调用链路透传的x-user-id元数据提供
 }
 
 // MarkAsReadRequest 标记已读请求
 message MarkAsReadRequest {
-  string conversation_id = 1;
-  string conversation_type = 2;
-  string user_id = 3;
-  int64 last_read_seq = 4;
-  optional string last_read_message_id = 5;
+  string conversation_id = 1;  // 操作用户由调用链路透传的x-user-id元数据提供
+  int64 last_read_seq = 2;
+  optional string last_read_message_id = 3;
 }
 
 // ReadTriggerEvent 阅后即焚阅读触发事件
@@ -136,8 +130,7 @@ message ReadTriggerEvent {
 
 // AckReadTriggersRequest 批量上报阅读触发
 message AckReadTriggersRequest {
-  string user_id = 1;
-  repeated ReadTriggerEvent events = 2;
+  repeated ReadTriggerEvent events = 1;  // 操作用户由调用链路透传的x-user-id元数据提供
 }
 
 // AckReadTriggersResponse 批量上报结果
@@ -148,9 +141,8 @@ message AckReadTriggersResponse {
 
 // GetUnreadCountRequest 获取未读数请求
 message GetUnreadCountRequest {
-  string conversation_id = 1;
-  string user_id = 2;
-  optional int64 last_read_seq = 3;
+  string conversation_id = 1;  // 操作用户由调用链路透传的x-user-id元数据提供
+  optional int64 last_read_seq = 2;
 }
 
 // GetUnreadCountResponse 获取未读数响应
@@ -162,8 +154,7 @@ message GetUnreadCountResponse {
 
 // GetReadReceiptsRequest 获取已读回执请求
 message GetReadReceiptsRequest {
-  string conversation_id = 1;
-  string user_id = 2;
+  string conversation_id = 1;  // 操作用户由调用链路透传的x-user-id元数据提供
 }
 
 // ReadReceipt 已读回执
@@ -192,12 +183,11 @@ message GetConversationSequenceResponse {
 
 // SearchMessagesRequest 搜索消息请求
 message SearchMessagesRequest {
-  string user_id = 1;
-  string keyword = 2;
-  optional string conversation_id = 3;
-  optional string content_type = 4;
-  int32 limit = 5;
-  int32 offset = 6;
+  string keyword = 1;  // 操作用户由调用链路透传的x-user-id元数据提供
+  optional string conversation_id = 2;
+  optional string content_type = 3;
+  int32 limit = 4;
+  int32 offset = 5;
 }
 
 // SearchMessagesResponse 搜索消息响应

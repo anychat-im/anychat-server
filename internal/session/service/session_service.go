@@ -20,7 +20,6 @@ import (
 type SessionService interface {
 	GetSessions(ctx context.Context, req *sessionpb.GetSessionsRequest) (*sessionpb.GetSessionsResponse, error)
 	GetSession(ctx context.Context, userID, sessionID string) (*sessionpb.Session, error)
-	GetSessionByUserAndTarget(ctx context.Context, userID, sessionType, targetID string) (*sessionpb.Session, error)
 	CreateOrUpdateSession(ctx context.Context, req *sessionpb.CreateOrUpdateSessionRequest) (*sessionpb.Session, error)
 	DeleteSession(ctx context.Context, userID, sessionID string) error
 	SetPinned(ctx context.Context, userID, sessionID string, pinned bool) error
@@ -89,18 +88,6 @@ func (s *sessionServiceImpl) GetSession(ctx context.Context, userID, sessionID s
 	}
 	if session.UserID != userID {
 		return nil, fmt.Errorf("session not found")
-	}
-	return toProtoSession(session), nil
-}
-
-// GetSessionByUserAndTarget 根据用户ID、会话类型和目标ID获取会话
-func (s *sessionServiceImpl) GetSessionByUserAndTarget(ctx context.Context, userID, sessionType, targetID string) (*sessionpb.Session, error) {
-	session, err := s.sessionRepo.GetByUserAndTarget(ctx, userID, sessionType, targetID)
-	if err == gorm.ErrRecordNotFound {
-		return nil, fmt.Errorf("session not found")
-	}
-	if err != nil {
-		return nil, fmt.Errorf("failed to get session: %w", err)
 	}
 	return toProtoSession(session), nil
 }
