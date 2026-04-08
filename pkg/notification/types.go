@@ -85,12 +85,12 @@ const (
 	TypeAdminMaintenance  = "admin.maintenance"  // 系统维护
 )
 
-// Session Service 通知类型
+// Conversation Service 通知类型
 const (
-	TypeSessionUnreadUpdated     = "session.unread_updated"      // 未读数更新
-	TypeSessionPinUpdated        = "session.pin_updated"         // 置顶状态更新
-	TypeSessionDeleted           = "session.deleted"             // 会话删除
-	TypeSessionMuteUpdated       = "session.mute_updated"        // 免打扰设置更新
-	TypeSessionBurnUpdated       = "session.burn_updated"        // 阅后即焚配置变更
-	TypeSessionAutoDeleteUpdated = "session.auto_delete_updated" // 自动删除配置变更
+	TypeConversationUnreadUpdated     = "conversation.unread_updated"      // 未读数更新
+	TypeConversationPinUpdated        = "conversation.pin_updated"         // 置顶状态更新
+	TypeConversationDeleted           = "conversation.deleted"             // 会话删除
+	TypeConversationMuteUpdated       = "conversation.mute_updated"        // 免打扰设置更新
+	TypeConversationBurnUpdated       = "conversation.burn_updated"        // 阅后即焚配置变更
+	TypeConversationAutoDeleteUpdated = "conversation.auto_delete_updated" // 自动删除配置变更
 )

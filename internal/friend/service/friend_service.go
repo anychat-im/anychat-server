@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	sessionpb "github.com/anychat/server/api/proto/session"
+	conversationpb "github.com/anychat/server/api/proto/conversation"
 	userpb "github.com/anychat/server/api/proto/user"
 	"github.com/anychat/server/internal/friend/dto"
 	"github.com/anychat/server/internal/friend/model"
@@ -35,13 +35,13 @@ type FriendService interface {
 
 // friendServiceImpl 好友服务实现
 type friendServiceImpl struct {
-	friendshipRepo  FriendshipRepo
-	requestRepo     FriendRequestRepo
-	blacklistRepo   BlacklistRepo
-	userClient      userpb.UserServiceClient
-	sessionClient   sessionpb.SessionServiceClient
-	notificationPub notification.Publisher
-	db              *gorm.DB
+	friendshipRepo     FriendshipRepo
+	requestRepo        FriendRequestRepo
+	blacklistRepo      BlacklistRepo
+	userClient         userpb.UserServiceClient
+	conversationClient conversationpb.ConversationServiceClient
+	notificationPub    notification.Publisher
+	db                 *gorm.DB
 }
 
 // FriendshipRepo 好友关系仓库接口（简化版，用于依赖注入）
@@ -65,18 +65,18 @@ func NewFriendService(
 	requestRepo repository.FriendRequestRepository,
 	blacklistRepo repository.BlacklistRepository,
 	userClient userpb.UserServiceClient,
-	sessionClient sessionpb.SessionServiceClient,
+	conversationClient conversationpb.ConversationServiceClient,
 	notificationPub notification.Publisher,
 	db *gorm.DB,
 ) FriendService {
 	return &friendServiceImpl{
-		friendshipRepo:  friendshipRepo,
-		requestRepo:     requestRepo,
-		blacklistRepo:   blacklistRepo,
-		userClient:      userClient,
-		sessionClient:   sessionClient,
-		notificationPub: notificationPub,
-		db:              db,
+		friendshipRepo:     friendshipRepo,
+		requestRepo:        requestRepo,
+		blacklistRepo:      blacklistRepo,
+		userClient:         userClient,
+		conversationClient: conversationClient,
+		notificationPub:    notificationPub,
+		db:                 db,
 	}
 }
 
@@ -236,8 +236,8 @@ func (s *friendServiceImpl) SendFriendRequest(ctx context.Context, fromUserID st
 	// 根据是否自动接受，发送不同通知
 	if autoAccepted {
 		// 创建会话（双方）
-		s.createFriendSession(ctx, fromUserID, req.UserID)
-		s.createFriendSession(ctx, req.UserID, fromUserID)
+		s.createFriendConversation(ctx, fromUserID, req.UserID)
+		s.createFriendConversation(ctx, req.UserID, fromUserID)
 
 		// 通知双方
 		s.publishFriendAddedNotification(fromUserID, req.UserID)
@@ -696,19 +696,19 @@ func (s *friendServiceImpl) publishBlacklistChangedNotification(userID, targetUs
 	}
 }
 
-// createFriendSession 创建好友会话
-func (s *friendServiceImpl) createFriendSession(ctx context.Context, userID, friendID string) {
-	if s.sessionClient == nil {
+// createFriendConversation 创建好友会话
+func (s *friendServiceImpl) createFriendConversation(ctx context.Context, userID, friendID string) {
+	if s.conversationClient == nil {
 		return
 	}
 
-	_, err := s.sessionClient.CreateOrUpdateSession(ctx, &sessionpb.CreateOrUpdateSessionRequest{
-		UserId:      userID,
-		SessionType: "single",
-		TargetId:    friendID,
+	_, err := s.conversationClient.CreateOrUpdateConversation(ctx, &conversationpb.CreateOrUpdateConversationRequest{
+		UserId:           userID,
+		ConversationType: "single",
+		TargetId:         friendID,
 	})
 	if err != nil {
-		logger.Error("Failed to create friend session",
+		logger.Error("Failed to create friend conversation",
 			zap.String("userId", userID),
 			zap.String("friendId", friendID),
 			zap.Error(err))

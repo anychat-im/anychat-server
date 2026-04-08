@@ -4,13 +4,13 @@ package anychat.sync;
 
 import "friend/friend.proto";
 import "group/group.proto";
-import "session/session.proto";
+import "conversation/conversation.proto";
 import "message/message.proto";
 
 option go_package = "github.com/anychat/server/api/proto/sync;syncpb";
 
 // SyncService 数据同步服务
-// 负责多端增量同步，聚合 friend/group/session/message 服务的数据
+// 负责多端增量同步，聚合 friend/group/conversation/message 服务的数据
 service SyncService {
   // Sync 全量/增量同步
   // 客户端登录或从后台恢复时调用，返回自 last_sync_time 后的所有变更
@@ -49,9 +49,9 @@ message SyncGroupData {
   int64 total = 2;
 }
 
-// SyncSessionData 会话增量数据
-message SyncSessionData {
-  repeated anychat.session.Session sessions = 1;
+// SyncConversationData 会话增量数据
+message SyncConversationData {
+  repeated anychat.conversation.Conversation conversations = 1;
   bool has_more = 2;
 }
 
@@ -67,7 +67,7 @@ message ConversationMessages {
 message SyncResponse {
   SyncFriendData friends = 1;
   SyncGroupData groups = 2;
-  SyncSessionData sessions = 3;
+  SyncConversationData conversation_data = 3;
   repeated ConversationMessages conversations = 4;
   // 本次同步的服务器时间戳，客户端保存作为下次同步的 last_sync_time
   int64 sync_time = 5;

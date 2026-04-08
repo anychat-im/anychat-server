@@ -80,8 +80,8 @@ services:
     grpc_addr: ${GROUP_GRPC_ADDR:localhost:9004}
   message:
     grpc_addr: ${MESSAGE_GRPC_ADDR:localhost:9005}
-  session:
-    grpc_addr: ${SESSION_GRPC_ADDR:localhost:9006}
+  conversation:
+    grpc_addr: ${CONVERSATION_GRPC_ADDR:localhost:9006}
   file:
     grpc_addr: ${FILE_GRPC_ADDR:localhost:9007}
   push:

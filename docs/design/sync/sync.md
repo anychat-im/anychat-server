@@ -31,7 +31,7 @@ sequenceDiagram
     participant SyncService
     participant FriendService
     participant GroupService
-    participant SessionService
+    participant ConversationService
     participant MessageService
     participant UserService
     participant DB
@@ -42,7 +42,7 @@ sequenceDiagram
     SyncService->>UserService: 获取用户资料变更
     SyncService->>FriendService: 获取增量好友数据
     SyncService->>GroupService: 获取增量群组数据
-    SyncService->>SessionService: 获取增量会话数据
+    SyncService->>ConversationService: 获取增量会话数据
     SyncService-->>Gateway: 返回所有增量数据
     Gateway-->>Client: 200 OK
 ```
@@ -56,7 +56,7 @@ sequenceDiagram
     participant SyncService
     participant FriendService
     participant GroupService
-    participant SessionService
+    participant ConversationService
     participant MessageService
     participant UserService
     participant DB
@@ -68,7 +68,7 @@ sequenceDiagram
         SyncService->>UserService: 获取用户资料
         SyncService->>FriendService: 获取全部好友
         SyncService->>GroupService: 获取全部群组
-        SyncService->>SessionService: 获取全部会话
+        SyncService->>ConversationService: 获取全部会话
     end
     SyncService-->>Gateway: 返回全量数据
     Gateway-->>Client: 200 OK
@@ -87,7 +87,7 @@ message SyncRequest {
 message SyncResponse {
     repeated FriendInfo friends = 1;
     repeated GroupInfo groups = 2;
-    repeated Session sessions = 3;
+    repeated Conversation conversations = 3;
     int64 sync_time = 4;
 }
 ```

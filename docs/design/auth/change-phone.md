@@ -95,7 +95,7 @@ message ChangePhoneResponse {
 
 - **Auth Service**: 验证码验证
 - **Verify Service**: 验证码校验与消费
-- **Session Service**: 会话管理
+- **Conversation Service**: 会话管理
 - **PostgreSQL**: 用户信息持久化
 
 ---

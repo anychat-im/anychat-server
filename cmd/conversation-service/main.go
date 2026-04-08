@@ -10,10 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	sessionpb "github.com/anychat/server/api/proto/session"
-	sessiongrpc "github.com/anychat/server/internal/session/grpc"
-	"github.com/anychat/server/internal/session/repository"
-	"github.com/anychat/server/internal/session/service"
+	conversationpb "github.com/anychat/server/api/proto/conversation"
+	conversationgrpc "github.com/anychat/server/internal/conversation/grpc"
+	"github.com/anychat/server/internal/conversation/repository"
+	"github.com/anychat/server/internal/conversation/service"
+	"github.com/anychat/server/pkg/config"
 	"github.com/anychat/server/pkg/database"
 	grpcpkg "github.com/anychat/server/pkg/grpc"
 	"github.com/anychat/server/pkg/logger"
@@ -24,11 +25,10 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	gormLogger "gorm.io/gorm/logger"
-	"github.com/anychat/server/pkg/config"
 )
 
 const (
-	serviceName = "session-service"
+	serviceName = "conversation-service"
 	version     = "v1.0.0"
 )
 
@@ -44,7 +44,7 @@ func main() {
 	}
 	defer logger.Sync()
 
-	logger.Info("Starting session-service", zap.String("version", version))
+	logger.Info("Starting conversation-service", zap.String("version", version))
 
 	// 连接数据库
 	db, err := database.NewPostgresDB(&database.Config{
@@ -56,7 +56,7 @@ func main() {
 		MaxOpenConns:    viper.GetInt("database.postgres.max_open_conns"),
 		MaxIdleConns:    viper.GetInt("database.postgres.max_idle_conns"),
 		ConnMaxLifetime: viper.GetInt("database.postgres.conn_max_lifetime"),
-		LogLevel:        func() gormLogger.LogLevel {
+		LogLevel: func() gormLogger.LogLevel {
 			if viper.GetString("log.level") == "debug" {
 				return gormLogger.Info
 			}
@@ -80,8 +80,8 @@ func main() {
 	notificationPub := notification.NewPublisher(nc)
 
 	// 初始化仓库和服务
-	sessionRepo := repository.NewSessionRepository(db)
-	sessionSvc := service.NewSessionService(sessionRepo, notificationPub)
+	conversationRepo := repository.NewConversationRepository(db)
+	conversationSvc := service.NewConversationService(conversationRepo, notificationPub)
 
 	// 初始化并启动gRPC服务器
 	grpcServer := grpc.NewServer(
@@ -90,7 +90,7 @@ func main() {
 			grpcpkg.LoggingInterceptor(),
 		),
 	)
-	sessionpb.RegisterSessionServiceServer(grpcServer, sessiongrpc.NewServer(sessionSvc))
+	conversationpb.RegisterConversationServiceServer(grpcServer, conversationgrpc.NewServer(conversationSvc))
 
 	go func() {
 		grpcPort := viper.GetInt("server.grpc_port")
@@ -114,7 +114,7 @@ func main() {
 		}
 	}()
 
-	logger.Info("Session service started successfully")
+	logger.Info("Conversation service started successfully")
 
 	// 优雅关闭
 	quit := make(chan os.Signal, 1)

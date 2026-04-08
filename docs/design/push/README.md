@@ -32,7 +32,7 @@
 
 - **User Service**: 推送Token
 - **Message Service**: 消息内容
-- **Session Service**: 免打扰设置
+- **Conversation Service**: 免打扰设置
 - **APNs/FCM/极光/华为/小米**: 推送通道
 - **Redis**: 推送队列
 - **NATS**: 推送事件订阅

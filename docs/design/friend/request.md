@@ -72,7 +72,7 @@ const (
 | 影响点 | 问题 | 解决方案 |
 |--------|------|----------|
 | 通知问题 | 接收方未走处理流程，不会收到通知 | 新增 `TypeFriendAdded` 通知类型 |
-| 会话创建 | 原来通过消息触发创建会话 | 自动通过后调用 Session Service 创建会话 |
+| 会话创建 | 原来通过消息触发创建会话 | 自动通过后调用 Conversation Service 创建会话 |
 | 响应结构 | 调用方不知道是否自动通过 | `SendFriendRequestResponse` 增加 `auto_accepted` 字段 |
 | 边缘情况 | 并发申请、设置变更等 | 事务内处理，以创建时查询的设置为准 |
 
@@ -86,7 +86,7 @@ sequenceDiagram
     participant Gateway as 网关
     participant FriendService as 好友服务
     participant UserService as 用户服务
-    participant SessionService as 会话服务
+    participant ConversationService as 会话服务
     participant DB as 数据库
     participant NATS as 消息通知
 
@@ -141,7 +141,7 @@ sequenceDiagram
     participant Client as 客户端
     participant Gateway as 网关
     participant FriendService as 好友服务
-    participant SessionService as 会话服务
+    participant ConversationService as 会话服务
     participant DB as 数据库
     participant NATS as 消息通知
 
@@ -294,6 +294,6 @@ message FriendRequestInfo {
 ## 10. 依赖服务
 
 - **User Service**: 获取用户设置 (`GetSettings`)
-- **Session Service**: 创建会话 (`CreateOrUpdateSession`)
+- **Conversation Service**: 创建会话 (`CreateOrUpdateConversation`)
 - **NATS**: 好友变更事件推送
 - **PostgreSQL**: 好友关系持久化

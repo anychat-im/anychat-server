@@ -5,11 +5,11 @@ import (
 
 	authpb "github.com/anychat/server/api/proto/auth"
 	callingpb "github.com/anychat/server/api/proto/calling"
+	conversationpb "github.com/anychat/server/api/proto/conversation"
 	filepb "github.com/anychat/server/api/proto/file"
 	friendpb "github.com/anychat/server/api/proto/friend"
 	grouppb "github.com/anychat/server/api/proto/group"
 	messagepb "github.com/anychat/server/api/proto/message"
-	sessionpb "github.com/anychat/server/api/proto/session"
 	syncpb "github.com/anychat/server/api/proto/sync"
 	userpb "github.com/anychat/server/api/proto/user"
 	versionpb "github.com/anychat/server/api/proto/version"
@@ -21,30 +21,30 @@ import (
 
 // Manager gRPC客户端管理器
 type Manager struct {
-	authConn      *grpc.ClientConn
-	userConn      *grpc.ClientConn
-	friendConn    *grpc.ClientConn
-	groupConn     *grpc.ClientConn
-	fileConn      *grpc.ClientConn
-	messageConn   *grpc.ClientConn
-	sessionConn   *grpc.ClientConn
-	syncConn      *grpc.ClientConn
-	callingConn   *grpc.ClientConn
-	versionConn   *grpc.ClientConn
-	authClient    authpb.AuthServiceClient
-	userClient    userpb.UserServiceClient
-	friendClient  friendpb.FriendServiceClient
-	groupClient   grouppb.GroupServiceClient
-	fileClient    filepb.FileServiceClient
-	messageClient messagepb.MessageServiceClient
-	sessionClient sessionpb.SessionServiceClient
-	syncClient    syncpb.SyncServiceClient
-	callingClient callingpb.CallingServiceClient
-	versionClient versionpb.VersionServiceClient
+	authConn           *grpc.ClientConn
+	userConn           *grpc.ClientConn
+	friendConn         *grpc.ClientConn
+	groupConn          *grpc.ClientConn
+	fileConn           *grpc.ClientConn
+	messageConn        *grpc.ClientConn
+	conversationConn   *grpc.ClientConn
+	syncConn           *grpc.ClientConn
+	callingConn        *grpc.ClientConn
+	versionConn        *grpc.ClientConn
+	authClient         authpb.AuthServiceClient
+	userClient         userpb.UserServiceClient
+	friendClient       friendpb.FriendServiceClient
+	groupClient        grouppb.GroupServiceClient
+	fileClient         filepb.FileServiceClient
+	messageClient      messagepb.MessageServiceClient
+	conversationClient conversationpb.ConversationServiceClient
+	syncClient         syncpb.SyncServiceClient
+	callingClient      callingpb.CallingServiceClient
+	versionClient      versionpb.VersionServiceClient
 }
 
 // NewManager 创建gRPC客户端管理器
-func NewManager(authAddr, userAddr, friendAddr, groupAddr, fileAddr, messageAddr, sessionAddr, syncAddr, callingAddr, versionAddr string) (*Manager, error) {
+func NewManager(authAddr, userAddr, friendAddr, groupAddr, fileAddr, messageAddr, conversationAddr, syncAddr, callingAddr, versionAddr string) (*Manager, error) {
 	// 连接auth-service
 	authConn, err := grpc.NewClient(
 		authAddr,
@@ -120,9 +120,9 @@ func NewManager(authAddr, userAddr, friendAddr, groupAddr, fileAddr, messageAddr
 	}
 	logger.Info("Connected to message-service", zap.String("addr", messageAddr))
 
-	// 连接session-service
-	sessionConn, err := grpc.NewClient(
-		sessionAddr,
+	// 连接conversation-service
+	conversationConn, err := grpc.NewClient(
+		conversationAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -132,9 +132,9 @@ func NewManager(authAddr, userAddr, friendAddr, groupAddr, fileAddr, messageAddr
 		groupConn.Close()
 		fileConn.Close()
 		messageConn.Close()
-		return nil, fmt.Errorf("failed to connect to session-service: %w", err)
+		return nil, fmt.Errorf("failed to connect to conversation-service: %w", err)
 	}
-	logger.Info("Connected to session-service", zap.String("addr", sessionAddr))
+	logger.Info("Connected to conversation-service", zap.String("addr", conversationAddr))
 
 	// 连接sync-service
 	syncConn, err := grpc.NewClient(
@@ -148,7 +148,7 @@ func NewManager(authAddr, userAddr, friendAddr, groupAddr, fileAddr, messageAddr
 		groupConn.Close()
 		fileConn.Close()
 		messageConn.Close()
-		sessionConn.Close()
+		conversationConn.Close()
 		return nil, fmt.Errorf("failed to connect to sync-service: %w", err)
 	}
 	logger.Info("Connected to sync-service", zap.String("addr", syncAddr))
@@ -165,7 +165,7 @@ func NewManager(authAddr, userAddr, friendAddr, groupAddr, fileAddr, messageAddr
 		groupConn.Close()
 		fileConn.Close()
 		messageConn.Close()
-		sessionConn.Close()
+		conversationConn.Close()
 		syncConn.Close()
 		return nil, fmt.Errorf("failed to connect to calling-service: %w", err)
 	}
@@ -183,7 +183,7 @@ func NewManager(authAddr, userAddr, friendAddr, groupAddr, fileAddr, messageAddr
 		groupConn.Close()
 		fileConn.Close()
 		messageConn.Close()
-		sessionConn.Close()
+		conversationConn.Close()
 		syncConn.Close()
 		callingConn.Close()
 		return nil, fmt.Errorf("failed to connect to version-service: %w", err)
@@ -191,26 +191,26 @@ func NewManager(authAddr, userAddr, friendAddr, groupAddr, fileAddr, messageAddr
 	logger.Info("Connected to version-service", zap.String("addr", versionAddr))
 
 	return &Manager{
-		authConn:      authConn,
-		userConn:      userConn,
-		friendConn:    friendConn,
-		groupConn:     groupConn,
-		fileConn:      fileConn,
-		messageConn:   messageConn,
-		sessionConn:   sessionConn,
-		syncConn:      syncConn,
-		callingConn:   callingConn,
-		versionConn:   versionConn,
-		authClient:    authpb.NewAuthServiceClient(authConn),
-		userClient:    userpb.NewUserServiceClient(userConn),
-		friendClient:  friendpb.NewFriendServiceClient(friendConn),
-		groupClient:   grouppb.NewGroupServiceClient(groupConn),
-		fileClient:    filepb.NewFileServiceClient(fileConn),
-		messageClient: messagepb.NewMessageServiceClient(messageConn),
-		sessionClient: sessionpb.NewSessionServiceClient(sessionConn),
-		syncClient:    syncpb.NewSyncServiceClient(syncConn),
-		callingClient: callingpb.NewCallingServiceClient(callingConn),
-		versionClient: versionpb.NewVersionServiceClient(versionConn),
+		authConn:           authConn,
+		userConn:           userConn,
+		friendConn:         friendConn,
+		groupConn:          groupConn,
+		fileConn:           fileConn,
+		messageConn:        messageConn,
+		conversationConn:   conversationConn,
+		syncConn:           syncConn,
+		callingConn:        callingConn,
+		versionConn:        versionConn,
+		authClient:         authpb.NewAuthServiceClient(authConn),
+		userClient:         userpb.NewUserServiceClient(userConn),
+		friendClient:       friendpb.NewFriendServiceClient(friendConn),
+		groupClient:        grouppb.NewGroupServiceClient(groupConn),
+		fileClient:         filepb.NewFileServiceClient(fileConn),
+		messageClient:      messagepb.NewMessageServiceClient(messageConn),
+		conversationClient: conversationpb.NewConversationServiceClient(conversationConn),
+		syncClient:         syncpb.NewSyncServiceClient(syncConn),
+		callingClient:      callingpb.NewCallingServiceClient(callingConn),
+		versionClient:      versionpb.NewVersionServiceClient(versionConn),
 	}, nil
 }
 
@@ -244,9 +244,9 @@ func (m *Manager) Message() messagepb.MessageServiceClient {
 	return m.messageClient
 }
 
-// Session 获取session服务客户端
-func (m *Manager) Session() sessionpb.SessionServiceClient {
-	return m.sessionClient
+// Conversation 获取conversation服务客户端
+func (m *Manager) Conversation() conversationpb.ConversationServiceClient {
+	return m.conversationClient
 }
 
 // Sync 获取sync服务客户端
@@ -304,9 +304,9 @@ func (m *Manager) Close() error {
 		}
 	}
 
-	if m.sessionConn != nil {
-		if err := m.sessionConn.Close(); err != nil {
-			errs = append(errs, fmt.Errorf("failed to close session connection: %w", err))
+	if m.conversationConn != nil {
+		if err := m.conversationConn.Close(); err != nil {
+			errs = append(errs, fmt.Errorf("failed to close conversation connection: %w", err))
 		}
 	}
 

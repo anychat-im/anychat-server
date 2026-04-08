@@ -101,7 +101,7 @@ type Client struct {
 
 Gateway为每个在线用户订阅：
 - `notification.message.new.{user_id}`
-- `notification.session.*.{user_id}`
+- `notification.conversation.*.{user_id}`
 - `notification.user.*.{user_id}`
 - `notification.friend.*.{user_id}`
 - `notification.group.*.{user_id}`

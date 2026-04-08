@@ -4,24 +4,24 @@ import (
 	"net/http"
 	"strconv"
 
-	sessionpb "github.com/anychat/server/api/proto/session"
+	conversationpb "github.com/anychat/server/api/proto/conversation"
 	"github.com/anychat/server/internal/gateway/client"
 	gwmiddleware "github.com/anychat/server/internal/gateway/middleware"
 	"github.com/anychat/server/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
-// SessionHandler session HTTP处理器
-type SessionHandler struct {
+// ConversationHandler conversation HTTP处理器
+type ConversationHandler struct {
 	clientManager *client.Manager
 }
 
-// NewSessionHandler 创建session处理器
-func NewSessionHandler(clientManager *client.Manager) *SessionHandler {
-	return &SessionHandler{clientManager: clientManager}
+// NewConversationHandler 创建conversation处理器
+func NewConversationHandler(clientManager *client.Manager) *ConversationHandler {
+	return &ConversationHandler{clientManager: clientManager}
 }
 
-// GetSessions 获取会话列表
+// GetConversations 获取会话列表
 // @Summary      获取会话列表
 // @Description  获取当前用户的会话列表，支持增量同步（通过updatedBefore参数）
 // @Tags         会话
@@ -33,11 +33,11 @@ func NewSessionHandler(clientManager *client.Manager) *SessionHandler {
 // @Success      200  {object}  response.Response{data=object}  "成功"
 // @Failure      401  {object}  response.Response  "未授权"
 // @Failure      500  {object}  response.Response  "服务器错误"
-// @Router       /sessions [get]
-func (h *SessionHandler) GetSessions(c *gin.Context) {
+// @Router       /conversations [get]
+func (h *ConversationHandler) GetConversations(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 
-	req := &sessionpb.GetSessionsRequest{UserId: userID}
+	req := &conversationpb.GetConversationsRequest{UserId: userID}
 
 	if limitStr := c.Query("limit"); limitStr != "" {
 		if limit, err := strconv.Atoi(limitStr); err == nil {
@@ -50,7 +50,7 @@ func (h *SessionHandler) GetSessions(c *gin.Context) {
 		}
 	}
 
-	resp, err := h.clientManager.Session().GetSessions(c.Request.Context(), req)
+	resp, err := h.clientManager.Conversation().GetConversations(c.Request.Context(), req)
 	if err != nil {
 		handleGRPCError(c, err)
 		return
@@ -58,26 +58,26 @@ func (h *SessionHandler) GetSessions(c *gin.Context) {
 	response.Success(c, resp)
 }
 
-// GetSession 获取单个会话
+// GetConversation 获取单个会话
 // @Summary      获取单个会话
 // @Description  获取指定会话的详情
 // @Tags         会话
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        sessionId  path  string  true  "会话ID"
+// @Param        conversationId  path  string  true  "会话ID"
 // @Success      200  {object}  response.Response{data=object}  "成功"
 // @Failure      401  {object}  response.Response  "未授权"
 // @Failure      404  {object}  response.Response  "会话不存在"
 // @Failure      500  {object}  response.Response  "服务器错误"
-// @Router       /sessions/{sessionId} [get]
-func (h *SessionHandler) GetSession(c *gin.Context) {
+// @Router       /conversations/{conversationId} [get]
+func (h *ConversationHandler) GetConversation(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	sessionID := c.Param("sessionId")
+	conversationID := c.Param("conversationId")
 
-	resp, err := h.clientManager.Session().GetSession(c.Request.Context(), &sessionpb.GetSessionRequest{
-		UserId:    userID,
-		SessionId: sessionID,
+	resp, err := h.clientManager.Conversation().GetConversation(c.Request.Context(), &conversationpb.GetConversationRequest{
+		UserId:         userID,
+		ConversationId: conversationID,
 	})
 	if err != nil {
 		handleGRPCError(c, err)
@@ -86,25 +86,25 @@ func (h *SessionHandler) GetSession(c *gin.Context) {
 	response.Success(c, resp)
 }
 
-// DeleteSession 删除会话
+// DeleteConversation 删除会话
 // @Summary      删除会话
 // @Description  删除指定会话（不影响消息，仅从会话列表中移除）
 // @Tags         会话
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        sessionId  path  string  true  "会话ID"
+// @Param        conversationId  path  string  true  "会话ID"
 // @Success      200  {object}  response.Response  "成功"
 // @Failure      401  {object}  response.Response  "未授权"
 // @Failure      500  {object}  response.Response  "服务器错误"
-// @Router       /sessions/{sessionId} [delete]
-func (h *SessionHandler) DeleteSession(c *gin.Context) {
+// @Router       /conversations/{conversationId} [delete]
+func (h *ConversationHandler) DeleteConversation(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	sessionID := c.Param("sessionId")
+	conversationID := c.Param("conversationId")
 
-	_, err := h.clientManager.Session().DeleteSession(c.Request.Context(), &sessionpb.DeleteSessionRequest{
-		UserId:    userID,
-		SessionId: sessionID,
+	_, err := h.clientManager.Conversation().DeleteConversation(c.Request.Context(), &conversationpb.DeleteConversationRequest{
+		UserId:         userID,
+		ConversationId: conversationID,
 	})
 	if err != nil {
 		handleGRPCError(c, err)
@@ -125,16 +125,16 @@ type setPinnedRequest struct {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        sessionId  path  string           true  "会话ID"
+// @Param        conversationId  path  string           true  "会话ID"
 // @Param        request    body  setPinnedRequest  true  "置顶状态"
 // @Success      200  {object}  response.Response  "成功"
 // @Failure      400  {object}  response.Response  "参数错误"
 // @Failure      401  {object}  response.Response  "未授权"
 // @Failure      500  {object}  response.Response  "服务器错误"
-// @Router       /sessions/{sessionId}/pin [put]
-func (h *SessionHandler) SetPinned(c *gin.Context) {
+// @Router       /conversations/{conversationId}/pin [put]
+func (h *ConversationHandler) SetPinned(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	sessionID := c.Param("sessionId")
+	conversationID := c.Param("conversationId")
 
 	var req setPinnedRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -142,10 +142,10 @@ func (h *SessionHandler) SetPinned(c *gin.Context) {
 		return
 	}
 
-	_, err := h.clientManager.Session().SetPinned(c.Request.Context(), &sessionpb.SetPinnedRequest{
-		UserId:    userID,
-		SessionId: sessionID,
-		Pinned:    req.Pinned,
+	_, err := h.clientManager.Conversation().SetPinned(c.Request.Context(), &conversationpb.SetPinnedRequest{
+		UserId:         userID,
+		ConversationId: conversationID,
+		Pinned:         req.Pinned,
 	})
 	if err != nil {
 		handleGRPCError(c, err)
@@ -166,16 +166,16 @@ type setMutedRequest struct {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        sessionId  path  string          true  "会话ID"
+// @Param        conversationId  path  string          true  "会话ID"
 // @Param        request    body  setMutedRequest  true  "免打扰状态"
 // @Success      200  {object}  response.Response  "成功"
 // @Failure      400  {object}  response.Response  "参数错误"
 // @Failure      401  {object}  response.Response  "未授权"
 // @Failure      500  {object}  response.Response  "服务器错误"
-// @Router       /sessions/{sessionId}/mute [put]
-func (h *SessionHandler) SetMuted(c *gin.Context) {
+// @Router       /conversations/{conversationId}/mute [put]
+func (h *ConversationHandler) SetMuted(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	sessionID := c.Param("sessionId")
+	conversationID := c.Param("conversationId")
 
 	var req setMutedRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -183,10 +183,10 @@ func (h *SessionHandler) SetMuted(c *gin.Context) {
 		return
 	}
 
-	_, err := h.clientManager.Session().SetMuted(c.Request.Context(), &sessionpb.SetMutedRequest{
-		UserId:    userID,
-		SessionId: sessionID,
-		Muted:     req.Muted,
+	_, err := h.clientManager.Conversation().SetMuted(c.Request.Context(), &conversationpb.SetMutedRequest{
+		UserId:         userID,
+		ConversationId: conversationID,
+		Muted:          req.Muted,
 	})
 	if err != nil {
 		handleGRPCError(c, err)
@@ -202,18 +202,18 @@ func (h *SessionHandler) SetMuted(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        sessionId  path  string  true  "会话ID"
+// @Param        conversationId  path  string  true  "会话ID"
 // @Success      200  {object}  response.Response  "成功"
 // @Failure      401  {object}  response.Response  "未授权"
 // @Failure      500  {object}  response.Response  "服务器错误"
-// @Router       /sessions/{sessionId}/read [post]
-func (h *SessionHandler) MarkRead(c *gin.Context) {
+// @Router       /conversations/{conversationId}/read [post]
+func (h *ConversationHandler) MarkRead(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	sessionID := c.Param("sessionId")
+	conversationID := c.Param("conversationId")
 
-	_, err := h.clientManager.Session().ClearUnread(c.Request.Context(), &sessionpb.ClearUnreadRequest{
-		UserId:    userID,
-		SessionId: sessionID,
+	_, err := h.clientManager.Conversation().ClearUnread(c.Request.Context(), &conversationpb.ClearUnreadRequest{
+		UserId:         userID,
+		ConversationId: conversationID,
 	})
 	if err != nil {
 		handleGRPCError(c, err)
@@ -232,11 +232,11 @@ func (h *SessionHandler) MarkRead(c *gin.Context) {
 // @Success      200  {object}  response.Response{data=object}  "成功"
 // @Failure      401  {object}  response.Response  "未授权"
 // @Failure      500  {object}  response.Response  "服务器错误"
-// @Router       /sessions/unread/total [get]
-func (h *SessionHandler) GetTotalUnread(c *gin.Context) {
+// @Router       /conversations/unread/total [get]
+func (h *ConversationHandler) GetTotalUnread(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 
-	resp, err := h.clientManager.Session().GetTotalUnread(c.Request.Context(), &sessionpb.GetTotalUnreadRequest{
+	resp, err := h.clientManager.Conversation().GetTotalUnread(c.Request.Context(), &conversationpb.GetTotalUnreadRequest{
 		UserId: userID,
 	})
 	if err != nil {
@@ -258,16 +258,16 @@ type setBurnAfterReadingRequest struct {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        sessionId  path  string                     true  "会话ID"
+// @Param        conversationId  path  string                     true  "会话ID"
 // @Param        request    body  setBurnAfterReadingRequest  true  "阅后即焚时长(秒)"
 // @Success      200  {object}  response.Response  "成功"
 // @Failure      400  {object}  response.Response  "参数错误"
 // @Failure      401  {object}  response.Response  "未授权"
 // @Failure      500  {object}  response.Response  "服务器错误"
-// @Router       /sessions/{sessionId}/burn [put]
-func (h *SessionHandler) SetBurnAfterReading(c *gin.Context) {
+// @Router       /conversations/{conversationId}/burn [put]
+func (h *ConversationHandler) SetBurnAfterReading(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	sessionID := c.Param("sessionId")
+	conversationID := c.Param("conversationId")
 
 	var req setBurnAfterReadingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -275,10 +275,10 @@ func (h *SessionHandler) SetBurnAfterReading(c *gin.Context) {
 		return
 	}
 
-	_, err := h.clientManager.Session().SetBurnAfterReading(c.Request.Context(), &sessionpb.SetBurnAfterReadingRequest{
-		UserId:    userID,
-		SessionId: sessionID,
-		Duration:  req.Duration,
+	_, err := h.clientManager.Conversation().SetBurnAfterReading(c.Request.Context(), &conversationpb.SetBurnAfterReadingRequest{
+		UserId:         userID,
+		ConversationId: conversationID,
+		Duration:       req.Duration,
 	})
 	if err != nil {
 		handleGRPCError(c, err)
@@ -298,16 +298,16 @@ type setAutoDeleteRequest struct {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        sessionId  path  string                  true  "会话ID"
+// @Param        conversationId  path  string                  true  "会话ID"
 // @Param        request    body  setAutoDeleteRequest   true  "自动删除时长(秒)"
 // @Success      200  {object}  response.Response  "成功"
 // @Failure      400  {object}  response.Response  "参数错误"
 // @Failure      401  {object}  response.Response  "未授权"
 // @Failure      500  {object}  response.Response  "服务器错误"
-// @Router       /sessions/{sessionId}/auto_delete [put]
-func (h *SessionHandler) SetAutoDelete(c *gin.Context) {
+// @Router       /conversations/{conversationId}/auto_delete [put]
+func (h *ConversationHandler) SetAutoDelete(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	sessionID := c.Param("sessionId")
+	conversationID := c.Param("conversationId")
 
 	var req setAutoDeleteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -315,10 +315,10 @@ func (h *SessionHandler) SetAutoDelete(c *gin.Context) {
 		return
 	}
 
-	_, err := h.clientManager.Session().SetAutoDelete(c.Request.Context(), &sessionpb.SetAutoDeleteRequest{
-		UserId:    userID,
-		SessionId: sessionID,
-		Duration:  req.Duration,
+	_, err := h.clientManager.Conversation().SetAutoDelete(c.Request.Context(), &conversationpb.SetAutoDeleteRequest{
+		UserId:         userID,
+		ConversationId: conversationID,
+		Duration:       req.Duration,
 	})
 	if err != nil {
 		handleGRPCError(c, err)

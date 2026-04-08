@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"time"
 
+	conversationpb "github.com/anychat/server/api/proto/conversation"
 	grouppb "github.com/anychat/server/api/proto/group"
 	messagepb "github.com/anychat/server/api/proto/message"
-	sessionpb "github.com/anychat/server/api/proto/session"
 	"github.com/anychat/server/internal/message/model"
 	"github.com/anychat/server/internal/message/repository"
 	"github.com/anychat/server/pkg/errors"
@@ -60,7 +60,7 @@ type messageServiceImpl struct {
 	readReceiptRepo     ReadReceiptRepo
 	sequenceRepo        SequenceRepo
 	sendIdempotencyRepo SendIdempotencyRepo
-	sessionClient       sessionpb.SessionServiceClient
+	conversationClient  conversationpb.ConversationServiceClient
 	groupClient         grouppb.GroupServiceClient
 	notificationPub     notification.Publisher
 	db                  *gorm.DB
@@ -72,7 +72,7 @@ func NewMessageService(
 	readReceiptRepo repository.ReadReceiptRepository,
 	sequenceRepo repository.SequenceRepository,
 	sendIdempotencyRepo repository.SendIdempotencyRepository,
-	sessionClient sessionpb.SessionServiceClient,
+	conversationClient conversationpb.ConversationServiceClient,
 	groupClient grouppb.GroupServiceClient,
 	notificationPub notification.Publisher,
 	db *gorm.DB,
@@ -82,7 +82,7 @@ func NewMessageService(
 		readReceiptRepo:     readReceiptRepo,
 		sequenceRepo:        sequenceRepo,
 		sendIdempotencyRepo: sendIdempotencyRepo,
-		sessionClient:       sessionClient,
+		conversationClient:  conversationClient,
 		groupClient:         groupClient,
 		notificationPub:     notificationPub,
 		db:                  db,
@@ -91,7 +91,7 @@ func NewMessageService(
 
 // SendMessage 发送消息
 func (s *messageServiceImpl) SendMessage(ctx context.Context, req *messagepb.SendMessageRequest) (*messagepb.SendMessageResponse, error) {
-	session, err := s.authorizeSend(ctx, req.SenderId, req.ConversationId)
+	conversation, err := s.authorizeSend(ctx, req.SenderId, req.ConversationId)
 	if err != nil {
 		return nil, err
 	}
@@ -146,8 +146,8 @@ func (s *messageServiceImpl) SendMessage(ctx context.Context, req *messagepb.Sen
 		newMessage := &model.Message{
 			MessageID:        uuid.New().String(),
 			ConversationID:   req.ConversationId,
-			ConversationType: session.SessionType,
-			TargetID:         session.TargetId,
+			ConversationType: conversation.ConversationType,
+			TargetID:         conversation.TargetId,
 			SenderID:         req.SenderId,
 			ContentType:      req.ContentType,
 			Content:          req.Content,
@@ -157,13 +157,13 @@ func (s *messageServiceImpl) SendMessage(ctx context.Context, req *messagepb.Sen
 			UpdatedAt:        now,
 		}
 
-		if session.AutoDeleteDuration > 0 {
-			expireTime := now.Add(time.Duration(session.AutoDeleteDuration) * time.Second)
+		if conversation.AutoDeleteDuration > 0 {
+			expireTime := now.Add(time.Duration(conversation.AutoDeleteDuration) * time.Second)
 			newMessage.AutoDeleteExpireTime = &expireTime
 			newMessage.ExpireTime = &expireTime
 		}
-		if session.BurnAfterReading > 0 {
-			newMessage.BurnAfterReadingSeconds = session.BurnAfterReading
+		if conversation.BurnAfterReading > 0 {
+			newMessage.BurnAfterReadingSeconds = conversation.BurnAfterReading
 		}
 		if req.ReplyTo != nil {
 			newMessage.ReplyTo = req.ReplyTo
@@ -216,31 +216,31 @@ func (s *messageServiceImpl) SendMessage(ctx context.Context, req *messagepb.Sen
 	}, nil
 }
 
-func (s *messageServiceImpl) authorizeSend(ctx context.Context, senderID, conversationID string) (*sessionpb.Session, error) {
-	if s.sessionClient == nil {
-		return nil, errors.NewBusiness(errors.CodeInternalError, "session client is not initialized")
+func (s *messageServiceImpl) authorizeSend(ctx context.Context, senderID, conversationID string) (*conversationpb.Conversation, error) {
+	if s.conversationClient == nil {
+		return nil, errors.NewBusiness(errors.CodeInternalError, "conversation client is not initialized")
 	}
 	if senderID == "" || conversationID == "" {
 		return nil, errors.NewBusiness(errors.CodeParamError, "sender_id and conversation_id are required")
 	}
 
-	session, err := s.sessionClient.GetSession(ctx, &sessionpb.GetSessionRequest{
-		UserId:    senderID,
-		SessionId: conversationID,
+	conversation, err := s.conversationClient.GetConversation(ctx, &conversationpb.GetConversationRequest{
+		UserId:         senderID,
+		ConversationId: conversationID,
 	})
 	if err != nil {
 		return nil, errors.NewBusiness(errors.CodeConversationNotFound, "conversation not found")
 	}
-	if session.SessionType != model.ConversationTypeSingle && session.SessionType != model.ConversationTypeGroup {
+	if conversation.ConversationType != model.ConversationTypeSingle && conversation.ConversationType != model.ConversationTypeGroup {
 		return nil, errors.NewBusiness(errors.CodeParamError, "conversation_type must be single or group")
 	}
 
-	targetID := session.TargetId
+	targetID := conversation.TargetId
 	if targetID == "" {
 		return nil, errors.NewBusiness(errors.CodeParamError, "target_id is required")
 	}
 
-	if session.SessionType == model.ConversationTypeGroup {
+	if conversation.ConversationType == model.ConversationTypeGroup {
 		if s.groupClient == nil {
 			return nil, errors.NewBusiness(errors.CodeInternalError, "group client is not initialized")
 		}
@@ -256,7 +256,7 @@ func (s *messageServiceImpl) authorizeSend(ctx context.Context, senderID, conver
 		}
 	}
 
-	return session, nil
+	return conversation, nil
 }
 
 // GetMessages 获取消息列表
@@ -382,29 +382,29 @@ func (s *messageServiceImpl) DeleteMessage(ctx context.Context, messageID, userI
 
 // MarkAsRead 标记消息已读
 func (s *messageServiceImpl) MarkAsRead(ctx context.Context, userID string, req *messagepb.MarkAsReadRequest) error {
-	if s.sessionClient == nil {
-		return errors.NewBusiness(errors.CodeInternalError, "session client is not initialized")
+	if s.conversationClient == nil {
+		return errors.NewBusiness(errors.CodeInternalError, "conversation client is not initialized")
 	}
 	if userID == "" || req.ConversationId == "" {
 		return errors.NewBusiness(errors.CodeParamError, "user_id and conversation_id are required")
 	}
 
-	session, err := s.sessionClient.GetSession(ctx, &sessionpb.GetSessionRequest{
-		UserId:    userID,
-		SessionId: req.ConversationId,
+	conversation, err := s.conversationClient.GetConversation(ctx, &conversationpb.GetConversationRequest{
+		UserId:         userID,
+		ConversationId: req.ConversationId,
 	})
 	if err != nil {
 		return errors.NewBusiness(errors.CodeConversationNotFound, "conversation not found")
 	}
-	if session.SessionType != model.ConversationTypeSingle && session.SessionType != model.ConversationTypeGroup {
+	if conversation.ConversationType != model.ConversationTypeSingle && conversation.ConversationType != model.ConversationTypeGroup {
 		return errors.NewBusiness(errors.CodeParamError, "conversation_type must be single or group")
 	}
 
 	// 创建或更新已读回执
 	receipt := &model.MessageReadReceipt{
 		ConversationID:   req.ConversationId,
-		ConversationType: session.SessionType,
-		TargetID:         session.TargetId,
+		ConversationType: conversation.ConversationType,
+		TargetID:         conversation.TargetId,
 		UserID:           userID,
 		LastReadSeq:      req.LastReadSeq,
 		ReadAt:           time.Now(),
@@ -420,7 +420,7 @@ func (s *messageServiceImpl) MarkAsRead(ctx context.Context, userID string, req 
 	}
 
 	// 发布已读回执通知（单聊时通知对方）
-	if session.SessionType == model.ConversationTypeSingle {
+	if conversation.ConversationType == model.ConversationTypeSingle {
 		if err := s.publishReadReceiptNotification(receipt); err != nil {
 			logger.Error("Failed to publish read receipt notification", zap.Error(err))
 		}
@@ -670,12 +670,12 @@ func (s *messageServiceImpl) ensureConversationAccessible(ctx context.Context, u
 	if userID == "" || conversationID == "" {
 		return errors.NewBusiness(errors.CodeParamError, "user_id and conversation_id are required")
 	}
-	if s.sessionClient == nil {
-		return errors.NewBusiness(errors.CodeInternalError, "session client is not initialized")
+	if s.conversationClient == nil {
+		return errors.NewBusiness(errors.CodeInternalError, "conversation client is not initialized")
 	}
-	if _, err := s.sessionClient.GetSession(ctx, &sessionpb.GetSessionRequest{
-		UserId:    userID,
-		SessionId: conversationID,
+	if _, err := s.conversationClient.GetConversation(ctx, &conversationpb.GetConversationRequest{
+		UserId:         userID,
+		ConversationId: conversationID,
 	}); err != nil {
 		return errors.NewBusiness(errors.CodeConversationNotFound, "conversation not found")
 	}

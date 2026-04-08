@@ -87,7 +87,7 @@
 └─────────────────────────────────────────────────────────────┘
                           ↓
 ┌──────────────────┬──────────────────┬───────────────────────┐
-│  Message Service │  Session Service │   Push Service        │
+│  Message Service │  Conversation Service │   Push Service        │
 │  消息存储         │  会话管理        │   离线推送            │
 └──────────────────┴──────────────────┴───────────────────────┘
                           ↓
@@ -155,7 +155,7 @@
    - 离线消息拉取（增量同步）
 ```
 
-#### Session Service（会话服务）
+#### Conversation Service（会话服务）
 ```go
 // 核心职责
 1. 会话列表管理
@@ -483,7 +483,7 @@ func (s *MessageService) SendMessage(ctx context.Context, req *SendMessageReques
     subject := fmt.Sprintf("msg.%s.%s", req.ConversationType, req.ConversationId)
     s.nats.Publish(subject, msg)
 
-    // 5. 更新会话最后消息（Session Service）
+    // 5. 更新会话最后消息（Conversation Service）
     s.sessionClient.UpdateLastMessage(req.ConversationId, messageId)
 
     return &SendMessageResponse{
@@ -1165,7 +1165,7 @@ spec:
         ┌───────────────┼───────────────┐
         │               │               │
    ┌────▼────┐    ┌────▼────┐    ┌────▼────┐
-   │Message  │    │Session  │    │  Push   │
+   │Message  │    │Conversation│    │  Push   │
    │Service  │    │Service  │    │ Service │
    └─────────┘    └─────────┘    └─────────┘
 ```

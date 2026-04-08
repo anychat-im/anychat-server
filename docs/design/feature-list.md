@@ -11,7 +11,7 @@
 | Friend | 好友关系模块 |
 | Group | 群组管理模块 |
 | File | 文件上传下载模块 |
-| Session | 会话消息模块 |
+| Conversation | 会话消息模块 |
 | Sync | 数据同步模块 |
 | Calling | 音视频通话模块 |
 | Version | 版本管理模块 |
@@ -104,17 +104,17 @@
 
 ---
 
-## 6. Session 模块
+## 6. Conversation 模块
 
 | HTTP接口 | 功能说明 | 状态 |
 |----------|----------|------|
-| GET /api/v1/sessions | 获取会话列表 | ✅ |
-| GET /api/v1/sessions/unread/total | 获取总未读数 | ✅ |
-| GET /api/v1/sessions/:sessionId | 获取会话详情 | ✅ |
-| DELETE /api/v1/sessions/:sessionId | 删除会话 | ✅ |
-| PUT /api/v1/sessions/:sessionId/pin | 置顶会话 | ✅ |
-| PUT /api/v1/sessions/:sessionId/mute | 静音会话 | ✅ |
-| POST /api/v1/sessions/:sessionId/read | 标记已读 | ✅ |
+| GET /api/v1/conversations | 获取会话列表 | ✅ |
+| GET /api/v1/conversations/unread/total | 获取总未读数 | ✅ |
+| GET /api/v1/conversations/:conversationId | 获取会话详情 | ✅ |
+| DELETE /api/v1/conversations/:conversationId | 删除会话 | ✅ |
+| PUT /api/v1/conversations/:conversationId/pin | 置顶会话 | ✅ |
+| PUT /api/v1/conversations/:conversationId/mute | 静音会话 | ✅ |
+| POST /api/v1/conversations/:conversationId/read | 标记已读 | ✅ |
 
 ---
 
@@ -188,7 +188,7 @@
 | Friend | 9 |
 | Group | 14 |
 | File | 6 |
-| Session | 7 |
+| Conversation | 7 |
 | Sync | 2 |
 | Calling | 11 |
 | Version | 4 |

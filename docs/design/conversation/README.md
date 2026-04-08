@@ -1,4 +1,4 @@
-# Session Service (会话服务)
+# Conversation Service (会话服务)
 
 ## 1. 服务概述
 
@@ -15,20 +15,20 @@
 
 | 功能 | 文档 | 说明 |
 |------|------|------|
-| 会话管理 | [session.md](session.md) | 会话列表、置顶、免打扰 |
+| 会话管理 | [conversation.md](conversation.md) | 会话列表、置顶、免打扰 |
 
 ## 3. 数据模型
 
-- **Session**: 会话表
+- **Conversation**: 会话表
 - **SessionSettings**: 会话设置
 - **SessionUnread**: 未读数记录
 
 ## 4. 推送通知
 
-- `notification.session.unread_updated.{user_id}` - 会话未读数更新通知
-- `notification.session.pin_updated.{user_id}` - 会话置顶状态同步
-- `notification.session.deleted.{user_id}` - 会话删除同步
-- `notification.session.mute_updated.{user_id}` - 会话免打扰设置同步
+- `notification.conversation.unread_updated.{user_id}` - 会话未读数更新通知
+- `notification.conversation.pin_updated.{user_id}` - 会话置顶状态同步
+- `notification.conversation.deleted.{user_id}` - 会话删除同步
+- `notification.conversation.mute_updated.{user_id}` - 会话免打扰设置同步
 
 ## 5. 依赖服务
 

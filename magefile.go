@@ -52,7 +52,7 @@ func (Build) All() error {
 		"friend-service",
 		"group-service",
 		"message-service",
-		"session-service",
+		"conversation-service",
 		"file-service",
 		"push-service",
 		"gateway-service",
@@ -273,10 +273,10 @@ func (Dev) Message() error {
 	return sh.RunV("go", "run", "./cmd/message-service")
 }
 
-// Session runs session-service locally
-func (Dev) Session() error {
-	fmt.Println("Running session-service...")
-	return sh.RunV("go", "run", "./cmd/session-service")
+// Conversation runs conversation-service locally
+func (Dev) Conversation() error {
+	fmt.Println("Running conversation-service...")
+	return sh.RunV("go", "run", "./cmd/conversation-service")
 }
 
 // Push runs push-service locally

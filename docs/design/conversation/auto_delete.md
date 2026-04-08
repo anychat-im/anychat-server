@@ -26,7 +26,7 @@
 ### 2.1 会话表扩展
 
 ```go
-type Session struct {
+type Conversation struct {
     // ... existing fields
     AutoDeleteDuration int32 `gorm:"column:auto_delete_duration;default:0"` // 自动删除时长(秒),0表示未启用
 }
@@ -45,7 +45,7 @@ type Message struct {
 
 | 表名 | 字段名 | 类型 | 说明 |
 |------|--------|------|------|
-| sessions | auto_delete_duration | INT | 自动删除时长(秒),0表示未启用 |
+| conversations | auto_delete_duration | INT | 自动删除时长(秒),0表示未启用 |
 | messages | expire_time | TIMESTAMPTZ | 消息过期时间戳 |
 
 ## 3. 业务流程
@@ -56,16 +56,16 @@ type Message struct {
 sequenceDiagram
     participant Client
     participant Gateway
-    participant SessionService
+    participant ConversationService
     participant DB
 
-    Client->>Gateway: PUT /sessions/{sessionId}/auto_delete<br/>Header: Authorization: Bearer {token}<br/>Body: {duration: 86400}
+    Client->>Gateway: PUT /conversations/{conversationId}/auto_delete<br/>Header: Authorization: Bearer {token}<br/>Body: {duration: 86400}
     Gateway->>Gateway: 从JWT解析userId
-    Gateway->>SessionService: gRPC SetAutoDelete(userId, sessionId, duration)
-    SessionService->>DB: 更新会话 auto_delete_duration
-    SessionService->>NATS: 发布自动删除配置变更通知
-    DB-->>SessionService: 成功
-    SessionService-->>Gateway: 成功
+    Gateway->>ConversationService: gRPC SetAutoDelete(userId, conversationId, duration)
+    ConversationService->>DB: 更新会话 auto_delete_duration
+    ConversationService->>NATS: 发布自动删除配置变更通知
+    DB-->>ConversationService: 成功
+    ConversationService-->>Gateway: 成功
     Gateway-->>Client: 200 OK
 ```
 
@@ -78,12 +78,12 @@ sequenceDiagram
     participant Client
     participant Gateway
     participant MessageService
-    participant SessionService
+    participant ConversationService
     participant DB
 
     Client->>Gateway: POST /messages<br/>Header: Authorization: Bearer {token}<br/>Body: {conversation_id, content}
-    Gateway->>SessionService: gRPC GetSession(userId, sessionId) 获取 auto_delete_duration
-    SessionService-->>Gateway: 返回会话信息(包含 auto_delete_duration)
+    Gateway->>ConversationService: gRPC GetConversation(userId, conversationId) 获取 auto_delete_duration
+    ConversationService-->>Gateway: 返回会话信息(包含 auto_delete_duration)
     
     Gateway->>MessageService: gRPC SendMessage(conversation_id, content, expire_time)
     
@@ -121,9 +121,9 @@ sequenceDiagram
 ### 4.1 设置自动删除
 
 ```protobuf
-message SetAutoDeleteRequest {
+message SetConversationAutoDeleteRequest {
     string user_id = 1;
-    string session_id = 2;
+    string conversation_id = 2;
     int32 duration = 3;  // 秒,0表示取消
 }
 
@@ -135,7 +135,7 @@ message SetAutoDeleteResponse {
 ### 4.2 HTTP接口
 
 ```
-PUT /sessions/{sessionId}/auto_delete
+PUT /conversations/{conversationId}/auto_delete
 Body: {"duration": 86400}  // 秒,0表示取消
 
 Response: {"code": 0, "data": {"duration": 86400}}
@@ -155,14 +155,14 @@ Response: {"code": 0, "data": {"duration": 86400}}
 
 ### 5.1 自动删除配置变更
 
-- **通知类型**：`session.auto_delete_updated`
+- **通知类型**：`conversation.auto_delete_updated`
 - **作用**：多端同步自动删除配置
 
 ```json
 {
-    "type": "session.auto_delete_updated",
+    "type": "conversation.auto_delete_updated",
     "payload": {
-        "session_id": "xxx",
+        "conversation_id": "xxx",
         "auto_delete_duration": 86400
     }
 }

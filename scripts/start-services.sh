@@ -171,7 +171,7 @@ start_app_services() {
     print_header "启动应用层服务"
 
     start_service "message-service" "dev:message"  9005
-    start_service "session-service" "dev:session"  9006
+    start_service "conversation-service" "dev:conversation"  9006
 }
 
 # 启动辅助服务（第三层，推送/Calling/同步）
@@ -217,7 +217,7 @@ show_status() {
 
     echo -e "\n${YELLOW}应用层服务:${NC}"
     echo "  message-service:  grpc://localhost:9005  logs/message-service.log"
-    echo "  session-service:  grpc://localhost:9006  logs/session-service.log"
+    echo "  conversation-service:  grpc://localhost:9006  logs/conversation-service.log"
 
     echo -e "\n${YELLOW}辅助服务:${NC}"
     echo "  push-service:     grpc://localhost:9008  logs/push-service.log"

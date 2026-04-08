@@ -71,7 +71,7 @@ mage dev:user
 mage dev:friend
 mage dev:group
 mage dev:message
-mage dev:session
+mage dev:conversation
 mage dev:file
 mage dev:gateway
 mage dev:push

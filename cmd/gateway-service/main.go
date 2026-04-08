@@ -79,7 +79,7 @@ func main() {
 		viper.GetString("services.group.grpc_addr"),
 		viper.GetString("services.file.grpc_addr"),
 		viper.GetString("services.message.grpc_addr"),
-		viper.GetString("services.session.grpc_addr"),
+		viper.GetString("services.conversation.grpc_addr"),
 		viper.GetString("services.sync.grpc_addr"),
 		getCallingGRPCAddr(),
 		viper.GetString("services.version.grpc_addr"),
@@ -151,7 +151,7 @@ func loadConfig() error {
 	viper.SetDefault("services.group.grpc_addr", "localhost:9004")
 	viper.SetDefault("services.file.grpc_addr", "localhost:9007")
 	viper.SetDefault("services.message.grpc_addr", "localhost:9005")
-	viper.SetDefault("services.session.grpc_addr", "localhost:9006")
+	viper.SetDefault("services.conversation.grpc_addr", "localhost:9006")
 	viper.SetDefault("services.sync.grpc_addr", "localhost:9010")
 	viper.SetDefault("services.calling.grpc_addr", "localhost:9009")
 	viper.SetDefault("services.version.grpc_addr", "localhost:9012")

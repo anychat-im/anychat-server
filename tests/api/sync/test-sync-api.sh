@@ -8,7 +8,7 @@
 #   GATEWAY_URL=http://localhost:8080 ./test-sync-api.sh
 #
 # 说明:
-#   同步服务是无状态聚合层，通过调用 friend/group/session/message 服务
+#   同步服务是无状态聚合层，通过调用 friend/group/conversation/message 服务
 #   获取增量数据。本脚本验证 API 的响应结构及错误处理，空账号状态下
 #   全量同步应当返回空集合而非错误。
 #

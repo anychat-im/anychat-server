@@ -67,7 +67,7 @@ mage -l                      # List all available tasks
 3. **friend-service**: Friend relationships and requests
 4. **group-service**: Group chat management
 5. **message-service**: Message storage and delivery
-6. **session-service**: Session/conversation management
+6. **conversation-service**: Session/conversation management
 7. **file-service**: File uploads/downloads via MinIO
 8. **push-service**: Offline push notifications
 9. **gateway-service**: API gateway (WebSocket connections, HTTP/gRPC routing)

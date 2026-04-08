@@ -36,7 +36,7 @@
 
 - **Friend Service**
 - **Group Service**
-- **Session Service**
+- **Conversation Service**
 - **Message Service**
 - **Redis**: 同步状态缓存
 - **PostgreSQL**: 数据版本

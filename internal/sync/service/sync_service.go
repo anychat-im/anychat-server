@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
+	conversationpb "github.com/anychat/server/api/proto/conversation"
 	friendpb "github.com/anychat/server/api/proto/friend"
 	grouppb "github.com/anychat/server/api/proto/group"
 	messagepb "github.com/anychat/server/api/proto/message"
-	sessionpb "github.com/anychat/server/api/proto/session"
 	syncpb "github.com/anychat/server/api/proto/sync"
 	"github.com/anychat/server/pkg/logger"
 	"github.com/anychat/server/pkg/notification"
@@ -24,31 +24,31 @@ type SyncService interface {
 
 // syncServiceImpl 同步服务实现（聚合各服务增量数据）
 type syncServiceImpl struct {
-	friendClient   friendpb.FriendServiceClient
-	groupClient    grouppb.GroupServiceClient
-	sessionClient  sessionpb.SessionServiceClient
-	messageClient  messagepb.MessageServiceClient
-	notificationPub notification.Publisher
+	friendClient       friendpb.FriendServiceClient
+	groupClient        grouppb.GroupServiceClient
+	conversationClient conversationpb.ConversationServiceClient
+	messageClient      messagepb.MessageServiceClient
+	notificationPub    notification.Publisher
 }
 
 // NewSyncService 创建同步服务
 func NewSyncService(
 	friendClient friendpb.FriendServiceClient,
 	groupClient grouppb.GroupServiceClient,
-	sessionClient sessionpb.SessionServiceClient,
+	conversationClient conversationpb.ConversationServiceClient,
 	messageClient messagepb.MessageServiceClient,
 	notificationPub notification.Publisher,
 ) SyncService {
 	return &syncServiceImpl{
-		friendClient:    friendClient,
-		groupClient:     groupClient,
-		sessionClient:   sessionClient,
-		messageClient:   messageClient,
-		notificationPub: notificationPub,
+		friendClient:       friendClient,
+		groupClient:        groupClient,
+		conversationClient: conversationClient,
+		messageClient:      messageClient,
+		notificationPub:    notificationPub,
 	}
 }
 
-// Sync 全量/增量同步：聚合 friend / group / session / message 数据
+// Sync 全量/增量同步：聚合 friend / group / conversation / message 数据
 func (s *syncServiceImpl) Sync(ctx context.Context, req *syncpb.SyncRequest) (*syncpb.SyncResponse, error) {
 	userID := req.UserId
 	syncTime := time.Now().Unix()
@@ -90,20 +90,20 @@ func (s *syncServiceImpl) Sync(ctx context.Context, req *syncpb.SyncRequest) (*s
 	}
 
 	// ── 3. 会话增量同步 ──────────────────────────────────────
-	sessionReq := &sessionpb.GetSessionsRequest{
+	conversationReq := &conversationpb.GetConversationsRequest{
 		UserId: userID,
 		Limit:  100,
 	}
 	if lastSyncTime != nil {
-		sessionReq.UpdatedBefore = lastSyncTime
+		conversationReq.UpdatedBefore = lastSyncTime
 	}
-	sessionResp, err := s.sessionClient.GetSessions(ctx, sessionReq)
+	conversationResp, err := s.conversationClient.GetConversations(ctx, conversationReq)
 	if err != nil {
-		logger.Warn("Sync: failed to get sessions", zap.String("userID", userID), zap.Error(err))
+		logger.Warn("Sync: failed to get conversations", zap.String("userID", userID), zap.Error(err))
 	} else {
-		resp.Sessions = &syncpb.SyncSessionData{
-			Sessions: sessionResp.Sessions,
-			HasMore:  sessionResp.HasMore,
+		resp.ConversationData = &syncpb.SyncConversationData{
+			Conversations: conversationResp.Conversations,
+			HasMore:       conversationResp.HasMore,
 		}
 	}
 

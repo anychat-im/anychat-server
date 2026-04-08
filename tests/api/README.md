@@ -21,8 +21,8 @@ api/
 │   └── test-group-api.sh     # Group Service API测试（15个用例）
 ├── file/
 │   └── test-file-api.sh      # File Service API测试
-├── session/
-│   └── test-session-api.sh   # Session Service API测试
+├── conversation/
+│   └── test-conversation-api.sh   # Conversation Service API测试
 ├── sync/
 │   └── test-sync-api.sh      # Sync Service API测试（7个用例）
 ├── push/
@@ -104,7 +104,7 @@ api/
 - 文件列表
 - 删除文件
 
-### Session Service
+### Conversation Service
 - 获取会话列表
 - 获取单个会话
 - 标记已读
@@ -193,8 +193,8 @@ api/
 # File Service
 ./tests/api/file/test-file-api.sh
 
-# Session Service
-./tests/api/session/test-session-api.sh
+# Conversation Service
+./tests/api/conversation/test-conversation-api.sh
 
 # Sync Service
 ./tests/api/sync/test-sync-api.sh

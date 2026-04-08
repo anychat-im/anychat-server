@@ -74,7 +74,7 @@ sequenceDiagram
     participant Client
     participant Gateway
     participant MessageService
-    participant SessionService
+    participant ConversationService
     participant GroupService
     participant DB
     participant NATS
@@ -84,8 +84,8 @@ sequenceDiagram
 
     Gateway->>MessageService: gRPC SendMessage(sender_id, conversation_id, content_type, content, local_id, ...)
 
-    MessageService->>SessionService: gRPC GetSession(user_id, session_id)
-    SessionService-->>MessageService: session_type, target_id, auto_delete_duration, burn_after_reading
+    MessageService->>ConversationService: gRPC GetConversation(user_id, conversation_id)
+    ConversationService-->>MessageService: conversation_type, target_id, auto_delete_duration, burn_after_reading
     opt 群聊
         MessageService->>GroupService: gRPC IsMember(group_id=target_id, user_id=sender_id)
         GroupService-->>MessageService: is_member

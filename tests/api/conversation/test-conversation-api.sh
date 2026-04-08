@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# Session Service HTTP API 测试脚本
+# Conversation Service HTTP API 测试脚本
 # 用于测试会话管理相关的 HTTP 接口
 #
 # 用法:
-#   ./test-session-api.sh
-#   GATEWAY_URL=http://localhost:8080 ./test-session-api.sh
+#   ./test-conversation-api.sh
+#   GATEWAY_URL=http://localhost:8080 ./test-conversation-api.sh
 #
 # 说明:
 #   会话由消息服务在发送消息时自动创建。本脚本通过 grpcurl（若可用）
-#   直接调用 session gRPC 接口预置测试数据，否则跳过需要会话存在的用例，
+#   直接调用 conversation gRPC 接口预置测试数据，否则跳过需要会话存在的用例，
 #   仅验证空状态下的 API 行为及错误码。
 #
 
@@ -23,22 +23,22 @@ NC='\033[0m'
 
 # 配置
 GATEWAY_URL="${GATEWAY_URL:-http://localhost:8080}"
-SESSION_GRPC="${SESSION_GRPC:-localhost:9006}"
+CONVERSATION_GRPC="${CONVERSATION_GRPC:-localhost:9006}"
 API_BASE="${GATEWAY_URL}/api/v1"
 
 # 测试数据
 TIMESTAMP=$(date +%s)
-TEST_EMAIL_1="session_u1_${TIMESTAMP}@example.com"
-TEST_EMAIL_2="session_u2_${TIMESTAMP}@example.com"
+TEST_EMAIL_1="conversation_u1_${TIMESTAMP}@example.com"
+TEST_EMAIL_2="conversation_u2_${TIMESTAMP}@example.com"
 TEST_PASSWORD="Test@123456"
-TEST_DEVICE_ID="session-test-device-${TIMESTAMP}"
+TEST_DEVICE_ID="conversation-test-device-${TIMESTAMP}"
 
 # 全局变量
 USER1_TOKEN=""
 USER2_TOKEN=""
 USER1_ID=""
 USER2_ID=""
-SESSION_ID=""
+CONVERSATION_ID=""
 HAS_GRPCURL=false
 
 # ────────────────────────────────────────
@@ -150,7 +150,7 @@ setup_test_users() {
     "email": "${email}",
     "password": "${TEST_PASSWORD}",
     "verifyCode": "123456",
-    "nickname": "SessionTest_${device_suffix}_${TIMESTAMP}",
+    "nickname": "ConversationTest_${device_suffix}_${TIMESTAMP}",
     "deviceType": "iOS",
     "deviceId": "${TEST_DEVICE_ID}_${device_suffix}",
     "clientVersion": "1.0.0"
@@ -187,8 +187,8 @@ EOF
     fi
 }
 
-# 通过 grpcurl 直接调用 session-service 创建一条测试会话
-seed_session_via_grpc() {
+# 通过 grpcurl 直接调用 conversation-service 创建一条测试会话
+seed_conversation_via_grpc() {
     if [ "$HAS_GRPCURL" = false ]; then
         return 1
     fi
@@ -196,22 +196,22 @@ seed_session_via_grpc() {
     local result
     result=$(grpcurl -plaintext \
         -d "{
-            \"session_type\": \"single\",
+            \"conversation_type\": \"single\",
             \"user_id\": \"${USER1_ID}\",
             \"target_id\": \"${USER2_ID}\",
             \"last_message_id\": \"test-msg-${TIMESTAMP}\",
             \"last_message_content\": \"测试消息内容\",
             \"last_message_timestamp\": ${TIMESTAMP}
         }" \
-        "${SESSION_GRPC}" \
-        anychat.session.SessionService/CreateOrUpdateSession 2>/dev/null)
+        "${CONVERSATION_GRPC}" \
+        anychat.conversation.ConversationService/CreateOrUpdateConversation 2>/dev/null)
 
-    if echo "$result" | jq -e '.sessionId' &>/dev/null; then
-        SESSION_ID=$(echo "$result" | jq -r '.sessionId')
-        print_success "通过 gRPC 创建测试会话成功 (ID: ${SESSION_ID})"
+    if echo "$result" | jq -e '.conversationId' &>/dev/null; then
+        CONVERSATION_ID=$(echo "$result" | jq -r '.conversationId')
+        print_success "通过 gRPC 创建测试会话成功 (ID: ${CONVERSATION_ID})"
         return 0
     fi
-    print_info "gRPC 创建会话失败（session service 可能未运行），跳过相关测试"
+    print_info "gRPC 创建会话失败（conversation service 可能未运行），跳过相关测试"
     return 1
 }
 
@@ -220,18 +220,18 @@ seed_session_via_grpc() {
 # ────────────────────────────────────────
 
 # 1. 获取空会话列表
-test_get_sessions_empty() {
+test_get_conversations_empty() {
     print_header "1. 获取会话列表（初始为空）"
 
     local response
-    response=$(http_get "${API_BASE}/sessions" "$USER1_TOKEN")
+    response=$(http_get "${API_BASE}/conversations" "$USER1_TOKEN")
     print_info "响应: $response"
 
     if check_response "$response"; then
-        local sessions
-        sessions=$(echo "$response" | jq -r '.data.sessions // [] | length')
+        local conversations
+        conversations=$(echo "$response" | jq -r '.data.conversations // [] | length')
         print_success "获取会话列表成功"
-        print_info "会话数量: ${sessions}"
+        print_info "会话数量: ${conversations}"
         return 0
     fi
     return 1
@@ -242,7 +242,7 @@ test_get_total_unread_empty() {
     print_header "2. 获取总未读数（初始为 0）"
 
     local response
-    response=$(http_get "${API_BASE}/sessions/unread/total" "$USER1_TOKEN")
+    response=$(http_get "${API_BASE}/conversations/unread/total" "$USER1_TOKEN")
     print_info "响应: $response"
 
     if check_response "$response"; then
@@ -256,12 +256,12 @@ test_get_total_unread_empty() {
 }
 
 # 3. 访问不存在的会话（期望返回错误）
-test_get_nonexistent_session() {
+test_get_nonexistent_conversation() {
     print_header "3. 访问不存在的会话（期望返回错误）"
 
-    local fake_id="nonexistent-session-${TIMESTAMP}"
+    local fake_id="nonexistent-conversation-${TIMESTAMP}"
     local response
-    response=$(http_get "${API_BASE}/sessions/${fake_id}" "$USER1_TOKEN")
+    response=$(http_get "${API_BASE}/conversations/${fake_id}" "$USER1_TOKEN")
     print_info "响应: $response"
 
     if check_response_fail "$response"; then
@@ -272,30 +272,30 @@ test_get_nonexistent_session() {
 }
 
 # 4. 增量同步——未来时间戳，应返回空列表
-test_get_sessions_incremental() {
+test_get_conversations_incremental() {
     print_header "4. 增量同步（updatedBefore 为 5 分钟前）"
 
     local before=$(( TIMESTAMP - 300 ))
     local response
-    response=$(http_get "${API_BASE}/sessions?updatedBefore=${before}" "$USER1_TOKEN")
+    response=$(http_get "${API_BASE}/conversations?updatedBefore=${before}" "$USER1_TOKEN")
     print_info "响应: $response"
 
     if check_response "$response"; then
-        local sessions
-        sessions=$(echo "$response" | jq -r '.data.sessions // [] | length')
+        local conversations
+        conversations=$(echo "$response" | jq -r '.data.conversations // [] | length')
         print_success "增量同步接口正常"
-        print_info "返回会话数: ${sessions}"
+        print_info "返回会话数: ${conversations}"
         return 0
     fi
     return 1
 }
 
 # 5. 带 limit 参数的会话列表
-test_get_sessions_with_limit() {
+test_get_conversations_with_limit() {
     print_header "5. 获取会话列表（带 limit 参数）"
 
     local response
-    response=$(http_get "${API_BASE}/sessions?limit=10" "$USER1_TOKEN")
+    response=$(http_get "${API_BASE}/conversations?limit=10" "$USER1_TOKEN")
     print_info "响应: $response"
 
     if check_response "$response"; then
@@ -306,13 +306,13 @@ test_get_sessions_with_limit() {
 }
 
 # 6. 置顶不存在的会话（期望返回错误）
-test_pin_nonexistent_session() {
+test_pin_nonexistent_conversation() {
     print_header "6. 置顶不存在的会话（期望返回错误）"
 
-    local fake_id="nonexistent-session-${TIMESTAMP}"
+    local fake_id="nonexistent-conversation-${TIMESTAMP}"
     local data='{"pinned": true}'
     local response
-    response=$(http_put "${API_BASE}/sessions/${fake_id}/pin" "$data" "$USER1_TOKEN")
+    response=$(http_put "${API_BASE}/conversations/${fake_id}/pin" "$data" "$USER1_TOKEN")
     print_info "响应: $response"
 
     # gRPC update 对不存在的行返回影响 0 行，不一定报错——接受成功或错误
@@ -330,7 +330,7 @@ test_unauthorized_access() {
     print_header "7. 无效 token 访问（期望 401）"
 
     local response
-    response=$(curl -s -X GET "${API_BASE}/sessions" \
+    response=$(curl -s -X GET "${API_BASE}/conversations" \
         -H "Authorization: Bearer invalid_token_here")
     print_info "响应: $response"
 
@@ -344,33 +344,33 @@ test_unauthorized_access() {
     return 1
 }
 
-# 8-12: 需要预置会话的用例（依赖 grpcurl 或 session service 运行）
+# 8-12: 需要预置会话的用例（依赖 grpcurl 或 conversation service 运行）
 
-test_get_session_by_id() {
+test_get_conversation_by_id() {
     print_header "8. 获取单个会话详情"
 
-    if [ -z "$SESSION_ID" ]; then
+    if [ -z "$CONVERSATION_ID" ]; then
         print_skip "无可用会话 ID，跳过"
         return 0
     fi
 
     local response
-    response=$(http_get "${API_BASE}/sessions/${SESSION_ID}" "$USER1_TOKEN")
+    response=$(http_get "${API_BASE}/conversations/${CONVERSATION_ID}" "$USER1_TOKEN")
     print_info "响应: $response"
 
     if check_response "$response"; then
         local sid
-        sid=$(echo "$response" | jq -r '.data.sessionId // .data.session_id // empty')
-        print_success "获取单个会话成功 (sessionId: ${sid})"
+        sid=$(echo "$response" | jq -r '.data.conversationId // .data.conversation_id // empty')
+        print_success "获取单个会话成功 (conversationId: ${sid})"
         return 0
     fi
     return 1
 }
 
-test_pin_session() {
+test_pin_conversation() {
     print_header "9. 置顶会话"
 
-    if [ -z "$SESSION_ID" ]; then
+    if [ -z "$CONVERSATION_ID" ]; then
         print_skip "无可用会话 ID，跳过"
         return 0
     fi
@@ -378,7 +378,7 @@ test_pin_session() {
     # 置顶
     local data='{"pinned": true}'
     local response
-    response=$(http_put "${API_BASE}/sessions/${SESSION_ID}/pin" "$data" "$USER1_TOKEN")
+    response=$(http_put "${API_BASE}/conversations/${CONVERSATION_ID}/pin" "$data" "$USER1_TOKEN")
     print_info "置顶响应: $response"
 
     if check_response "$response"; then
@@ -389,7 +389,7 @@ test_pin_session() {
 
     # 取消置顶
     data='{"pinned": false}'
-    response=$(http_put "${API_BASE}/sessions/${SESSION_ID}/pin" "$data" "$USER1_TOKEN")
+    response=$(http_put "${API_BASE}/conversations/${CONVERSATION_ID}/pin" "$data" "$USER1_TOKEN")
     print_info "取消置顶响应: $response"
 
     if check_response "$response"; then
@@ -399,10 +399,10 @@ test_pin_session() {
     return 1
 }
 
-test_mute_session() {
+test_mute_conversation() {
     print_header "10. 会话免打扰"
 
-    if [ -z "$SESSION_ID" ]; then
+    if [ -z "$CONVERSATION_ID" ]; then
         print_skip "无可用会话 ID，跳过"
         return 0
     fi
@@ -410,7 +410,7 @@ test_mute_session() {
     # 开启免打扰
     local data='{"muted": true}'
     local response
-    response=$(http_put "${API_BASE}/sessions/${SESSION_ID}/mute" "$data" "$USER1_TOKEN")
+    response=$(http_put "${API_BASE}/conversations/${CONVERSATION_ID}/mute" "$data" "$USER1_TOKEN")
     print_info "开启免打扰响应: $response"
 
     if check_response "$response"; then
@@ -421,7 +421,7 @@ test_mute_session() {
 
     # 关闭免打扰
     data='{"muted": false}'
-    response=$(http_put "${API_BASE}/sessions/${SESSION_ID}/mute" "$data" "$USER1_TOKEN")
+    response=$(http_put "${API_BASE}/conversations/${CONVERSATION_ID}/mute" "$data" "$USER1_TOKEN")
     print_info "关闭免打扰响应: $response"
 
     if check_response "$response"; then
@@ -434,13 +434,13 @@ test_mute_session() {
 test_mark_read() {
     print_header "11. 标记会话已读"
 
-    if [ -z "$SESSION_ID" ]; then
+    if [ -z "$CONVERSATION_ID" ]; then
         print_skip "无可用会话 ID，跳过"
         return 0
     fi
 
     local response
-    response=$(http_post "${API_BASE}/sessions/${SESSION_ID}/read" "" "$USER1_TOKEN")
+    response=$(http_post "${API_BASE}/conversations/${CONVERSATION_ID}/read" "" "$USER1_TOKEN")
     print_info "响应: $response"
 
     if check_response "$response"; then
@@ -453,13 +453,13 @@ test_mark_read() {
 test_get_total_unread_after_clear() {
     print_header "12. 标记已读后总未读数应为 0"
 
-    if [ -z "$SESSION_ID" ]; then
+    if [ -z "$CONVERSATION_ID" ]; then
         print_skip "无可用会话 ID，跳过"
         return 0
     fi
 
     local response
-    response=$(http_get "${API_BASE}/sessions/unread/total" "$USER1_TOKEN")
+    response=$(http_get "${API_BASE}/conversations/unread/total" "$USER1_TOKEN")
     print_info "响应: $response"
 
     if check_response "$response"; then
@@ -475,16 +475,16 @@ test_get_total_unread_after_clear() {
     return 1
 }
 
-test_delete_session() {
+test_delete_conversation() {
     print_header "13. 删除会话"
 
-    if [ -z "$SESSION_ID" ]; then
+    if [ -z "$CONVERSATION_ID" ]; then
         print_skip "无可用会话 ID，跳过"
         return 0
     fi
 
     local response
-    response=$(http_delete "${API_BASE}/sessions/${SESSION_ID}" "$USER1_TOKEN")
+    response=$(http_delete "${API_BASE}/conversations/${CONVERSATION_ID}" "$USER1_TOKEN")
     print_info "响应: $response"
 
     if check_response "$response"; then
@@ -492,7 +492,7 @@ test_delete_session() {
 
         # 验证已删除
         local verify
-        verify=$(http_get "${API_BASE}/sessions/${SESSION_ID}" "$USER1_TOKEN")
+        verify=$(http_get "${API_BASE}/conversations/${CONVERSATION_ID}" "$USER1_TOKEN")
         if check_response_fail "$verify"; then
             print_success "验证成功：会话已不可访问"
         fi
@@ -501,23 +501,23 @@ test_delete_session() {
     return 1
 }
 
-test_get_sessions_after_delete() {
+test_get_conversations_after_delete() {
     print_header "14. 删除后会话列表应为空"
 
-    if [ -z "$SESSION_ID" ]; then
+    if [ -z "$CONVERSATION_ID" ]; then
         print_skip "无可用会话 ID，跳过"
         return 0
     fi
 
     local response
-    response=$(http_get "${API_BASE}/sessions" "$USER1_TOKEN")
+    response=$(http_get "${API_BASE}/conversations" "$USER1_TOKEN")
     print_info "响应: $response"
 
     if check_response "$response"; then
-        local sessions
-        sessions=$(echo "$response" | jq -r '.data.sessions // [] | length')
+        local conversations
+        conversations=$(echo "$response" | jq -r '.data.conversations // [] | length')
         print_success "会话列表接口正常"
-        print_info "当前会话数: ${sessions}"
+        print_info "当前会话数: ${conversations}"
         return 0
     fi
     return 1
@@ -530,7 +530,7 @@ test_get_sessions_after_delete() {
 main() {
     echo -e "${GREEN}"
     echo "╔═══════════════════════════════════════════╗"
-    echo "║   Session Service API 测试脚本            ║"
+    echo "║   Conversation Service API 测试脚本            ║"
     echo "╚═══════════════════════════════════════════╝"
     echo -e "${NC}"
     echo "测试环境: ${GATEWAY_URL}"
@@ -555,27 +555,27 @@ main() {
 
     # 尝试通过 gRPC 预置测试会话
     print_header "预置测试数据"
-    seed_session_via_grpc || true
+    seed_conversation_via_grpc || true
 
     # 执行测试
     local failed=0
 
-    test_get_sessions_empty         || ((failed++))
+    test_get_conversations_empty         || ((failed++))
     test_get_total_unread_empty     || ((failed++))
-    test_get_nonexistent_session    || ((failed++))
-    test_get_sessions_incremental   || ((failed++))
-    test_get_sessions_with_limit    || ((failed++))
-    test_pin_nonexistent_session    || ((failed++))
+    test_get_nonexistent_conversation    || ((failed++))
+    test_get_conversations_incremental   || ((failed++))
+    test_get_conversations_with_limit    || ((failed++))
+    test_pin_nonexistent_conversation    || ((failed++))
     test_unauthorized_access        || ((failed++))
 
     # 需要预置数据的用例
-    test_get_session_by_id          || ((failed++))
-    test_pin_session                || ((failed++))
-    test_mute_session               || ((failed++))
+    test_get_conversation_by_id          || ((failed++))
+    test_pin_conversation                || ((failed++))
+    test_mute_conversation               || ((failed++))
     test_mark_read                  || ((failed++))
     test_get_total_unread_after_clear || ((failed++))
-    test_delete_session             || ((failed++))
-    test_get_sessions_after_delete  || ((failed++))
+    test_delete_conversation             || ((failed++))
+    test_get_conversations_after_delete  || ((failed++))
 
     # 输出结果
     echo ""

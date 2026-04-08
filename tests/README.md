@@ -20,8 +20,8 @@ tests/
 │   │   └── test-group-api.sh     # Group Service API测试
 │   ├── file/
 │   │   └── test-file-api.sh      # File Service API测试
-│   ├── session/
-│   │   └── test-session-api.sh   # Session Service API测试
+│   ├── conversation/
+│   │   └── test-conversation-api.sh   # Conversation Service API测试
 │   ├── sync/
 │   │   └── test-sync-api.sh      # Sync Service API测试
 │   ├── push/
@@ -55,7 +55,7 @@ tests/
 ./tests/api/friend/test-friend-api.sh
 ./tests/api/group/test-group-api.sh
 ./tests/api/file/test-file-api.sh
-./tests/api/session/test-session-api.sh
+./tests/api/conversation/test-conversation-api.sh
 ./tests/api/sync/test-sync-api.sh
 ./tests/api/push/test-push-api.sh
 ./tests/api/calling/test-calling-api.sh

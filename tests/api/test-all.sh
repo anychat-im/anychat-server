@@ -74,12 +74,12 @@ else
 fi
 echo ""
 
-# 运行Session Service测试
-echo -e "${YELLOW}[6/10] 运行 Session Service API 测试...${NC}"
-if "${SCRIPT_DIR}/session/test-session-api.sh"; then
-    echo -e "${GREEN}✓ Session Service 测试通过${NC}"
+# 运行Conversation Service测试
+echo -e "${YELLOW}[6/10] 运行 Conversation Service API 测试...${NC}"
+if "${SCRIPT_DIR}/conversation/test-conversation-api.sh"; then
+    echo -e "${GREEN}✓ Conversation Service 测试通过${NC}"
 else
-    echo -e "${RED}✗ Session Service 测试失败${NC}"
+    echo -e "${RED}✗ Conversation Service 测试失败${NC}"
     ((FAILED++))
 fi
 echo ""

@@ -1,25 +1,25 @@
 syntax = "proto3";
 
-package anychat.session;
+package anychat.conversation;
 
 import "google/protobuf/timestamp.proto";
 import "common/common.proto";
 
-option go_package = "github.com/anychat/server/api/proto/session;sessionpb";
+option go_package = "github.com/anychat/server/api/proto/conversation;conversationpb";
 
-// SessionService 会话管理服务
-service SessionService {
-  // GetSessions 获取用户会话列表（支持增量同步）
-  rpc GetSessions(GetSessionsRequest) returns (GetSessionsResponse);
+// ConversationService 会话管理服务
+service ConversationService {
+  // GetConversations 获取用户会话列表（支持增量同步）
+  rpc GetConversations(GetConversationsRequest) returns (GetConversationsResponse);
 
-  // GetSession 获取单个会话详情
-  rpc GetSession(GetSessionRequest) returns (Session);
+  // GetConversation 获取单个会话详情
+  rpc GetConversation(GetConversationRequest) returns (Conversation);
 
-  // CreateOrUpdateSession 创建或更新会话（消息到达时由消息服务调用）
-  rpc CreateOrUpdateSession(CreateOrUpdateSessionRequest) returns (Session);
+  // CreateOrUpdateConversation 创建或更新会话（消息到达时由消息服务调用）
+  rpc CreateOrUpdateConversation(CreateOrUpdateConversationRequest) returns (Conversation);
 
-  // DeleteSession 删除会话
-  rpc DeleteSession(DeleteSessionRequest) returns (common.Empty);
+  // DeleteConversation 删除会话
+  rpc DeleteConversation(DeleteConversationRequest) returns (common.Empty);
 
   // SetPinned 设置会话置顶/取消置顶
   rpc SetPinned(SetPinnedRequest) returns (common.Empty);
@@ -43,10 +43,10 @@ service SessionService {
   rpc SetAutoDelete(SetAutoDeleteRequest) returns (common.Empty);
 }
 
-// Session 会话
-message Session {
-  string session_id = 1;
-  string session_type = 2;                       // single/group/system
+// Conversation 会话
+message Conversation {
+  string conversation_id = 1;
+  string conversation_type = 2;                       // single/group/system
   string user_id = 3;
   string target_id = 4;                          // 单聊为对方用户ID，群聊为群ID
   string last_message_id = 5;
@@ -62,35 +62,35 @@ message Session {
   google.protobuf.Timestamp updated_at = 13;
 }
 
-// GetSessionsRequest 获取会话列表请求
-message GetSessionsRequest {
+// GetConversationsRequest 获取会话列表请求
+message GetConversationsRequest {
   string user_id = 1;
   int32 limit = 2;
   optional int64 updated_before = 3;             // Unix时间戳，用于增量同步（仅返回此时间之前更新的会话）
 }
 
-// GetSessionsResponse 获取会话列表响应
-message GetSessionsResponse {
-  repeated Session sessions = 1;
+// GetConversationsResponse 获取会话列表响应
+message GetConversationsResponse {
+  repeated Conversation conversations = 1;
   bool has_more = 2;
 }
 
-// GetSessionRequest 获取单个会话请求
-message GetSessionRequest {
+// GetConversationRequest 获取单个会话请求
+message GetConversationRequest {
   string user_id = 1;
-  string session_id = 2;
+  string conversation_id = 2;
 }
 
-// GetSessionByUserAndTargetRequest 根据用户ID、会话类型和目标ID获取会话请求
-message GetSessionByUserAndTargetRequest {
+// GetConversationByUserAndTargetRequest 根据用户ID、会话类型和目标ID获取会话请求
+message GetConversationByUserAndTargetRequest {
   string user_id = 1;
-  string session_type = 2;  // single/group
+  string conversation_type = 2;  // single/group
   string target_id = 3;
 }
 
-// CreateOrUpdateSessionRequest 创建或更新会话请求
-message CreateOrUpdateSessionRequest {
-  string session_type = 1;                       // single/group/system
+// CreateOrUpdateConversationRequest 创建或更新会话请求
+message CreateOrUpdateConversationRequest {
+  string conversation_type = 1;                       // single/group/system
   string user_id = 2;
   string target_id = 3;
   string last_message_id = 4;
@@ -98,30 +98,30 @@ message CreateOrUpdateSessionRequest {
   int64 last_message_timestamp = 6;              // Unix时间戳（秒）
 }
 
-// DeleteSessionRequest 删除会话请求
-message DeleteSessionRequest {
+// DeleteConversationRequest 删除会话请求
+message DeleteConversationRequest {
   string user_id = 1;
-  string session_id = 2;
+  string conversation_id = 2;
 }
 
 // SetPinnedRequest 设置置顶请求
 message SetPinnedRequest {
   string user_id = 1;
-  string session_id = 2;
+  string conversation_id = 2;
   bool pinned = 3;
 }
 
 // SetMutedRequest 设置免打扰请求
 message SetMutedRequest {
   string user_id = 1;
-  string session_id = 2;
+  string conversation_id = 2;
   bool muted = 3;
 }
 
 // ClearUnreadRequest 清除未读数请求
 message ClearUnreadRequest {
   string user_id = 1;
-  string session_id = 2;
+  string conversation_id = 2;
 }
 
 // GetTotalUnreadRequest 获取总未读数请求
@@ -137,20 +137,20 @@ message GetTotalUnreadResponse {
 // IncrUnreadRequest 增加未读数请求
 message IncrUnreadRequest {
   string user_id = 1;
-  string session_id = 2;
+  string conversation_id = 2;
   int32 count = 3;
 }
 
 // SetBurnAfterReadingRequest 设置阅后即焚请求
 message SetBurnAfterReadingRequest {
   string user_id = 1;
-  string session_id = 2;
+  string conversation_id = 2;
   int32 duration = 3;  // 秒,0表示取消
 }
 
 // SetAutoDeleteRequest 设置自动删除请求
 message SetAutoDeleteRequest {
   string user_id = 1;
-  string session_id = 2;
+  string conversation_id = 2;
   int32 duration = 3;  // 秒,0表示取消
 }

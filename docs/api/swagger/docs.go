@@ -3659,7 +3659,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/sessions": {
+        "/conversations": {
             "get": {
                 "security": [
                     {
@@ -3726,7 +3726,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/sessions/unread/total": {
+        "/conversations/unread/total": {
             "get": {
                 "security": [
                     {
@@ -3778,7 +3778,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/sessions/{sessionId}": {
+        "/conversations/{conversationId}": {
             "get": {
                 "security": [
                     {
@@ -3800,7 +3800,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "会话ID",
-                        "name": "sessionId",
+                        "name": "conversationId",
                         "in": "path",
                         "required": true
                     }
@@ -3865,7 +3865,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "会话ID",
-                        "name": "sessionId",
+                        "name": "conversationId",
                         "in": "path",
                         "required": true
                     }
@@ -3892,7 +3892,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/sessions/{sessionId}/mute": {
+        "/conversations/{conversationId}/mute": {
             "put": {
                 "security": [
                     {
@@ -3914,7 +3914,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "会话ID",
-                        "name": "sessionId",
+                        "name": "conversationId",
                         "in": "path",
                         "required": true
                     },
@@ -3956,7 +3956,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/sessions/{sessionId}/pin": {
+        "/conversations/{conversationId}/pin": {
             "put": {
                 "security": [
                     {
@@ -3978,7 +3978,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "会话ID",
-                        "name": "sessionId",
+                        "name": "conversationId",
                         "in": "path",
                         "required": true
                     },
@@ -4020,7 +4020,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/sessions/{sessionId}/read": {
+        "/conversations/{conversationId}/read": {
             "post": {
                 "security": [
                     {
@@ -4042,7 +4042,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "会话ID",
-                        "name": "sessionId",
+                        "name": "conversationId",
                         "in": "path",
                         "required": true
                     }

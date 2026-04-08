@@ -20,7 +20,7 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 	fileHandler := NewFileHandler(clientManager)
 	messageHandler := NewMessageHandler(clientManager)
 	wsHandler := NewWSHandler(clientManager, jwtManager, wsManager, subscriber)
-	sessionHandler := NewSessionHandler(clientManager)
+	conversationHandler := NewConversationHandler(clientManager)
 	syncHandler := NewSyncHandler(clientManager)
 	callingHandler := NewCallingHandler(clientManager)
 	versionHandler := NewVersionHandler(clientManager)
@@ -164,18 +164,18 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 				messages.DELETE("/:messageId", messageHandler.DeleteMessage)
 			}
 
-			// Session路由
-			sessions := authorized.Group("/sessions")
+			// Conversation路由
+			conversations := authorized.Group("/conversations")
 			{
-				sessions.GET("", sessionHandler.GetSessions)
-				sessions.GET("/unread/total", sessionHandler.GetTotalUnread)
-				sessions.GET("/:sessionId", sessionHandler.GetSession)
-				sessions.DELETE("/:sessionId", sessionHandler.DeleteSession)
-				sessions.PUT("/:sessionId/pin", sessionHandler.SetPinned)
-				sessions.PUT("/:sessionId/mute", sessionHandler.SetMuted)
-				sessions.PUT("/:sessionId/burn", sessionHandler.SetBurnAfterReading)
-				sessions.PUT("/:sessionId/auto_delete", sessionHandler.SetAutoDelete)
-				sessions.POST("/:sessionId/read", sessionHandler.MarkRead)
+				conversations.GET("", conversationHandler.GetConversations)
+				conversations.GET("/unread/total", conversationHandler.GetTotalUnread)
+				conversations.GET("/:conversationId", conversationHandler.GetConversation)
+				conversations.DELETE("/:conversationId", conversationHandler.DeleteConversation)
+				conversations.PUT("/:conversationId/pin", conversationHandler.SetPinned)
+				conversations.PUT("/:conversationId/mute", conversationHandler.SetMuted)
+				conversations.PUT("/:conversationId/burn", conversationHandler.SetBurnAfterReading)
+				conversations.PUT("/:conversationId/auto_delete", conversationHandler.SetAutoDelete)
+				conversations.POST("/:conversationId/read", conversationHandler.MarkRead)
 			}
 
 			// Sync路由

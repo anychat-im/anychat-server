@@ -1,7 +1,7 @@
 -- 会话表
-CREATE TABLE sessions (
-    session_id      VARCHAR(100) PRIMARY KEY,
-    session_type    VARCHAR(20)  NOT NULL,                -- single/group/system
+CREATE TABLE conversations (
+    conversation_id      VARCHAR(100) PRIMARY KEY,
+    conversation_type    VARCHAR(20)  NOT NULL,                -- single/group/system
     user_id         VARCHAR(100) NOT NULL,
     target_id       VARCHAR(100) NOT NULL,                -- 单聊为对方用户ID，群聊为群ID
     last_message_id VARCHAR(100),
@@ -17,9 +17,9 @@ CREATE TABLE sessions (
     updated_at      TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE UNIQUE INDEX uk_session_user_target ON sessions (user_id, session_type, target_id);
-CREATE INDEX idx_sessions_user_id      ON sessions (user_id);
-CREATE INDEX idx_sessions_updated_at   ON sessions (updated_at);
+CREATE UNIQUE INDEX uk_conversation_user_target ON conversations (user_id, conversation_type, target_id);
+CREATE INDEX idx_conversations_user_id      ON conversations (user_id);
+CREATE INDEX idx_conversations_updated_at   ON conversations (updated_at);
 
 -- 消息发送幂等表
 CREATE TABLE IF NOT EXISTS message_send_idempotency (

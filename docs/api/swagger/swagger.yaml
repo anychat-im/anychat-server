@@ -2913,7 +2913,7 @@ paths:
       summary: 转让群主
       tags:
       - 群组
-  /sessions:
+  /conversations:
     get:
       consumes:
       - application/json
@@ -2953,7 +2953,7 @@ paths:
       summary: 获取会话列表
       tags:
       - 会话
-  /sessions/{sessionId}:
+  /conversations/{conversationId}:
     delete:
       consumes:
       - application/json
@@ -2961,7 +2961,7 @@ paths:
       parameters:
       - description: 会话ID
         in: path
-        name: sessionId
+        name: conversationId
         required: true
         type: string
       produces:
@@ -2991,7 +2991,7 @@ paths:
       parameters:
       - description: 会话ID
         in: path
-        name: sessionId
+        name: conversationId
         required: true
         type: string
       produces:
@@ -3023,7 +3023,7 @@ paths:
       summary: 获取单个会话
       tags:
       - 会话
-  /sessions/{sessionId}/mute:
+  /conversations/{conversationId}/mute:
     put:
       consumes:
       - application/json
@@ -3031,7 +3031,7 @@ paths:
       parameters:
       - description: 会话ID
         in: path
-        name: sessionId
+        name: conversationId
         required: true
         type: string
       - description: 免打扰状态
@@ -3064,7 +3064,7 @@ paths:
       summary: 设置会话免打扰
       tags:
       - 会话
-  /sessions/{sessionId}/pin:
+  /conversations/{conversationId}/pin:
     put:
       consumes:
       - application/json
@@ -3072,7 +3072,7 @@ paths:
       parameters:
       - description: 会话ID
         in: path
-        name: sessionId
+        name: conversationId
         required: true
         type: string
       - description: 置顶状态
@@ -3105,7 +3105,7 @@ paths:
       summary: 设置会话置顶
       tags:
       - 会话
-  /sessions/{sessionId}/read:
+  /conversations/{conversationId}/read:
     post:
       consumes:
       - application/json
@@ -3113,7 +3113,7 @@ paths:
       parameters:
       - description: 会话ID
         in: path
-        name: sessionId
+        name: conversationId
         required: true
         type: string
       produces:
@@ -3136,7 +3136,7 @@ paths:
       summary: 标记会话已读
       tags:
       - 会话
-  /sessions/unread/total:
+  /conversations/unread/total:
     get:
       consumes:
       - application/json

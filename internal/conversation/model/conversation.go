@@ -4,10 +4,10 @@ import (
 	"time"
 )
 
-// Session 会话模型
-type Session struct {
-	SessionID          string     `gorm:"column:session_id;primaryKey"`
-	SessionType        string     `gorm:"column:session_type;not null"` // single/group/system
+// Conversation 会话模型
+type Conversation struct {
+	ConversationID     string     `gorm:"column:conversation_id;primaryKey"`
+	ConversationType   string     `gorm:"column:conversation_type;not null"` // single/group/system
 	UserID             string     `gorm:"column:user_id;not null"`
 	TargetID           string     `gorm:"column:target_id;not null"`
 	LastMessageID      string     `gorm:"column:last_message_id"`
@@ -24,13 +24,13 @@ type Session struct {
 }
 
 // TableName 指定表名
-func (Session) TableName() string {
-	return "sessions"
+func (Conversation) TableName() string {
+	return "conversations"
 }
 
-// SessionType 会话类型常量
+// ConversationType 会话类型常量
 const (
-	SessionTypeSingle = "single"
-	SessionTypeGroup  = "group"
-	SessionTypeSystem = "system"
+	ConversationTypeSingle = "single"
+	ConversationTypeGroup  = "group"
+	ConversationTypeSystem = "system"
 )

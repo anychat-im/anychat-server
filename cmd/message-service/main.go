@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
+	conversationpb "github.com/anychat/server/api/proto/conversation"
 	grouppb "github.com/anychat/server/api/proto/group"
 	messagepb "github.com/anychat/server/api/proto/message"
-	sessionpb "github.com/anychat/server/api/proto/session"
 	messagegrpc "github.com/anychat/server/internal/message/grpc"
 	"github.com/anychat/server/internal/message/repository"
 	"github.com/anychat/server/internal/message/service"
@@ -73,11 +73,11 @@ func main() {
 	logger.Info("Notification publisher initialized")
 
 	// 连接依赖服务
-	sessionConn, sessionClient, err := connectSessionService()
+	conversationConn, conversationClient, err := connectConversationService()
 	if err != nil {
-		logger.Fatal("Failed to connect session-service", zap.Error(err))
+		logger.Fatal("Failed to connect conversation-service", zap.Error(err))
 	}
-	defer sessionConn.Close()
+	defer conversationConn.Close()
 
 	groupConn, groupClient, err := connectGroupService()
 	if err != nil {
@@ -97,7 +97,7 @@ func main() {
 		readReceiptRepo,
 		sequenceRepo,
 		sendIdempotencyRepo,
-		sessionClient,
+		conversationClient,
 		groupClient,
 		notificationPub,
 		db,
@@ -194,7 +194,7 @@ func loadConfig() error {
 	viper.SetDefault("log.level", "info")
 	viper.SetDefault("log.output", "stdout")
 	viper.SetDefault("services.message.grpc_addr", "localhost:9005")
-	viper.SetDefault("services.session.grpc_addr", "localhost:9006")
+	viper.SetDefault("services.conversation.grpc_addr", "localhost:9006")
 	viper.SetDefault("services.group.grpc_addr", "localhost:9004")
 
 	// 自动读取环境变量
@@ -270,13 +270,13 @@ func connectNATS() (*nats.Conn, error) {
 	return nc, nil
 }
 
-func connectSessionService() (*grpc.ClientConn, sessionpb.SessionServiceClient, error) {
-	addr := viper.GetString("services.session.grpc_addr")
+func connectConversationService() (*grpc.ClientConn, conversationpb.ConversationServiceClient, error) {
+	addr := viper.GetString("services.conversation.grpc_addr")
 	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to connect session service: %w", err)
+		return nil, nil, fmt.Errorf("failed to connect conversation service: %w", err)
 	}
-	return conn, sessionpb.NewSessionServiceClient(conn), nil
+	return conn, conversationpb.NewConversationServiceClient(conn), nil
 }
 
 func connectGroupService() (*grpc.ClientConn, grouppb.GroupServiceClient, error) {

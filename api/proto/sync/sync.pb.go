@@ -7,10 +7,10 @@
 package syncpb
 
 import (
+	conversation "github.com/anychat/server/api/proto/conversation"
 	friend "github.com/anychat/server/api/proto/friend"
 	group "github.com/anychat/server/api/proto/group"
 	message "github.com/anychat/server/api/proto/message"
-	session "github.com/anychat/server/api/proto/session"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -255,29 +255,29 @@ func (x *SyncGroupData) GetTotal() int64 {
 	return 0
 }
 
-// SyncSessionData 会话增量数据
-type SyncSessionData struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Sessions      []*session.Session     `protobuf:"bytes,1,rep,name=sessions,proto3" json:"sessions,omitempty"`
-	HasMore       bool                   `protobuf:"varint,2,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`
+// SyncConversationData 会话增量数据
+type SyncConversationData struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Conversations []*conversation.Conversation `protobuf:"bytes,1,rep,name=conversations,proto3" json:"conversations,omitempty"`
+	HasMore       bool                         `protobuf:"varint,2,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SyncSessionData) Reset() {
-	*x = SyncSessionData{}
+func (x *SyncConversationData) Reset() {
+	*x = SyncConversationData{}
 	mi := &file_sync_sync_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SyncSessionData) String() string {
+func (x *SyncConversationData) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SyncSessionData) ProtoMessage() {}
+func (*SyncConversationData) ProtoMessage() {}
 
-func (x *SyncSessionData) ProtoReflect() protoreflect.Message {
+func (x *SyncConversationData) ProtoReflect() protoreflect.Message {
 	mi := &file_sync_sync_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -289,19 +289,19 @@ func (x *SyncSessionData) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SyncSessionData.ProtoReflect.Descriptor instead.
-func (*SyncSessionData) Descriptor() ([]byte, []int) {
+// Deprecated: Use SyncConversationData.ProtoReflect.Descriptor instead.
+func (*SyncConversationData) Descriptor() ([]byte, []int) {
 	return file_sync_sync_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *SyncSessionData) GetSessions() []*session.Session {
+func (x *SyncConversationData) GetConversations() []*conversation.Conversation {
 	if x != nil {
-		return x.Sessions
+		return x.Conversations
 	}
 	return nil
 }
 
-func (x *SyncSessionData) GetHasMore() bool {
+func (x *SyncConversationData) GetHasMore() bool {
 	if x != nil {
 		return x.HasMore
 	}
@@ -379,11 +379,11 @@ func (x *ConversationMessages) GetHasMore() bool {
 
 // SyncResponse 同步响应
 type SyncResponse struct {
-	state         protoimpl.MessageState  `protogen:"open.v1"`
-	Friends       *SyncFriendData         `protobuf:"bytes,1,opt,name=friends,proto3" json:"friends,omitempty"`
-	Groups        *SyncGroupData          `protobuf:"bytes,2,opt,name=groups,proto3" json:"groups,omitempty"`
-	Sessions      *SyncSessionData        `protobuf:"bytes,3,opt,name=sessions,proto3" json:"sessions,omitempty"`
-	Conversations []*ConversationMessages `protobuf:"bytes,4,rep,name=conversations,proto3" json:"conversations,omitempty"`
+	state            protoimpl.MessageState  `protogen:"open.v1"`
+	Friends          *SyncFriendData         `protobuf:"bytes,1,opt,name=friends,proto3" json:"friends,omitempty"`
+	Groups           *SyncGroupData          `protobuf:"bytes,2,opt,name=groups,proto3" json:"groups,omitempty"`
+	ConversationData *SyncConversationData   `protobuf:"bytes,3,opt,name=conversation_data,json=conversationData,proto3" json:"conversation_data,omitempty"`
+	Conversations    []*ConversationMessages `protobuf:"bytes,4,rep,name=conversations,proto3" json:"conversations,omitempty"`
 	// 本次同步的服务器时间戳，客户端保存作为下次同步的 last_sync_time
 	SyncTime      int64 `protobuf:"varint,5,opt,name=sync_time,json=syncTime,proto3" json:"sync_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -434,9 +434,9 @@ func (x *SyncResponse) GetGroups() *SyncGroupData {
 	return nil
 }
 
-func (x *SyncResponse) GetSessions() *SyncSessionData {
+func (x *SyncResponse) GetConversationData() *SyncConversationData {
 	if x != nil {
-		return x.Sessions
+		return x.ConversationData
 	}
 	return nil
 }
@@ -566,7 +566,7 @@ var File_sync_sync_proto protoreflect.FileDescriptor
 
 const file_sync_sync_proto_rawDesc = "" +
 	"\n" +
-	"\x0fsync/sync.proto\x12\fanychat.sync\x1a\x13friend/friend.proto\x1a\x11group/group.proto\x1a\x15session/session.proto\x1a\x15message/message.proto\"\x82\x01\n" +
+	"\x0fsync/sync.proto\x12\fanychat.sync\x1a\x13friend/friend.proto\x1a\x11group/group.proto\x1a\x1fconversation/conversation.proto\x1a\x15message/message.proto\"\x82\x01\n" +
 	"\x0fConversationSeq\x12'\n" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12+\n" +
 	"\x11conversation_type\x18\x02 \x01(\tR\x10conversationType\x12\x19\n" +
@@ -580,19 +580,19 @@ const file_sync_sync_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"W\n" +
 	"\rSyncGroupData\x120\n" +
 	"\x06groups\x18\x01 \x03(\v2\x18.anychat.group.GroupInfoR\x06groups\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"b\n" +
-	"\x0fSyncSessionData\x124\n" +
-	"\bsessions\x18\x01 \x03(\v2\x18.anychat.session.SessionR\bsessions\x12\x19\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"{\n" +
+	"\x14SyncConversationData\x12H\n" +
+	"\rconversations\x18\x01 \x03(\v2\".anychat.conversation.ConversationR\rconversations\x12\x19\n" +
 	"\bhas_more\x18\x02 \x01(\bR\ahasMore\"\xbd\x01\n" +
 	"\x14ConversationMessages\x12'\n" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12+\n" +
 	"\x11conversation_type\x18\x02 \x01(\tR\x10conversationType\x124\n" +
 	"\bmessages\x18\x03 \x03(\v2\x18.anychat.message.MessageR\bmessages\x12\x19\n" +
-	"\bhas_more\x18\x04 \x01(\bR\ahasMore\"\x9d\x02\n" +
+	"\bhas_more\x18\x04 \x01(\bR\ahasMore\"\xb3\x02\n" +
 	"\fSyncResponse\x126\n" +
 	"\afriends\x18\x01 \x01(\v2\x1c.anychat.sync.SyncFriendDataR\afriends\x123\n" +
-	"\x06groups\x18\x02 \x01(\v2\x1b.anychat.sync.SyncGroupDataR\x06groups\x129\n" +
-	"\bsessions\x18\x03 \x01(\v2\x1d.anychat.sync.SyncSessionDataR\bsessions\x12H\n" +
+	"\x06groups\x18\x02 \x01(\v2\x1b.anychat.sync.SyncGroupDataR\x06groups\x12O\n" +
+	"\x11conversation_data\x18\x03 \x01(\v2\".anychat.sync.SyncConversationDataR\x10conversationData\x12H\n" +
 	"\rconversations\x18\x04 \x03(\v2\".anychat.sync.ConversationMessagesR\rconversations\x12\x1b\n" +
 	"\tsync_time\x18\x05 \x01(\x03R\bsyncTime\"\xb0\x01\n" +
 	"\x13SyncMessagesRequest\x12\x17\n" +
@@ -619,29 +619,29 @@ func file_sync_sync_proto_rawDescGZIP() []byte {
 
 var file_sync_sync_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_sync_sync_proto_goTypes = []any{
-	(*ConversationSeq)(nil),      // 0: anychat.sync.ConversationSeq
-	(*SyncRequest)(nil),          // 1: anychat.sync.SyncRequest
-	(*SyncFriendData)(nil),       // 2: anychat.sync.SyncFriendData
-	(*SyncGroupData)(nil),        // 3: anychat.sync.SyncGroupData
-	(*SyncSessionData)(nil),      // 4: anychat.sync.SyncSessionData
-	(*ConversationMessages)(nil), // 5: anychat.sync.ConversationMessages
-	(*SyncResponse)(nil),         // 6: anychat.sync.SyncResponse
-	(*SyncMessagesRequest)(nil),  // 7: anychat.sync.SyncMessagesRequest
-	(*SyncMessagesResponse)(nil), // 8: anychat.sync.SyncMessagesResponse
-	(*friend.Friend)(nil),        // 9: anychat.friend.Friend
-	(*group.GroupInfo)(nil),      // 10: anychat.group.GroupInfo
-	(*session.Session)(nil),      // 11: anychat.session.Session
-	(*message.Message)(nil),      // 12: anychat.message.Message
+	(*ConversationSeq)(nil),           // 0: anychat.sync.ConversationSeq
+	(*SyncRequest)(nil),               // 1: anychat.sync.SyncRequest
+	(*SyncFriendData)(nil),            // 2: anychat.sync.SyncFriendData
+	(*SyncGroupData)(nil),             // 3: anychat.sync.SyncGroupData
+	(*SyncConversationData)(nil),      // 4: anychat.sync.SyncConversationData
+	(*ConversationMessages)(nil),      // 5: anychat.sync.ConversationMessages
+	(*SyncResponse)(nil),              // 6: anychat.sync.SyncResponse
+	(*SyncMessagesRequest)(nil),       // 7: anychat.sync.SyncMessagesRequest
+	(*SyncMessagesResponse)(nil),      // 8: anychat.sync.SyncMessagesResponse
+	(*friend.Friend)(nil),             // 9: anychat.friend.Friend
+	(*group.GroupInfo)(nil),           // 10: anychat.group.GroupInfo
+	(*conversation.Conversation)(nil), // 11: anychat.conversation.Conversation
+	(*message.Message)(nil),           // 12: anychat.message.Message
 }
 var file_sync_sync_proto_depIdxs = []int32{
 	0,  // 0: anychat.sync.SyncRequest.conversation_seqs:type_name -> anychat.sync.ConversationSeq
 	9,  // 1: anychat.sync.SyncFriendData.friends:type_name -> anychat.friend.Friend
 	10, // 2: anychat.sync.SyncGroupData.groups:type_name -> anychat.group.GroupInfo
-	11, // 3: anychat.sync.SyncSessionData.sessions:type_name -> anychat.session.Session
+	11, // 3: anychat.sync.SyncConversationData.conversations:type_name -> anychat.conversation.Conversation
 	12, // 4: anychat.sync.ConversationMessages.messages:type_name -> anychat.message.Message
 	2,  // 5: anychat.sync.SyncResponse.friends:type_name -> anychat.sync.SyncFriendData
 	3,  // 6: anychat.sync.SyncResponse.groups:type_name -> anychat.sync.SyncGroupData
-	4,  // 7: anychat.sync.SyncResponse.sessions:type_name -> anychat.sync.SyncSessionData
+	4,  // 7: anychat.sync.SyncResponse.conversation_data:type_name -> anychat.sync.SyncConversationData
 	5,  // 8: anychat.sync.SyncResponse.conversations:type_name -> anychat.sync.ConversationMessages
 	0,  // 9: anychat.sync.SyncMessagesRequest.conversation_seqs:type_name -> anychat.sync.ConversationSeq
 	5,  // 10: anychat.sync.SyncMessagesResponse.conversations:type_name -> anychat.sync.ConversationMessages

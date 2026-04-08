@@ -502,17 +502,17 @@
 
 ---
 
-## 4.6 Session Service - 推送通知接口
+## 4.6 Conversation Service - 推送通知接口
 
 **推送场景**:
 
 1. **会话未读数更新通知**
-   - NATS主题: `notification.session.unread_updated.{user_id}`
+   - NATS主题: `notification.conversation.unread_updated.{user_id}`
    - 触发时机: 会话未读数变化（新消息、已读）
    - 消息格式:
    ```json
    {
-     "type": "session.unread_updated",
+     "type": "conversation.unread_updated",
      "payload": {
        "conversation_id": "conv-456",
        "conversation_type": "single|group",
@@ -528,12 +528,12 @@
    ```
 
 2. **会话置顶状态同步**
-   - NATS主题: `notification.session.pin_updated.{user_id}`
+   - NATS主题: `notification.conversation.pin_updated.{user_id}`
    - 触发时机: 会话置顶/取消置顶（多端同步）
    - 消息格式:
    ```json
    {
-     "type": "session.pin_updated",
+     "type": "conversation.pin_updated",
      "payload": {
        "conversation_id": "conv-456",
        "is_pinned": true,
@@ -543,12 +543,12 @@
    ```
 
 3. **会话删除同步**
-   - NATS主题: `notification.session.deleted.{user_id}`
+   - NATS主题: `notification.conversation.deleted.{user_id}`
    - 触发时机: 删除会话（多端同步）
    - 消息格式:
    ```json
    {
-     "type": "session.deleted",
+     "type": "conversation.deleted",
      "payload": {
        "conversation_id": "conv-456",
        "deleted_at": 1234567890
@@ -557,12 +557,12 @@
    ```
 
 4. **会话免打扰设置同步**
-   - NATS主题: `notification.session.mute_updated.{user_id}`
+   - NATS主题: `notification.conversation.mute_updated.{user_id}`
    - 触发时机: 设置/取消免打扰（多端同步）
    - 消息格式:
    ```json
    {
-     "type": "session.mute_updated",
+     "type": "conversation.mute_updated",
      "payload": {
        "conversation_id": "conv-456",
        "is_muted": true,
@@ -816,7 +816,7 @@ Gateway Service是推送通知的核心枢纽，负责：
      "payload": {
        "sync_id": "sync-123",
        "sync_type": "full|incremental",
-       "data_types": ["messages", "sessions", "contacts"],
+       "data_types": ["messages", "conversations", "contacts"],
        "from_device_id": "device-456",
        "timestamp": 1234567890
      }

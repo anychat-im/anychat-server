@@ -10,13 +10,14 @@ import (
 	"syscall"
 	"time"
 
+	conversationpb "github.com/anychat/server/api/proto/conversation"
 	friendpb "github.com/anychat/server/api/proto/friend"
 	grouppb "github.com/anychat/server/api/proto/group"
 	messagepb "github.com/anychat/server/api/proto/message"
-	sessionpb "github.com/anychat/server/api/proto/session"
 	syncpb "github.com/anychat/server/api/proto/sync"
 	syncgrpc "github.com/anychat/server/internal/sync/grpc"
 	"github.com/anychat/server/internal/sync/service"
+	"github.com/anychat/server/pkg/config"
 	grpcpkg "github.com/anychat/server/pkg/grpc"
 	"github.com/anychat/server/pkg/logger"
 	"github.com/anychat/server/pkg/notification"
@@ -26,7 +27,6 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"github.com/anychat/server/pkg/config"
 )
 
 const (
@@ -66,13 +66,13 @@ func main() {
 		logger.Fatal("Failed to connect group-service", zap.Error(err))
 	}
 
-	sessionClient, err := connectService[sessionpb.SessionServiceClient](
-		viper.GetString("services.session.grpc_addr"), "session-service",
-		func(cc *grpc.ClientConn) sessionpb.SessionServiceClient {
-			return sessionpb.NewSessionServiceClient(cc)
+	conversationClient, err := connectService[conversationpb.ConversationServiceClient](
+		viper.GetString("services.conversation.grpc_addr"), "conversation-service",
+		func(cc *grpc.ClientConn) conversationpb.ConversationServiceClient {
+			return conversationpb.NewConversationServiceClient(cc)
 		})
 	if err != nil {
-		logger.Fatal("Failed to connect session-service", zap.Error(err))
+		logger.Fatal("Failed to connect conversation-service", zap.Error(err))
 	}
 
 	messageClient, err := connectService[messagepb.MessageServiceClient](
@@ -97,7 +97,7 @@ func main() {
 	notificationPub := notification.NewPublisher(nc)
 
 	// 初始化服务
-	syncSvc := service.NewSyncService(friendClient, groupClient, sessionClient, messageClient, notificationPub)
+	syncSvc := service.NewSyncService(friendClient, groupClient, conversationClient, messageClient, notificationPub)
 
 	// 初始化并启动gRPC服务器
 	grpcServer := grpc.NewServer(
@@ -172,7 +172,7 @@ func loadConfig() error {
 	viper.SetDefault("nats.url", "nats://localhost:4222")
 	viper.SetDefault("services.friend.grpc_addr", "localhost:9003")
 	viper.SetDefault("services.group.grpc_addr", "localhost:9005")
-	viper.SetDefault("services.session.grpc_addr", "localhost:9006")
+	viper.SetDefault("services.conversation.grpc_addr", "localhost:9006")
 	viper.SetDefault("services.message.grpc_addr", "localhost:9004")
 
 	viper.AutomaticEnv()

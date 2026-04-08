@@ -213,7 +213,7 @@ components:
 
         **管理相关**: `admin.announcement` / `admin.user_banned` / `admin.maintenance`
 
-        **会话相关**: `session.unread_updated` / `session.pin_updated` / `session.deleted` / `session.mute_updated`
+        **会话相关**: `conversation.unread_updated` / `conversation.pin_updated` / `conversation.deleted` / `conversation.mute_updated`
       payload:
         type: object
         properties:
@@ -263,10 +263,10 @@ components:
                   - admin.announcement
                   - admin.user_banned
                   - admin.maintenance
-                  - session.unread_updated
-                  - session.pin_updated
-                  - session.deleted
-                  - session.mute_updated
+                  - conversation.unread_updated
+                  - conversation.pin_updated
+                  - conversation.deleted
+                  - conversation.mute_updated
               timestamp:
                 type: integer
                 format: int64

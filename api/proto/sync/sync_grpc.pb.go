@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // SyncService 数据同步服务
-// 负责多端增量同步，聚合 friend/group/session/message 服务的数据
+// 负责多端增量同步，聚合 friend/group/conversation/message 服务的数据
 type SyncServiceClient interface {
 	// Sync 全量/增量同步
 	// 客户端登录或从后台恢复时调用，返回自 last_sync_time 后的所有变更
@@ -71,7 +71,7 @@ func (c *syncServiceClient) SyncMessages(ctx context.Context, in *SyncMessagesRe
 // for forward compatibility.
 //
 // SyncService 数据同步服务
-// 负责多端增量同步，聚合 friend/group/session/message 服务的数据
+// 负责多端增量同步，聚合 friend/group/conversation/message 服务的数据
 type SyncServiceServer interface {
 	// Sync 全量/增量同步
 	// 客户端登录或从后台恢复时调用，返回自 last_sync_time 后的所有变更

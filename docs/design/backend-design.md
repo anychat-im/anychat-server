@@ -19,7 +19,7 @@
 | Friend Service | [friend/总体设计.md](friend/README.md) | 好友关系管理 |
 | Group Service | [group/总体设计.md](group/README.md) | 群组管理 |
 | Message Service | [message/总体设计.md](message/README.md) | 消息处理与存储 |
-| Session Service | [session/总体设计.md](session/README.md) | 会话管理 |
+| Conversation Service | [conversation/总体设计.md](conversation/README.md) | 会话管理 |
 | File Service | [file/总体设计.md](file/README.md) | 文件上传下载 |
 | Push Service | [push/总体设计.md](push/README.md) | 离线推送 |
 | Gateway Service | [gateway/总体设计.md](gateway/README.md) | WebSocket网关 |
@@ -53,7 +53,7 @@ graph TB
 
         subgraph Row2[" "]
             Message[Message Service<br/>8005/9005]
-            Session[Session Service<br/>8006/9006]
+            Conversation[Conversation Service<br/>8006/9006]
             File[File Service<br/>8007/9007]
             Push[Push Service<br/>8008/9008]
         end
@@ -112,7 +112,7 @@ graph TB
 
     class Clients clientStyle
     class GW gatewayStyle
-    class Auth,User,Friend,Group,Message,Session,File,Push,LiveKit,Sync,Admin serviceStyle
+    class Auth,User,Friend,Group,Message,Conversation,File,Push,LiveKit,Sync,Admin serviceStyle
     class PG,Redis,NATS,MinIO infraStyle
     class ZITADEL,LK externalStyle
     class Prometheus,Grafana,Jaeger monitorStyle
@@ -233,7 +233,7 @@ graph TB
 
 ---
 
-### 3.6 Session Service (会话管理服务)
+### 3.6 Conversation Service (会话管理服务)
 
 **职责**: 会话列表、会话状态、未读数管理
 
@@ -243,7 +243,7 @@ graph TB
 - 未读数管理
 
 **详细设计**:
-- [会话管理](session/session.md)
+- [会话管理](conversation/conversation.md)
 
 ---
 
@@ -673,7 +673,7 @@ graph TB
 
 ---
 
-### 4.6 Session Service (会话管理服务)
+### 4.6 Conversation Service (会话管理服务)
 
 **职责**: 会话列表、会话状态、未读数管理
 
@@ -709,15 +709,15 @@ graph TB
    - 会话设置同步
 
 **数据模型**:
-- sessions: 会话表
+- conversations: 会话表
 - session_settings: 会话设置
 - session_unread: 未读数记录
 
 **推送通知**:
-- `notification.session.unread_updated.{user_id}` - 会话未读数更新通知
-- `notification.session.pin_updated.{user_id}` - 会话置顶状态同步（多端）
-- `notification.session.deleted.{user_id}` - 会话删除同步（多端）
-- `notification.session.mute_updated.{user_id}` - 会话免打扰设置同步（多端）
+- `notification.conversation.unread_updated.{user_id}` - 会话未读数更新通知
+- `notification.conversation.pin_updated.{user_id}` - 会话置顶状态同步（多端）
+- `notification.conversation.deleted.{user_id}` - 会话删除同步（多端）
+- `notification.conversation.mute_updated.{user_id}` - 会话免打扰设置同步（多端）
 
 **依赖服务**:
 - Message Service: 最后消息
@@ -836,7 +836,7 @@ graph TB
 **依赖服务**:
 - User Service: 推送Token
 - Message Service: 消息内容
-- Session Service: 免打扰设置
+- Conversation Service: 免打扰设置
 - APNs: iOS推送
 - FCM: Android推送
 - Redis: 推送队列
@@ -1009,7 +1009,7 @@ Gateway Service作为推送通知的核心枢纽，负责：
 **依赖服务**:
 - Friend Service
 - Group Service
-- Session Service
+- Conversation Service
 - Message Service
 - Redis: 同步状态缓存
 - PostgreSQL: 数据版本
@@ -1109,7 +1109,7 @@ Gateway Service作为推送通知的核心枢纽，负责：
    - **User**: 资料更新、好友资料变更、在线状态
    - **Friend**: 好友请求、请求处理结果、好友删除、黑名单变更
    - **Group**: 群组邀请、成员加入/退出、信息更新、角色变更、禁言、解散
-   - **Session**: 未读数更新、置顶状态、免打扰设置
+   - **Conversation**: 未读数更新、置顶状态、免打扰设置
    - **File**: 上传完成、处理进度、过期提醒
    - **Calling**: 通话邀请、状态变更、拒绝通知
    - **Admin**: 系统公告、用户封禁、维护通知
@@ -1250,11 +1250,11 @@ Gateway Service作为推送通知的核心枢纽，负责：
 
 #### 5.1.6 会话相关
 
-- GET    /api/v1/sessions               # 获取会话列表
-- POST   /api/v1/sessions               # 创建会话
-- DELETE /api/v1/sessions/:id           # 删除会话
-- PUT    /api/v1/sessions/:id/pin       # 置顶会话
-- PUT    /api/v1/sessions/:id/mute      # 会话免打扰
+- GET    /api/v1/conversations               # 获取会话列表
+- POST   /api/v1/conversations               # 创建会话
+- DELETE /api/v1/conversations/:id           # 删除会话
+- PUT    /api/v1/conversations/:id/pin       # 置顶会话
+- PUT    /api/v1/conversations/:id/mute      # 会话免打扰
 
 
 #### 5.1.7 文件相关
@@ -1799,7 +1799,7 @@ Authorization: Bearer {accessToken}
     "messages": [
       {
         "messageId": "string",
-        "sessionId": "string",
+        "conversationId": "string",
         "sessionType": "string",    // single/group
         "senderId": "string",
         "senderName": "string",
@@ -1820,7 +1820,7 @@ Authorization: Bearer {accessToken}
 **GET /api/v1/messages/history - 获取历史消息**
 
 查询参数:
-- sessionId: 会话ID
+- conversationId: 会话ID
 - sessionType: 会话类型（single/group）
 - startSeq: 起始序列号
 - limit: 拉取数量（默认20）
@@ -1857,7 +1857,7 @@ Authorization: Bearer {accessToken}
 请求体:
 ```json
 {
-  "sessionId": "string",
+  "conversationId": "string",
   "sessionType": "string",
   "messageIds": ["string"]         // 已读的消息ID列表
 }
@@ -1903,7 +1903,7 @@ Authorization: Bearer {accessToken}
 
 #### 5.2.6 会话相关API详细定义
 
-**GET /api/v1/sessions - 获取会话列表**
+**GET /api/v1/conversations - 获取会话列表**
 
 查询参数:
 - lastUpdateTime: 最后更新时间（增量同步，可选）
@@ -1914,9 +1914,9 @@ Authorization: Bearer {accessToken}
   "code": 0,
   "message": "success",
   "data": {
-    "sessions": [
+    "conversations": [
       {
-        "sessionId": "string",
+        "conversationId": "string",
         "sessionType": "string",      // single/group/system
         "name": "string",
         "avatar": "string",
@@ -1938,7 +1938,7 @@ Authorization: Bearer {accessToken}
 
 ---
 
-**PUT /api/v1/sessions/:id/pin - 置顶会话**
+**PUT /api/v1/conversations/:id/pin - 置顶会话**
 
 路径参数:
 - id: 会话ID
@@ -2591,8 +2591,8 @@ service MessageService {
 }
 
 message SendMessageRequest {
-  string session_id = 1;
-  string session_type = 2; // single/group
+  string conversation_id = 1;
+  string conversation_type = 2; // single/group
   string sender_id = 3;
   string content_type = 4; // text/image/video/voice/file
   string content = 5;
@@ -2611,8 +2611,8 @@ message RecallMessageRequest {
 }
 
 message GetHistoryRequest {
-  string session_id = 1;
-  string session_type = 2;
+  string conversation_id = 1;
+  string conversation_type = 2;
   int64 start_seq = 3;
   int32 limit = 4;
 }
@@ -2633,8 +2633,8 @@ message Message {
 }
 
 message MarkReadRequest {
-  string session_id = 1;
-  string session_type = 2;
+  string conversation_id = 1;
+  string conversation_type = 2;
   string user_id = 3;
   repeated string message_ids = 4;
 }
@@ -2850,7 +2850,7 @@ Token验证失败时,服务器关闭连接并返回错误：
   "timestamp": 1234567890,
   "data": {
     "messageId": "string",
-    "sessionId": "string",
+    "conversationId": "string",
     "sessionType": "single",  // single/group
     "senderId": "string",
     "senderName": "string",
@@ -2996,7 +2996,7 @@ Token验证失败时,服务器关闭连接并返回错误：
 {
   "type": "TYPING",
   "data": {
-    "sessionId": "string",
+    "conversationId": "string",
     "sessionType": "single"
   }
 }
@@ -3009,7 +3009,7 @@ Token验证失败时,服务器关闭连接并返回错误：
   "type": "USER_TYPING",
   "data": {
     "userId": "string",
-    "sessionId": "string",
+    "conversationId": "string",
     "timestamp": 1234567890
   }
 }
@@ -3027,7 +3027,7 @@ Token验证失败时,服务器关闭连接并返回错误：
 {
   "type": "MESSAGE_READ",
   "data": {
-    "sessionId": "string",
+    "conversationId": "string",
     "userId": "string",
     "messageIds": ["string"],
     "timestamp": 1234567890
@@ -3041,7 +3041,7 @@ Token验证失败时,服务器关闭连接并返回错误：
 {
   "type": "GROUP_MESSAGE_READ",
   "data": {
-    "sessionId": "string",
+    "conversationId": "string",
     "groupId": "string",
     "userId": "string",
     "messageId": "string",
@@ -3449,8 +3449,8 @@ CREATE TABLE group_join_requests (
 ```sql
 CREATE TABLE messages_202401 (
   message_id BIGINT PRIMARY KEY,
-  session_id VARCHAR(100) NOT NULL,
-  session_type VARCHAR(20) NOT NULL,        -- single/group
+  conversation_id VARCHAR(100) NOT NULL,
+  conversation_type VARCHAR(20) NOT NULL,        -- single/group
   sender_id BIGINT NOT NULL,
   content_type VARCHAR(20) NOT NULL,        -- text/image/video/voice/file
   content TEXT NOT NULL,
@@ -3459,7 +3459,7 @@ CREATE TABLE messages_202401 (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-  INDEX idx_session_seq (session_id, seq),
+  INDEX idx_session_seq (conversation_id, seq),
   INDEX idx_sender_id (sender_id),
   INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='消息表（按月分表）';
@@ -3514,9 +3514,9 @@ CREATE TABLE message_reads (
 #### 6.7.1 sessions表
 
 ```sql
-CREATE TABLE sessions (
-  session_id VARCHAR(100) PRIMARY KEY,
-  session_type VARCHAR(20) NOT NULL,        -- single/group/system
+CREATE TABLE conversations (
+  conversation_id VARCHAR(100) PRIMARY KEY,
+  conversation_type VARCHAR(20) NOT NULL,        -- single/group/system
   user_id BIGINT NOT NULL,
   target_id BIGINT NOT NULL,                -- 对方用户ID或群ID
   last_message_id BIGINT,
@@ -3717,7 +3717,7 @@ CREATE TABLE audit_logs (
 - 03: Friend Service
 - 04: Group Service
 - 05: Message Service
-- 06: Session Service
+- 06: Conversation Service
 - 07: File Service
 - 08: Push Service
 - 09: Gateway Service
@@ -4034,7 +4034,7 @@ internal/auth/
 │   └── repo_test.go
 ├── model/                 # 数据模型
 │   ├── user.go
-│   ├── session.go
+│   ├── conversation.go
 │   └── device.go
 ├── grpc/                  # gRPC服务实现
 │   └── auth_grpc_server.go

@@ -4245,7 +4245,7 @@
                 }
             }
         },
-        "/sessions": {
+        "/conversations": {
             "get": {
                 "security": [
                     {
@@ -4322,7 +4322,7 @@
                 }
             }
         },
-        "/sessions/unread/total": {
+        "/conversations/unread/total": {
             "get": {
                 "security": [
                     {
@@ -4380,7 +4380,7 @@
                 }
             }
         },
-        "/sessions/{sessionId}": {
+        "/conversations/{conversationId}": {
             "get": {
                 "security": [
                     {
@@ -4395,7 +4395,7 @@
                 "parameters": [
                     {
                         "description": "会话ID",
-                        "name": "sessionId",
+                        "name": "conversationId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -4472,7 +4472,7 @@
                 "parameters": [
                     {
                         "description": "会话ID",
-                        "name": "sessionId",
+                        "name": "conversationId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -4514,7 +4514,7 @@
                 }
             }
         },
-        "/sessions/{sessionId}/mute": {
+        "/conversations/{conversationId}/mute": {
             "put": {
                 "security": [
                     {
@@ -4529,7 +4529,7 @@
                 "parameters": [
                     {
                         "description": "会话ID",
-                        "name": "sessionId",
+                        "name": "conversationId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -4592,7 +4592,7 @@
                 }
             }
         },
-        "/sessions/{sessionId}/pin": {
+        "/conversations/{conversationId}/pin": {
             "put": {
                 "security": [
                     {
@@ -4607,7 +4607,7 @@
                 "parameters": [
                     {
                         "description": "会话ID",
-                        "name": "sessionId",
+                        "name": "conversationId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -4670,7 +4670,7 @@
                 }
             }
         },
-        "/sessions/{sessionId}/read": {
+        "/conversations/{conversationId}/read": {
             "post": {
                 "security": [
                     {
@@ -4685,7 +4685,7 @@
                 "parameters": [
                     {
                         "description": "会话ID",
-                        "name": "sessionId",
+                        "name": "conversationId",
                         "in": "path",
                         "required": true,
                         "schema": {

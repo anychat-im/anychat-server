@@ -22,7 +22,7 @@
 ### 3.1 会话表
 
 ```go
-type Session struct {
+type Conversation struct {
     // ... existing fields
     BurnAfterReading int32 `gorm:"column:burn_after_reading;default:0"` // 阅后即焚时长(秒),0表示关闭
 }
@@ -45,7 +45,7 @@ type Message struct {
 
 | 表名 | 字段名 | 类型 | 说明 |
 |------|--------|------|------|
-| sessions | burn_after_reading | INT | 会话阅后即焚时长（秒） |
+| conversations | burn_after_reading | INT | 会话阅后即焚时长（秒） |
 | messages | burn_after_reading_seconds | INT | 消息级快照 |
 | messages | auto_delete_expire_time | TIMESTAMPTZ | 自动删除策略过期时间 |
 | messages | burn_after_reading_expire_time | TIMESTAMPTZ | 阅后即焚策略过期时间 |
@@ -62,7 +62,7 @@ type Message struct {
   - 在 `messages` 表定义中增加 `burn_after_reading_expire_time TIMESTAMPTZ`
   - 保持 `idx_messages_expire_time` 索引
 - `migrations/000012_create_session_tables.up.sql`
-  - 保持 `sessions.burn_after_reading` 字段定义（无需新增）
+  - 保持 `conversations.burn_after_reading` 字段定义（无需新增）
 
 ## 4. 核心规则
 
@@ -105,15 +105,15 @@ type Message struct {
 sequenceDiagram
     participant Client
     participant Gateway
-    participant SessionService
+    participant ConversationService
     participant DB
     participant NATS
 
-    Client->>Gateway: PUT /sessions/{sessionId}/burn<br/>Body: {duration}
-    Gateway->>SessionService: gRPC SetBurnAfterReading(userId, sessionId, duration)
-    SessionService->>DB: UPDATE sessions.burn_after_reading = duration
-    SessionService->>NATS: 发布 session.burn_updated
-    SessionService-->>Gateway: OK
+    Client->>Gateway: PUT /conversations/{conversationId}/burn<br/>Body: {duration}
+    Gateway->>ConversationService: gRPC SetBurnAfterReading(userId, conversationId, duration)
+    ConversationService->>DB: UPDATE conversations.burn_after_reading = duration
+    ConversationService->>NATS: 发布 conversation.burn_updated
+    ConversationService-->>Gateway: OK
     Gateway-->>Client: 200 OK
 ```
 
@@ -171,7 +171,7 @@ sequenceDiagram
 ### 6.1 设置会话阅后即焚
 
 ```
-PUT /sessions/{sessionId}/burn
+PUT /conversations/{conversationId}/burn
 Body: {"duration": 30}
 Response: {"code": 0}
 ```
