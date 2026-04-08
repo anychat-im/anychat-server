@@ -59,7 +59,6 @@ sequenceDiagram
 ```protobuf
 message RecallMessageRequest {
     string message_id = 1;
-    string user_id = 2;
 }
 ```
 
@@ -68,7 +67,6 @@ message RecallMessageRequest {
 ```protobuf
 message DeleteMessageRequest {
     string message_id = 1;
-    string user_id = 2;
 }
 ```
 

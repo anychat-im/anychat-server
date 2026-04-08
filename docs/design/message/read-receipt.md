@@ -12,10 +12,10 @@
 
 ## 3. 数据模型
 
-### 3.1 ReadReceipt 表
+### 3.1 MessageReadReceipt 表
 
 ```go
-type ReadReceipt struct {
+type MessageReadReceipt struct {
     ID             int64     // 主键
     MessageID      string    // 消息ID
     ConversationID string    // 会话ID

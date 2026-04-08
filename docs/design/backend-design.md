@@ -2601,13 +2601,12 @@ message SendMessageRequest {
 
 message SendMessageResponse {
   string message_id = 1;
-  int64 seq = 2;
-  int64 timestamp = 3;
+  int64 sequence = 2;
+  google.protobuf.Timestamp timestamp = 3;
 }
 
 message RecallMessageRequest {
   string message_id = 1;
-  string user_id = 2;
 }
 
 message GetHistoryRequest {
