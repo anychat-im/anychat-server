@@ -22,6 +22,7 @@ import (
 	grpcpkg "github.com/anychat/server/pkg/grpc"
 	"github.com/anychat/server/pkg/logger"
 	"github.com/anychat/server/pkg/notification"
+	pkgredis "github.com/anychat/server/pkg/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/viper"
@@ -60,6 +61,14 @@ func main() {
 	}
 	logger.Info("Database connected successfully")
 
+	// 连接Redis
+	redisClient, err := initRedis()
+	if err != nil {
+		logger.Fatal("Failed to connect Redis", zap.Error(err))
+	}
+	defer redisClient.Close()
+	logger.Info("Redis connected successfully")
+
 	// 连接NATS
 	nc, err := connectNATS()
 	if err != nil {
@@ -90,6 +99,7 @@ func main() {
 	readReceiptRepo := repository.NewReadReceiptRepository(db)
 	sequenceRepo := repository.NewSequenceRepository(db)
 	sendIdempotencyRepo := repository.NewSendIdempotencyRepository(db)
+	typingRepo := repository.NewTypingRepository(redisClient)
 
 	// 初始化服务
 	messageService := service.NewMessageService(
@@ -97,6 +107,13 @@ func main() {
 		readReceiptRepo,
 		sequenceRepo,
 		sendIdempotencyRepo,
+		typingRepo,
+		service.TypingConfig{
+			DefaultTTL:   time.Duration(viper.GetInt("typing.default_ttl_seconds")) * time.Second,
+			MinTTL:       time.Duration(viper.GetInt("typing.min_ttl_seconds")) * time.Second,
+			MaxTTL:       time.Duration(viper.GetInt("typing.max_ttl_seconds")) * time.Second,
+			EmitDebounce: time.Duration(viper.GetInt("typing.emit_debounce_seconds")) * time.Second,
+		},
 		conversationClient,
 		groupClient,
 		notificationPub,
@@ -190,7 +207,16 @@ func loadConfig() error {
 	viper.SetDefault("database.postgres.user", "anychat")
 	viper.SetDefault("database.postgres.password", "anychat123")
 	viper.SetDefault("database.postgres.database", "anychat")
+	viper.SetDefault("database.redis.host", "localhost")
+	viper.SetDefault("database.redis.port", 6379)
+	viper.SetDefault("database.redis.password", "")
+	viper.SetDefault("database.redis.db", 0)
+	viper.SetDefault("database.redis.pool_size", 10)
 	viper.SetDefault("nats.url", "nats://localhost:4222")
+	viper.SetDefault("typing.default_ttl_seconds", 5)
+	viper.SetDefault("typing.min_ttl_seconds", 3)
+	viper.SetDefault("typing.max_ttl_seconds", 8)
+	viper.SetDefault("typing.emit_debounce_seconds", 2)
 	viper.SetDefault("log.level", "info")
 	viper.SetDefault("log.output", "stdout")
 	viper.SetDefault("services.message.grpc_addr", "localhost:9005")
@@ -238,6 +264,16 @@ func initDatabase() (*gorm.DB, error) {
 		MaxIdleConns:    viper.GetInt("database.postgres.max_idle_conns"),
 		ConnMaxLifetime: viper.GetInt("database.postgres.conn_max_lifetime"),
 		LogLevel:        logLevel,
+	})
+}
+
+func initRedis() (*pkgredis.Client, error) {
+	return pkgredis.NewClient(&pkgredis.Config{
+		Host:     viper.GetString("database.redis.host"),
+		Port:     viper.GetInt("database.redis.port"),
+		Password: viper.GetString("database.redis.password"),
+		DB:       viper.GetInt("database.redis.db"),
+		PoolSize: viper.GetInt("database.redis.pool_size"),
 	})
 }
 

@@ -22,6 +22,7 @@ import (
 // MessageService 消息服务接口
 type MessageService interface {
 	SendMessage(ctx context.Context, req *messagepb.SendMessageRequest) (*messagepb.SendMessageResponse, error)
+	SendTyping(ctx context.Context, req *messagepb.SendTypingRequest) error
 	GetMessages(ctx context.Context, req *messagepb.GetMessagesRequest) (*messagepb.GetMessagesResponse, error)
 	GetMessageById(ctx context.Context, messageID string) (*messagepb.Message, error)
 	RecallMessage(ctx context.Context, messageID, userID string) error
@@ -55,12 +56,27 @@ type SendIdempotencyRepo interface {
 	repository.SendIdempotencyRepository
 }
 
+// TypingRepo 输入状态仓库接口
+type TypingRepo interface {
+	repository.TypingRepository
+}
+
+// TypingConfig 输入状态配置
+type TypingConfig struct {
+	DefaultTTL   time.Duration
+	MinTTL       time.Duration
+	MaxTTL       time.Duration
+	EmitDebounce time.Duration
+}
+
 // messageServiceImpl 消息服务实现
 type messageServiceImpl struct {
 	messageRepo         MessageRepo
 	readReceiptRepo     ReadReceiptRepo
 	sequenceRepo        SequenceRepo
 	sendIdempotencyRepo SendIdempotencyRepo
+	typingRepo          TypingRepo
+	typingConfig        TypingConfig
 	conversationClient  conversationpb.ConversationServiceClient
 	groupClient         grouppb.GroupServiceClient
 	notificationPub     notification.Publisher
@@ -73,16 +89,36 @@ func NewMessageService(
 	readReceiptRepo repository.ReadReceiptRepository,
 	sequenceRepo repository.SequenceRepository,
 	sendIdempotencyRepo repository.SendIdempotencyRepository,
+	typingRepo repository.TypingRepository,
+	typingConfig TypingConfig,
 	conversationClient conversationpb.ConversationServiceClient,
 	groupClient grouppb.GroupServiceClient,
 	notificationPub notification.Publisher,
 	db *gorm.DB,
 ) MessageService {
+	if typingConfig.DefaultTTL <= 0 {
+		typingConfig.DefaultTTL = 5 * time.Second
+	}
+	if typingConfig.MinTTL <= 0 {
+		typingConfig.MinTTL = 3 * time.Second
+	}
+	if typingConfig.MaxTTL <= 0 {
+		typingConfig.MaxTTL = 8 * time.Second
+	}
+	if typingConfig.EmitDebounce <= 0 {
+		typingConfig.EmitDebounce = 2 * time.Second
+	}
+	if typingConfig.MinTTL > typingConfig.MaxTTL {
+		typingConfig.MinTTL = typingConfig.MaxTTL
+	}
+
 	return &messageServiceImpl{
 		messageRepo:         messageRepo,
 		readReceiptRepo:     readReceiptRepo,
 		sequenceRepo:        sequenceRepo,
 		sendIdempotencyRepo: sendIdempotencyRepo,
+		typingRepo:          typingRepo,
+		typingConfig:        typingConfig,
 		conversationClient:  conversationClient,
 		groupClient:         groupClient,
 		notificationPub:     notificationPub,
@@ -215,6 +251,63 @@ func (s *messageServiceImpl) SendMessage(ctx context.Context, req *messagepb.Sen
 		Sequence:  message.Sequence,
 		Timestamp: timestamppb.New(message.CreatedAt),
 	}, nil
+}
+
+// SendTyping 发送正在输入状态
+func (s *messageServiceImpl) SendTyping(ctx context.Context, req *messagepb.SendTypingRequest) error {
+	if req.FromUserId == "" || req.ConversationId == "" {
+		return errors.NewBusiness(errors.CodeParamError, "from_user_id and conversation_id are required")
+	}
+	if s.typingRepo == nil {
+		return errors.NewBusiness(errors.CodeInternalError, "typing repo is not initialized")
+	}
+
+	conversation, err := s.authorizeSend(ctx, req.FromUserId, req.ConversationId)
+	if err != nil {
+		return err
+	}
+	if conversation.ConversationType != model.ConversationTypeSingle {
+		return errors.NewBusiness(errors.CodeInvalidOperation, "typing is only supported in single conversation")
+	}
+
+	ttl, err := s.resolveTypingTTL(req.TtlSeconds)
+	if err != nil {
+		return err
+	}
+	now := time.Now()
+
+	if !req.Typing {
+		if err := s.typingRepo.ClearState(ctx, req.ConversationId, req.FromUserId); err != nil {
+			logger.Error("Failed to clear typing state",
+				zap.String("conversationID", req.ConversationId),
+				zap.String("fromUserID", req.FromUserId),
+				zap.Error(err))
+			return errors.NewBusiness(errors.CodeInternalError, "failed to clear typing state")
+		}
+		return s.publishTypingNotification(conversation.TargetId, req, false, now)
+	}
+
+	if err := s.typingRepo.SetState(ctx, req.ConversationId, req.FromUserId, ttl); err != nil {
+		logger.Error("Failed to persist typing state",
+			zap.String("conversationID", req.ConversationId),
+			zap.String("fromUserID", req.FromUserId),
+			zap.Error(err))
+		return errors.NewBusiness(errors.CodeInternalError, "failed to persist typing state")
+	}
+
+	emit, err := s.typingRepo.AcquireEmitToken(ctx, req.ConversationId, req.FromUserId, s.typingConfig.EmitDebounce)
+	if err != nil {
+		logger.Error("Failed to acquire typing emit token",
+			zap.String("conversationID", req.ConversationId),
+			zap.String("fromUserID", req.FromUserId),
+			zap.Error(err))
+		return errors.NewBusiness(errors.CodeInternalError, "failed to acquire typing emit token")
+	}
+	if !emit {
+		return nil
+	}
+
+	return s.publishTypingNotification(conversation.TargetId, req, true, now.Add(ttl))
 }
 
 func (s *messageServiceImpl) authorizeSend(ctx context.Context, senderID, conversationID string) (*conversationpb.Conversation, error) {
@@ -797,6 +890,50 @@ func (s *messageServiceImpl) ensureConversationAccessible(ctx context.Context, u
 		return errors.NewBusiness(errors.CodeConversationNotFound, "conversation not found")
 	}
 	return nil
+}
+
+func (s *messageServiceImpl) resolveTypingTTL(ttlSeconds *int32) (time.Duration, error) {
+	ttl := s.typingConfig.DefaultTTL
+	if ttlSeconds != nil {
+		if *ttlSeconds <= 0 {
+			return 0, errors.NewBusiness(errors.CodeParamError, "ttl_seconds must be positive")
+		}
+		ttl = time.Duration(*ttlSeconds) * time.Second
+	}
+	if ttl < s.typingConfig.MinTTL || ttl > s.typingConfig.MaxTTL {
+		return 0, errors.NewBusiness(errors.CodeParamError, "ttl_seconds is out of range")
+	}
+	return ttl, nil
+}
+
+func (s *messageServiceImpl) publishTypingNotification(toUserID string, req *messagepb.SendTypingRequest, typing bool, expireAt time.Time) error {
+	if toUserID == "" {
+		logger.Warn("Skip typing notification due to empty target user",
+			zap.String("conversationID", req.ConversationId),
+			zap.String("fromUserID", req.FromUserId))
+		return nil
+	}
+
+	payload := map[string]interface{}{
+		"conversation_id": req.ConversationId,
+		"from_user_id":    req.FromUserId,
+		"typing":          typing,
+		"timestamp":       time.Now().Unix(),
+	}
+	if typing {
+		payload["expire_at"] = expireAt.Unix()
+	}
+	if deviceID := req.GetDeviceId(); deviceID != "" {
+		payload["device_id"] = deviceID
+	}
+
+	notif := notification.NewNotification(
+		notification.TypeMessageTyping,
+		req.FromUserId,
+		notification.PriorityLow,
+	).WithPayload(payload)
+
+	return s.notificationPub.PublishToUser(toUserID, notif)
 }
 
 // modelToProto 将model转换为protobuf消息

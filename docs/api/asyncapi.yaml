@@ -48,6 +48,7 @@ channels:
         oneOf:
           - $ref: '#/components/messages/Ping'
           - $ref: '#/components/messages/MessageSend'
+          - $ref: '#/components/messages/MessageTyping'
 
 components:
   messages:
@@ -184,6 +185,48 @@ components:
             sequence: 42
             timestamp: 1708329600
             localId: local-uuid-12345
+
+    MessageTyping:
+      messageId: messageTyping
+      name: message.typing
+      title: 发送正在输入状态
+      summary: 客户端上报单聊输入状态（输入中/停止输入）
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: message.typing
+          payload:
+            type: object
+            properties:
+              conversationId:
+                type: string
+                description: 会话 ID（仅支持单聊）
+              typing:
+                type: boolean
+                description: true=正在输入，false=停止输入
+              ttlSeconds:
+                type: integer
+                format: int32
+                description: 状态有效期（秒，可选，默认 5）
+              clientTs:
+                type: integer
+                format: int64
+                description: 客户端时间戳（Unix seconds，可选）
+            required:
+              - conversationId
+              - typing
+        required:
+          - type
+          - payload
+        example:
+          type: message.typing
+          payload:
+            conversationId: single_u1_u2
+            typing: true
+            ttlSeconds: 5
+            clientTs: 1744123200
 
     Notification:
       messageId: notification

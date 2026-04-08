@@ -32,6 +32,7 @@ const (
 	MessageService_GetReadReceipts_FullMethodName         = "/anychat.message.MessageService/GetReadReceipts"
 	MessageService_GetConversationSequence_FullMethodName = "/anychat.message.MessageService/GetConversationSequence"
 	MessageService_SearchMessages_FullMethodName          = "/anychat.message.MessageService/SearchMessages"
+	MessageService_SendTyping_FullMethodName              = "/anychat.message.MessageService/SendTyping"
 )
 
 // MessageServiceClient is the client API for MessageService service.
@@ -64,6 +65,8 @@ type MessageServiceClient interface {
 	GetConversationSequence(ctx context.Context, in *GetConversationSequenceRequest, opts ...grpc.CallOption) (*GetConversationSequenceResponse, error)
 	// SearchMessages 搜索消息
 	SearchMessages(ctx context.Context, in *SearchMessagesRequest, opts ...grpc.CallOption) (*SearchMessagesResponse, error)
+	// SendTyping 发送正在输入状态（单聊）
+	SendTyping(ctx context.Context, in *SendTypingRequest, opts ...grpc.CallOption) (*common.Empty, error)
 }
 
 type messageServiceClient struct {
@@ -194,6 +197,16 @@ func (c *messageServiceClient) SearchMessages(ctx context.Context, in *SearchMes
 	return out, nil
 }
 
+func (c *messageServiceClient) SendTyping(ctx context.Context, in *SendTypingRequest, opts ...grpc.CallOption) (*common.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.Empty)
+	err := c.cc.Invoke(ctx, MessageService_SendTyping_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MessageServiceServer is the server API for MessageService service.
 // All implementations must embed UnimplementedMessageServiceServer
 // for forward compatibility.
@@ -224,6 +237,8 @@ type MessageServiceServer interface {
 	GetConversationSequence(context.Context, *GetConversationSequenceRequest) (*GetConversationSequenceResponse, error)
 	// SearchMessages 搜索消息
 	SearchMessages(context.Context, *SearchMessagesRequest) (*SearchMessagesResponse, error)
+	// SendTyping 发送正在输入状态（单聊）
+	SendTyping(context.Context, *SendTypingRequest) (*common.Empty, error)
 	mustEmbedUnimplementedMessageServiceServer()
 }
 
@@ -269,6 +284,9 @@ func (UnimplementedMessageServiceServer) GetConversationSequence(context.Context
 }
 func (UnimplementedMessageServiceServer) SearchMessages(context.Context, *SearchMessagesRequest) (*SearchMessagesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SearchMessages not implemented")
+}
+func (UnimplementedMessageServiceServer) SendTyping(context.Context, *SendTypingRequest) (*common.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SendTyping not implemented")
 }
 func (UnimplementedMessageServiceServer) mustEmbedUnimplementedMessageServiceServer() {}
 func (UnimplementedMessageServiceServer) testEmbeddedByValue()                        {}
@@ -507,6 +525,24 @@ func _MessageService_SearchMessages_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MessageService_SendTyping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendTypingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServiceServer).SendTyping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MessageService_SendTyping_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServiceServer).SendTyping(ctx, req.(*SendTypingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MessageService_ServiceDesc is the grpc.ServiceDesc for MessageService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -561,6 +597,10 @@ var MessageService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchMessages",
 			Handler:    _MessageService_SearchMessages_Handler,
+		},
+		{
+			MethodName: "SendTyping",
+			Handler:    _MessageService_SendTyping_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

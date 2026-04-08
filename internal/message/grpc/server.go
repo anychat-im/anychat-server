@@ -63,6 +63,28 @@ func (s *Server) SendMessage(ctx context.Context, req *messagepb.SendMessageRequ
 	return resp, nil
 }
 
+// SendTyping 发送正在输入状态
+func (s *Server) SendTyping(ctx context.Context, req *messagepb.SendTypingRequest) (*commonpb.Empty, error) {
+	logger.Info("SendTyping called",
+		zap.String("fromUserId", req.FromUserId),
+		zap.String("conversationId", req.ConversationId),
+		zap.Bool("typing", req.Typing))
+
+	if req.ConversationId == "" {
+		return nil, status.Error(codes.InvalidArgument, "conversation_id is required")
+	}
+	if req.FromUserId == "" {
+		return nil, status.Error(codes.InvalidArgument, "from_user_id is required")
+	}
+
+	if err := s.messageService.SendTyping(ctx, req); err != nil {
+		logger.Error("Failed to send typing status", zap.Error(err))
+		return nil, toStatusError(err)
+	}
+
+	return &commonpb.Empty{}, nil
+}
+
 // GetMessages 获取消息列表
 func (s *Server) GetMessages(ctx context.Context, req *messagepb.GetMessagesRequest) (*messagepb.GetMessagesResponse, error) {
 	logger.Info("GetMessages called",
@@ -345,6 +367,8 @@ func toStatusError(err error) error {
 		return status.Error(codes.NotFound, bizErr.Message)
 	case pkgerrors.CodeMessagePermissionDenied:
 		return status.Error(codes.PermissionDenied, bizErr.Message)
+	case pkgerrors.CodeInvalidOperation:
+		return status.Error(codes.FailedPrecondition, bizErr.Message)
 	default:
 		return status.Error(codes.Internal, bizErr.Message)
 	}

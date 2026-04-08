@@ -19,6 +19,7 @@
 | 消息发送 | [send.md](send.md) | 单聊/群聊消息发送 |
 | 消息撤回 | [recall.md](recall.md) | 消息撤回功能 |
 | 已读回执 | [read-receipt.md](read-receipt.md) | 已读回执功能 |
+| 正在输入 | [typing.md](typing.md) | 单聊输入状态提示 |
 | HTTP发送消息 | [http-send.md](http-send.md) | HTTP 发送消息能力 |
 | HTTP消息查询 | [http-query.md](http-query.md) | 历史消息、消息详情、序列号 |
 | HTTP已读与未读 | [http-read.md](http-read.md) | 会话已读、逐条已读（设计）、未读数与回执 |

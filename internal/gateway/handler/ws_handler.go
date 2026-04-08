@@ -117,6 +117,9 @@ func (h *WSHandler) handleClientMessage(c *websocket.Client, msg *websocket.Mess
 	case "message.send":
 		h.handleSendMessage(c, msg.Payload)
 
+	case "message.typing":
+		h.handleSendTyping(c, msg.Payload)
+
 	default:
 		logger.Debug("Unknown WebSocket message type",
 			zap.String("type", msg.Type),
@@ -134,6 +137,13 @@ type sendMessagePayload struct {
 	LocalID        string   `json:"localId,omitempty"`
 }
 
+type sendTypingPayload struct {
+	ConversationID string `json:"conversationId"`
+	Typing         *bool  `json:"typing"`
+	TTLSeconds     *int32 `json:"ttlSeconds,omitempty"`
+	ClientTs       *int64 `json:"clientTs,omitempty"`
+}
+
 // sendMessageResult 发送消息响应结构
 type sendMessageResult struct {
 	MessageID string `json:"messageId"`
@@ -146,6 +156,11 @@ type sendMessageError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 	LocalID string `json:"localId,omitempty"`
+}
+
+type sendTypingError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
 }
 
 // handleSendMessage 解析message.send payload并通过gRPC转发
@@ -212,4 +227,51 @@ func (h *WSHandler) handleSendMessage(c *websocket.Client, payload json.RawMessa
 		Payload: json.RawMessage(resultData),
 	}
 	h.wsManager.SendMessageToUser(c.UserID, wsResp)
+}
+
+func (h *WSHandler) handleSendTyping(c *websocket.Client, payload json.RawMessage) {
+	var req sendTypingPayload
+	if err := json.Unmarshal(payload, &req); err != nil {
+		logger.Warn("Invalid message.typing payload",
+			zap.String("userID", c.UserID),
+			zap.Error(err))
+		return
+	}
+	if req.ConversationID == "" || req.Typing == nil {
+		logger.Warn("Invalid message.typing payload fields",
+			zap.String("userID", c.UserID),
+			zap.String("conversationID", req.ConversationID))
+		return
+	}
+
+	grpcReq := &messagepb.SendTypingRequest{
+		ConversationId: req.ConversationID,
+		FromUserId:     c.UserID,
+		Typing:         *req.Typing,
+	}
+	if req.TTLSeconds != nil {
+		grpcReq.TtlSeconds = req.TTLSeconds
+	}
+	if c.DeviceID != "" {
+		grpcReq.DeviceId = &c.DeviceID
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	if _, err := h.clientManager.Message().SendTyping(ctx, grpcReq); err != nil {
+		logger.Error("Failed to send typing via gRPC",
+			zap.String("userID", c.UserID),
+			zap.Error(err))
+
+		wsErr := &sendTypingError{
+			Code:    "typing_failed",
+			Message: err.Error(),
+		}
+		errData, _ := json.Marshal(wsErr)
+		h.wsManager.SendMessageToUser(c.UserID, &websocket.Message{
+			Type:    "message.error",
+			Payload: json.RawMessage(errData),
+		})
+	}
 }

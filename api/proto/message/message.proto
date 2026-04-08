@@ -44,6 +44,9 @@ service MessageService {
 
   // SearchMessages 搜索消息
   rpc SearchMessages(SearchMessagesRequest) returns (SearchMessagesResponse);
+
+  // SendTyping 发送正在输入状态（单聊）
+  rpc SendTyping(SendTypingRequest) returns (common.Empty);
 }
 
 // Message 消息
@@ -212,4 +215,13 @@ message SearchMessagesRequest {
 message SearchMessagesResponse {
   repeated Message messages = 1;
   int64 total = 2;
+}
+
+// SendTypingRequest 发送输入状态请求
+message SendTypingRequest {
+  string conversation_id = 1;
+  string from_user_id = 2;
+  bool typing = 3;
+  optional int32 ttl_seconds = 4;
+  optional string device_id = 5;
 }
