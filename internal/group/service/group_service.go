@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+	"unicode/utf8"
 
 	messagepb "github.com/anychat/server/api/proto/message"
 	userpb "github.com/anychat/server/api/proto/user"
@@ -1310,6 +1311,13 @@ func (s *groupServiceImpl) IsMember(ctx context.Context, groupID, userID string)
 
 // UpdateMemberRemark 设置/清空群备注（仅对操作者自己可见）
 func (s *groupServiceImpl) UpdateMemberRemark(ctx context.Context, userID, groupID string, req *dto.UpdateMemberRemarkRequest) error {
+	if req == nil {
+		return errors.NewBusiness(errors.CodeParamError, "请求参数不能为空")
+	}
+	if utf8.RuneCountInString(req.Remark) > 20 {
+		return errors.NewBusiness(errors.CodeParamError, "备注名不能超过20个字符")
+	}
+
 	isMember, err := s.memberRepo.IsMember(ctx, groupID, userID)
 	if err != nil {
 		return err

@@ -159,6 +159,9 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 			// 兼容设计文档单数路径
 			groupAlias := authorized.Group("/group")
 			{
+				groupAlias.GET("/list", groupHandler.GetMyGroups)
+				groupAlias.GET("/:id", groupHandler.GetGroupInfo)
+				groupAlias.PUT("/:id/remark", groupHandler.UpdateMemberRemark)
 				groupAlias.POST("/join-by-qrcode", groupHandler.JoinGroupByQRCode)
 				groupAlias.GET("/:id/qrcode", groupHandler.GetGroupQRCode)
 				groupAlias.POST("/:id/qrcode/refresh", groupHandler.RefreshGroupQRCode)

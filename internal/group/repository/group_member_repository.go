@@ -78,11 +78,16 @@ func (r *groupMemberRepositoryImpl) UpdateNickname(ctx context.Context, groupID,
 
 // UpdateRemark 更新群备注（仅对操作者自己可见）
 func (r *groupMemberRepositoryImpl) UpdateRemark(ctx context.Context, groupID, userID, remark string) error {
+	var remarkValue interface{} = remark
+	if remark == "" {
+		remarkValue = nil
+	}
+
 	return r.db.WithContext(ctx).
 		Model(&model.GroupMember{}).
 		Where("group_id = ? AND user_id = ?", groupID, userID).
 		Updates(map[string]interface{}{
-			"group_remark": remark,
+			"group_remark": remarkValue,
 			"updated_at":   time.Now(),
 		}).Error
 }

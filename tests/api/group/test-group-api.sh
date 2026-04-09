@@ -36,6 +36,7 @@ USER1_ID=""
 USER2_ID=""
 USER3_ID=""
 GROUP_ID=""
+GROUP_CURRENT_NAME=""
 JOIN_REQUEST_ID=""
 TEST_PASSED=0
 TEST_FAILED=0
@@ -239,6 +240,10 @@ test_create_group() {
     GROUP_ID=$(echo "$response" | jq -r '.data.groupId // empty')
 
     if [ -n "$GROUP_ID" ] && [ "$GROUP_ID" != "null" ]; then
+        GROUP_CURRENT_NAME=$(echo "$response" | jq -r '.data.name // empty')
+        if [ -z "$GROUP_CURRENT_NAME" ] || [ "$GROUP_CURRENT_NAME" = "null" ]; then
+            GROUP_CURRENT_NAME="$GROUP_NAME"
+        fi
         check_response "$response" "0" "创建群组"
         print_info "群组ID: $GROUP_ID"
     else
@@ -259,7 +264,7 @@ test_get_group_info() {
     local response=$(http_get "${API_BASE}/groups/${GROUP_ID}" "$USER1_TOKEN")
     local name=$(echo "$response" | jq -r '.data.name // empty')
 
-    if [ "$name" = "$GROUP_NAME" ]; then
+    if [ "$name" = "$GROUP_CURRENT_NAME" ]; then
         check_response "$response" "0" "获取群组信息"
         print_info "群名称: $name"
         print_info "群主ID: $(echo "$response" | jq -r '.data.ownerId')"
@@ -303,7 +308,9 @@ test_update_group() {
     local data="{\"name\":\"${new_name}\",\"announcement\":\"这是测试公告\"}"
     local response=$(http_put "${API_BASE}/groups/${GROUP_ID}" "$data" "$USER1_TOKEN")
 
-    check_response "$response" "0" "更新群信息"
+    if check_response "$response" "0" "更新群信息"; then
+        GROUP_CURRENT_NAME="$new_name"
+    fi
 }
 
 # 测试6：邀请成员（需要验证）
@@ -415,9 +422,73 @@ test_update_member_nickname() {
     check_response "$response" "0" "更新群昵称"
 }
 
-# 测试12：移除群成员
+# 测试12：设置/清空群备注并验证展示名
+test_update_group_remark() {
+    print_header "测试12：设置/清空群备注并验证展示名"
+
+    if [ -z "$GROUP_ID" ]; then
+        print_error "跳过测试 - 群组ID为空"
+        return 1
+    fi
+
+    local remark="产品讨论群_${TIMESTAMP}"
+    local set_data="{\"remark\":\"${remark}\"}"
+    local set_response=$(http_put "${API_BASE}/group/${GROUP_ID}/remark" "$set_data" "$USER1_TOKEN")
+    check_response "$set_response" "0" "设置群备注"
+
+    # 验证：当前用户在群详情中看到备注名
+    local detail_with_remark=$(http_get "${API_BASE}/group/${GROUP_ID}" "$USER1_TOKEN")
+    local my_display_name=$(echo "$detail_with_remark" | jq -r '.data.displayName // empty')
+    if [ "$my_display_name" = "$remark" ]; then
+        print_success "群详情展示名使用备注（当前用户）"
+    else
+        print_error "群详情展示名未使用备注（当前用户）"
+        print_info "Response: $detail_with_remark"
+    fi
+
+    # 验证：当前用户在群列表中看到备注名（使用设计文档单数路径）
+    local list_with_remark=$(http_get "${API_BASE}/group/list" "$USER1_TOKEN")
+    local my_list_display_name=$(echo "$list_with_remark" | jq -r --arg gid "$GROUP_ID" '
+        (.data.groups // [])[]?
+        | select((.groupId // .group_id) == $gid)
+        | (.displayName // .display_name // empty)
+    ' | head -n 1)
+    if [ "$my_list_display_name" = "$remark" ]; then
+        print_success "群列表展示名使用备注（当前用户）"
+    else
+        print_error "群列表展示名未使用备注（当前用户）"
+        print_info "Response: $list_with_remark"
+    fi
+
+    # 验证：其他成员不受影响，看到真实群名
+    local detail_other_user=$(http_get "${API_BASE}/group/${GROUP_ID}" "$USER2_TOKEN")
+    local other_display_name=$(echo "$detail_other_user" | jq -r '.data.displayName // empty')
+    if [ "$other_display_name" = "$GROUP_CURRENT_NAME" ]; then
+        print_success "备注仅对本人可见（其他成员看到真实群名）"
+    else
+        print_error "备注可见性异常（其他成员展示名不正确）"
+        print_info "Response: $detail_other_user"
+    fi
+
+    # 清空备注
+    local clear_data='{"remark":""}'
+    local clear_response=$(http_put "${API_BASE}/group/${GROUP_ID}/remark" "$clear_data" "$USER1_TOKEN")
+    check_response "$clear_response" "0" "清空群备注"
+
+    # 验证：清空后恢复真实群名
+    local detail_after_clear=$(http_get "${API_BASE}/group/${GROUP_ID}" "$USER1_TOKEN")
+    local display_after_clear=$(echo "$detail_after_clear" | jq -r '.data.displayName // empty')
+    if [ "$display_after_clear" = "$GROUP_CURRENT_NAME" ]; then
+        print_success "清空备注后展示名恢复真实群名"
+    else
+        print_error "清空备注后展示名未恢复真实群名"
+        print_info "Response: $detail_after_clear"
+    fi
+}
+
+# 测试13：移除群成员
 test_remove_member() {
-    print_header "测试12：移除群成员"
+    print_header "测试13：移除群成员"
 
     if [ -z "$GROUP_ID" ] || [ -z "$USER3_ID" ]; then
         print_error "跳过测试 - 群组ID或用户ID为空"
@@ -429,9 +500,9 @@ test_remove_member() {
     check_response "$response" "0" "移除群成员"
 }
 
-# 测试13：退出群组
+# 测试14：退出群组
 test_quit_group() {
-    print_header "测试13：用户2退出群组"
+    print_header "测试14：用户2退出群组"
 
     if [ -z "$GROUP_ID" ]; then
         print_error "跳过测试 - 群组ID为空"
@@ -443,9 +514,9 @@ test_quit_group() {
     check_response "$response" "0" "退出群组"
 }
 
-# 测试14：获取我的群组列表
+# 测试15：获取我的群组列表
 test_get_my_groups() {
-    print_header "测试14：获取我的群组列表"
+    print_header "测试15：获取我的群组列表"
 
     local response=$(http_get "${API_BASE}/groups" "$USER1_TOKEN")
     local total=$(echo "$response" | jq -r '.data.total // 0')
@@ -458,9 +529,9 @@ test_get_my_groups() {
     fi
 }
 
-# 测试15：开启/关闭全体禁言
+# 测试16：开启/关闭全体禁言
 test_set_group_mute() {
-    print_header "测试15：开启/关闭全体禁言"
+    print_header "测试16：开启/关闭全体禁言"
 
     if [ -z "$GROUP_ID" ]; then
         print_error "跳过测试 - 群组ID为空"
@@ -476,9 +547,9 @@ test_set_group_mute() {
     check_response "$disable_resp" "0" "关闭全体禁言"
 }
 
-# 测试16：置顶/取消置顶消息
+# 测试17：置顶/取消置顶消息
 test_pin_unpin_message() {
-    print_header "测试16：置顶/取消置顶消息"
+    print_header "测试17：置顶/取消置顶消息"
 
     if [ -z "$GROUP_ID" ]; then
         print_error "跳过测试 - 群组ID为空"
@@ -503,9 +574,9 @@ test_pin_unpin_message() {
     check_response "$unpin_resp" "0" "取消置顶消息"
 }
 
-# 测试17：解散群组
+# 测试18：解散群组
 test_dissolve_group() {
-    print_header "测试17：解散群组"
+    print_header "测试18：解散群组"
 
     if [ -z "$GROUP_ID" ]; then
         print_error "跳过测试 - 群组ID为空"
@@ -570,6 +641,7 @@ main() {
     test_verify_member_joined
     test_update_member_role
     test_update_member_nickname
+    test_update_group_remark
     test_remove_member
     test_quit_group
     test_get_my_groups
