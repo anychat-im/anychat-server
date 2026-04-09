@@ -1,25 +1,22 @@
-# 消息发送与接收设计
+# 消息发送设计（WebSocket + HTTP）
 
 ## 1. 概述
 
-消息发送与接收模块负责会话消息的生产、持久化、序列号分配与分发，覆盖以下场景：
-
-- 在线实时发送与接收
-- 单聊/群聊统一消息模型
-- 离线消息按序补齐
-- 提及（@）通知
-- 会话级自动删除与阅后即焚策略快照应用
+消息发送模块负责会话消息的生产、持久化、序列号分配与分发，统一覆盖 WebSocket 实时发送和 HTTP 发送兜底。
 
 设计目标：
 
-- **顺序性**：同一会话内消息按 `sequence` 单调递增。
-- **可追溯**：消息全量落库，支持按序拉取与历史重放。
-- **低耦合分发**：通过 NATS 通知总线向在线网关与推送链路分发。
-- **多端一致**：在线走实时通知，离线走增量补齐。
+- **顺序性**：同一会话内消息按 `sequence` 单调递增；
+- **可追溯**：消息全量落库，支持按序拉取与历史重放；
+- **低耦合分发**：通过 NATS 通知总线向在线网关与推送链路分发；
+- **多端一致**：在线走实时通知，离线走增量补齐；
+- **多入口一致**：WebSocket 与 HTTP 发送共享同一套 `SendMessage` 业务链路。
 
-## 2. 功能列表
+## 2. 功能范围
 
 - [x] 发送消息（单聊/群聊）
+- [x] WebSocket 实时发送
+- [x] HTTP 发送兜底
 - [x] 会话内序列号生成
 - [x] 基于 `local_id` 的发送幂等
 - [x] 增量拉取会话消息
@@ -63,86 +60,11 @@ type ConversationSequence struct {
 }
 ```
 
-用于维护会话维度的最新序列号，保证消息按会话递增。
+用于维护会话维度最新序列号，保证消息按会话递增。
 
-## 4. 业务流程
+## 4. API 设计
 
-### 4.1 发送消息
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Gateway
-    participant MessageService
-    participant ConversationService
-    participant GroupService
-    participant DB
-    participant NATS
-
-    Client->>Gateway: GET /api/v1/ws?token={jwt}
-    Client->>Gateway: WS message.send<br/>payload={conversationId, contentType, content, replyTo, atUsers, localId}
-
-    Gateway->>MessageService: gRPC SendMessage(sender_id, conversation_id, content_type, content, local_id, ...)
-
-    MessageService->>ConversationService: gRPC GetConversation(user_id, conversation_id)
-    ConversationService-->>MessageService: conversation_type, target_id, auto_delete_duration, burn_after_reading
-    opt 群聊
-        MessageService->>GroupService: gRPC IsMember(group_id=target_id, user_id=sender_id)
-        GroupService-->>MessageService: is_member
-    end
-
-    MessageService->>DB: 分配会话序列号（current_seq + 1）
-    MessageService->>DB: 保存消息
-    MessageService->>NATS: 发布 message.new 通知
-    MessageService->>NATS: 发布 message.mentioned 通知（可选）
-
-    MessageService-->>Gateway: {message_id, sequence, timestamp}
-    Gateway-->>Client: WS message.sent<br/>payload={messageId, sequence, timestamp, localId}
-```
-
-### 4.2 在线实时接收
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Gateway
-    participant MessageService
-    participant NATS
-
-    MessageService->>NATS: notification.message.new.{target}
-    NATS-->>Gateway: notification.*.*.{userID}
-    Gateway-->>Client: WS notification<br/>payload=Notification
-```
-
-客户端在线时通过 WebSocket 实时接收通知事件。
-
-### 4.3 离线消息补齐
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Gateway
-    participant SyncService
-    participant MessageService
-    participant DB
-
-    Client->>Gateway: POST /api/v1/sync/messages?limit=50<br/>Body={conversationSeqs:[{conversationId, conversationType, lastSeq}]}
-    Gateway->>SyncService: gRPC SyncMessages(userId, conversationSeqs, limit)
-
-    loop 每个会话
-        SyncService->>MessageService: gRPC GetMessages(conversation_id, start_seq=last_seq+1, reverse=false)
-        MessageService->>DB: 按 sequence 查询消息
-        DB-->>MessageService: messages
-        MessageService-->>SyncService: messages + has_more
-    end
-
-    SyncService-->>Gateway: conversations[]
-    Gateway-->>Client: 200 OK
-```
-
-## 5. API 设计
-
-### 5.1 WebSocket：发送消息
+### 4.1 WebSocket：发送消息
 
 客户端请求：
 
@@ -174,7 +96,34 @@ sequenceDiagram
 }
 ```
 
-### 5.2 gRPC：SendMessage
+### 4.2 HTTP：发送消息
+
+- `POST /api/v1/messages`
+
+请求体：
+
+```json
+{
+  "conversation_id": "conv_xxx",
+  "content_type": "text",
+  "content": "{\"text\":\"hello\"}",
+  "reply_to": "msg_xxx",
+  "at_users": ["u1", "u2"],
+  "local_id": "local-001"
+}
+```
+
+响应体（data）：
+
+```json
+{
+  "message_id": "msg_xxx",
+  "sequence": 1024,
+  "timestamp": "2026-04-08T14:23:45Z"
+}
+```
+
+### 4.3 gRPC：SendMessage
 
 ```protobuf
 message SendMessageRequest {
@@ -194,10 +143,7 @@ message SendMessageResponse {
 }
 ```
 
-> 约束：`local_id` 在发送场景必须提供，用于幂等去重。
-> 服务端基于 `conversation_id` 查询会话并推导 `conversation_type`、`target_id` 及过期策略快照。
-
-### 5.3 gRPC：GetMessages
+### 4.4 gRPC：GetMessages
 
 ```protobuf
 message GetMessagesRequest {
@@ -215,9 +161,100 @@ message GetMessagesResponse {
 }
 ```
 
+## 5. 核心流程
+
+### 5.1 WebSocket 发送消息
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Gateway
+    participant MessageService
+    participant ConversationService
+    participant GroupService
+    participant DB
+    participant NATS
+
+    Client->>Gateway: GET /api/v1/ws?token={jwt}
+    Client->>Gateway: WS message.send\npayload={conversationId, contentType, content, replyTo, atUsers, localId}
+    Gateway->>MessageService: gRPC SendMessage(sender_id, conversation_id, content_type, content, local_id, ...)
+    MessageService->>ConversationService: gRPC GetConversation(user_id, conversation_id)
+    ConversationService-->>MessageService: conversation_type, target_id, auto_delete_duration, burn_after_reading
+    opt 群聊
+        MessageService->>GroupService: gRPC IsMember(group_id=target_id, user_id=sender_id)
+        GroupService-->>MessageService: is_member
+    end
+    MessageService->>DB: 事务内分配 sequence 并保存消息
+    MessageService->>NATS: 发布 message.new / message.mentioned（可选）
+    MessageService-->>Gateway: SendMessageResponse
+    Gateway-->>Client: WS message.sent\npayload={messageId, sequence, timestamp, localId}
+```
+
+### 5.2 HTTP 发送消息
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Gateway
+    participant MessageService
+    participant ConversationService
+    participant GroupService
+    participant DB
+    participant NATS
+
+    Client->>Gateway: POST /api/v1/messages\nHeader: Authorization: Bearer {token}
+    Gateway->>MessageService: gRPC SendMessage(sender_id, conversation_id, content_type, content, local_id, ...)
+    MessageService->>ConversationService: gRPC GetConversation(user_id, conversation_id)
+    opt 群聊
+        MessageService->>GroupService: gRPC IsMember(group_id=target_id, user_id=sender_id)
+    end
+    MessageService->>DB: 事务内分配 sequence 并保存消息
+    MessageService->>NATS: 发布 message.new / message.mentioned（可选）
+    MessageService-->>Gateway: SendMessageResponse
+    Gateway-->>Client: 200 OK
+```
+
+### 5.3 在线实时接收
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Gateway
+    participant MessageService
+    participant NATS
+
+    MessageService->>NATS: notification.message.new.{target}
+    NATS-->>Gateway: notification.*.*.{userID}
+    Gateway-->>Client: WS notification\npayload=Notification
+```
+
+### 5.4 离线消息补齐
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Gateway
+    participant SyncService
+    participant MessageService
+    participant DB
+
+    Client->>Gateway: POST /api/v1/sync/messages?limit=50\nBody={conversationSeqs:[{conversationId, conversationType, lastSeq}]}
+    Gateway->>SyncService: gRPC SyncMessages(userId, conversationSeqs, limit)
+
+    loop 每个会话
+        SyncService->>MessageService: gRPC GetMessages(conversation_id, start_seq=last_seq+1, reverse=false)
+        MessageService->>DB: 按 sequence 查询消息
+        DB-->>MessageService: messages
+        MessageService-->>SyncService: messages + has_more
+    end
+
+    SyncService-->>Gateway: conversations[]
+    Gateway-->>Client: 200 OK
+```
+
 ## 6. 消息类型与状态
 
-### 6.1 content_type
+### 6.1 `content_type`
 
 - `text`
 - `image`
@@ -227,7 +264,7 @@ message GetMessagesResponse {
 - `location`
 - `card`
 
-### 6.2 status
+### 6.2 `status`
 
 - `0`：正常
 - `1`：撤回
@@ -235,21 +272,14 @@ message GetMessagesResponse {
 
 ## 7. 通知主题
 
-消息相关通知通过统一主题规则发布：
-
-- 用户通知：`notification.{notification_type}.{user_id}`
-
-发送场景涉及：
-
-- `notification.message.new.{receiver_user_id}`（单聊为对端用户，群聊为成员fanout后的用户）
+- `notification.message.new.{receiver_user_id}`
 - `notification.message.mentioned.{user_id}`
 
 ## 8. 设计约束
 
-- 会话顺序由 `sequence` 保证；客户端应以 `sequence` 作为排序与去重基准。
-- 发送请求以 `conversation_id` 作为会话主键，`target_id` 与 `conversation_type` 由服务端从会话数据推导。
-- 发送前必须完成会话归属与成员权限校验：单聊校验会话归属，群聊额外校验发送者群成员身份。
-- `local_id` 是发送幂等键，作用域为 `(sender_id, conversation_id, local_id)`，重复请求返回同一消息。
-- 自动删除与阅后即焚时长以会话配置为准，在发送落库时生成策略快照。
-- 单次拉取建议限制数量上限，避免大会话造成单次返回过大。
-- 在线链路与离线补齐链路需同时保留，保证弱网/断线场景的最终一致性。
+- 会话顺序由 `sequence` 保证；客户端应以 `sequence` 作为排序与去重基准；
+- 发送请求以 `conversation_id` 作为主键，`target_id` 与 `conversation_type` 由服务端从会话推导；
+- 发送前必须完成会话归属与成员权限校验；
+- `local_id` 在发送场景必填，幂等作用域为 `(sender_id, conversation_id, local_id)`；
+- 自动删除与阅后即焚时长以会话配置为准，在发送落库时生成策略快照；
+- 单次拉取建议限制数量上限，避免大会话单次返回过大。
