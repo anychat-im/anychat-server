@@ -427,30 +427,55 @@ func (s *friendServiceImpl) AddToBlacklist(ctx context.Context, userID string, r
 		return errors.NewBusiness(errors.CodeCannotAddSelf, "")
 	}
 
-	// 检查是否已在黑名单
-	existing, err := s.blacklistRepo.GetByUserAndBlocked(ctx, userID, req.UserId)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return err
-	}
-	if existing != nil {
-		return errors.NewBusiness(errors.CodeAlreadyInBlacklist, "")
-	}
+	var removedFriend bool
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		blacklistRepoTx := s.blacklistRepo.WithTx(tx)
+		friendshipRepoTx := s.friendshipRepo.WithTx(tx)
 
-	// 创建黑名单记录
-	blacklist := &model.Blacklist{
-		UserID:        userID,
-		BlockedUserID: req.UserId,
-	}
+		// 检查是否已在黑名单
+		existing, err := blacklistRepoTx.GetByUserAndBlocked(ctx, userID, req.UserId)
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return err
+		}
+		if existing != nil {
+			return errors.NewBusiness(errors.CodeAlreadyInBlacklist, "")
+		}
 
-	if err := s.blacklistRepo.Create(ctx, blacklist); err != nil {
-		logger.Error("Failed to add to blacklist", zap.Error(err))
+		// 创建黑名单记录
+		blacklist := &model.Blacklist{
+			UserID:        userID,
+			BlockedUserID: req.UserId,
+		}
+		if err := blacklistRepoTx.Create(ctx, blacklist); err != nil {
+			logger.Error("Failed to add to blacklist", zap.Error(err))
+			return err
+		}
+
+		// 若双方是好友，拉黑后自动解除双向好友关系
+		isFriend, err := friendshipRepoTx.IsFriend(ctx, userID, req.UserId)
+		if err != nil {
+			return err
+		}
+		if isFriend {
+			if err := friendshipRepoTx.DeleteBidirectional(ctx, userID, req.UserId); err != nil {
+				return err
+			}
+			removedFriend = true
+		}
+
+		return nil
+	})
+	if err != nil {
 		return err
 	}
 
 	// 发布黑名单变更通知
 	s.publishBlacklistChangedNotification(userID, req.UserId, "add")
 
-	// TODO: 如果是好友，同时删除好友关系
+	// 触发被删除好友端更新
+	if removedFriend {
+		s.publishFriendDeletedNotification(userID, req.UserId)
+	}
 
 	return nil
 }

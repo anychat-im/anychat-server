@@ -379,6 +379,8 @@ func convertError(err error) error {
 			return status.Error(codes.AlreadyExists, bizErr.Message)
 		case errors.CodeUserNotFound:
 			return status.Error(codes.NotFound, bizErr.Message)
+		case errors.CodePermissionDenied:
+			return status.Error(codes.PermissionDenied, bizErr.Message)
 		case errors.CodeVerifyCodeError,
 			errors.CodeVerifyCodeExpired,
 			errors.CodeVerifyCodeAlreadyUsed,

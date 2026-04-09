@@ -6,11 +6,8 @@
 
 set -e
 
-# 颜色输出
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../common.sh"
 
 # 配置
 GATEWAY_URL="${GATEWAY_URL:-http://localhost:8080}"
@@ -31,88 +28,8 @@ USER2_TOKEN=""
 USER1_ID=""
 USER2_ID=""
 FRIEND_REQUEST_ID=""
-
-# 打印函数
-print_header() {
-    echo -e "\n${YELLOW}========================================${NC}"
-    echo -e "${YELLOW}$1${NC}"
-    echo -e "${YELLOW}========================================${NC}"
-}
-
-print_success() {
-    echo -e "${GREEN}✓ $1${NC}"
-}
-
-print_error() {
-    echo -e "${RED}✗ $1${NC}"
-}
-
-print_info() {
-    echo -e "  $1"
-}
-
-# HTTP 请求函数
-http_post() {
-    local url=$1
-    local data=$2
-    local token=$3
-
-    if [ -n "$token" ]; then
-        curl -s -X POST "${url}" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${token}" \
-            -d "${data}"
-    else
-        curl -s -X POST "${url}" \
-            -H "Content-Type: application/json" \
-            -d "${data}"
-    fi
-}
-
-http_get() {
-    local url=$1
-    local token=$2
-
-    if [ -n "$token" ]; then
-        curl -s -X GET "${url}" \
-            -H "Authorization: Bearer ${token}"
-    else
-        curl -s -X GET "${url}"
-    fi
-}
-
-http_put() {
-    local url=$1
-    local data=$2
-    local token=$3
-
-    curl -s -X PUT "${url}" \
-        -H "Content-Type: application/json" \
-        -H "Authorization: Bearer ${token}" \
-        -d "${data}"
-}
-
-http_delete() {
-    local url=$1
-    local token=$2
-
-    curl -s -X DELETE "${url}" \
-        -H "Authorization: Bearer ${token}"
-}
-
-# 检查 JSON 响应中的 code 字段
-check_response() {
-    local response=$1
-    local code=$(echo "$response" | jq -r '.code // -1')
-
-    if [ "$code" = "0" ]; then
-        return 0
-    else
-        local message=$(echo "$response" | jq -r '.message // "Unknown error"')
-        print_error "API Error: $message (code: $code)"
-        return 1
-    fi
-}
+USER2_CONVERSATION_ID=""
+POST_UNBLOCK_REQUEST_ID=""
 
 # ========================================
 # 准备工作：创建测试用户
@@ -123,22 +40,11 @@ setup_test_users() {
 
     # 注册用户1
     print_info "注册用户1: ${TEST_EMAIL_1}"
-    local data1=$(cat <<EOF
-{
-    "email": "${TEST_EMAIL_1}",
-    "password": "${TEST_PASSWORD}",
-    "verifyCode": "123456",
-    "nickname": "测试用户1_${TIMESTAMP}",
-    "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}_1",
-    "clientVersion": "1.0.0"
-}
-EOF
-)
-    local response1=$(http_post "${API_BASE}/auth/register" "$data1")
+    local response1
+    response1=$(register_test_user "${API_BASE}" "${TEST_EMAIL_1}" "${TEST_PASSWORD}" "测试用户1_${TIMESTAMP}" "${TEST_DEVICE_ID}_1" "iOS")
     if check_response "$response1"; then
-        USER1_ID=$(echo "$response1" | jq -r '.data.userId')
-        USER1_TOKEN=$(echo "$response1" | jq -r '.data.accessToken')
+        USER1_ID=$(extract_user_id "$response1")
+        USER1_TOKEN=$(extract_access_token "$response1")
         print_success "用户1注册成功 (ID: ${USER1_ID})"
     else
         print_error "用户1注册失败"
@@ -149,22 +55,11 @@ EOF
 
     # 注册用户2
     print_info "注册用户2: ${TEST_EMAIL_2}"
-    local data2=$(cat <<EOF
-{
-    "email": "${TEST_EMAIL_2}",
-    "password": "${TEST_PASSWORD}",
-    "verifyCode": "123456",
-    "nickname": "测试用户2_${TIMESTAMP}",
-    "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}_2",
-    "clientVersion": "1.0.0"
-}
-EOF
-)
-    local response2=$(http_post "${API_BASE}/auth/register" "$data2")
+    local response2
+    response2=$(register_test_user "${API_BASE}" "${TEST_EMAIL_2}" "${TEST_PASSWORD}" "测试用户2_${TIMESTAMP}" "${TEST_DEVICE_ID}_2" "iOS")
     if check_response "$response2"; then
-        USER2_ID=$(echo "$response2" | jq -r '.data.userId')
-        USER2_TOKEN=$(echo "$response2" | jq -r '.data.accessToken')
+        USER2_ID=$(extract_user_id "$response2")
+        USER2_TOKEN=$(extract_access_token "$response2")
         print_success "用户2注册成功 (ID: ${USER2_ID})"
     else
         print_error "用户2注册失败"
@@ -321,6 +216,37 @@ test_get_friend_list() {
     fi
 }
 
+# 5.1 准备用户2到用户1的单聊会话ID
+prepare_user2_single_conversation() {
+    print_header "5.1 准备单聊会话ID"
+
+    local max_retry=5
+    local i=1
+    while [ $i -le $max_retry ]; do
+        local response=$(http_get "${API_BASE}/conversations?limit=100" "$USER2_TOKEN")
+        print_info "第 ${i} 次查询会话列表"
+
+        if check_response "$response"; then
+            USER2_CONVERSATION_ID=$(echo "$response" | jq -r --arg uid "$USER1_ID" '
+                .data.conversations[]? |
+                select((.conversationType // .conversation_type) == "single" and (.targetId // .target_id) == $uid) |
+                (.conversationId // .conversation_id)
+            ' | head -n 1)
+
+            if [ -n "$USER2_CONVERSATION_ID" ] && [ "$USER2_CONVERSATION_ID" != "null" ]; then
+                print_success "获取会话ID成功: ${USER2_CONVERSATION_ID}"
+                return 0
+            fi
+        fi
+
+        sleep 1
+        i=$((i + 1))
+    done
+
+    print_error "未找到用户2与用户1的单聊会话ID，后续消息拦截测试将失败"
+    return 1
+}
+
 # 6. 更新好友备注
 test_update_friend_remark() {
     print_header "6. 更新好友备注"
@@ -410,9 +336,106 @@ test_get_blacklist() {
     fi
 }
 
-# 10. 从黑名单移除
+# 10. 验证拉黑后自动解除好友关系
+test_blacklist_auto_remove_friend() {
+    print_header "10. 验证拉黑后自动解除好友关系"
+
+    local response1=$(http_get "${API_BASE}/friends" "$USER1_TOKEN")
+    print_info "用户1好友列表响应: $response1"
+    if ! check_response "$response1"; then
+        return 1
+    fi
+
+    local total1=$(echo "$response1" | jq -r '.data.total // 0')
+    if [ "$total1" -ne 0 ]; then
+        print_error "用户1好友列表应为空，实际 total=${total1}"
+        return 1
+    fi
+
+    local response2=$(http_get "${API_BASE}/friends" "$USER2_TOKEN")
+    print_info "用户2好友列表响应: $response2"
+    if ! check_response "$response2"; then
+        return 1
+    fi
+
+    local total2=$(echo "$response2" | jq -r '.data.total // 0')
+    if [ "$total2" -ne 0 ]; then
+        print_error "用户2好友列表应为空，实际 total=${total2}"
+        return 1
+    fi
+
+    print_success "拉黑后已自动解除双方好友关系"
+    return 0
+}
+
+# 11. 验证黑名单限制：无法发送消息
+test_blacklist_blocks_message() {
+    print_header "11. 验证黑名单限制：无法发送消息"
+
+    if [ -z "$USER2_CONVERSATION_ID" ] || [ "$USER2_CONVERSATION_ID" = "null" ]; then
+        print_error "缺少会话ID，无法执行消息拦截测试"
+        return 1
+    fi
+
+    local data=$(cat <<EOF
+{
+    "conversation_id": "${USER2_CONVERSATION_ID}",
+    "content_type": "text",
+    "content": "{\"text\":\"blacklist block test\"}",
+    "local_id": "local-blacklist-${TIMESTAMP}"
+}
+EOF
+)
+
+    local response=$(http_post "${API_BASE}/messages" "$data" "$USER2_TOKEN")
+    print_info "响应: $response"
+
+    if check_response_fail "$response" && check_fail_code "$response" "403"; then
+        print_success "黑名单消息拦截生效（403）"
+        return 0
+    fi
+    return 1
+}
+
+# 12. 验证黑名单限制：无法发起音视频通话
+test_blacklist_blocks_call() {
+    print_header "12. 验证黑名单限制：无法发起音视频通话"
+
+    local data=$(cat <<EOF
+{
+    "calleeId": "${USER1_ID}",
+    "callType": "audio"
+}
+EOF
+)
+
+    local response=$(http_post "${API_BASE}/calling/calls" "$data" "$USER2_TOKEN")
+    print_info "响应: $response"
+
+    if check_response_fail "$response" && check_fail_code "$response" "403"; then
+        print_success "黑名单通话拦截生效（403）"
+        return 0
+    fi
+    return 1
+}
+
+# 13. 验证黑名单限制：无法查看用户资料
+test_blacklist_blocks_user_info() {
+    print_header "13. 验证黑名单限制：无法查看用户资料"
+
+    local response=$(http_get "${API_BASE}/users/${USER1_ID}" "$USER2_TOKEN")
+    print_info "响应: $response"
+
+    if check_response_fail "$response" && check_fail_code "$response" "403"; then
+        print_success "黑名单资料访问限制生效（403）"
+        return 0
+    fi
+    return 1
+}
+
+# 14. 从黑名单移除
 test_remove_from_blacklist() {
-    print_header "10. 从黑名单移除"
+    print_header "14. 从黑名单移除"
 
     print_info "用户1将用户2从黑名单移除"
 
@@ -427,44 +450,67 @@ test_remove_from_blacklist() {
     fi
 }
 
-# 11. 删除好友
-test_delete_friend() {
-    print_header "11. 删除好友"
+# 15. 验证移除黑名单后仍非好友（不会自动恢复）
+test_verify_not_friend_after_unblock() {
+    print_header "15. 验证移除黑名单后仍非好友"
 
-    print_info "用户1删除用户2"
-
-    local response=$(http_delete "${API_BASE}/friends/${USER2_ID}" "$USER1_TOKEN")
-    print_info "响应: $response"
-
-    if check_response "$response"; then
-        print_success "删除好友成功"
-        return 0
-    else
+    local response1=$(http_get "${API_BASE}/friends" "$USER1_TOKEN")
+    print_info "用户1好友列表响应: $response1"
+    if ! check_response "$response1"; then
         return 1
     fi
+
+    local total1=$(echo "$response1" | jq -r '.data.total // 0')
+    if [ "$total1" -ne 0 ]; then
+        print_error "用户1好友列表应为空，实际 total=${total1}"
+        return 1
+    fi
+
+    local response2=$(http_get "${API_BASE}/friends" "$USER2_TOKEN")
+    print_info "用户2好友列表响应: $response2"
+    if ! check_response "$response2"; then
+        return 1
+    fi
+
+    local total2=$(echo "$response2" | jq -r '.data.total // 0')
+    if [ "$total2" -ne 0 ]; then
+        print_error "用户2好友列表应为空，实际 total=${total2}"
+        return 1
+    fi
+
+    print_success "移除黑名单后好友关系未自动恢复（符合预期）"
+    return 0
 }
 
-# 12. 验证好友已删除
-test_verify_friend_deleted() {
-    print_header "12. 验证好友已删除"
+# 16. 验证移除黑名单后可重新发起好友申请
+test_send_friend_request_after_unblock() {
+    print_header "16. 验证移除黑名单后可重新发起好友申请"
 
-    print_info "用户1获取好友列表（应为空）"
+    local data=$(cat <<EOF
+{
+    "userId": "${USER1_ID}",
+    "message": "解除拉黑后重新申请好友",
+    "source": "search"
+}
+EOF
+)
 
-    local response=$(http_get "${API_BASE}/friends" "$USER1_TOKEN")
+    local response=$(http_post "${API_BASE}/friends/requests" "$data" "$USER2_TOKEN")
     print_info "响应: $response"
 
-    if check_response "$response"; then
-        local total=$(echo "$response" | jq -r '.data.total // 0')
-        if [ "$total" -eq 0 ]; then
-            print_success "验证成功：好友列表为空"
-            return 0
-        else
-            print_error "验证失败：好友列表不为空 (total: ${total})"
-            return 1
-        fi
-    else
+    if ! check_response "$response"; then
         return 1
     fi
+
+    POST_UNBLOCK_REQUEST_ID=$(echo "$response" | jq -r '.data.requestId // .data.request_id // empty')
+    if [ -z "$POST_UNBLOCK_REQUEST_ID" ] || [ "$POST_UNBLOCK_REQUEST_ID" = "null" ]; then
+        print_error "未获取到重新申请的 requestId"
+        return 1
+    fi
+
+    print_success "移除黑名单后可重新发起好友申请"
+    print_info "新的申请ID: ${POST_UNBLOCK_REQUEST_ID}"
+    return 0
 }
 
 # ========================================
@@ -501,15 +547,19 @@ main() {
     test_accept_friend_request || ((failed++))
     sleep 1
     test_get_friend_list || ((failed++))
+    prepare_user2_single_conversation || ((failed++))
     test_update_friend_remark || ((failed++))
     sleep 1
     test_incremental_sync || ((failed++))
     test_add_to_blacklist || ((failed++))
     test_get_blacklist || ((failed++))
+    test_blacklist_auto_remove_friend || ((failed++))
+    test_blacklist_blocks_message || ((failed++))
+    test_blacklist_blocks_call || ((failed++))
+    test_blacklist_blocks_user_info || ((failed++))
     test_remove_from_blacklist || ((failed++))
-    sleep 1
-    test_delete_friend || ((failed++))
-    test_verify_friend_deleted || ((failed++))
+    test_verify_not_friend_after_unblock || ((failed++))
+    test_send_friend_request_after_unblock || ((failed++))
 
     # 输出测试结果
     echo ""

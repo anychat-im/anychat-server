@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	friendpb "github.com/anychat/server/api/proto/friend"
 	authdto "github.com/anychat/server/internal/auth/dto"
 	authmodel "github.com/anychat/server/internal/auth/model"
 	authrepo "github.com/anychat/server/internal/auth/repository"
@@ -53,6 +54,7 @@ type userServiceImpl struct {
 	settingsRepo  repository.UserSettingsRepository
 	qrcodeRepo    repository.UserQRCodeRepository
 	pushTokenRepo repository.UserPushTokenRepository
+	friendClient  friendpb.FriendServiceClient
 	authUserRepo  authrepo.UserRepository
 	sessionRepo   authrepo.UserSessionRepository
 	verifySvc     authservice.VerificationService
@@ -64,6 +66,7 @@ func NewUserService(
 	settingsRepo repository.UserSettingsRepository,
 	qrcodeRepo repository.UserQRCodeRepository,
 	pushTokenRepo repository.UserPushTokenRepository,
+	friendClient friendpb.FriendServiceClient,
 	authUserRepo authrepo.UserRepository,
 	sessionRepo authrepo.UserSessionRepository,
 	verifySvc authservice.VerificationService,
@@ -73,6 +76,7 @@ func NewUserService(
 		settingsRepo:  settingsRepo,
 		qrcodeRepo:    qrcodeRepo,
 		pushTokenRepo: pushTokenRepo,
+		friendClient:  friendClient,
 		authUserRepo:  authUserRepo,
 		sessionRepo:   sessionRepo,
 		verifySvc:     verifySvc,
@@ -241,8 +245,32 @@ func (s *userServiceImpl) GetUserInfo(ctx context.Context, userID, targetUserID 
 		return nil, err
 	}
 
-	// TODO: 查询好友关系和黑名单状态
-	// 这需要调用Friend Service
+	isFriend := false
+	isBlocked := false
+
+	// 仅当有查询者且依赖可用时，查询好友关系和黑名单状态
+	if userID != "" && s.friendClient != nil {
+		blockedResp, err := s.friendClient.IsBlocked(ctx, &friendpb.IsBlockedRequest{
+			UserId:       userID,
+			TargetUserId: targetUserID,
+		})
+		if err != nil {
+			return nil, err
+		}
+		isBlocked = blockedResp.IsBlocked
+		if isBlocked {
+			return nil, errors.NewBusiness(errors.CodePermissionDenied, "对方已将你拉黑")
+		}
+
+		friendResp, err := s.friendClient.IsFriend(ctx, &friendpb.IsFriendRequest{
+			UserId:   userID,
+			FriendId: targetUserID,
+		})
+		if err != nil {
+			return nil, err
+		}
+		isFriend = friendResp.IsFriend
+	}
 
 	return &dto.UserInfoResponse{
 		UserID:    profile.UserID,
@@ -251,8 +279,8 @@ func (s *userServiceImpl) GetUserInfo(ctx context.Context, userID, targetUserID 
 		Signature: profile.Signature,
 		Gender:    profile.Gender,
 		Region:    profile.Region,
-		IsFriend:  false, // TODO: 实际查询
-		IsBlocked: false, // TODO: 实际查询
+		IsFriend:  isFriend,
+		IsBlocked: isBlocked,
 	}, nil
 }
 

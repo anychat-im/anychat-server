@@ -11,6 +11,7 @@ import (
 	"time"
 
 	callingpb "github.com/anychat/server/api/proto/calling"
+	friendpb "github.com/anychat/server/api/proto/friend"
 	callinggrpc "github.com/anychat/server/internal/calling/grpc"
 	"github.com/anychat/server/internal/calling/repository"
 	"github.com/anychat/server/internal/calling/service"
@@ -24,6 +25,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 )
@@ -68,11 +70,18 @@ func main() {
 	callRepo := repository.NewCallRepository(db)
 	meetingRepo := repository.NewMeetingRepository(db)
 
+	friendConn, friendClient, err := connectFriendService()
+	if err != nil {
+		logger.Fatal("Failed to connect friend-service", zap.Error(err))
+	}
+	defer friendConn.Close()
+
 	// 初始化 LiveKit 服务
 	lkSvc := service.NewCallingService(
 		viper.GetString("livekit.url"),
 		viper.GetString("livekit.api_key"),
 		viper.GetString("livekit.api_secret"),
+		friendClient,
 		callRepo,
 		meetingRepo,
 		notificationPub,
@@ -149,6 +158,7 @@ func loadConfig() error {
 	viper.SetDefault("livekit.api_secret", "secret")
 	viper.SetDefault("log.level", "info")
 	viper.SetDefault("log.output", "stdout")
+	viper.SetDefault("services.friend.grpc_addr", "localhost:9003")
 
 	viper.AutomaticEnv()
 
@@ -201,6 +211,15 @@ func connectNATS() (*nats.Conn, error) {
 			logger.Warn("NATS connection closed")
 		}),
 	)
+}
+
+func connectFriendService() (*grpc.ClientConn, friendpb.FriendServiceClient, error) {
+	addr := viper.GetString("services.friend.grpc_addr")
+	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to connect friend service: %w", err)
+	}
+	return conn, friendpb.NewFriendServiceClient(conn), nil
 }
 
 func initHTTPServer() *http.Server {

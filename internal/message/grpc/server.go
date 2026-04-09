@@ -367,6 +367,8 @@ func toStatusError(err error) error {
 		return status.Error(codes.NotFound, bizErr.Message)
 	case pkgerrors.CodeMessagePermissionDenied:
 		return status.Error(codes.PermissionDenied, bizErr.Message)
+	case pkgerrors.CodeUserBlocked:
+		return status.Error(codes.PermissionDenied, bizErr.Message)
 	case pkgerrors.CodeInvalidOperation:
 		return status.Error(codes.FailedPrecondition, bizErr.Message)
 	default:

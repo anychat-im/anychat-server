@@ -6,6 +6,7 @@ import (
 	"time"
 
 	conversationpb "github.com/anychat/server/api/proto/conversation"
+	friendpb "github.com/anychat/server/api/proto/friend"
 	grouppb "github.com/anychat/server/api/proto/group"
 	messagepb "github.com/anychat/server/api/proto/message"
 	"github.com/anychat/server/internal/message/model"
@@ -78,6 +79,7 @@ type messageServiceImpl struct {
 	typingRepo          TypingRepo
 	typingConfig        TypingConfig
 	conversationClient  conversationpb.ConversationServiceClient
+	friendClient        friendpb.FriendServiceClient
 	groupClient         grouppb.GroupServiceClient
 	notificationPub     notification.Publisher
 	db                  *gorm.DB
@@ -92,6 +94,7 @@ func NewMessageService(
 	typingRepo repository.TypingRepository,
 	typingConfig TypingConfig,
 	conversationClient conversationpb.ConversationServiceClient,
+	friendClient friendpb.FriendServiceClient,
 	groupClient grouppb.GroupServiceClient,
 	notificationPub notification.Publisher,
 	db *gorm.DB,
@@ -120,6 +123,7 @@ func NewMessageService(
 		typingRepo:          typingRepo,
 		typingConfig:        typingConfig,
 		conversationClient:  conversationClient,
+		friendClient:        friendClient,
 		groupClient:         groupClient,
 		notificationPub:     notificationPub,
 		db:                  db,
@@ -347,6 +351,21 @@ func (s *messageServiceImpl) authorizeSend(ctx context.Context, senderID, conver
 		}
 		if !memberResp.IsMember {
 			return nil, errors.NewBusiness(errors.CodeMessagePermissionDenied, "sender is not a group member")
+		}
+	}
+	if conversation.ConversationType == model.ConversationTypeSingle {
+		if s.friendClient == nil {
+			return nil, errors.NewBusiness(errors.CodeInternalError, "friend client is not initialized")
+		}
+		blockedResp, err := s.friendClient.IsBlocked(ctx, &friendpb.IsBlockedRequest{
+			UserId:       senderID,
+			TargetUserId: targetID,
+		})
+		if err != nil {
+			return nil, errors.NewBusiness(errors.CodeInternalError, "failed to verify blacklist")
+		}
+		if blockedResp.IsBlocked {
+			return nil, errors.NewBusiness(errors.CodeUserBlocked, "user blocked")
 		}
 	}
 

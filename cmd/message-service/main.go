@@ -11,6 +11,7 @@ import (
 	"time"
 
 	conversationpb "github.com/anychat/server/api/proto/conversation"
+	friendpb "github.com/anychat/server/api/proto/friend"
 	grouppb "github.com/anychat/server/api/proto/group"
 	messagepb "github.com/anychat/server/api/proto/message"
 	messagegrpc "github.com/anychat/server/internal/message/grpc"
@@ -94,6 +95,12 @@ func main() {
 	}
 	defer groupConn.Close()
 
+	friendConn, friendClient, err := connectFriendService()
+	if err != nil {
+		logger.Fatal("Failed to connect friend-service", zap.Error(err))
+	}
+	defer friendConn.Close()
+
 	// 初始化仓库
 	messageRepo := repository.NewMessageRepository(db)
 	readReceiptRepo := repository.NewReadReceiptRepository(db)
@@ -115,6 +122,7 @@ func main() {
 			EmitDebounce: time.Duration(viper.GetInt("typing.emit_debounce_seconds")) * time.Second,
 		},
 		conversationClient,
+		friendClient,
 		groupClient,
 		notificationPub,
 		db,
@@ -222,6 +230,7 @@ func loadConfig() error {
 	viper.SetDefault("services.message.grpc_addr", "localhost:9005")
 	viper.SetDefault("services.conversation.grpc_addr", "localhost:9006")
 	viper.SetDefault("services.group.grpc_addr", "localhost:9004")
+	viper.SetDefault("services.friend.grpc_addr", "localhost:9003")
 
 	// 自动读取环境变量
 	viper.AutomaticEnv()
@@ -322,6 +331,15 @@ func connectGroupService() (*grpc.ClientConn, grouppb.GroupServiceClient, error)
 		return nil, nil, fmt.Errorf("failed to connect group service: %w", err)
 	}
 	return conn, grouppb.NewGroupServiceClient(conn), nil
+}
+
+func connectFriendService() (*grpc.ClientConn, friendpb.FriendServiceClient, error) {
+	addr := viper.GetString("services.friend.grpc_addr")
+	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to connect friend service: %w", err)
+	}
+	return conn, friendpb.NewFriendServiceClient(conn), nil
 }
 
 // initGRPCServer 初始化gRPC服务器

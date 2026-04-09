@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	friendpb "github.com/anychat/server/api/proto/friend"
 	"github.com/livekit/protocol/auth"
 	lkproto "github.com/livekit/protocol/livekit"
 	lksdk "github.com/livekit/server-sdk-go"
@@ -43,6 +44,7 @@ type callingServiceImpl struct {
 	apiSecret       string
 	serverURL       string
 	roomClient      *lksdk.RoomServiceClient
+	friendClient    friendpb.FriendServiceClient
 	callRepo        repository.CallRepository
 	meetingRepo     repository.MeetingRepository
 	notificationPub notification.Publisher
@@ -51,6 +53,7 @@ type callingServiceImpl struct {
 // NewCallingService 创建音视频服务
 func NewCallingService(
 	serverURL, apiKey, apiSecret string,
+	friendClient friendpb.FriendServiceClient,
 	callRepo repository.CallRepository,
 	meetingRepo repository.MeetingRepository,
 	notificationPub notification.Publisher,
@@ -61,6 +64,7 @@ func NewCallingService(
 		apiSecret:       apiSecret,
 		serverURL:       serverURL,
 		roomClient:      roomClient,
+		friendClient:    friendClient,
 		callRepo:        callRepo,
 		meetingRepo:     meetingRepo,
 		notificationPub: notificationPub,
@@ -70,12 +74,33 @@ func NewCallingService(
 // ── 通话相关 ──────────────────────────────────────────────
 
 func (s *callingServiceImpl) InitiateCall(ctx context.Context, callerID, calleeID, callType string) (*callingpb.InitiateCallResponse, error) {
+	if callerID == "" || calleeID == "" {
+		return nil, status.Error(codes.InvalidArgument, "caller_id and callee_id are required")
+	}
+	if callerID == calleeID {
+		return nil, status.Error(codes.InvalidArgument, "caller_id and callee_id cannot be same")
+	}
+	if s.friendClient == nil {
+		return nil, status.Error(codes.Internal, "friend client is not initialized")
+	}
+
+	blockedResp, err := s.friendClient.IsBlocked(ctx, &friendpb.IsBlockedRequest{
+		UserId:       callerID,
+		TargetUserId: calleeID,
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to verify blacklist: %v", err)
+	}
+	if blockedResp.IsBlocked {
+		return nil, status.Error(codes.PermissionDenied, "user blocked")
+	}
+
 	callID := uuid.NewString()
 	roomName := "call_" + callID
 
 	// 创建 LiveKit Room（设置 EmptyTimeout 为5分钟，等待被叫接听）
 	emptyTimeout := uint32(300)
-	_, err := s.roomClient.CreateRoom(ctx, &lkproto.CreateRoomRequest{
+	_, err = s.roomClient.CreateRoom(ctx, &lkproto.CreateRoomRequest{
 		Name:         roomName,
 		EmptyTimeout: emptyTimeout,
 	})

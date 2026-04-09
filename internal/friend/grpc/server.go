@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 
-	friendpb "github.com/anychat/server/api/proto/friend"
 	commonpb "github.com/anychat/server/api/proto/common"
+	friendpb "github.com/anychat/server/api/proto/friend"
 	"github.com/anychat/server/internal/friend/dto"
 	"github.com/anychat/server/internal/friend/service"
 	"github.com/anychat/server/pkg/errors"
@@ -247,14 +247,18 @@ func convertError(err error) error {
 		switch bizErr.Code {
 		case errors.CodeParamError:
 			return status.Error(codes.InvalidArgument, bizErr.Message)
+		case errors.CodeCannotAddSelf:
+			return status.Error(codes.InvalidArgument, bizErr.Message)
 		case errors.CodeUserNotFound:
 			return status.Error(codes.NotFound, bizErr.Message)
 		case errors.CodeAlreadyFriend:
 			return status.Error(codes.AlreadyExists, bizErr.Message)
-		case errors.CodeUserBlocked:
-			return status.Error(codes.PermissionDenied, bizErr.Message)
+		case errors.CodeAlreadyInBlacklist:
+			return status.Error(codes.AlreadyExists, bizErr.Message)
 		case errors.CodeRequestExists:
 			return status.Error(codes.AlreadyExists, bizErr.Message)
+		case errors.CodeUserBlocked:
+			return status.Error(codes.PermissionDenied, bizErr.Message)
 		case errors.CodeRequestNotFound:
 			return status.Error(codes.NotFound, bizErr.Message)
 		case errors.CodePermissionDenied:
@@ -262,6 +266,8 @@ func convertError(err error) error {
 		case errors.CodeNotFriend:
 			return status.Error(codes.FailedPrecondition, bizErr.Message)
 		case errors.CodeRequestProcessed:
+			return status.Error(codes.FailedPrecondition, bizErr.Message)
+		case errors.CodeNotInBlacklist:
 			return status.Error(codes.FailedPrecondition, bizErr.Message)
 		default:
 			return status.Error(codes.Internal, bizErr.Message)

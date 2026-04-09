@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	friendpb "github.com/anychat/server/api/proto/friend"
 	userpb "github.com/anychat/server/api/proto/user"
 	authrepository "github.com/anychat/server/internal/auth/repository"
 	authservice "github.com/anychat/server/internal/auth/service"
@@ -25,6 +26,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 )
@@ -94,12 +96,19 @@ func main() {
 		},
 	)
 
+	friendConn, friendClient, err := connectFriendService()
+	if err != nil {
+		logger.Fatal("Failed to connect friend-service", zap.Error(err))
+	}
+	defer friendConn.Close()
+
 	// 初始化服务
 	userService := service.NewUserService(
 		profileRepo,
 		settingsRepo,
 		qrcodeRepo,
 		pushTokenRepo,
+		friendClient,
 		authUserRepo,
 		authSessionRepo,
 		verifyService,
@@ -187,6 +196,7 @@ func loadConfig() error {
 	viper.SetDefault("log.output", "stdout")
 	viper.SetDefault("services.auth.grpc_addr", "localhost:9001")
 	viper.SetDefault("services.user.grpc_addr", "localhost:9002")
+	viper.SetDefault("services.friend.grpc_addr", "localhost:9003")
 	viper.SetDefault("server.mode", "development")
 	viper.SetDefault("verify.code.length", 6)
 	viper.SetDefault("verify.code.expire_seconds", 300)
@@ -251,6 +261,15 @@ func initRedis() (*pkgredis.Client, error) {
 		DB:       viper.GetInt("database.redis.db"),
 		PoolSize: viper.GetInt("database.redis.pool_size"),
 	})
+}
+
+func connectFriendService() (*grpc.ClientConn, friendpb.FriendServiceClient, error) {
+	addr := viper.GetString("services.friend.grpc_addr")
+	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to connect friend service: %w", err)
+	}
+	return conn, friendpb.NewFriendServiceClient(conn), nil
 }
 
 // initGRPCServer 初始化gRPC服务器
