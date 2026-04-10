@@ -106,7 +106,7 @@ test_get_profile() {
 test_update_profile() {
     print_header "2. Update Profile"
 
-    local new_nickname="UpdatedNickname${TIMESTAMP}"
+    local new_nickname="Updated${TIMESTAMP}"
     local data=$(cat <<EOF
 {
     "nickname": "${new_nickname}",
