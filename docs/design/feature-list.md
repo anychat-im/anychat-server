@@ -197,7 +197,13 @@
 | DELETE /api/v1/conversations/:conversationId | 删除会话 | ✅ 完成 |
 | PUT /api/v1/conversations/:conversationId/pin | 置顶会话 | ✅ 完成 |
 | PUT /api/v1/conversations/:conversationId/mute | 静音会话 | ✅ 完成 |
-| POST /api/v1/conversations/:conversationId/read | 标记已读 | ✅ 完成 |
+| PUT /api/v1/conversations/:conversationId/burn | 设置阅后即焚 | ✅ 完成 |
+| PUT /api/v1/conversations/:conversationId/auto_delete | 设置自动删除 | ✅ 完成 |
+| POST /api/v1/conversations/:conversationId/read-all | 标记全部已读 | ✅ 完成 |
+| POST /api/v1/conversations/:conversationId/messages/read | 批量标记消息已读 | ✅ 完成 |
+| GET /api/v1/conversations/:conversationId/messages/unread-count | 获取未读数 | ✅ 完成 |
+| GET /api/v1/conversations/:conversationId/messages/read-receipts | 获取已读回执 | ✅ 完成 |
+| GET /api/v1/conversations/:conversationId/messages/sequence | 获取消息序列号 | ✅ 完成 |
 
 ### WebSocket接口
 
@@ -213,6 +219,8 @@
 | 会话置顶状态同步 | notification.conversation.pin_updated.{user_id} | ✅ 完成 |
 | 会话删除同步 | notification.conversation.deleted.{user_id} | ✅ 完成 |
 | 会话免打扰设置同步 | notification.conversation.mute_updated.{user_id} | ✅ 完成 |
+| 会话阅后即焚设置同步 | notification.conversation.burn_updated.{user_id} | ✅ 完成 |
+| 会话自动删除设置同步 | notification.conversation.auto_delete_updated.{user_id} | ✅ 完成 |
 
 ---
 
@@ -416,7 +424,7 @@ Gateway作为核心枢纽，负责接收NATS消息并推送到客户端：
 | User Service | 13 | - | 3 | 100% |
 | Friend Service | 9 | - | 5 | 100% |
 | Message Service | 5 | 4 | 7 | 100% |
-| Conversation Service | 7 | - | 4 | 100% |
+| Conversation Service | 13 | - | 6 | 100% |
 | Group Service | 16 | - | 7 | 100% |
 | File Service | 6 | - | 3 | 100% |
 | Calling Service | 11 | 1 | 3 | 100% |
