@@ -18,75 +18,75 @@ type AuthHandler struct {
 // SendCodeRequest send verification code request
 type SendCodeRequest struct {
 	Target     string `json:"target" binding:"required" example:"13800138000"`
-	TargetType string `json:"targetType" binding:"required" example:"sms" enums:"sms,email"`
+	TargetType string `json:"target_type" binding:"required" example:"sms" enums:"sms,email"`
 	Purpose    string `json:"purpose" binding:"required" example:"register"`
-	DeviceID   string `json:"deviceId" example:"device-uuid-123"`
+	DeviceID   string `json:"device_id" example:"device-uuid-123"`
 }
 
 // RegisterRequest user registration request
 type RegisterRequest struct {
-	PhoneNumber   *string `json:"phoneNumber" example:"13800138000"`
+	PhoneNumber   *string `json:"phone_number" example:"13800138000"`
 	Email         *string `json:"email" example:"user@example.com"`
 	Password      string  `json:"password" binding:"required" example:"password123"`
-	VerifyCode    string  `json:"verifyCode" binding:"required" example:"123456"`
+	VerifyCode    string  `json:"verify_code" binding:"required" example:"123456"`
 	Nickname      *string `json:"nickname" example:"张三"`
-	DeviceType    string  `json:"deviceType" binding:"required" example:"ios" enums:"ios,android,web"`
-	DeviceID      string  `json:"deviceId" binding:"required" example:"device-uuid-123"`
-	ClientVersion string  `json:"clientVersion" binding:"required" example:"1.0.0"`
+	DeviceType    string  `json:"device_type" binding:"required" example:"ios" enums:"ios,android,web"`
+	DeviceID      string  `json:"device_id" binding:"required" example:"device-uuid-123"`
+	ClientVersion string  `json:"client_version" binding:"required" example:"1.0.0"`
 }
 
 // LoginRequest user login request
 type LoginRequest struct {
 	Account       string `json:"account" binding:"required" example:"13800138000"`
 	Password      string `json:"password" binding:"required" example:"password123"`
-	DeviceType    string `json:"deviceType" binding:"required" example:"ios" enums:"ios,android,web"`
-	DeviceID      string `json:"deviceId" binding:"required" example:"device-uuid-123"`
-	ClientVersion string `json:"clientVersion" binding:"required" example:"1.0.0"`
-	IpAddress     string `json:"ipAddress"`
+	DeviceType    string `json:"device_type" binding:"required" example:"ios" enums:"ios,android,web"`
+	DeviceID      string `json:"device_id" binding:"required" example:"device-uuid-123"`
+	ClientVersion string `json:"client_version" binding:"required" example:"1.0.0"`
+	IpAddress     string `json:"ip_address"`
 }
 
 // RefreshTokenRequest refresh token request
 type RefreshTokenRequest struct {
-	RefreshToken string `json:"refreshToken" binding:"required" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+	RefreshToken string `json:"refresh_token" binding:"required" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
 }
 
 // LogoutRequest logout request
 type LogoutRequest struct {
-	DeviceID string `json:"deviceId" binding:"required" example:"device-uuid-123"`
+	DeviceID string `json:"device_id" binding:"required" example:"device-uuid-123"`
 }
 
 // ChangePasswordRequest change password request
 type ChangePasswordRequest struct {
-	DeviceID    string `json:"deviceId" binding:"required" example:"device-uuid-123"`
-	OldPassword string `json:"oldPassword" binding:"required" example:"oldpass123"`
-	NewPassword string `json:"newPassword" binding:"required" example:"newpass123"`
+	DeviceID    string `json:"device_id" binding:"required" example:"device-uuid-123"`
+	OldPassword string `json:"old_password" binding:"required" example:"oldpass123"`
+	NewPassword string `json:"new_password" binding:"required" example:"newpass123"`
 }
 
 // ResetPasswordRequest reset password request (forgot password)
 type ResetPasswordRequest struct {
 	Account     string `json:"account" binding:"required" example:"13800138000"`
-	VerifyCode  string `json:"verifyCode" binding:"required" example:"123456"`
-	NewPassword string `json:"newPassword" binding:"required" example:"NewPass123"`
+	VerifyCode  string `json:"verify_code" binding:"required" example:"123456"`
+	NewPassword string `json:"new_password" binding:"required" example:"NewPass123"`
 }
 
 // AuthResponse auth response
 type AuthResponse struct {
-	UserID       string    `json:"userId" example:"user-123"`
-	AccessToken  string    `json:"accessToken" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
-	RefreshToken string    `json:"refreshToken" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
-	ExpiresIn    int64     `json:"expiresIn" example:"7200"`
+	UserID       string    `json:"user_id" example:"user-123"`
+	AccessToken  string    `json:"access_token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+	RefreshToken string    `json:"refresh_token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+	ExpiresIn    int64     `json:"expires_in" example:"7200"`
 	User         *UserInfo `json:"user,omitempty"`
 }
 
 // SendCodeResponse send verification code response
 type SendCodeResponse struct {
-	CodeID    string `json:"codeId" example:"vc_20260405_xxx"`
-	ExpiresIn int64  `json:"expiresIn" example:"300"`
+	CodeID    string `json:"code_id" example:"vc_20260405_xxx"`
+	ExpiresIn int64  `json:"expires_in" example:"300"`
 }
 
 // UserInfo user info
 type UserInfo struct {
-	UserID   string  `json:"userId" example:"user-123"`
+	UserID   string  `json:"user_id" example:"user-123"`
 	Nickname string  `json:"nickname" example:"张三"`
 	Avatar   string  `json:"avatar" example:"https://example.com/avatar.jpg"`
 	Phone    *string `json:"phone,omitempty" example:"13800138000"`
@@ -133,8 +133,8 @@ func (h *AuthHandler) SendCode(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"codeId":    resp.CodeId,
-		"expiresIn": resp.ExpiresIn,
+		"code_id":    resp.CodeId,
+		"expires_in": resp.ExpiresIn,
 	})
 }
 
@@ -176,10 +176,10 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"userId":       resp.UserId,
-		"accessToken":  resp.AccessToken,
-		"refreshToken": resp.RefreshToken,
-		"expiresIn":    resp.ExpiresIn,
+		"user_id":       resp.UserId,
+		"access_token":  resp.AccessToken,
+		"refresh_token": resp.RefreshToken,
+		"expires_in":    resp.ExpiresIn,
 	})
 }
 
@@ -219,15 +219,15 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	result := gin.H{
-		"userId":       resp.UserId,
-		"accessToken":  resp.AccessToken,
-		"refreshToken": resp.RefreshToken,
-		"expiresIn":    resp.ExpiresIn,
+		"user_id":       resp.UserId,
+		"access_token":  resp.AccessToken,
+		"refresh_token": resp.RefreshToken,
+		"expires_in":    resp.ExpiresIn,
 	}
 
 	if resp.User != nil {
 		result["user"] = gin.H{
-			"userId":   resp.User.UserId,
+			"user_id":   resp.User.UserId,
 			"nickname": resp.User.Nickname,
 			"avatar":   resp.User.Avatar,
 			"phone":    resp.User.Phone,
@@ -306,9 +306,9 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"accessToken":  resp.AccessToken,
-		"refreshToken": resp.RefreshToken,
-		"expiresIn":    resp.ExpiresIn,
+		"access_token":  resp.AccessToken,
+		"refresh_token": resp.RefreshToken,
+		"expires_in":    resp.ExpiresIn,
 	})
 }
 

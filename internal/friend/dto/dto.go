@@ -4,7 +4,7 @@ import "time"
 
 // SendFriendRequestRequest is the request for sending a friend request
 type SendFriendRequestRequest struct {
-	UserID  string `json:"userId" binding:"required" example:"user-123"`
+	UserID  string `json:"user_id" binding:"required" example:"user-123"`
 	Message string `json:"message" binding:"max=200" example:"Hello, I'd like to add you as a friend"`
 	Source  string `json:"source" binding:"required,oneof=search qrcode group contacts" example:"search"`
 }
@@ -21,16 +21,16 @@ type UpdateRemarkRequest struct {
 
 // AddToBlacklistRequest is the request for adding to blacklist
 type AddToBlacklistRequest struct {
-	UserId string `json:"userId" binding:"required" example:"user-456"`
+	UserId string `json:"user_id" binding:"required" example:"user-456"`
 }
 
 // FriendResponse is the friend info response
 type FriendResponse struct {
-	UserID    string    `json:"userId" example:"user-123"`
+	UserID    string    `json:"user_id" example:"user-123"`
 	Remark    string    `json:"remark" example:"old friend"`
-	CreatedAt time.Time `json:"createdAt" example:"2024-01-01T00:00:00Z"`
-	UpdatedAt time.Time `json:"updatedAt" example:"2024-01-01T00:00:00Z"`
-	UserInfo  *UserInfo `json:"userInfo,omitempty"`
+	CreatedAt time.Time `json:"created_at" example:"2024-01-01T00:00:00Z"`
+	UpdatedAt time.Time `json:"updated_at" example:"2024-01-01T00:00:00Z"`
+	UserInfo  *UserInfo `json:"user_info,omitempty"`
 }
 
 // FriendListResponse is the friend list response
@@ -42,13 +42,13 @@ type FriendListResponse struct {
 // FriendRequestResponse is the friend request response
 type FriendRequestResponse struct {
 	ID           int64     `json:"id" example:"1"`
-	FromUserID   string    `json:"fromUserId" example:"user-123"`
-	ToUserID     string    `json:"toUserId" example:"user-456"`
+	FromUserID   string    `json:"from_user_id" example:"user-123"`
+	ToUserID     string    `json:"to_user_id" example:"user-456"`
 	Message      string    `json:"message" example:"Hello"`
 	Source       string    `json:"source" example:"search"`
 	Status       string    `json:"status" example:"pending"`
-	CreatedAt    time.Time `json:"createdAt" example:"2024-01-01T00:00:00Z"`
-	FromUserInfo *UserInfo `json:"fromUserInfo,omitempty"`
+	CreatedAt    time.Time `json:"created_at" example:"2024-01-01T00:00:00Z"`
+	FromUserInfo *UserInfo `json:"from_user_info,omitempty"`
 }
 
 // FriendRequestListResponse is the friend request list response
@@ -59,17 +59,17 @@ type FriendRequestListResponse struct {
 
 // SendFriendRequestResponse is the response for sending a friend request
 type SendFriendRequestResponse struct {
-	RequestID    int64 `json:"requestId" example:"1"`
-	AutoAccepted bool  `json:"autoAccepted" example:"false"`
+	RequestID    int64 `json:"request_id" example:"1"`
+	AutoAccepted bool  `json:"auto_accepted" example:"false"`
 }
 
 // BlacklistItemResponse is the blacklist item response
 type BlacklistItemResponse struct {
 	ID              int64     `json:"id" example:"1"`
-	UserID          string    `json:"userId" example:"user-123"`
-	BlockedUserID   string    `json:"blockedUserId" example:"user-456"`
-	CreatedAt       time.Time `json:"createdAt" example:"2024-01-01T00:00:00Z"`
-	BlockedUserInfo *UserInfo `json:"blockedUserInfo,omitempty"`
+	UserID          string    `json:"user_id" example:"user-123"`
+	BlockedUserID   string    `json:"blocked_user_id" example:"user-456"`
+	CreatedAt       time.Time `json:"created_at" example:"2024-01-01T00:00:00Z"`
+	BlockedUserInfo *UserInfo `json:"blocked_user_info,omitempty"`
 }
 
 // BlacklistResponse is the blacklist list response
@@ -80,7 +80,7 @@ type BlacklistResponse struct {
 
 // UserInfo is the basic user info (retrieved from user-service)
 type UserInfo struct {
-	UserID   string  `json:"userId" example:"user-123"`
+	UserID   string  `json:"user_id" example:"user-123"`
 	Nickname string  `json:"nickname" example:"John"`
 	Avatar   string  `json:"avatar" example:"https://example.com/avatar.jpg"`
 	Gender   *int32  `json:"gender,omitempty" example:"1"`

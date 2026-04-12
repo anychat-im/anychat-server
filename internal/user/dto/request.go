@@ -14,50 +14,50 @@ type UpdateProfileRequest struct {
 
 // UpdateSettingsRequest update settings request
 type UpdateSettingsRequest struct {
-	NotificationEnabled   *bool   `json:"notificationEnabled"`
-	SoundEnabled          *bool   `json:"soundEnabled"`
-	VibrationEnabled      *bool   `json:"vibrationEnabled"`
-	MessagePreviewEnabled *bool   `json:"messagePreviewEnabled"`
-	FriendVerifyRequired  *bool   `json:"friendVerifyRequired"`
-	SearchByPhone         *bool   `json:"searchByPhone"`
-	SearchByID            *bool   `json:"searchById"`
+	NotificationEnabled   *bool   `json:"notification_enabled"`
+	SoundEnabled          *bool   `json:"sound_enabled"`
+	VibrationEnabled      *bool   `json:"vibration_enabled"`
+	MessagePreviewEnabled *bool   `json:"message_preview_enabled"`
+	FriendVerifyRequired  *bool   `json:"friend_verify_required"`
+	SearchByPhone         *bool   `json:"search_by_phone"`
+	SearchByID            *bool   `json:"search_by_id"`
 	Language              *string `json:"language"`
 }
 
 // UpdatePushTokenRequest update push token request
 type UpdatePushTokenRequest struct {
-	DeviceID  string `json:"deviceId" binding:"required"`
-	PushToken string `json:"pushToken" binding:"required"`
+	DeviceID  string `json:"device_id" binding:"required"`
+	PushToken string `json:"push_token" binding:"required"`
 	Platform  string `json:"platform" binding:"required"` // iOS/Android
 }
 
 // BindPhoneRequest bind phone request
 type BindPhoneRequest struct {
-	PhoneNumber string `json:"phoneNumber" binding:"required"`
-	VerifyCode  string `json:"verifyCode" binding:"required"`
+	PhoneNumber string `json:"phone_number" binding:"required"`
+	VerifyCode  string `json:"verify_code" binding:"required"`
 }
 
 // ChangePhoneRequest change phone request
 type ChangePhoneRequest struct {
-	OldPhoneNumber string  `json:"oldPhoneNumber" binding:"required"`
-	NewPhoneNumber string  `json:"newPhoneNumber" binding:"required"`
-	NewVerifyCode  string  `json:"newVerifyCode" binding:"required"`
-	OldVerifyCode  *string `json:"oldVerifyCode"`
+	OldPhoneNumber string  `json:"old_phone_number" binding:"required"`
+	NewPhoneNumber string  `json:"new_phone_number" binding:"required"`
+	NewVerifyCode  string  `json:"new_verify_code" binding:"required"`
+	OldVerifyCode  *string `json:"old_verify_code"`
 	DeviceID       string  `json:"-"`
 }
 
 // BindEmailRequest bind email request
 type BindEmailRequest struct {
 	Email      string `json:"email" binding:"required"`
-	VerifyCode string `json:"verifyCode" binding:"required"`
+	VerifyCode string `json:"verify_code" binding:"required"`
 }
 
 // ChangeEmailRequest change email request
 type ChangeEmailRequest struct {
-	OldEmail      string  `json:"oldEmail" binding:"required"`
-	NewEmail      string  `json:"newEmail" binding:"required"`
-	NewVerifyCode string  `json:"newVerifyCode" binding:"required"`
-	OldVerifyCode *string `json:"oldVerifyCode"`
+	OldEmail      string  `json:"old_email" binding:"required"`
+	NewEmail      string  `json:"new_email" binding:"required"`
+	NewVerifyCode string  `json:"new_verify_code" binding:"required"`
+	OldVerifyCode *string `json:"old_verify_code"`
 	DeviceID      string  `json:"-"`
 }
 
@@ -65,5 +65,5 @@ type ChangeEmailRequest struct {
 type SearchUsersRequest struct {
 	Keyword  string `form:"keyword" binding:"required"`
 	Page     int    `form:"page"`
-	PageSize int    `form:"pageSize"`
+	PageSize int    `form:"page_size"`
 }

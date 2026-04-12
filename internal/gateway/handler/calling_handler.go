@@ -25,8 +25,8 @@ func NewCallingHandler(clientManager *client.Manager) *CallingHandler {
 
 // initiateCallRequest initiate call request body
 type initiateCallRequest struct {
-	CalleeID string `json:"calleeId" binding:"required"`
-	CallType string `json:"callType"` // audio/video (default: audio)
+	CalleeID string `json:"callee_id" binding:"required"`
+	CallType string `json:"call_type"` // audio/video (default: audio)
 }
 
 // InitiateCall initiate audio/video call
@@ -87,7 +87,7 @@ func (h *CallingHandler) InitiateCall(c *gin.Context) {
 // @Router       /calling/calls/{callId}/join [post]
 func (h *CallingHandler) JoinCall(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	callID := c.Param("callId")
+	callID := c.Param("call_id")
 
 	resp, err := h.clientManager.Calling().JoinCall(c.Request.Context(), &callingpb.JoinCallRequest{
 		CallId: callID,
@@ -115,7 +115,7 @@ func (h *CallingHandler) JoinCall(c *gin.Context) {
 // @Router       /calling/calls/{callId}/reject [post]
 func (h *CallingHandler) RejectCall(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	callID := c.Param("callId")
+	callID := c.Param("call_id")
 
 	_, err := h.clientManager.Calling().RejectCall(c.Request.Context(), &callingpb.RejectCallRequest{
 		CallId: callID,
@@ -143,7 +143,7 @@ func (h *CallingHandler) RejectCall(c *gin.Context) {
 // @Router       /calling/calls/{callId}/end [post]
 func (h *CallingHandler) EndCall(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	callID := c.Param("callId")
+	callID := c.Param("call_id")
 
 	_, err := h.clientManager.Calling().EndCall(c.Request.Context(), &callingpb.EndCallRequest{
 		CallId: callID,
@@ -171,7 +171,7 @@ func (h *CallingHandler) EndCall(c *gin.Context) {
 // @Router       /calling/calls/{callId} [get]
 func (h *CallingHandler) GetCallSession(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	callID := c.Param("callId")
+	callID := c.Param("call_id")
 
 	resp, err := h.clientManager.Calling().GetCallSession(c.Request.Context(), &callingpb.GetCallSessionRequest{
 		CallId: callID,
@@ -206,7 +206,7 @@ func (h *CallingHandler) ListCallLogs(c *gin.Context) {
 			req.Page = int32(v)
 		}
 	}
-	if ps := c.Query("pageSize"); ps != "" {
+	if ps := c.Query("page_size"); ps != "" {
 		if v, err := strconv.Atoi(ps); err == nil {
 			req.PageSize = int32(v)
 		}
@@ -226,7 +226,7 @@ func (h *CallingHandler) ListCallLogs(c *gin.Context) {
 type createMeetingRequest struct {
 	Title           string `json:"title" binding:"required"`
 	Password        string `json:"password"`
-	MaxParticipants int32  `json:"maxParticipants"`
+	MaxParticipants int32  `json:"max_participants"`
 }
 
 // CreateMeeting create meeting room
@@ -284,7 +284,7 @@ func (h *CallingHandler) ListMeetings(c *gin.Context) {
 			req.Page = int32(v)
 		}
 	}
-	if ps := c.Query("pageSize"); ps != "" {
+	if ps := c.Query("page_size"); ps != "" {
 		if v, err := strconv.Atoi(ps); err == nil {
 			req.PageSize = int32(v)
 		}
@@ -312,7 +312,7 @@ func (h *CallingHandler) ListMeetings(c *gin.Context) {
 // @Failure      500     {object}  response.Response  "server error"
 // @Router       /calling/meetings/{roomId} [get]
 func (h *CallingHandler) GetMeeting(c *gin.Context) {
-	roomID := c.Param("roomId")
+	roomID := c.Param("room_id")
 
 	resp, err := h.clientManager.Calling().GetMeeting(c.Request.Context(), &callingpb.GetMeetingRequest{
 		RoomId: roomID,
@@ -347,7 +347,7 @@ type joinMeetingRequest struct {
 // @Router       /calling/meetings/{roomId}/join [post]
 func (h *CallingHandler) JoinMeeting(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	roomID := c.Param("roomId")
+	roomID := c.Param("room_id")
 
 	var req joinMeetingRequest
 	_ = c.ShouldBindJSON(&req)
@@ -380,7 +380,7 @@ func (h *CallingHandler) JoinMeeting(c *gin.Context) {
 // @Router       /calling/meetings/{roomId}/end [post]
 func (h *CallingHandler) EndMeeting(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	roomID := c.Param("roomId")
+	roomID := c.Param("room_id")
 
 	_, err := h.clientManager.Calling().EndMeeting(c.Request.Context(), &callingpb.EndMeetingRequest{
 		RoomId:    roomID,

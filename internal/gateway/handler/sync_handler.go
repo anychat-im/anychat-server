@@ -22,14 +22,14 @@ func NewSyncHandler(clientManager *client.Manager) *SyncHandler {
 
 // syncRequest full/incremental sync request body
 type syncRequest struct {
-	LastSyncTime     int64                  `json:"lastSyncTime"`
-	ConversationSeqs []*conversationSeqItem `json:"conversationSeqs"`
+	LastSyncTime     int64                  `json:"last_sync_time"`
+	ConversationSeqs []*conversationSeqItem `json:"conversation_seqs"`
 }
 
 type conversationSeqItem struct {
-	ConversationId   string `json:"conversationId"`
-	ConversationType string `json:"conversationType"`
-	LastSeq          int64  `json:"lastSeq"`
+	ConversationId   string `json:"conversation_id"`
+	ConversationType string `json:"conversation_type"`
+	LastSeq          int64  `json:"last_seq"`
 }
 
 // Sync full/incremental data sync
@@ -76,8 +76,8 @@ func (h *SyncHandler) Sync(c *gin.Context) {
 
 // syncMessagesRequest message sync request body
 type syncMessagesRequest struct {
-	ConversationSeqs     []*conversationSeqItem `json:"conversationSeqs"`
-	LimitPerConversation int32                  `json:"limitPerConversation"`
+	ConversationSeqs     []*conversationSeqItem `json:"conversation_seqs"`
+	LimitPerConversation int32                  `json:"limit_per_conversation"`
 }
 
 // SyncMessages message sync

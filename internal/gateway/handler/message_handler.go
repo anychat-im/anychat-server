@@ -145,7 +145,7 @@ func (h *MessageHandler) SendMessage(c *gin.Context) {
 // @Router       /conversations/{conversationId}/messages/before [get]
 func (h *MessageHandler) GetMessagesBefore(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 	if conversationID == "" {
 		response.ParamError(c, "conversation_id is required")
 		return
@@ -196,7 +196,7 @@ func (h *MessageHandler) GetMessagesBefore(c *gin.Context) {
 // @Router       /conversations/{conversationId}/messages/after [get]
 func (h *MessageHandler) GetMessagesAfter(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 	if conversationID == "" {
 		response.ParamError(c, "conversation_id is required")
 		return
@@ -249,7 +249,7 @@ func (h *MessageHandler) GetMessagesAfter(c *gin.Context) {
 // @Router       /conversations/{conversationId}/messages/around-anchor [get]
 func (h *MessageHandler) GetMessagesAroundAnchor(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 	if conversationID == "" {
 		response.ParamError(c, "conversation_id is required")
 		return
@@ -317,7 +317,7 @@ func (h *MessageHandler) GetMessagesAroundAnchor(c *gin.Context) {
 // @Router       /conversations/{conversationId}/messages/first-unread-anchor [get]
 func (h *MessageHandler) GetFirstUnreadAnchor(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 	if conversationID == "" {
 		response.ParamError(c, "conversation_id is required")
 		return
@@ -380,7 +380,7 @@ func (h *MessageHandler) GetFirstUnreadAnchor(c *gin.Context) {
 // @Router       /messages/{messageId} [get]
 func (h *MessageHandler) GetMessageByID(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	messageID := c.Param("messageId")
+	messageID := c.Param("message_id")
 	if messageID == "" {
 		response.ParamError(c, "message_id is required")
 		return
@@ -521,7 +521,7 @@ func (h *MessageHandler) RecallMessage(c *gin.Context) {
 // @Router       /messages/{messageId} [delete]
 func (h *MessageHandler) DeleteMessage(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	messageID := c.Param("messageId")
+	messageID := c.Param("message_id")
 
 	if messageID == "" {
 		response.ParamError(c, "message_id is required")

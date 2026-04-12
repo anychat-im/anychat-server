@@ -29,17 +29,17 @@ type UpdateProfileRequest struct {
 
 // UserProfile user profile
 type UserProfile struct {
-	UserID    string     `json:"userId" example:"user-123"`
+	UserID    string     `json:"user_id" example:"user-123"`
 	Nickname  string     `json:"nickname" example:"张三"`
 	Avatar    string     `json:"avatar" example:"https://example.com/avatar.jpg"`
 	Signature string     `json:"signature" example:"这是我的个性签名"`
 	Gender    int32      `json:"gender" example:"1"`
 	Region    string     `json:"region" example:"北京"`
-	QRCodeURL string     `json:"qrcodeUrl" example:"https://example.com/qrcode.png"`
+	QRCodeURL string     `json:"qrcode_url" example:"https://example.com/qrcode.png"`
 	Birthday  *time.Time `json:"birthday,omitempty" example:"1990-01-01T00:00:00Z"`
 	Phone     *string    `json:"phone,omitempty" example:"13800138000"`
 	Email     *string    `json:"email,omitempty" example:"user@example.com"`
-	CreatedAt time.Time  `json:"createdAt" example:"2024-01-01T00:00:00Z"`
+	CreatedAt time.Time  `json:"created_at" example:"2024-01-01T00:00:00Z"`
 }
 
 // UserSearchResult user search result
@@ -50,7 +50,7 @@ type UserSearchResult struct {
 
 // UserSearchItem search result item
 type UserSearchItem struct {
-	UserID    string `json:"userId" example:"user-123"`
+	UserID    string `json:"user_id" example:"user-123"`
 	Nickname  string `json:"nickname" example:"张三"`
 	Avatar    string `json:"avatar" example:"https://example.com/avatar.jpg"`
 	Signature string `json:"signature" example:"这是我的个性签名"`
@@ -58,62 +58,62 @@ type UserSearchItem struct {
 
 // UserSettings user settings
 type UserSettings struct {
-	UserID                string `json:"userId" example:"user-123"`
-	NotificationEnabled   bool   `json:"notificationEnabled" example:"true"`
-	SoundEnabled          bool   `json:"soundEnabled" example:"true"`
-	VibrationEnabled      bool   `json:"vibrationEnabled" example:"true"`
-	MessagePreviewEnabled bool   `json:"messagePreviewEnabled" example:"true"`
-	FriendVerifyRequired  bool   `json:"friendVerifyRequired" example:"true"`
-	SearchByPhone         bool   `json:"searchByPhone" example:"true"`
-	SearchByID            bool   `json:"searchById" example:"true"`
+	UserID                string `json:"user_id" example:"user-123"`
+	NotificationEnabled   bool   `json:"notification_enabled" example:"true"`
+	SoundEnabled          bool   `json:"sound_enabled" example:"true"`
+	VibrationEnabled      bool   `json:"vibration_enabled" example:"true"`
+	MessagePreviewEnabled bool   `json:"message_preview_enabled" example:"true"`
+	FriendVerifyRequired  bool   `json:"friend_verify_required" example:"true"`
+	SearchByPhone         bool   `json:"search_by_phone" example:"true"`
+	SearchByID            bool   `json:"search_by_id" example:"true"`
 	Language              string `json:"language" example:"zh-CN"`
 }
 
 // UpdateSettingsRequest update settings request
 type UpdateSettingsRequest struct {
-	NotificationEnabled   *bool   `json:"notificationEnabled" example:"true"`
-	SoundEnabled          *bool   `json:"soundEnabled" example:"true"`
-	VibrationEnabled      *bool   `json:"vibrationEnabled" example:"true"`
-	MessagePreviewEnabled *bool   `json:"messagePreviewEnabled" example:"true"`
-	FriendVerifyRequired  *bool   `json:"friendVerifyRequired" example:"true"`
-	SearchByPhone         *bool   `json:"searchByPhone" example:"true"`
-	SearchByID            *bool   `json:"searchById" example:"true"`
+	NotificationEnabled   *bool   `json:"notification_enabled" example:"true"`
+	SoundEnabled          *bool   `json:"sound_enabled" example:"true"`
+	VibrationEnabled      *bool   `json:"vibration_enabled" example:"true"`
+	MessagePreviewEnabled *bool   `json:"message_preview_enabled" example:"true"`
+	FriendVerifyRequired  *bool   `json:"friend_verify_required" example:"true"`
+	SearchByPhone         *bool   `json:"search_by_phone" example:"true"`
+	SearchByID            *bool   `json:"search_by_id" example:"true"`
 	Language              *string `json:"language" example:"zh-CN"`
 }
 
 // UpdatePushTokenRequest update push token request
 type UpdatePushTokenRequest struct {
-	DeviceID  string `json:"deviceId" binding:"required" example:"device-uuid-123"`
-	PushToken string `json:"pushToken" binding:"required" example:"push-token-xxx"`
+	DeviceID  string `json:"device_id" binding:"required" example:"device-uuid-123"`
+	PushToken string `json:"push_token" binding:"required" example:"push-token-xxx"`
 	Platform  string `json:"platform" binding:"required" example:"ios" enums:"ios,android"`
 }
 
 // BindPhoneRequest bind phone request
 type BindPhoneRequest struct {
-	PhoneNumber string `json:"phoneNumber" binding:"required" example:"13800138000"`
-	VerifyCode  string `json:"verifyCode" binding:"required" example:"123456"`
+	PhoneNumber string `json:"phone_number" binding:"required" example:"13800138000"`
+	VerifyCode  string `json:"verify_code" binding:"required" example:"123456"`
 }
 
 // ChangePhoneRequest change phone request
 type ChangePhoneRequest struct {
-	OldPhoneNumber string  `json:"oldPhoneNumber" binding:"required" example:"13800138000"`
-	NewPhoneNumber string  `json:"newPhoneNumber" binding:"required" example:"13900139000"`
-	NewVerifyCode  string  `json:"newVerifyCode" binding:"required" example:"123456"`
-	OldVerifyCode  *string `json:"oldVerifyCode,omitempty" example:"123456"`
+	OldPhoneNumber string  `json:"old_phone_number" binding:"required" example:"13800138000"`
+	NewPhoneNumber string  `json:"new_phone_number" binding:"required" example:"13900139000"`
+	NewVerifyCode  string  `json:"new_verify_code" binding:"required" example:"123456"`
+	OldVerifyCode  *string `json:"old_verify_code,omitempty" example:"123456"`
 }
 
 // BindEmailRequest bind email request
 type BindEmailRequest struct {
 	Email      string `json:"email" binding:"required" example:"user@example.com"`
-	VerifyCode string `json:"verifyCode" binding:"required" example:"123456"`
+	VerifyCode string `json:"verify_code" binding:"required" example:"123456"`
 }
 
 // ChangeEmailRequest change email request
 type ChangeEmailRequest struct {
-	OldEmail      string  `json:"oldEmail" binding:"required" example:"old@example.com"`
-	NewEmail      string  `json:"newEmail" binding:"required" example:"new@example.com"`
-	NewVerifyCode string  `json:"newVerifyCode" binding:"required" example:"123456"`
-	OldVerifyCode *string `json:"oldVerifyCode,omitempty" example:"123456"`
+	OldEmail      string  `json:"old_email" binding:"required" example:"old@example.com"`
+	NewEmail      string  `json:"new_email" binding:"required" example:"new@example.com"`
+	NewVerifyCode string  `json:"new_verify_code" binding:"required" example:"123456"`
+	OldVerifyCode *string `json:"old_verify_code,omitempty" example:"123456"`
 }
 
 // NewUserHandler creates user handler
@@ -147,14 +147,14 @@ func (h *UserHandler) GetProfile(c *gin.Context) {
 	}
 
 	result := gin.H{
-		"userId":    resp.UserId,
+		"user_id":    resp.UserId,
 		"nickname":  resp.Nickname,
 		"avatar":    resp.Avatar,
 		"signature": resp.Signature,
 		"gender":    resp.Gender,
 		"region":    resp.Region,
-		"qrcodeUrl": resp.QrcodeUrl,
-		"createdAt": resp.CreatedAt.AsTime(),
+		"qrcode_url": resp.QrcodeUrl,
+		"created_at": resp.CreatedAt.AsTime(),
 	}
 
 	if resp.Birthday != nil {
@@ -214,14 +214,14 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	}
 
 	result := gin.H{
-		"userId":    resp.UserId,
+		"user_id":    resp.UserId,
 		"nickname":  resp.Nickname,
 		"avatar":    resp.Avatar,
 		"signature": resp.Signature,
 		"gender":    resp.Gender,
 		"region":    resp.Region,
-		"qrcodeUrl": resp.QrcodeUrl,
-		"createdAt": resp.CreatedAt.AsTime(),
+		"qrcode_url": resp.QrcodeUrl,
+		"created_at": resp.CreatedAt.AsTime(),
 	}
 
 	if resp.Birthday != nil {
@@ -245,7 +245,7 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 // @Failure      500     {object}  response.Response  "server error"
 // @Router       /users/{userId} [get]
 func (h *UserHandler) GetUserInfo(c *gin.Context) {
-	targetUserID := c.Param("userId")
+	targetUserID := c.Param("user_id")
 	userID := gwmiddleware.GetUserID(c)
 
 	resp, err := h.clientManager.User().GetUserInfo(c.Request.Context(), &userpb.GetUserInfoRequest{
@@ -259,14 +259,14 @@ func (h *UserHandler) GetUserInfo(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"userId":    resp.UserId,
+		"user_id":    resp.UserId,
 		"nickname":  resp.Nickname,
 		"avatar":    resp.Avatar,
 		"signature": resp.Signature,
 		"gender":    resp.Gender,
 		"region":    resp.Region,
-		"isFriend":  resp.IsFriend,
-		"isBlocked": resp.IsBlocked,
+		"is_friend":  resp.IsFriend,
+		"is_blocked": resp.IsBlocked,
 	})
 }
 
@@ -293,7 +293,7 @@ func (h *UserHandler) SearchUsers(c *gin.Context) {
 	}
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
 	resp, err := h.clientManager.User().SearchUsers(c.Request.Context(), &userpb.SearchUsersRequest{
 		Keyword:  keyword,
@@ -309,7 +309,7 @@ func (h *UserHandler) SearchUsers(c *gin.Context) {
 	users := make([]gin.H, 0, len(resp.Users))
 	for _, u := range resp.Users {
 		users = append(users, gin.H{
-			"userId":    u.UserId,
+			"user_id":    u.UserId,
 			"nickname":  u.Nickname,
 			"avatar":    u.Avatar,
 			"signature": u.Signature,
@@ -346,14 +346,14 @@ func (h *UserHandler) GetSettings(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"userId":                resp.UserId,
-		"notificationEnabled":   resp.NotificationEnabled,
-		"soundEnabled":          resp.SoundEnabled,
-		"vibrationEnabled":      resp.VibrationEnabled,
-		"messagePreviewEnabled": resp.MessagePreviewEnabled,
-		"friendVerifyRequired":  resp.FriendVerifyRequired,
-		"searchByPhone":         resp.SearchByPhone,
-		"searchById":            resp.SearchById,
+		"user_id":                resp.UserId,
+		"notification_enabled":   resp.NotificationEnabled,
+		"sound_enabled":          resp.SoundEnabled,
+		"vibration_enabled":      resp.VibrationEnabled,
+		"message_preview_enabled": resp.MessagePreviewEnabled,
+		"friend_verify_required":  resp.FriendVerifyRequired,
+		"search_by_phone":         resp.SearchByPhone,
+		"search_by_id":            resp.SearchById,
 		"language":              resp.Language,
 	})
 }
@@ -399,14 +399,14 @@ func (h *UserHandler) UpdateSettings(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"userId":                resp.UserId,
-		"notificationEnabled":   resp.NotificationEnabled,
-		"soundEnabled":          resp.SoundEnabled,
-		"vibrationEnabled":      resp.VibrationEnabled,
-		"messagePreviewEnabled": resp.MessagePreviewEnabled,
-		"friendVerifyRequired":  resp.FriendVerifyRequired,
-		"searchByPhone":         resp.SearchByPhone,
-		"searchById":            resp.SearchById,
+		"user_id":                resp.UserId,
+		"notification_enabled":   resp.NotificationEnabled,
+		"sound_enabled":          resp.SoundEnabled,
+		"vibration_enabled":      resp.VibrationEnabled,
+		"message_preview_enabled": resp.MessagePreviewEnabled,
+		"friend_verify_required":  resp.FriendVerifyRequired,
+		"search_by_phone":         resp.SearchByPhone,
+		"search_by_id":            resp.SearchById,
 		"language":              resp.Language,
 	})
 }
@@ -425,8 +425,8 @@ func (h *UserHandler) RefreshQRCode(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"qrcodeUrl": resp.QrcodeUrl,
-		"expiresAt": resp.ExpiresAt.AsTime(),
+		"qrcode_url": resp.QrcodeUrl,
+		"expires_at": resp.ExpiresAt.AsTime(),
 	})
 }
 
@@ -448,7 +448,7 @@ func (h *UserHandler) GetUserByQRCode(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"userId":    resp.UserId,
+		"user_id":    resp.UserId,
 		"nickname":  resp.Nickname,
 		"avatar":    resp.Avatar,
 		"signature": resp.Signature,
@@ -526,8 +526,8 @@ func (h *UserHandler) BindPhone(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"phoneNumber": resp.PhoneNumber,
-		"isPrimary":   resp.IsPrimary,
+		"phone_number": resp.PhoneNumber,
+		"is_primary":   resp.IsPrimary,
 	})
 }
 
@@ -572,8 +572,8 @@ func (h *UserHandler) ChangePhone(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"oldPhoneNumber": resp.OldPhoneNumber,
-		"newPhoneNumber": resp.NewPhoneNumber,
+		"old_phone_number": resp.OldPhoneNumber,
+		"new_phone_number": resp.NewPhoneNumber,
 	})
 }
 
@@ -611,7 +611,7 @@ func (h *UserHandler) BindEmail(c *gin.Context) {
 
 	response.Success(c, gin.H{
 		"email":     resp.Email,
-		"isPrimary": resp.IsPrimary,
+		"is_primary": resp.IsPrimary,
 	})
 }
 
@@ -656,7 +656,7 @@ func (h *UserHandler) ChangeEmail(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"oldEmail": resp.OldEmail,
-		"newEmail": resp.NewEmail,
+		"old_email": resp.OldEmail,
+		"new_email": resp.NewEmail,
 	})
 }

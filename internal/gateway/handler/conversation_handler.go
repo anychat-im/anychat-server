@@ -58,7 +58,7 @@ func (h *ConversationHandler) GetConversations(c *gin.Context) {
 			req.Limit = int32(limit)
 		}
 	}
-	if beforeStr := c.Query("updatedBefore"); beforeStr != "" {
+	if beforeStr := c.Query("updated_before"); beforeStr != "" {
 		if t, err := strconv.ParseInt(beforeStr, 10, 64); err == nil {
 			req.UpdatedBefore = &t
 		}
@@ -87,7 +87,7 @@ func (h *ConversationHandler) GetConversations(c *gin.Context) {
 // @Router       /conversations/{conversationId} [get]
 func (h *ConversationHandler) GetConversation(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 
 	resp, err := h.clientManager.Conversation().GetConversation(c.Request.Context(), &conversationpb.GetConversationRequest{
 		UserId:         userID,
@@ -114,7 +114,7 @@ func (h *ConversationHandler) GetConversation(c *gin.Context) {
 // @Router       /conversations/{conversationId} [delete]
 func (h *ConversationHandler) DeleteConversation(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 
 	_, err := h.clientManager.Conversation().DeleteConversation(c.Request.Context(), &conversationpb.DeleteConversationRequest{
 		UserId:         userID,
@@ -148,7 +148,7 @@ type setPinnedRequest struct {
 // @Router       /conversations/{conversationId}/pin [put]
 func (h *ConversationHandler) SetPinned(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 
 	var req setPinnedRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -189,7 +189,7 @@ type setMutedRequest struct {
 // @Router       /conversations/{conversationId}/mute [put]
 func (h *ConversationHandler) SetMuted(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 
 	var req setMutedRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -223,7 +223,7 @@ func (h *ConversationHandler) SetMuted(c *gin.Context) {
 // @Router       /conversations/{conversationId}/read-all [post]
 func (h *ConversationHandler) MarkRead(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 
 	if !h.ensureConversationAccessible(c, userID, conversationID) {
 		return
@@ -280,7 +280,7 @@ type markMessagesReadRequest struct {
 // @Router       /conversations/{conversationId}/messages/read [post]
 func (h *ConversationHandler) MarkMessagesRead(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 	if conversationID == "" {
 		response.ParamError(c, "conversation_id is required")
 		return
@@ -329,7 +329,7 @@ func (h *ConversationHandler) MarkMessagesRead(c *gin.Context) {
 // @Router       /conversations/{conversationId}/messages/unread-count [get]
 func (h *ConversationHandler) GetMessageUnreadCount(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 	if conversationID == "" {
 		response.ParamError(c, "conversation_id is required")
 		return
@@ -372,7 +372,7 @@ func (h *ConversationHandler) GetMessageUnreadCount(c *gin.Context) {
 // @Router       /conversations/{conversationId}/messages/read-receipts [get]
 func (h *ConversationHandler) GetMessageReadReceipts(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 	if conversationID == "" {
 		response.ParamError(c, "conversation_id is required")
 		return
@@ -405,7 +405,7 @@ func (h *ConversationHandler) GetMessageReadReceipts(c *gin.Context) {
 // @Router       /conversations/{conversationId}/messages/sequence [get]
 func (h *ConversationHandler) GetMessageSequence(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 	if conversationID == "" {
 		response.ParamError(c, "conversation_id is required")
 		return
@@ -470,7 +470,7 @@ type setBurnAfterReadingRequest struct {
 // @Router       /conversations/{conversationId}/burn [put]
 func (h *ConversationHandler) SetBurnAfterReading(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 
 	var req setBurnAfterReadingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -510,7 +510,7 @@ type setAutoDeleteRequest struct {
 // @Router       /conversations/{conversationId}/auto_delete [put]
 func (h *ConversationHandler) SetAutoDelete(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	conversationID := c.Param("conversationId")
+	conversationID := c.Param("conversation_id")
 
 	var req setAutoDeleteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

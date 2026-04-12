@@ -39,11 +39,11 @@ func (h *FileHandler) GenerateUploadToken(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 
 	var req struct {
-		FileName     string `json:"fileName" binding:"required" example:"photo.jpg"`
-		FileSize     int64  `json:"fileSize" binding:"required,gt=0" example:"1024000"`
-		MimeType     string `json:"mimeType" binding:"required" example:"image/jpeg"`
-		FileType     string `json:"fileType" binding:"required,oneof=image video audio file" example:"image"`
-		ExpiresHours int32  `json:"expiresHours,omitempty" example:"0"`
+		FileName     string `json:"file_name" binding:"required" example:"photo.jpg"`
+		FileSize     int64  `json:"file_size" binding:"required,gt=0" example:"1024000"`
+		MimeType     string `json:"mime_type" binding:"required" example:"image/jpeg"`
+		FileType     string `json:"file_type" binding:"required,oneof=image video audio file" example:"image"`
+		ExpiresHours int32  `json:"expires_hours,omitempty" example:"0"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -84,7 +84,7 @@ func (h *FileHandler) GenerateUploadToken(c *gin.Context) {
 // @Router       /files/{fileId}/complete [post]
 func (h *FileHandler) CompleteUpload(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	fileID := c.Param("fileId")
+	fileID := c.Param("file_id")
 
 	if fileID == "" {
 		response.ParamError(c, "fileId is required")
@@ -122,7 +122,7 @@ func (h *FileHandler) CompleteUpload(c *gin.Context) {
 // @Router       /files/{fileId}/download [get]
 func (h *FileHandler) GenerateDownloadURL(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	fileID := c.Param("fileId")
+	fileID := c.Param("file_id")
 
 	if fileID == "" {
 		response.ParamError(c, "fileId is required")
@@ -131,7 +131,7 @@ func (h *FileHandler) GenerateDownloadURL(c *gin.Context) {
 
 	// Optional parameter: expiration time (minutes)
 	var expiresMinutes *int32
-	if expiresStr := c.Query("expiresMinutes"); expiresStr != "" {
+	if expiresStr := c.Query("expires_minutes"); expiresStr != "" {
 		if expires, err := strconv.Atoi(expiresStr); err == nil && expires > 0 {
 			expiresInt32 := int32(expires)
 			expiresMinutes = &expiresInt32
@@ -169,7 +169,7 @@ func (h *FileHandler) GenerateDownloadURL(c *gin.Context) {
 // @Router       /files/{fileId} [get]
 func (h *FileHandler) GetFileInfo(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	fileID := c.Param("fileId")
+	fileID := c.Param("file_id")
 
 	if fileID == "" {
 		response.ParamError(c, "fileId is required")
@@ -206,7 +206,7 @@ func (h *FileHandler) GetFileInfo(c *gin.Context) {
 // @Router       /files/{fileId} [delete]
 func (h *FileHandler) DeleteFile(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	fileID := c.Param("fileId")
+	fileID := c.Param("file_id")
 
 	if fileID == "" {
 		response.ParamError(c, "fileId is required")
@@ -245,9 +245,9 @@ func (h *FileHandler) ListFiles(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 
 	// Parse query parameters
-	fileType := c.Query("fileType")
+	fileType := c.Query("file_type")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
 	if page < 1 {
 		page = 1

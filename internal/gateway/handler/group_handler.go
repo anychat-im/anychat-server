@@ -210,7 +210,7 @@ func (h *GroupHandler) GetMyGroups(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 
 	var lastUpdateTime *int64
-	if lut := c.Query("lastUpdateTime"); lut != "" {
+	if lut := c.Query("last_update_time"); lut != "" {
 		if val, err := strconv.ParseInt(lut, 10, 64); err == nil {
 			lastUpdateTime = &val
 		}
@@ -254,7 +254,7 @@ func (h *GroupHandler) GetGroupMembers(c *gin.Context) {
 			page = val
 		}
 	}
-	if ps := c.Query("pageSize"); ps != "" {
+	if ps := c.Query("page_size"); ps != "" {
 		if val, err := strconv.Atoi(ps); err == nil && val > 0 && val <= 100 {
 			pageSize = val
 		}
@@ -328,7 +328,7 @@ func (h *GroupHandler) InviteMembers(c *gin.Context) {
 func (h *GroupHandler) RemoveMember(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 	groupID := c.Param("id")
-	targetUserID := c.Param("userId")
+	targetUserID := c.Param("user_id")
 
 	_, err := h.clientManager.Group().RemoveMember(c.Request.Context(), &grouppb.RemoveMemberRequest{
 		UserId:       userID,
@@ -390,7 +390,7 @@ func (h *GroupHandler) QuitGroup(c *gin.Context) {
 func (h *GroupHandler) UpdateMemberRole(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 	groupID := c.Param("id")
-	targetUserID := c.Param("userId")
+	targetUserID := c.Param("user_id")
 
 	var req groupdto.UpdateMemberRoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -553,7 +553,7 @@ func (h *GroupHandler) JoinGroup(c *gin.Context) {
 // @Router       /groups/{id}/requests/{requestId} [put]
 func (h *GroupHandler) HandleJoinRequest(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	requestID, err := strconv.ParseInt(c.Param("requestId"), 10, 64)
+	requestID, err := strconv.ParseInt(c.Param("request_id"), 10, 64)
 	if err != nil {
 		response.ParamError(c, "Invalid request ID")
 		return
@@ -583,7 +583,7 @@ func (h *GroupHandler) HandleJoinRequest(c *gin.Context) {
 func (h *GroupHandler) MuteMember(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 	groupID := c.Param("id")
-	targetUserID := c.Param("userId")
+	targetUserID := c.Param("user_id")
 
 	var req groupdto.MuteMemberRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -614,7 +614,7 @@ func (h *GroupHandler) MuteMember(c *gin.Context) {
 func (h *GroupHandler) UnmuteMember(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 	groupID := c.Param("id")
-	targetUserID := c.Param("userId")
+	targetUserID := c.Param("user_id")
 
 	_, err := h.clientManager.Group().UnmuteMember(c.Request.Context(), &grouppb.UnmuteMemberRequest{
 		UserId:       userID,
@@ -691,7 +691,7 @@ func (h *GroupHandler) PinGroupMessage(c *gin.Context) {
 func (h *GroupHandler) UnpinGroupMessage(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 	groupID := c.Param("id")
-	messageID := c.Param("messageId")
+	messageID := c.Param("message_id")
 
 	_, err := h.clientManager.Group().UnpinGroupMessage(c.Request.Context(), &grouppb.UnpinGroupMessageRequest{
 		UserId:    userID,
@@ -782,12 +782,12 @@ func (h *GroupHandler) GetGroupSettings(c *gin.Context) {
 		return
 	}
 	response.Success(c, gin.H{
-		"groupId":           resp.GroupId,
-		"joinVerify":        resp.JoinVerify,
-		"allowMemberInvite": resp.AllowMemberInvite,
-		"allowViewHistory":  resp.AllowViewHistory,
-		"allowAddFriend":    resp.AllowAddFriend,
-		"allowMemberModify": resp.AllowMemberModify,
+		"group_id":           resp.GroupId,
+		"join_verify":        resp.JoinVerify,
+		"allow_member_invite": resp.AllowMemberInvite,
+		"allow_view_history":  resp.AllowViewHistory,
+		"allow_add_friend":    resp.AllowAddFriend,
+		"allow_member_modify": resp.AllowMemberModify,
 	})
 }
 

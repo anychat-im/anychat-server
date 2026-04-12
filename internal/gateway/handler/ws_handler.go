@@ -129,33 +129,33 @@ func (h *WSHandler) handleClientMessage(c *websocket.Client, msg *websocket.Mess
 
 // sendMessagePayload payload structure for client sending messages
 type sendMessagePayload struct {
-	ConversationID string   `json:"conversationId"`
-	ContentType    string   `json:"contentType"`
+	ConversationID string   `json:"conversation_id"`
+	ContentType    string   `json:"content_type"`
 	Content        string   `json:"content"`
-	ReplyTo        string   `json:"replyTo,omitempty"`
-	AtUsers        []string `json:"atUsers,omitempty"`
-	LocalID        string   `json:"localId,omitempty"`
+	ReplyTo        string   `json:"reply_to,omitempty"`
+	AtUsers        []string `json:"at_users,omitempty"`
+	LocalID        string   `json:"local_id,omitempty"`
 }
 
 type sendTypingPayload struct {
-	ConversationID string `json:"conversationId"`
+	ConversationID string `json:"conversation_id"`
 	Typing         *bool  `json:"typing"`
-	TTLSeconds     *int32 `json:"ttlSeconds,omitempty"`
-	ClientTs       *int64 `json:"clientTs,omitempty"`
+	TTLSeconds     *int32 `json:"ttl_seconds,omitempty"`
+	ClientTs       *int64 `json:"client_ts,omitempty"`
 }
 
 // sendMessageResult response structure for sending messages
 type sendMessageResult struct {
-	MessageID string `json:"messageId"`
+	MessageID string `json:"message_id"`
 	Sequence  int64  `json:"sequence"`
 	Timestamp int64  `json:"timestamp"`
-	LocalID   string `json:"localId,omitempty"`
+	LocalID   string `json:"local_id,omitempty"`
 }
 
 type sendMessageError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
-	LocalID string `json:"localId,omitempty"`
+	LocalID string `json:"local_id,omitempty"`
 }
 
 type sendTypingError struct {

@@ -26,9 +26,9 @@ func (h *LogHandler) UploadLog(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 
 	var req struct {
-		FileName     string `json:"fileName" binding:"required" example:"app.log"`
-		FileSize     int64  `json:"fileSize" binding:"required,gt=0" example:"1024000"`
-		ExpiresHours int32  `json:"expiresHours,omitempty" example:"0"`
+		FileName     string `json:"file_name" binding:"required" example:"app.log"`
+		FileSize     int64  `json:"file_size" binding:"required,gt=0" example:"1024000"`
+		ExpiresHours int32  `json:"expires_hours,omitempty" example:"0"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -86,7 +86,7 @@ func (h *LogHandler) ListLogs(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
 	if page < 1 {
 		page = 1
@@ -131,7 +131,7 @@ func (h *LogHandler) ListLogs(c *gin.Context) {
 
 func (h *LogHandler) DownloadLog(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	logID := c.Param("logId")
+	logID := c.Param("log_id")
 
 	if logID == "" {
 		response.ParamError(c, "logId is required")
@@ -154,7 +154,7 @@ func (h *LogHandler) DownloadLog(c *gin.Context) {
 	}
 
 	var expiresMinutes *int32
-	if expiresStr := c.Query("expiresMinutes"); expiresStr != "" {
+	if expiresStr := c.Query("expires_minutes"); expiresStr != "" {
 		if expires, err := strconv.Atoi(expiresStr); err == nil && expires > 0 {
 			expiresInt32 := int32(expires)
 			expiresMinutes = &expiresInt32
@@ -180,7 +180,7 @@ func (h *LogHandler) DownloadLog(c *gin.Context) {
 
 func (h *LogHandler) DeleteLog(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
-	logID := c.Param("logId")
+	logID := c.Param("log_id")
 
 	if logID == "" {
 		response.ParamError(c, "logId is required")

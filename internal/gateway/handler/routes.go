@@ -81,7 +81,7 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 				users.POST("/me/email/change", userHandler.ChangeEmail)
 
 				// user search
-				users.GET("/:userId", userHandler.GetUserInfo)
+				users.GET("/:user_id", userHandler.GetUserInfo)
 				users.GET("/search", userHandler.SearchUsers)
 
 				// settings
@@ -131,10 +131,10 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 				// member management
 				groups.GET("/:id/members", groupHandler.GetGroupMembers)
 				groups.POST("/:id/members", groupHandler.InviteMembers)
-				groups.DELETE("/:id/members/:userId", groupHandler.RemoveMember)
-				groups.PUT("/:id/members/:userId/mute", groupHandler.MuteMember)
-				groups.DELETE("/:id/members/:userId/mute", groupHandler.UnmuteMember)
-				groups.PUT("/:id/members/:userId/role", groupHandler.UpdateMemberRole)
+				groups.DELETE("/:id/members/:user_id", groupHandler.RemoveMember)
+				groups.PUT("/:id/members/:user_id/mute", groupHandler.MuteMember)
+				groups.DELETE("/:id/members/:user_id/mute", groupHandler.UnmuteMember)
+				groups.PUT("/:id/members/:user_id/role", groupHandler.UpdateMemberRole)
 				groups.PUT("/:id/nickname", groupHandler.UpdateMemberNickname)
 				groups.PUT("/:id/remark", groupHandler.UpdateMemberRemark)
 				groups.POST("/:id/quit", groupHandler.QuitGroup)
@@ -143,7 +143,7 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 				groups.PUT("/:id/settings", groupHandler.UpdateGroupSettings)
 				groups.PUT("/:id/mute", groupHandler.SetGroupMute)
 				groups.POST("/:id/pin", groupHandler.PinGroupMessage)
-				groups.DELETE("/:id/pin/:messageId", groupHandler.UnpinGroupMessage)
+				groups.DELETE("/:id/pin/:message_id", groupHandler.UnpinGroupMessage)
 				groups.GET("/:id/pins", groupHandler.GetPinnedMessages)
 
 				// QR code
@@ -184,8 +184,8 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 				logs.POST("/upload", logHandler.UploadLog)
 				logs.POST("/complete", logHandler.CompleteUpload)
 				logs.GET("", logHandler.ListLogs)
-				logs.GET("/:logId/download", logHandler.DownloadLog)
-				logs.DELETE("/:logId", logHandler.DeleteLog)
+				logs.GET("/:log_id/download", logHandler.DownloadLog)
+				logs.DELETE("/:log_id", logHandler.DeleteLog)
 			}
 
 			// Message routes
@@ -193,10 +193,10 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 			{
 				messages.POST("", messageHandler.SendMessage)
 				messages.GET("/search", messageHandler.SearchMessages)
-				messages.GET("/:messageId", messageHandler.GetMessageByID)
+				messages.GET("/:message_id", messageHandler.GetMessageByID)
 				messages.POST("/read-triggers", messageHandler.AckReadTriggers)
 				messages.POST("/recall", messageHandler.RecallMessage)
-				messages.DELETE("/:messageId", messageHandler.DeleteMessage)
+				messages.DELETE("/:message_id", messageHandler.DeleteMessage)
 			}
 
 			// Conversation routes
@@ -204,21 +204,21 @@ func RegisterRoutes(r *gin.Engine, clientManager *client.Manager, jwtManager *jw
 			{
 				conversations.GET("", conversationHandler.GetConversations)
 				conversations.GET("/unread/total", conversationHandler.GetTotalUnread)
-				conversations.GET("/:conversationId", conversationHandler.GetConversation)
-				conversations.GET("/:conversationId/messages/before", messageHandler.GetMessagesBefore)
-				conversations.GET("/:conversationId/messages/after", messageHandler.GetMessagesAfter)
-				conversations.GET("/:conversationId/messages/around-anchor", messageHandler.GetMessagesAroundAnchor)
-				conversations.GET("/:conversationId/messages/first-unread-anchor", messageHandler.GetFirstUnreadAnchor)
-				conversations.GET("/:conversationId/messages/unread-count", conversationHandler.GetMessageUnreadCount)
-				conversations.GET("/:conversationId/messages/read-receipts", conversationHandler.GetMessageReadReceipts)
-				conversations.GET("/:conversationId/messages/sequence", conversationHandler.GetMessageSequence)
-				conversations.POST("/:conversationId/messages/read", conversationHandler.MarkMessagesRead)
-				conversations.DELETE("/:conversationId", conversationHandler.DeleteConversation)
-				conversations.PUT("/:conversationId/pin", conversationHandler.SetPinned)
-				conversations.PUT("/:conversationId/mute", conversationHandler.SetMuted)
-				conversations.PUT("/:conversationId/burn", conversationHandler.SetBurnAfterReading)
-				conversations.PUT("/:conversationId/auto_delete", conversationHandler.SetAutoDelete)
-				conversations.POST("/:conversationId/read-all", conversationHandler.MarkRead)
+				conversations.GET("/:conversation_id", conversationHandler.GetConversation)
+				conversations.GET("/:conversation_id/messages/before", messageHandler.GetMessagesBefore)
+				conversations.GET("/:conversation_id/messages/after", messageHandler.GetMessagesAfter)
+				conversations.GET("/:conversation_id/messages/around-anchor", messageHandler.GetMessagesAroundAnchor)
+				conversations.GET("/:conversation_id/messages/first-unread-anchor", messageHandler.GetFirstUnreadAnchor)
+				conversations.GET("/:conversation_id/messages/unread-count", conversationHandler.GetMessageUnreadCount)
+				conversations.GET("/:conversation_id/messages/read-receipts", conversationHandler.GetMessageReadReceipts)
+				conversations.GET("/:conversation_id/messages/sequence", conversationHandler.GetMessageSequence)
+				conversations.POST("/:conversation_id/messages/read", conversationHandler.MarkMessagesRead)
+				conversations.DELETE("/:conversation_id", conversationHandler.DeleteConversation)
+				conversations.PUT("/:conversation_id/pin", conversationHandler.SetPinned)
+				conversations.PUT("/:conversation_id/mute", conversationHandler.SetMuted)
+				conversations.PUT("/:conversation_id/burn", conversationHandler.SetBurnAfterReading)
+				conversations.PUT("/:conversation_id/auto_delete", conversationHandler.SetAutoDelete)
+				conversations.POST("/:conversation_id/read-all", conversationHandler.MarkRead)
 			}
 
 			// Sync routes
@@ -246,15 +246,15 @@ func registerCallingRoutes(group *gin.RouterGroup, handler *CallingHandler) {
 	// one-on-one calls
 	group.POST("/calls", handler.InitiateCall)
 	group.GET("/calls", handler.ListCallLogs)
-	group.GET("/calls/:callId", handler.GetCallSession)
-	group.POST("/calls/:callId/join", handler.JoinCall)
-	group.POST("/calls/:callId/reject", handler.RejectCall)
-	group.POST("/calls/:callId/end", handler.EndCall)
+	group.GET("/calls/:call_id", handler.GetCallSession)
+	group.POST("/calls/:call_id/join", handler.JoinCall)
+	group.POST("/calls/:call_id/reject", handler.RejectCall)
+	group.POST("/calls/:call_id/end", handler.EndCall)
 
 	// meeting rooms
 	group.POST("/meetings", handler.CreateMeeting)
 	group.GET("/meetings", handler.ListMeetings)
-	group.GET("/meetings/:roomId", handler.GetMeeting)
-	group.POST("/meetings/:roomId/join", handler.JoinMeeting)
-	group.POST("/meetings/:roomId/end", handler.EndMeeting)
+	group.GET("/meetings/:room_id", handler.GetMeeting)
+	group.POST("/meetings/:room_id/join", handler.JoinMeeting)
+	group.POST("/meetings/:room_id/end", handler.EndMeeting)
 }

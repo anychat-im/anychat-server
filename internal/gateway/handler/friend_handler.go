@@ -39,7 +39,7 @@ func (h *FriendHandler) GetFriends(c *gin.Context) {
 
 	// Parse query parameters
 	var lastUpdateTime *int64
-	if timeStr := c.Query("lastUpdateTime"); timeStr != "" {
+	if timeStr := c.Query("last_update_time"); timeStr != "" {
 		if t, err := strconv.ParseInt(timeStr, 10, 64); err == nil {
 			lastUpdateTime = &t
 		}
@@ -74,7 +74,7 @@ func (h *FriendHandler) SendFriendRequest(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 
 	var req struct {
-		UserID  string `json:"userId" binding:"required" example:"user-456"`
+		UserID  string `json:"user_id" binding:"required" example:"user-456"`
 		Message string `json:"message" example:"你好,我想加你为好友"`
 		Source  string `json:"source" binding:"required,oneof=search qrcode group contacts" example:"search"`
 	}
@@ -257,7 +257,7 @@ func (h *FriendHandler) AddToBlacklist(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 
 	var req struct {
-		UserID string `json:"userId" binding:"required" example:"user-456"`
+		UserID string `json:"user_id" binding:"required" example:"user-456"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

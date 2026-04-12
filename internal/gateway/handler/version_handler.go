@@ -22,7 +22,7 @@ func NewVersionHandler(cm interface {
 func (h *VersionHandler) CheckVersion(c *gin.Context) {
 	platform := c.Query("platform")
 	version := c.Query("version")
-	buildNumber := c.DefaultQuery("buildNumber", "0")
+	buildNumber := c.DefaultQuery("build_number", "0")
 
 	if platform == "" || version == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -58,20 +58,20 @@ func (h *VersionHandler) CheckVersion(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": map[string]interface{}{
-			"hasUpdate":         resp.HasUpdate,
-			"latestVersion":     resp.LatestVersion,
-			"latestBuildNumber": resp.LatestBuildNumber,
-			"forceUpdate":       resp.ForceUpdate,
-			"minVersion":        resp.MinVersion,
-			"minBuildNumber":    resp.MinBuildNumber,
-			"updateInfo":        resp.UpdateInfo,
+			"has_update":         resp.HasUpdate,
+			"latest_version":     resp.LatestVersion,
+			"latest_build_number": resp.LatestBuildNumber,
+			"force_update":       resp.ForceUpdate,
+			"min_version":        resp.MinVersion,
+			"min_build_number":    resp.MinBuildNumber,
+			"update_info":        resp.UpdateInfo,
 		},
 	})
 }
 
 func (h *VersionHandler) GetLatestVersion(c *gin.Context) {
 	platform := c.Query("platform")
-	releaseType := c.DefaultQuery("releaseType", "stable")
+	releaseType := c.DefaultQuery("release_type", "stable")
 
 	if platform == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -105,9 +105,9 @@ func (h *VersionHandler) GetLatestVersion(c *gin.Context) {
 
 func (h *VersionHandler) ListVersions(c *gin.Context) {
 	platform := c.Query("platform")
-	releaseType := c.DefaultQuery("releaseType", "")
+	releaseType := c.DefaultQuery("release_type", "")
 	page := c.DefaultQuery("page", "1")
-	pageSize := c.DefaultQuery("pageSize", "20")
+	pageSize := c.DefaultQuery("page_size", "20")
 
 	var pageInt, pageSizeInt int32
 	for _, ch := range page {
@@ -150,10 +150,10 @@ func (h *VersionHandler) ReportVersion(c *gin.Context) {
 	var req struct {
 		Platform    string `json:"platform"`
 		Version     string `json:"version"`
-		BuildNumber int32  `json:"buildNumber"`
-		DeviceID    string `json:"deviceId"`
-		OsVersion   string `json:"osVersion"`
-		SdkVersion  string `json:"sdkVersion"`
+		BuildNumber int32  `json:"build_number"`
+		DeviceID    string `json:"device_id"`
+		OsVersion   string `json:"os_version"`
+		SdkVersion  string `json:"sdk_version"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
