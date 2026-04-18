@@ -6,6 +6,7 @@ import (
 	commonpb "github.com/anychat/server/api/proto/common"
 	grouppb "github.com/anychat/server/api/proto/group"
 	"github.com/anychat/server/internal/group/dto"
+	"github.com/anychat/server/internal/group/model"
 	"github.com/anychat/server/internal/group/service"
 	"github.com/anychat/server/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -78,7 +79,7 @@ func (s *GroupServer) GetGroupMembers(ctx context.Context, req *grouppb.GetGroup
 	for _, m := range resp.Members {
 		member := &grouppb.GroupMember{
 			UserId:   m.UserID,
-			Role:     m.Role,
+			Role:     grouppb.GroupRole(m.Role),
 			JoinedAt: timestamppb.New(m.JoinedAt),
 		}
 		if m.MutedUntil != nil {
@@ -112,7 +113,7 @@ func (s *GroupServer) IsMember(ctx context.Context, req *grouppb.IsMemberRequest
 
 	return &grouppb.IsMemberResponse{
 		IsMember: isMember,
-		Role:     role,
+		Role:     grouppb.GroupRole(role),
 	}, nil
 }
 
@@ -246,7 +247,7 @@ func (s *GroupServer) QuitGroup(ctx context.Context, req *grouppb.QuitGroupReque
 func (s *GroupServer) UpdateMemberRole(ctx context.Context, req *grouppb.UpdateMemberRoleRequest) (*commonpb.Empty, error) {
 	// Proto -> DTO conversion
 	dtoReq := &dto.UpdateMemberRoleRequest{
-		Role: req.Role,
+		Role: model.GroupRole(req.Role),
 	}
 
 	// Call service layer
@@ -326,9 +327,10 @@ func (s *GroupServer) HandleJoinRequest(ctx context.Context, req *grouppb.Handle
 
 // GetJoinRequests gets join request list
 func (s *GroupServer) GetJoinRequests(ctx context.Context, req *grouppb.GetJoinRequestsRequest) (*grouppb.GetJoinRequestsResponse, error) {
-	var status *string
+	var status *model.JoinRequestStatus
 	if req.Status != nil {
-		status = req.Status
+		v := model.JoinRequestStatus(*req.Status)
+		status = &v
 	}
 
 	resp, err := s.groupService.GetJoinRequests(ctx, req.UserId, req.GroupId, status)
@@ -344,7 +346,7 @@ func (s *GroupServer) GetJoinRequests(ctx context.Context, req *grouppb.GetJoinR
 			GroupId:   r.GroupID,
 			UserId:    r.UserID,
 			Message:   &r.Message,
-			Status:    r.Status,
+			Status:    grouppb.JoinRequestStatus(r.Status),
 			CreatedAt: timestamppb.New(r.CreatedAt),
 		}
 		if r.InviterID != nil {
@@ -397,8 +399,9 @@ func (s *GroupServer) GetPinnedMessages(ctx context.Context, req *grouppb.GetPin
 			PinnedBy:  m.PinnedBy,
 			PinnedAt:  m.PinnedAt,
 		}
-		if m.ContentType != "" {
-			item.ContentType = &m.ContentType
+		if m.ContentType != model.PinnedMessageContentTypeUnspecified {
+			contentType := grouppb.MessageContentType(m.ContentType)
+			item.ContentType = &contentType
 		}
 		if m.MessageSeq != nil {
 			item.MessageSeq = m.MessageSeq
@@ -414,8 +417,9 @@ func (s *GroupServer) GetPinnedMessages(ctx context.Context, req *grouppb.GetPin
 			PinnedBy:  resp.TopMessage.PinnedBy,
 			PinnedAt:  resp.TopMessage.PinnedAt,
 		}
-		if resp.TopMessage.ContentType != "" {
-			topMessage.ContentType = &resp.TopMessage.ContentType
+		if resp.TopMessage.ContentType != model.PinnedMessageContentTypeUnspecified {
+			contentType := grouppb.MessageContentType(resp.TopMessage.ContentType)
+			topMessage.ContentType = &contentType
 		}
 		if resp.TopMessage.MessageSeq != nil {
 			topMessage.MessageSeq = resp.TopMessage.MessageSeq
@@ -441,12 +445,8 @@ func (s *GroupServer) SetGroupMute(ctx context.Context, req *grouppb.SetGroupMut
 // MuteMember mutes a member
 func (s *GroupServer) MuteMember(ctx context.Context, req *grouppb.MuteMemberRequest) (*commonpb.Empty, error) {
 	dtoReq := &dto.MuteMemberRequest{
+		Type:            int16(req.Type),
 		DurationMinutes: req.DurationMinutes,
-	}
-	if req.Type == grouppb.MuteType_MUTE_TYPE_PERMANENT {
-		dtoReq.Type = "permanent"
-	} else {
-		dtoReq.Type = "temporary"
 	}
 
 	if err := s.groupService.MuteMember(ctx, req.UserId, req.GroupId, req.TargetUserId, dtoReq); err != nil {

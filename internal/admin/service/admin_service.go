@@ -26,7 +26,7 @@ type AdminService interface {
 
 	// Admin user management
 	ListAdmins(ctx context.Context, page, pageSize int) ([]*model.AdminUser, int64, error)
-	CreateAdmin(ctx context.Context, username, password, role string) (*model.AdminUser, error)
+	CreateAdmin(ctx context.Context, username, password string, role model.AdminRole) (*model.AdminUser, error)
 	UpdateAdminStatus(ctx context.Context, id string, status int8) error
 	ResetAdminPassword(ctx context.Context, id, newPassword string) error
 
@@ -97,7 +97,7 @@ func (s *adminServiceImpl) Login(ctx context.Context, username, password, ip str
 	if !crypto.CheckPassword(password, admin.PasswordHash) {
 		return "", nil, fmt.Errorf("invalid credentials")
 	}
-	token, err := s.jwtManager.GenerateAccessToken(admin.ID, "", admin.Role)
+	token, err := s.jwtManager.GenerateAccessToken(admin.ID, "", int16(admin.Role))
 	if err != nil {
 		return "", nil, fmt.Errorf("generate token failed: %w", err)
 	}
@@ -116,7 +116,10 @@ func (s *adminServiceImpl) ListAdmins(_ context.Context, page, pageSize int) ([]
 	return s.adminRepo.List(page, pageSize)
 }
 
-func (s *adminServiceImpl) CreateAdmin(_ context.Context, username, password, role string) (*model.AdminUser, error) {
+func (s *adminServiceImpl) CreateAdmin(_ context.Context, username, password string, role model.AdminRole) (*model.AdminUser, error) {
+	if role < model.AdminRoleSuperAdmin || role > model.AdminRoleReadonly {
+		return nil, fmt.Errorf("invalid role")
+	}
 	hash, err := crypto.HashPassword(password)
 	if err != nil {
 		return nil, fmt.Errorf("hash password failed: %w", err)
@@ -247,7 +250,7 @@ func (s *adminServiceImpl) ListLogFiles(ctx context.Context, userID string, page
 		pageSize = 20
 	}
 
-	fileType := "log"
+	fileType := filepb.FileType_FILE_TYPE_LOG
 	resp, err := s.fileClient.ListUserFiles(ctx, &filepb.ListUserFilesRequest{
 		UserId:   userID,
 		FileType: &fileType,

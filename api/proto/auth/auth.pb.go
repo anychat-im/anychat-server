@@ -22,12 +22,183 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type DeviceType int32
+
+const (
+	DeviceType_DEVICE_TYPE_UNSPECIFIED DeviceType = 0
+	DeviceType_DEVICE_TYPE_IOS         DeviceType = 1
+	DeviceType_DEVICE_TYPE_ANDROID     DeviceType = 2
+	DeviceType_DEVICE_TYPE_WEB         DeviceType = 3
+	DeviceType_DEVICE_TYPE_PC          DeviceType = 4
+	DeviceType_DEVICE_TYPE_H5          DeviceType = 5
+)
+
+// Enum value maps for DeviceType.
+var (
+	DeviceType_name = map[int32]string{
+		0: "DEVICE_TYPE_UNSPECIFIED",
+		1: "DEVICE_TYPE_IOS",
+		2: "DEVICE_TYPE_ANDROID",
+		3: "DEVICE_TYPE_WEB",
+		4: "DEVICE_TYPE_PC",
+		5: "DEVICE_TYPE_H5",
+	}
+	DeviceType_value = map[string]int32{
+		"DEVICE_TYPE_UNSPECIFIED": 0,
+		"DEVICE_TYPE_IOS":         1,
+		"DEVICE_TYPE_ANDROID":     2,
+		"DEVICE_TYPE_WEB":         3,
+		"DEVICE_TYPE_PC":          4,
+		"DEVICE_TYPE_H5":          5,
+	}
+)
+
+func (x DeviceType) Enum() *DeviceType {
+	p := new(DeviceType)
+	*p = x
+	return p
+}
+
+func (x DeviceType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DeviceType) Descriptor() protoreflect.EnumDescriptor {
+	return file_auth_auth_proto_enumTypes[0].Descriptor()
+}
+
+func (DeviceType) Type() protoreflect.EnumType {
+	return &file_auth_auth_proto_enumTypes[0]
+}
+
+func (x DeviceType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DeviceType.Descriptor instead.
+func (DeviceType) EnumDescriptor() ([]byte, []int) {
+	return file_auth_auth_proto_rawDescGZIP(), []int{0}
+}
+
+type VerificationTargetType int32
+
+const (
+	VerificationTargetType_VERIFICATION_TARGET_TYPE_UNSPECIFIED VerificationTargetType = 0
+	VerificationTargetType_VERIFICATION_TARGET_TYPE_SMS         VerificationTargetType = 1
+	VerificationTargetType_VERIFICATION_TARGET_TYPE_EMAIL       VerificationTargetType = 2
+)
+
+// Enum value maps for VerificationTargetType.
+var (
+	VerificationTargetType_name = map[int32]string{
+		0: "VERIFICATION_TARGET_TYPE_UNSPECIFIED",
+		1: "VERIFICATION_TARGET_TYPE_SMS",
+		2: "VERIFICATION_TARGET_TYPE_EMAIL",
+	}
+	VerificationTargetType_value = map[string]int32{
+		"VERIFICATION_TARGET_TYPE_UNSPECIFIED": 0,
+		"VERIFICATION_TARGET_TYPE_SMS":         1,
+		"VERIFICATION_TARGET_TYPE_EMAIL":       2,
+	}
+)
+
+func (x VerificationTargetType) Enum() *VerificationTargetType {
+	p := new(VerificationTargetType)
+	*p = x
+	return p
+}
+
+func (x VerificationTargetType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (VerificationTargetType) Descriptor() protoreflect.EnumDescriptor {
+	return file_auth_auth_proto_enumTypes[1].Descriptor()
+}
+
+func (VerificationTargetType) Type() protoreflect.EnumType {
+	return &file_auth_auth_proto_enumTypes[1]
+}
+
+func (x VerificationTargetType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use VerificationTargetType.Descriptor instead.
+func (VerificationTargetType) EnumDescriptor() ([]byte, []int) {
+	return file_auth_auth_proto_rawDescGZIP(), []int{1}
+}
+
+type VerificationPurpose int32
+
+const (
+	VerificationPurpose_VERIFICATION_PURPOSE_UNSPECIFIED    VerificationPurpose = 0
+	VerificationPurpose_VERIFICATION_PURPOSE_REGISTER       VerificationPurpose = 1
+	VerificationPurpose_VERIFICATION_PURPOSE_LOGIN          VerificationPurpose = 2
+	VerificationPurpose_VERIFICATION_PURPOSE_RESET_PASSWORD VerificationPurpose = 3
+	VerificationPurpose_VERIFICATION_PURPOSE_BIND_PHONE     VerificationPurpose = 4
+	VerificationPurpose_VERIFICATION_PURPOSE_CHANGE_PHONE   VerificationPurpose = 5
+	VerificationPurpose_VERIFICATION_PURPOSE_BIND_EMAIL     VerificationPurpose = 6
+	VerificationPurpose_VERIFICATION_PURPOSE_CHANGE_EMAIL   VerificationPurpose = 7
+)
+
+// Enum value maps for VerificationPurpose.
+var (
+	VerificationPurpose_name = map[int32]string{
+		0: "VERIFICATION_PURPOSE_UNSPECIFIED",
+		1: "VERIFICATION_PURPOSE_REGISTER",
+		2: "VERIFICATION_PURPOSE_LOGIN",
+		3: "VERIFICATION_PURPOSE_RESET_PASSWORD",
+		4: "VERIFICATION_PURPOSE_BIND_PHONE",
+		5: "VERIFICATION_PURPOSE_CHANGE_PHONE",
+		6: "VERIFICATION_PURPOSE_BIND_EMAIL",
+		7: "VERIFICATION_PURPOSE_CHANGE_EMAIL",
+	}
+	VerificationPurpose_value = map[string]int32{
+		"VERIFICATION_PURPOSE_UNSPECIFIED":    0,
+		"VERIFICATION_PURPOSE_REGISTER":       1,
+		"VERIFICATION_PURPOSE_LOGIN":          2,
+		"VERIFICATION_PURPOSE_RESET_PASSWORD": 3,
+		"VERIFICATION_PURPOSE_BIND_PHONE":     4,
+		"VERIFICATION_PURPOSE_CHANGE_PHONE":   5,
+		"VERIFICATION_PURPOSE_BIND_EMAIL":     6,
+		"VERIFICATION_PURPOSE_CHANGE_EMAIL":   7,
+	}
+)
+
+func (x VerificationPurpose) Enum() *VerificationPurpose {
+	p := new(VerificationPurpose)
+	*p = x
+	return p
+}
+
+func (x VerificationPurpose) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (VerificationPurpose) Descriptor() protoreflect.EnumDescriptor {
+	return file_auth_auth_proto_enumTypes[2].Descriptor()
+}
+
+func (VerificationPurpose) Type() protoreflect.EnumType {
+	return &file_auth_auth_proto_enumTypes[2]
+}
+
+func (x VerificationPurpose) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use VerificationPurpose.Descriptor instead.
+func (VerificationPurpose) EnumDescriptor() ([]byte, []int) {
+	return file_auth_auth_proto_rawDescGZIP(), []int{2}
+}
+
 // SendVerificationCodeRequest 发送验证码请求
 type SendVerificationCodeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Target        string                 `protobuf:"bytes,1,opt,name=target,proto3" json:"target,omitempty"`                           // 手机号或邮箱
-	TargetType    string                 `protobuf:"bytes,2,opt,name=target_type,json=targetType,proto3" json:"target_type,omitempty"` // sms/email
-	Purpose       string                 `protobuf:"bytes,3,opt,name=purpose,proto3" json:"purpose,omitempty"`                         // register/reset_password/bind_phone/change_phone/bind_email/change_email
+	Target        string                 `protobuf:"bytes,1,opt,name=target,proto3" json:"target,omitempty"`                                                                     // 手机号或邮箱
+	TargetType    VerificationTargetType `protobuf:"varint,2,opt,name=target_type,json=targetType,proto3,enum=anychat.auth.VerificationTargetType" json:"target_type,omitempty"` // 1-sms 2-email
+	Purpose       VerificationPurpose    `protobuf:"varint,3,opt,name=purpose,proto3,enum=anychat.auth.VerificationPurpose" json:"purpose,omitempty"`                            // 1-register 2-login 3-reset_password 4-bind_phone 5-change_phone 6-bind_email 7-change_email
 	DeviceId      string                 `protobuf:"bytes,4,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	IpAddress     string                 `protobuf:"bytes,5,opt,name=ip_address,json=ipAddress,proto3" json:"ip_address,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -71,18 +242,18 @@ func (x *SendVerificationCodeRequest) GetTarget() string {
 	return ""
 }
 
-func (x *SendVerificationCodeRequest) GetTargetType() string {
+func (x *SendVerificationCodeRequest) GetTargetType() VerificationTargetType {
 	if x != nil {
 		return x.TargetType
 	}
-	return ""
+	return VerificationTargetType_VERIFICATION_TARGET_TYPE_UNSPECIFIED
 }
 
-func (x *SendVerificationCodeRequest) GetPurpose() string {
+func (x *SendVerificationCodeRequest) GetPurpose() VerificationPurpose {
 	if x != nil {
 		return x.Purpose
 	}
-	return ""
+	return VerificationPurpose_VERIFICATION_PURPOSE_UNSPECIFIED
 }
 
 func (x *SendVerificationCodeRequest) GetDeviceId() string {
@@ -160,7 +331,7 @@ type RegisterRequest struct {
 	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
 	VerifyCode    string                 `protobuf:"bytes,4,opt,name=verify_code,json=verifyCode,proto3" json:"verify_code,omitempty"`
 	Nickname      *string                `protobuf:"bytes,5,opt,name=nickname,proto3,oneof" json:"nickname,omitempty"`
-	DeviceType    string                 `protobuf:"bytes,6,opt,name=device_type,json=deviceType,proto3" json:"device_type,omitempty"` // iOS/Android/Web
+	DeviceType    DeviceType             `protobuf:"varint,6,opt,name=device_type,json=deviceType,proto3,enum=anychat.auth.DeviceType" json:"device_type,omitempty"` // 1-ios 2-android 3-web 4-pc 5-h5
 	DeviceId      string                 `protobuf:"bytes,7,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	ClientVersion string                 `protobuf:"bytes,8,opt,name=client_version,json=clientVersion,proto3" json:"client_version,omitempty"` // 客户端版本号，用于客户端升级判断
 	unknownFields protoimpl.UnknownFields
@@ -232,11 +403,11 @@ func (x *RegisterRequest) GetNickname() string {
 	return ""
 }
 
-func (x *RegisterRequest) GetDeviceType() string {
+func (x *RegisterRequest) GetDeviceType() DeviceType {
 	if x != nil {
 		return x.DeviceType
 	}
-	return ""
+	return DeviceType_DEVICE_TYPE_UNSPECIFIED
 }
 
 func (x *RegisterRequest) GetDeviceId() string {
@@ -327,7 +498,7 @@ type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Account       string                 `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"` // 手机号或邮箱
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	DeviceType    string                 `protobuf:"bytes,3,opt,name=device_type,json=deviceType,proto3" json:"device_type,omitempty"`
+	DeviceType    DeviceType             `protobuf:"varint,3,opt,name=device_type,json=deviceType,proto3,enum=anychat.auth.DeviceType" json:"device_type,omitempty"` // 1-ios 2-android 3-web 4-pc 5-h5
 	DeviceId      string                 `protobuf:"bytes,4,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	ClientVersion string                 `protobuf:"bytes,5,opt,name=client_version,json=clientVersion,proto3" json:"client_version,omitempty"` // 客户端版本号，用于客户端升级判断
 	IpAddress     string                 `protobuf:"bytes,6,opt,name=ip_address,json=ipAddress,proto3" json:"ip_address,omitempty"`             // 客户端IP地址
@@ -379,11 +550,11 @@ func (x *LoginRequest) GetPassword() string {
 	return ""
 }
 
-func (x *LoginRequest) GetDeviceType() string {
+func (x *LoginRequest) GetDeviceType() DeviceType {
 	if x != nil {
 		return x.DeviceType
 	}
-	return ""
+	return DeviceType_DEVICE_TYPE_UNSPECIFIED
 }
 
 func (x *LoginRequest) GetDeviceId() string {
@@ -824,7 +995,7 @@ type ValidateTokenResponse struct {
 	Valid         bool                   `protobuf:"varint,1,opt,name=valid,proto3" json:"valid,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	DeviceId      string                 `protobuf:"bytes,3,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	DeviceType    string                 `protobuf:"bytes,4,opt,name=device_type,json=deviceType,proto3" json:"device_type,omitempty"`
+	DeviceType    DeviceType             `protobuf:"varint,4,opt,name=device_type,json=deviceType,proto3,enum=anychat.auth.DeviceType" json:"device_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -880,38 +1051,38 @@ func (x *ValidateTokenResponse) GetDeviceId() string {
 	return ""
 }
 
-func (x *ValidateTokenResponse) GetDeviceType() string {
+func (x *ValidateTokenResponse) GetDeviceType() DeviceType {
 	if x != nil {
 		return x.DeviceType
 	}
-	return ""
+	return DeviceType_DEVICE_TYPE_UNSPECIFIED
 }
 
 var File_auth_auth_proto protoreflect.FileDescriptor
 
 const file_auth_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x0fauth/auth.proto\x12\fanychat.auth\x1a\x13common/common.proto\"\xac\x01\n" +
+	"\x0fauth/auth.proto\x12\fanychat.auth\x1a\x13common/common.proto\"\xf5\x01\n" +
 	"\x1bSendVerificationCodeRequest\x12\x16\n" +
-	"\x06target\x18\x01 \x01(\tR\x06target\x12\x1f\n" +
-	"\vtarget_type\x18\x02 \x01(\tR\n" +
-	"targetType\x12\x18\n" +
-	"\apurpose\x18\x03 \x01(\tR\apurpose\x12\x1b\n" +
+	"\x06target\x18\x01 \x01(\tR\x06target\x12E\n" +
+	"\vtarget_type\x18\x02 \x01(\x0e2$.anychat.auth.VerificationTargetTypeR\n" +
+	"targetType\x12;\n" +
+	"\apurpose\x18\x03 \x01(\x0e2!.anychat.auth.VerificationPurposeR\apurpose\x12\x1b\n" +
 	"\tdevice_id\x18\x04 \x01(\tR\bdeviceId\x12\x1d\n" +
 	"\n" +
 	"ip_address\x18\x05 \x01(\tR\tipAddress\"V\n" +
 	"\x1cSendVerificationCodeResponse\x12\x17\n" +
 	"\acode_id\x18\x01 \x01(\tR\x06codeId\x12\x1d\n" +
 	"\n" +
-	"expires_in\x18\x02 \x01(\x03R\texpiresIn\"\xbf\x02\n" +
+	"expires_in\x18\x02 \x01(\x03R\texpiresIn\"\xd9\x02\n" +
 	"\x0fRegisterRequest\x12&\n" +
 	"\fphone_number\x18\x01 \x01(\tH\x00R\vphoneNumber\x88\x01\x01\x12\x19\n" +
 	"\x05email\x18\x02 \x01(\tH\x01R\x05email\x88\x01\x01\x12\x1a\n" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x1f\n" +
 	"\vverify_code\x18\x04 \x01(\tR\n" +
 	"verifyCode\x12\x1f\n" +
-	"\bnickname\x18\x05 \x01(\tH\x02R\bnickname\x88\x01\x01\x12\x1f\n" +
-	"\vdevice_type\x18\x06 \x01(\tR\n" +
+	"\bnickname\x18\x05 \x01(\tH\x02R\bnickname\x88\x01\x01\x129\n" +
+	"\vdevice_type\x18\x06 \x01(\x0e2\x18.anychat.auth.DeviceTypeR\n" +
 	"deviceType\x12\x1b\n" +
 	"\tdevice_id\x18\a \x01(\tR\bdeviceId\x12%\n" +
 	"\x0eclient_version\x18\b \x01(\tR\rclientVersionB\x0f\n" +
@@ -923,11 +1094,11 @@ const file_auth_auth_proto_rawDesc = "" +
 	"\faccess_token\x18\x02 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\x12\x1d\n" +
 	"\n" +
-	"expires_in\x18\x04 \x01(\x03R\texpiresIn\"\xc8\x01\n" +
+	"expires_in\x18\x04 \x01(\x03R\texpiresIn\"\xe2\x01\n" +
 	"\fLoginRequest\x12\x18\n" +
 	"\aaccount\x18\x01 \x01(\tR\aaccount\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1f\n" +
-	"\vdevice_type\x18\x03 \x01(\tR\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\x129\n" +
+	"\vdevice_type\x18\x03 \x01(\x0e2\x18.anychat.auth.DeviceTypeR\n" +
 	"deviceType\x12\x1b\n" +
 	"\tdevice_id\x18\x04 \x01(\tR\bdeviceId\x12%\n" +
 	"\x0eclient_version\x18\x05 \x01(\tR\rclientVersion\x12\x1d\n" +
@@ -961,13 +1132,34 @@ const file_auth_auth_proto_rawDesc = "" +
 	"verifyCode\x12!\n" +
 	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\"9\n" +
 	"\x14ValidateTokenRequest\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"\x84\x01\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"\x9e\x01\n" +
 	"\x15ValidateTokenResponse\x12\x14\n" +
 	"\x05valid\x18\x01 \x01(\bR\x05valid\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
-	"\tdevice_id\x18\x03 \x01(\tR\bdeviceId\x12\x1f\n" +
-	"\vdevice_type\x18\x04 \x01(\tR\n" +
-	"deviceType2\x92\x05\n" +
+	"\tdevice_id\x18\x03 \x01(\tR\bdeviceId\x129\n" +
+	"\vdevice_type\x18\x04 \x01(\x0e2\x18.anychat.auth.DeviceTypeR\n" +
+	"deviceType*\x94\x01\n" +
+	"\n" +
+	"DeviceType\x12\x1b\n" +
+	"\x17DEVICE_TYPE_UNSPECIFIED\x10\x00\x12\x13\n" +
+	"\x0fDEVICE_TYPE_IOS\x10\x01\x12\x17\n" +
+	"\x13DEVICE_TYPE_ANDROID\x10\x02\x12\x13\n" +
+	"\x0fDEVICE_TYPE_WEB\x10\x03\x12\x12\n" +
+	"\x0eDEVICE_TYPE_PC\x10\x04\x12\x12\n" +
+	"\x0eDEVICE_TYPE_H5\x10\x05*\x88\x01\n" +
+	"\x16VerificationTargetType\x12(\n" +
+	"$VERIFICATION_TARGET_TYPE_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cVERIFICATION_TARGET_TYPE_SMS\x10\x01\x12\"\n" +
+	"\x1eVERIFICATION_TARGET_TYPE_EMAIL\x10\x02*\xbf\x02\n" +
+	"\x13VerificationPurpose\x12$\n" +
+	" VERIFICATION_PURPOSE_UNSPECIFIED\x10\x00\x12!\n" +
+	"\x1dVERIFICATION_PURPOSE_REGISTER\x10\x01\x12\x1e\n" +
+	"\x1aVERIFICATION_PURPOSE_LOGIN\x10\x02\x12'\n" +
+	"#VERIFICATION_PURPOSE_RESET_PASSWORD\x10\x03\x12#\n" +
+	"\x1fVERIFICATION_PURPOSE_BIND_PHONE\x10\x04\x12%\n" +
+	"!VERIFICATION_PURPOSE_CHANGE_PHONE\x10\x05\x12#\n" +
+	"\x1fVERIFICATION_PURPOSE_BIND_EMAIL\x10\x06\x12%\n" +
+	"!VERIFICATION_PURPOSE_CHANGE_EMAIL\x10\a2\x92\x05\n" +
 	"\vAuthService\x12m\n" +
 	"\x14SendVerificationCode\x12).anychat.auth.SendVerificationCodeRequest\x1a*.anychat.auth.SendVerificationCodeResponse\x12I\n" +
 	"\bRegister\x12\x1d.anychat.auth.RegisterRequest\x1a\x1e.anychat.auth.RegisterResponse\x12@\n" +
@@ -990,47 +1182,56 @@ func file_auth_auth_proto_rawDescGZIP() []byte {
 	return file_auth_auth_proto_rawDescData
 }
 
+var file_auth_auth_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_auth_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_auth_auth_proto_goTypes = []any{
-	(*SendVerificationCodeRequest)(nil),  // 0: anychat.auth.SendVerificationCodeRequest
-	(*SendVerificationCodeResponse)(nil), // 1: anychat.auth.SendVerificationCodeResponse
-	(*RegisterRequest)(nil),              // 2: anychat.auth.RegisterRequest
-	(*RegisterResponse)(nil),             // 3: anychat.auth.RegisterResponse
-	(*LoginRequest)(nil),                 // 4: anychat.auth.LoginRequest
-	(*LoginResponse)(nil),                // 5: anychat.auth.LoginResponse
-	(*LogoutRequest)(nil),                // 6: anychat.auth.LogoutRequest
-	(*RefreshTokenRequest)(nil),          // 7: anychat.auth.RefreshTokenRequest
-	(*RefreshTokenResponse)(nil),         // 8: anychat.auth.RefreshTokenResponse
-	(*ChangePasswordRequest)(nil),        // 9: anychat.auth.ChangePasswordRequest
-	(*ResetPasswordRequest)(nil),         // 10: anychat.auth.ResetPasswordRequest
-	(*ValidateTokenRequest)(nil),         // 11: anychat.auth.ValidateTokenRequest
-	(*ValidateTokenResponse)(nil),        // 12: anychat.auth.ValidateTokenResponse
-	(*common.UserInfo)(nil),              // 13: anychat.common.UserInfo
-	(*common.Empty)(nil),                 // 14: anychat.common.Empty
+	(DeviceType)(0),                      // 0: anychat.auth.DeviceType
+	(VerificationTargetType)(0),          // 1: anychat.auth.VerificationTargetType
+	(VerificationPurpose)(0),             // 2: anychat.auth.VerificationPurpose
+	(*SendVerificationCodeRequest)(nil),  // 3: anychat.auth.SendVerificationCodeRequest
+	(*SendVerificationCodeResponse)(nil), // 4: anychat.auth.SendVerificationCodeResponse
+	(*RegisterRequest)(nil),              // 5: anychat.auth.RegisterRequest
+	(*RegisterResponse)(nil),             // 6: anychat.auth.RegisterResponse
+	(*LoginRequest)(nil),                 // 7: anychat.auth.LoginRequest
+	(*LoginResponse)(nil),                // 8: anychat.auth.LoginResponse
+	(*LogoutRequest)(nil),                // 9: anychat.auth.LogoutRequest
+	(*RefreshTokenRequest)(nil),          // 10: anychat.auth.RefreshTokenRequest
+	(*RefreshTokenResponse)(nil),         // 11: anychat.auth.RefreshTokenResponse
+	(*ChangePasswordRequest)(nil),        // 12: anychat.auth.ChangePasswordRequest
+	(*ResetPasswordRequest)(nil),         // 13: anychat.auth.ResetPasswordRequest
+	(*ValidateTokenRequest)(nil),         // 14: anychat.auth.ValidateTokenRequest
+	(*ValidateTokenResponse)(nil),        // 15: anychat.auth.ValidateTokenResponse
+	(*common.UserInfo)(nil),              // 16: anychat.common.UserInfo
+	(*common.Empty)(nil),                 // 17: anychat.common.Empty
 }
 var file_auth_auth_proto_depIdxs = []int32{
-	13, // 0: anychat.auth.LoginResponse.user:type_name -> anychat.common.UserInfo
-	0,  // 1: anychat.auth.AuthService.SendVerificationCode:input_type -> anychat.auth.SendVerificationCodeRequest
-	2,  // 2: anychat.auth.AuthService.Register:input_type -> anychat.auth.RegisterRequest
-	4,  // 3: anychat.auth.AuthService.Login:input_type -> anychat.auth.LoginRequest
-	6,  // 4: anychat.auth.AuthService.Logout:input_type -> anychat.auth.LogoutRequest
-	7,  // 5: anychat.auth.AuthService.RefreshToken:input_type -> anychat.auth.RefreshTokenRequest
-	9,  // 6: anychat.auth.AuthService.ChangePassword:input_type -> anychat.auth.ChangePasswordRequest
-	10, // 7: anychat.auth.AuthService.ResetPassword:input_type -> anychat.auth.ResetPasswordRequest
-	11, // 8: anychat.auth.AuthService.ValidateToken:input_type -> anychat.auth.ValidateTokenRequest
-	1,  // 9: anychat.auth.AuthService.SendVerificationCode:output_type -> anychat.auth.SendVerificationCodeResponse
-	3,  // 10: anychat.auth.AuthService.Register:output_type -> anychat.auth.RegisterResponse
-	5,  // 11: anychat.auth.AuthService.Login:output_type -> anychat.auth.LoginResponse
-	14, // 12: anychat.auth.AuthService.Logout:output_type -> anychat.common.Empty
-	8,  // 13: anychat.auth.AuthService.RefreshToken:output_type -> anychat.auth.RefreshTokenResponse
-	14, // 14: anychat.auth.AuthService.ChangePassword:output_type -> anychat.common.Empty
-	14, // 15: anychat.auth.AuthService.ResetPassword:output_type -> anychat.common.Empty
-	12, // 16: anychat.auth.AuthService.ValidateToken:output_type -> anychat.auth.ValidateTokenResponse
-	9,  // [9:17] is the sub-list for method output_type
-	1,  // [1:9] is the sub-list for method input_type
-	1,  // [1:1] is the sub-list for extension type_name
-	1,  // [1:1] is the sub-list for extension extendee
-	0,  // [0:1] is the sub-list for field type_name
+	1,  // 0: anychat.auth.SendVerificationCodeRequest.target_type:type_name -> anychat.auth.VerificationTargetType
+	2,  // 1: anychat.auth.SendVerificationCodeRequest.purpose:type_name -> anychat.auth.VerificationPurpose
+	0,  // 2: anychat.auth.RegisterRequest.device_type:type_name -> anychat.auth.DeviceType
+	0,  // 3: anychat.auth.LoginRequest.device_type:type_name -> anychat.auth.DeviceType
+	16, // 4: anychat.auth.LoginResponse.user:type_name -> anychat.common.UserInfo
+	0,  // 5: anychat.auth.ValidateTokenResponse.device_type:type_name -> anychat.auth.DeviceType
+	3,  // 6: anychat.auth.AuthService.SendVerificationCode:input_type -> anychat.auth.SendVerificationCodeRequest
+	5,  // 7: anychat.auth.AuthService.Register:input_type -> anychat.auth.RegisterRequest
+	7,  // 8: anychat.auth.AuthService.Login:input_type -> anychat.auth.LoginRequest
+	9,  // 9: anychat.auth.AuthService.Logout:input_type -> anychat.auth.LogoutRequest
+	10, // 10: anychat.auth.AuthService.RefreshToken:input_type -> anychat.auth.RefreshTokenRequest
+	12, // 11: anychat.auth.AuthService.ChangePassword:input_type -> anychat.auth.ChangePasswordRequest
+	13, // 12: anychat.auth.AuthService.ResetPassword:input_type -> anychat.auth.ResetPasswordRequest
+	14, // 13: anychat.auth.AuthService.ValidateToken:input_type -> anychat.auth.ValidateTokenRequest
+	4,  // 14: anychat.auth.AuthService.SendVerificationCode:output_type -> anychat.auth.SendVerificationCodeResponse
+	6,  // 15: anychat.auth.AuthService.Register:output_type -> anychat.auth.RegisterResponse
+	8,  // 16: anychat.auth.AuthService.Login:output_type -> anychat.auth.LoginResponse
+	17, // 17: anychat.auth.AuthService.Logout:output_type -> anychat.common.Empty
+	11, // 18: anychat.auth.AuthService.RefreshToken:output_type -> anychat.auth.RefreshTokenResponse
+	17, // 19: anychat.auth.AuthService.ChangePassword:output_type -> anychat.common.Empty
+	17, // 20: anychat.auth.AuthService.ResetPassword:output_type -> anychat.common.Empty
+	15, // 21: anychat.auth.AuthService.ValidateToken:output_type -> anychat.auth.ValidateTokenResponse
+	14, // [14:22] is the sub-list for method output_type
+	6,  // [6:14] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_auth_auth_proto_init() }
@@ -1044,13 +1245,14 @@ func file_auth_auth_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_auth_proto_rawDesc), len(file_auth_auth_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      3,
 			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_auth_auth_proto_goTypes,
 		DependencyIndexes: file_auth_auth_proto_depIdxs,
+		EnumInfos:         file_auth_auth_proto_enumTypes,
 		MessageInfos:      file_auth_auth_proto_msgTypes,
 	}.Build()
 	File_auth_auth_proto = out.File

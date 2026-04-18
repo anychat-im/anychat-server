@@ -7,6 +7,34 @@ import "common/common.proto";
 
 option go_package = "github.com/anychat/server/api/proto/friend;friendpb";
 
+enum FriendRequestSource {
+  FRIEND_REQUEST_SOURCE_UNSPECIFIED = 0;
+  FRIEND_REQUEST_SOURCE_SEARCH = 1;
+  FRIEND_REQUEST_SOURCE_QRCODE = 2;
+  FRIEND_REQUEST_SOURCE_GROUP = 3;
+  FRIEND_REQUEST_SOURCE_CONTACTS = 4;
+}
+
+enum FriendRequestStatus {
+  FRIEND_REQUEST_STATUS_UNSPECIFIED = 0;
+  FRIEND_REQUEST_STATUS_PENDING = 1;
+  FRIEND_REQUEST_STATUS_ACCEPTED = 2;
+  FRIEND_REQUEST_STATUS_REJECTED = 3;
+  FRIEND_REQUEST_STATUS_EXPIRED = 4;
+}
+
+enum FriendRequestAction {
+  FRIEND_REQUEST_ACTION_UNSPECIFIED = 0;
+  FRIEND_REQUEST_ACTION_ACCEPT = 1;
+  FRIEND_REQUEST_ACTION_REJECT = 2;
+}
+
+enum FriendRequestQueryType {
+  FRIEND_REQUEST_QUERY_TYPE_UNSPECIFIED = 0;
+  FRIEND_REQUEST_QUERY_TYPE_RECEIVED = 1;
+  FRIEND_REQUEST_QUERY_TYPE_SENT = 2;
+}
+
 // FriendService 好友服务
 service FriendService {
   // GetFriendList 获取好友列表
@@ -61,8 +89,8 @@ message FriendRequest {
   string from_user_id = 2;
   string to_user_id = 3;
   string message = 4;
-  string source = 5;  // search/qrcode/group/contacts
-  string status = 6;  // pending/accepted/rejected/expired
+  FriendRequestSource source = 5;
+  FriendRequestStatus status = 6;
   google.protobuf.Timestamp created_at = 7;
   common.UserInfo from_user_info = 8;  // 申请人信息
 }
@@ -93,7 +121,7 @@ message SendFriendRequestRequest {
   string from_user_id = 1;
   string to_user_id = 2;
   string message = 3;
-  string source = 4;
+  FriendRequestSource source = 4;
 }
 
 // SendFriendRequestResponse 发送好友申请响应
@@ -106,13 +134,13 @@ message SendFriendRequestResponse {
 message HandleFriendRequestRequest {
   string user_id = 1;  // 当前用户ID（申请接收方）
   int64 request_id = 2;
-  string action = 3;  // accept/reject
+  FriendRequestAction action = 3;
 }
 
 // GetFriendRequestsRequest 获取好友申请列表请求
 message GetFriendRequestsRequest {
   string user_id = 1;
-  string type = 2;  // received/sent
+  FriendRequestQueryType request_type = 2;
 }
 
 // GetFriendRequestsResponse 获取好友申请列表响应

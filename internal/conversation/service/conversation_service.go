@@ -95,7 +95,8 @@ func (s *conversationServiceImpl) GetConversation(ctx context.Context, userID, c
 // CreateOrUpdateConversation creates or updates a conversation (called when message arrives)
 func (s *conversationServiceImpl) CreateOrUpdateConversation(ctx context.Context, req *conversationpb.CreateOrUpdateConversationRequest) (*conversationpb.Conversation, error) {
 	// Try to find existing conversation first
-	existing, err := s.conversationRepo.GetByUserAndTarget(ctx, req.UserId, req.ConversationType, req.TargetId)
+	conversationType := model.ConversationType(req.GetConversationType())
+	existing, err := s.conversationRepo.GetByUserAndTarget(ctx, req.UserId, conversationType, req.TargetId)
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, fmt.Errorf("failed to check existing conversation: %w", err)
 	}
@@ -120,7 +121,7 @@ func (s *conversationServiceImpl) CreateOrUpdateConversation(ctx context.Context
 	// Create new conversation
 	conversation := &model.Conversation{
 		ConversationID:     uuid.New().String(),
-		ConversationType:   req.ConversationType,
+		ConversationType:   conversationType,
 		UserID:             req.UserId,
 		TargetID:           req.TargetId,
 		LastMessageID:      req.LastMessageId,
@@ -292,7 +293,7 @@ func (s *conversationServiceImpl) IncrUnread(ctx context.Context, userID, conver
 func toProtoConversation(s *model.Conversation) *conversationpb.Conversation {
 	pb := &conversationpb.Conversation{
 		ConversationId:     s.ConversationID,
-		ConversationType:   s.ConversationType,
+		ConversationType:   conversationpb.ConversationType(s.ConversationType),
 		UserId:             s.UserID,
 		TargetId:           s.TargetID,
 		LastMessageId:      s.LastMessageID,

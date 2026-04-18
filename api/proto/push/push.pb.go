@@ -21,6 +21,65 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// PushType 推送类型
+type PushType int32
+
+const (
+	PushType_PUSH_TYPE_UNSPECIFIED     PushType = 0
+	PushType_PUSH_TYPE_MESSAGE_NEW     PushType = 1
+	PushType_PUSH_TYPE_MESSAGE_MENTION PushType = 2
+	PushType_PUSH_TYPE_FRIEND_REQUEST  PushType = 3
+	PushType_PUSH_TYPE_GROUP_INVITED   PushType = 4
+	PushType_PUSH_TYPE_CALL_INVITE     PushType = 5
+)
+
+// Enum value maps for PushType.
+var (
+	PushType_name = map[int32]string{
+		0: "PUSH_TYPE_UNSPECIFIED",
+		1: "PUSH_TYPE_MESSAGE_NEW",
+		2: "PUSH_TYPE_MESSAGE_MENTION",
+		3: "PUSH_TYPE_FRIEND_REQUEST",
+		4: "PUSH_TYPE_GROUP_INVITED",
+		5: "PUSH_TYPE_CALL_INVITE",
+	}
+	PushType_value = map[string]int32{
+		"PUSH_TYPE_UNSPECIFIED":     0,
+		"PUSH_TYPE_MESSAGE_NEW":     1,
+		"PUSH_TYPE_MESSAGE_MENTION": 2,
+		"PUSH_TYPE_FRIEND_REQUEST":  3,
+		"PUSH_TYPE_GROUP_INVITED":   4,
+		"PUSH_TYPE_CALL_INVITE":     5,
+	}
+)
+
+func (x PushType) Enum() *PushType {
+	p := new(PushType)
+	*p = x
+	return p
+}
+
+func (x PushType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PushType) Descriptor() protoreflect.EnumDescriptor {
+	return file_push_push_proto_enumTypes[0].Descriptor()
+}
+
+func (PushType) Type() protoreflect.EnumType {
+	return &file_push_push_proto_enumTypes[0]
+}
+
+func (x PushType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PushType.Descriptor instead.
+func (PushType) EnumDescriptor() ([]byte, []int) {
+	return file_push_push_proto_rawDescGZIP(), []int{0}
+}
+
 // SendPushRequest 推送请求
 type SendPushRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -30,8 +89,8 @@ type SendPushRequest struct {
 	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	// 推送正文
 	Content string `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
-	// 推送类型: message / friend_request / group_invite / mention / call
-	PushType string `protobuf:"bytes,4,opt,name=push_type,json=pushType,proto3" json:"push_type,omitempty"`
+	// 推送类型
+	PushType PushType `protobuf:"varint,4,opt,name=push_type,json=pushType,proto3,enum=anychat.push.PushType" json:"push_type,omitempty"`
 	// 附加数据（键值对），客户端根据业务处理
 	Extras        map[string]string `protobuf:"bytes,5,rep,name=extras,proto3" json:"extras,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
@@ -89,11 +148,11 @@ func (x *SendPushRequest) GetContent() string {
 	return ""
 }
 
-func (x *SendPushRequest) GetPushType() string {
+func (x *SendPushRequest) GetPushType() PushType {
 	if x != nil {
 		return x.PushType
 	}
-	return ""
+	return PushType_PUSH_TYPE_UNSPECIFIED
 }
 
 func (x *SendPushRequest) GetExtras() map[string]string {
@@ -171,12 +230,12 @@ var File_push_push_proto protoreflect.FileDescriptor
 
 const file_push_push_proto_rawDesc = "" +
 	"\n" +
-	"\x0fpush/push.proto\x12\fanychat.push\"\xf7\x01\n" +
+	"\x0fpush/push.proto\x12\fanychat.push\"\x8f\x02\n" +
 	"\x0fSendPushRequest\x12\x19\n" +
 	"\buser_ids\x18\x01 \x03(\tR\auserIds\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x18\n" +
-	"\acontent\x18\x03 \x01(\tR\acontent\x12\x1b\n" +
-	"\tpush_type\x18\x04 \x01(\tR\bpushType\x12A\n" +
+	"\acontent\x18\x03 \x01(\tR\acontent\x123\n" +
+	"\tpush_type\x18\x04 \x01(\x0e2\x16.anychat.push.PushTypeR\bpushType\x12A\n" +
 	"\x06extras\x18\x05 \x03(\v2).anychat.push.SendPushRequest.ExtrasEntryR\x06extras\x1a9\n" +
 	"\vExtrasEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -184,7 +243,14 @@ const file_push_push_proto_rawDesc = "" +
 	"\x10SendPushResponse\x12#\n" +
 	"\rsuccess_count\x18\x01 \x01(\x05R\fsuccessCount\x12#\n" +
 	"\rfailure_count\x18\x02 \x01(\x05R\ffailureCount\x12\x15\n" +
-	"\x06msg_id\x18\x03 \x01(\tR\x05msgId2X\n" +
+	"\x06msg_id\x18\x03 \x01(\tR\x05msgId*\xb5\x01\n" +
+	"\bPushType\x12\x19\n" +
+	"\x15PUSH_TYPE_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15PUSH_TYPE_MESSAGE_NEW\x10\x01\x12\x1d\n" +
+	"\x19PUSH_TYPE_MESSAGE_MENTION\x10\x02\x12\x1c\n" +
+	"\x18PUSH_TYPE_FRIEND_REQUEST\x10\x03\x12\x1b\n" +
+	"\x17PUSH_TYPE_GROUP_INVITED\x10\x04\x12\x19\n" +
+	"\x15PUSH_TYPE_CALL_INVITE\x10\x052X\n" +
 	"\vPushService\x12I\n" +
 	"\bSendPush\x12\x1d.anychat.push.SendPushRequest\x1a\x1e.anychat.push.SendPushResponseB1Z/github.com/anychat/server/api/proto/push;pushpbb\x06proto3"
 
@@ -200,21 +266,24 @@ func file_push_push_proto_rawDescGZIP() []byte {
 	return file_push_push_proto_rawDescData
 }
 
+var file_push_push_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_push_push_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_push_push_proto_goTypes = []any{
-	(*SendPushRequest)(nil),  // 0: anychat.push.SendPushRequest
-	(*SendPushResponse)(nil), // 1: anychat.push.SendPushResponse
-	nil,                      // 2: anychat.push.SendPushRequest.ExtrasEntry
+	(PushType)(0),            // 0: anychat.push.PushType
+	(*SendPushRequest)(nil),  // 1: anychat.push.SendPushRequest
+	(*SendPushResponse)(nil), // 2: anychat.push.SendPushResponse
+	nil,                      // 3: anychat.push.SendPushRequest.ExtrasEntry
 }
 var file_push_push_proto_depIdxs = []int32{
-	2, // 0: anychat.push.SendPushRequest.extras:type_name -> anychat.push.SendPushRequest.ExtrasEntry
-	0, // 1: anychat.push.PushService.SendPush:input_type -> anychat.push.SendPushRequest
-	1, // 2: anychat.push.PushService.SendPush:output_type -> anychat.push.SendPushResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: anychat.push.SendPushRequest.push_type:type_name -> anychat.push.PushType
+	3, // 1: anychat.push.SendPushRequest.extras:type_name -> anychat.push.SendPushRequest.ExtrasEntry
+	1, // 2: anychat.push.PushService.SendPush:input_type -> anychat.push.SendPushRequest
+	2, // 3: anychat.push.PushService.SendPush:output_type -> anychat.push.SendPushResponse
+	3, // [3:4] is the sub-list for method output_type
+	2, // [2:3] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_push_push_proto_init() }
@@ -227,13 +296,14 @@ func file_push_push_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_push_push_proto_rawDesc), len(file_push_push_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_push_push_proto_goTypes,
 		DependencyIndexes: file_push_push_proto_depIdxs,
+		EnumInfos:         file_push_push_proto_enumTypes,
 		MessageInfos:      file_push_push_proto_msgTypes,
 	}.Build()
 	File_push_push_proto = out.File

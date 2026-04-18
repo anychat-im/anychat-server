@@ -477,7 +477,7 @@ message HandleJoinRequestRequest {
 ```protobuf
 message GetJoinRequestsRequest {
     string group_id = 1;
-    optional string status = 2;
+    optional JoinRequestStatus status = 2; // 1-pending 2-accepted 3-rejected
 }
 
 message GetJoinRequestsResponse {
@@ -491,7 +491,7 @@ message JoinRequest {
     string user_id = 3;
     optional string inviter_id = 4;
     optional string message = 5;
-    string status = 6;
+    JoinRequestStatus status = 6;
     google.protobuf.Timestamp created_at = 7;
     optional common.UserInfo user_info = 8;
 }

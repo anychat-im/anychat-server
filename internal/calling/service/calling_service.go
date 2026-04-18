@@ -26,7 +26,7 @@ const tokenTTL = 2 * time.Hour
 
 // CallingService is the audio/video service interface
 type CallingService interface {
-	InitiateCall(ctx context.Context, callerID, calleeID, callType string) (*callingpb.InitiateCallResponse, error)
+	InitiateCall(ctx context.Context, callerID, calleeID string, callType model.CallType) (*callingpb.InitiateCallResponse, error)
 	JoinCall(ctx context.Context, callID, userID string) (*callingpb.JoinCallResponse, error)
 	RejectCall(ctx context.Context, callID, userID string) error
 	EndCall(ctx context.Context, callID, userID string) error
@@ -73,7 +73,7 @@ func NewCallingService(
 
 // ── Call Related ──────────────────────────────────────────────
 
-func (s *callingServiceImpl) InitiateCall(ctx context.Context, callerID, calleeID, callType string) (*callingpb.InitiateCallResponse, error) {
+func (s *callingServiceImpl) InitiateCall(ctx context.Context, callerID, calleeID string, callType model.CallType) (*callingpb.InitiateCallResponse, error) {
 	if callerID == "" || calleeID == "" {
 		return nil, status.Error(codes.InvalidArgument, "caller_id and callee_id are required")
 	}
@@ -121,7 +121,7 @@ func (s *callingServiceImpl) InitiateCall(ctx context.Context, callerID, calleeI
 		CallerID: callerID,
 		CalleeID: calleeID,
 		CallType: callType,
-		Status:   "ringing",
+		Status:   model.CallStatusRinging,
 		RoomName: roomName,
 	}
 	if err := s.callRepo.CreateCallSession(session); err != nil {
@@ -133,7 +133,7 @@ func (s *callingServiceImpl) InitiateCall(ctx context.Context, callerID, calleeI
 	notif := notification.NewNotification(notification.TypeLiveKitCallInvite, callerID, notification.PriorityHigh).
 		AddPayloadField("call_id", callID).
 		AddPayloadField("caller_id", callerID).
-		AddPayloadField("call_type", callType)
+		AddPayloadField("call_type", int32(callType))
 	if err := s.notificationPub.PublishToUser(calleeID, notif); err != nil {
 		logger.Warn("InitiateCall: notify callee failed", zap.Error(err))
 	}
@@ -150,8 +150,8 @@ func (s *callingServiceImpl) JoinCall(ctx context.Context, callID, userID string
 	if err != nil {
 		return nil, status.Error(codes.NotFound, "call session not found")
 	}
-	if session.Status != "ringing" {
-		return nil, status.Errorf(codes.FailedPrecondition, "call is not in ringing state: %s", session.Status)
+	if session.Status != model.CallStatusRinging {
+		return nil, status.Errorf(codes.FailedPrecondition, "call is not in ringing state: %d", session.Status)
 	}
 	if session.CalleeID != userID {
 		return nil, status.Error(codes.PermissionDenied, "not the callee of this call")
@@ -165,7 +165,7 @@ func (s *callingServiceImpl) JoinCall(ctx context.Context, callID, userID string
 
 	// Update session status
 	now := time.Now()
-	session.Status = "connected"
+	session.Status = model.CallStatusConnected
 	session.ConnectedAt = &now
 	if err := s.callRepo.UpdateCallSession(session); err != nil {
 		logger.Warn("JoinCall: update session failed", zap.Error(err))
@@ -174,7 +174,7 @@ func (s *callingServiceImpl) JoinCall(ctx context.Context, callID, userID string
 	// Notify caller
 	notif := notification.NewNotification(notification.TypeLiveKitCallStatus, userID, notification.PriorityHigh).
 		AddPayloadField("call_id", callID).
-		AddPayloadField("status", "connected")
+		AddPayloadField("status", int32(model.CallStatusConnected))
 	if err := s.notificationPub.PublishToUser(session.CallerID, notif); err != nil {
 		logger.Warn("JoinCall: notify caller failed", zap.Error(err))
 	}
@@ -190,15 +190,15 @@ func (s *callingServiceImpl) RejectCall(ctx context.Context, callID, userID stri
 	if err != nil {
 		return status.Error(codes.NotFound, "call session not found")
 	}
-	if session.Status != "ringing" {
-		return status.Errorf(codes.FailedPrecondition, "call is not in ringing state: %s", session.Status)
+	if session.Status != model.CallStatusRinging {
+		return status.Errorf(codes.FailedPrecondition, "call is not in ringing state: %d", session.Status)
 	}
 	if session.CalleeID != userID {
 		return status.Error(codes.PermissionDenied, "not the callee of this call")
 	}
 
 	now := time.Now()
-	session.Status = "rejected"
+	session.Status = model.CallStatusRejected
 	session.EndedAt = &now
 	if err := s.callRepo.UpdateCallSession(session); err != nil {
 		logger.Warn("RejectCall: update session failed", zap.Error(err))
@@ -225,14 +225,14 @@ func (s *callingServiceImpl) EndCall(ctx context.Context, callID, userID string)
 	if session.CallerID != userID && session.CalleeID != userID {
 		return status.Error(codes.PermissionDenied, "not a participant of this call")
 	}
-	if session.Status == "ended" || session.Status == "rejected" {
+	if session.Status == model.CallStatusEnded || session.Status == model.CallStatusRejected {
 		return nil
 	}
 
 	now := time.Now()
-	newStatus := "ended"
-	if session.Status == "ringing" {
-		newStatus = "cancelled"
+	newStatus := model.CallStatusEnded
+	if session.Status == model.CallStatusRinging {
+		newStatus = model.CallStatusCancelled
 	}
 	session.Status = newStatus
 	session.EndedAt = &now
@@ -252,7 +252,7 @@ func (s *callingServiceImpl) EndCall(ctx context.Context, callID, userID string)
 	}
 	notif := notification.NewNotification(notification.TypeLiveKitCallStatus, userID, notification.PriorityHigh).
 		AddPayloadField("call_id", callID).
-		AddPayloadField("status", newStatus)
+		AddPayloadField("status", int32(newStatus))
 	if err := s.notificationPub.PublishToUser(targetID, notif); err != nil {
 		logger.Warn("EndCall: notify peer failed", zap.Error(err))
 	}
@@ -309,7 +309,7 @@ func (s *callingServiceImpl) CreateMeeting(ctx context.Context, creatorID, title
 		RoomName:        roomName,
 		PasswordHash:    passwordHash,
 		MaxParticipants: maxParticipants,
-		Status:          "active",
+		Status:          model.MeetingStatusActive,
 	}
 	if err := s.meetingRepo.CreateMeeting(meeting); err != nil {
 		return nil, status.Errorf(codes.Internal, "save meeting: %v", err)
@@ -332,7 +332,7 @@ func (s *callingServiceImpl) JoinMeeting(ctx context.Context, userID, roomID, pa
 	if err != nil {
 		return nil, status.Error(codes.NotFound, "meeting not found")
 	}
-	if meeting.Status != "active" {
+	if meeting.Status != model.MeetingStatusActive {
 		return nil, status.Error(codes.FailedPrecondition, "meeting has ended")
 	}
 	if meeting.PasswordHash != "" && hashPassword(password) != meeting.PasswordHash {
@@ -358,12 +358,12 @@ func (s *callingServiceImpl) EndMeeting(ctx context.Context, roomID, creatorID s
 	if meeting.CreatorID != creatorID {
 		return status.Error(codes.PermissionDenied, "only creator can end the meeting")
 	}
-	if meeting.Status == "ended" {
+	if meeting.Status == model.MeetingStatusEnded {
 		return nil
 	}
 
 	now := time.Now()
-	meeting.Status = "ended"
+	meeting.Status = model.MeetingStatusEnded
 	meeting.EndedAt = &now
 	if err := s.meetingRepo.UpdateMeeting(meeting); err != nil {
 		logger.Warn("EndMeeting: update meeting failed", zap.Error(err))
@@ -436,27 +436,8 @@ func toProtoCallSession(s *model.CallSession) *callingpb.CallSession {
 		CreatedAt: s.CreatedAt.Unix(),
 	}
 
-	switch s.CallType {
-	case "video":
-		pb.CallType = callingpb.CallType_CALL_TYPE_VIDEO
-	default:
-		pb.CallType = callingpb.CallType_CALL_TYPE_AUDIO
-	}
-
-	switch s.Status {
-	case "connected":
-		pb.Status = callingpb.CallStatus_CALL_STATUS_CONNECTED
-	case "ended":
-		pb.Status = callingpb.CallStatus_CALL_STATUS_ENDED
-	case "rejected":
-		pb.Status = callingpb.CallStatus_CALL_STATUS_REJECTED
-	case "missed":
-		pb.Status = callingpb.CallStatus_CALL_STATUS_MISSED
-	case "cancelled":
-		pb.Status = callingpb.CallStatus_CALL_STATUS_CANCELLED
-	default:
-		pb.Status = callingpb.CallStatus_CALL_STATUS_RINGING
-	}
+	pb.CallType = callingpb.CallType(s.CallType)
+	pb.Status = callingpb.CallStatus(s.Status)
 
 	if s.ConnectedAt != nil {
 		pb.ConnectedAt = s.ConnectedAt.Unix()
@@ -478,9 +459,7 @@ func toProtoMeeting(m *model.MeetingRoom) *callingpb.MeetingRoom {
 		StartedAt:       m.StartedAt.Unix(),
 		CreatedAt:       m.CreatedAt.Unix(),
 	}
-	if m.Status == "ended" {
-		pb.Status = callingpb.MeetingStatus_MEETING_STATUS_ENDED
-	}
+	pb.Status = callingpb.MeetingStatus(m.Status)
 	if m.EndedAt != nil {
 		pb.EndedAt = m.EndedAt.Unix()
 	}

@@ -1,21 +1,21 @@
 -- Create app_versions table
 CREATE TABLE IF NOT EXISTS app_versions (
     id BIGSERIAL PRIMARY KEY,
-    platform VARCHAR(20) NOT NULL,
+    platform SMALLINT NOT NULL, -- 1-ios,2-android,3-pc,4-web,5-h5
     version VARCHAR(50) NOT NULL,
     build_number INTEGER DEFAULT 0,
     version_code INTEGER,
     min_version VARCHAR(50),
     min_build_number INTEGER,
     force_update BOOLEAN DEFAULT FALSE,
-    release_type VARCHAR(20) DEFAULT 'stable',
+    release_type SMALLINT NOT NULL DEFAULT 1, -- 1-stable,2-beta,3-alpha
     title VARCHAR(200),
     content TEXT,
     download_url VARCHAR(500),
     file_size BIGINT,
     file_hash VARCHAR(64),
     published_at TIMESTAMP,
-    status VARCHAR(20) DEFAULT 'draft',
+    status SMALLINT NOT NULL DEFAULT 1, -- 1-draft,2-published,3-archived
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
     deleted_at TIMESTAMP,
@@ -29,7 +29,7 @@ CREATE INDEX idx_app_versions_status ON app_versions(status);
 -- Create client_version_stats table
 CREATE TABLE IF NOT EXISTS client_version_stats (
     id BIGSERIAL PRIMARY KEY,
-    platform VARCHAR(20) NOT NULL,
+    platform SMALLINT NOT NULL, -- 1-ios,2-android,3-pc,4-web,5-h5
     version VARCHAR(50) NOT NULL,
     count INTEGER DEFAULT 0,
     report_date DATE NOT NULL,

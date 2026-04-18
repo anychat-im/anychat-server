@@ -24,7 +24,7 @@ service SyncService {
 // ConversationSeq 会话的最新已知序列号
 message ConversationSeq {
   string conversation_id = 1;
-  string conversation_type = 2;  // single/group
+  anychat.message.ConversationType conversation_type = 2;  // 1-single/2-group
   int64 last_seq = 3;
 }
 
@@ -58,7 +58,7 @@ message SyncConversationData {
 // ConversationMessages 单个会话的新消息
 message ConversationMessages {
   string conversation_id = 1;
-  string conversation_type = 2;
+  anychat.message.ConversationType conversation_type = 2;
   repeated anychat.message.Message messages = 3;
   bool has_more = 4;
 }

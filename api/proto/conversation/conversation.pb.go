@@ -23,11 +23,63 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ConversationType int32
+
+const (
+	ConversationType_CONVERSATION_TYPE_UNSPECIFIED ConversationType = 0
+	ConversationType_CONVERSATION_TYPE_SINGLE      ConversationType = 1
+	ConversationType_CONVERSATION_TYPE_GROUP       ConversationType = 2
+	ConversationType_CONVERSATION_TYPE_SYSTEM      ConversationType = 3
+)
+
+// Enum value maps for ConversationType.
+var (
+	ConversationType_name = map[int32]string{
+		0: "CONVERSATION_TYPE_UNSPECIFIED",
+		1: "CONVERSATION_TYPE_SINGLE",
+		2: "CONVERSATION_TYPE_GROUP",
+		3: "CONVERSATION_TYPE_SYSTEM",
+	}
+	ConversationType_value = map[string]int32{
+		"CONVERSATION_TYPE_UNSPECIFIED": 0,
+		"CONVERSATION_TYPE_SINGLE":      1,
+		"CONVERSATION_TYPE_GROUP":       2,
+		"CONVERSATION_TYPE_SYSTEM":      3,
+	}
+)
+
+func (x ConversationType) Enum() *ConversationType {
+	p := new(ConversationType)
+	*p = x
+	return p
+}
+
+func (x ConversationType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ConversationType) Descriptor() protoreflect.EnumDescriptor {
+	return file_conversation_conversation_proto_enumTypes[0].Descriptor()
+}
+
+func (ConversationType) Type() protoreflect.EnumType {
+	return &file_conversation_conversation_proto_enumTypes[0]
+}
+
+func (x ConversationType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ConversationType.Descriptor instead.
+func (ConversationType) EnumDescriptor() ([]byte, []int) {
+	return file_conversation_conversation_proto_rawDescGZIP(), []int{0}
+}
+
 // Conversation 会话
 type Conversation struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	ConversationId     string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	ConversationType   string                 `protobuf:"bytes,2,opt,name=conversation_type,json=conversationType,proto3" json:"conversation_type,omitempty"` // single/group/system
+	ConversationType   ConversationType       `protobuf:"varint,2,opt,name=conversation_type,json=conversationType,proto3,enum=anychat.conversation.ConversationType" json:"conversation_type,omitempty"` // 1-single/2-group/3-system
 	UserId             string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	TargetId           string                 `protobuf:"bytes,4,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"` // 单聊为对方用户ID，群聊为群ID
 	LastMessageId      string                 `protobuf:"bytes,5,opt,name=last_message_id,json=lastMessageId,proto3" json:"last_message_id,omitempty"`
@@ -82,11 +134,11 @@ func (x *Conversation) GetConversationId() string {
 	return ""
 }
 
-func (x *Conversation) GetConversationType() string {
+func (x *Conversation) GetConversationType() ConversationType {
 	if x != nil {
 		return x.ConversationType
 	}
-	return ""
+	return ConversationType_CONVERSATION_TYPE_UNSPECIFIED
 }
 
 func (x *Conversation) GetUserId() string {
@@ -351,7 +403,7 @@ func (x *GetConversationRequest) GetConversationId() string {
 type GetConversationByUserAndTargetRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ConversationType string                 `protobuf:"bytes,2,opt,name=conversation_type,json=conversationType,proto3" json:"conversation_type,omitempty"` // single/group
+	ConversationType ConversationType       `protobuf:"varint,2,opt,name=conversation_type,json=conversationType,proto3,enum=anychat.conversation.ConversationType" json:"conversation_type,omitempty"` // 1-single/2-group
 	TargetId         string                 `protobuf:"bytes,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -394,11 +446,11 @@ func (x *GetConversationByUserAndTargetRequest) GetUserId() string {
 	return ""
 }
 
-func (x *GetConversationByUserAndTargetRequest) GetConversationType() string {
+func (x *GetConversationByUserAndTargetRequest) GetConversationType() ConversationType {
 	if x != nil {
 		return x.ConversationType
 	}
-	return ""
+	return ConversationType_CONVERSATION_TYPE_UNSPECIFIED
 }
 
 func (x *GetConversationByUserAndTargetRequest) GetTargetId() string {
@@ -411,7 +463,7 @@ func (x *GetConversationByUserAndTargetRequest) GetTargetId() string {
 // CreateOrUpdateConversationRequest 创建或更新会话请求
 type CreateOrUpdateConversationRequest struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
-	ConversationType     string                 `protobuf:"bytes,1,opt,name=conversation_type,json=conversationType,proto3" json:"conversation_type,omitempty"` // single/group/system
+	ConversationType     ConversationType       `protobuf:"varint,1,opt,name=conversation_type,json=conversationType,proto3,enum=anychat.conversation.ConversationType" json:"conversation_type,omitempty"` // 1-single/2-group/3-system
 	UserId               string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	TargetId             string                 `protobuf:"bytes,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`
 	LastMessageId        string                 `protobuf:"bytes,4,opt,name=last_message_id,json=lastMessageId,proto3" json:"last_message_id,omitempty"`
@@ -451,11 +503,11 @@ func (*CreateOrUpdateConversationRequest) Descriptor() ([]byte, []int) {
 	return file_conversation_conversation_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *CreateOrUpdateConversationRequest) GetConversationType() string {
+func (x *CreateOrUpdateConversationRequest) GetConversationType() ConversationType {
 	if x != nil {
 		return x.ConversationType
 	}
-	return ""
+	return ConversationType_CONVERSATION_TYPE_UNSPECIFIED
 }
 
 func (x *CreateOrUpdateConversationRequest) GetUserId() string {
@@ -998,10 +1050,10 @@ var File_conversation_conversation_proto protoreflect.FileDescriptor
 
 const file_conversation_conversation_proto_rawDesc = "" +
 	"\n" +
-	"\x1fconversation/conversation.proto\x12\x14anychat.conversation\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13common/common.proto\"\xa4\x05\n" +
+	"\x1fconversation/conversation.proto\x12\x14anychat.conversation\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13common/common.proto\"\xcc\x05\n" +
 	"\fConversation\x12'\n" +
-	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12+\n" +
-	"\x11conversation_type\x18\x02 \x01(\tR\x10conversationType\x12\x17\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12S\n" +
+	"\x11conversation_type\x18\x02 \x01(\x0e2&.anychat.conversation.ConversationTypeR\x10conversationType\x12\x17\n" +
 	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x1b\n" +
 	"\ttarget_id\x18\x04 \x01(\tR\btargetId\x12&\n" +
 	"\x0flast_message_id\x18\x05 \x01(\tR\rlastMessageId\x120\n" +
@@ -1028,13 +1080,13 @@ const file_conversation_conversation_proto_rawDesc = "" +
 	"\bhas_more\x18\x02 \x01(\bR\ahasMore\"Z\n" +
 	"\x16GetConversationRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12'\n" +
-	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\"\x8a\x01\n" +
+	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\"\xb2\x01\n" +
 	"%GetConversationByUserAndTargetRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12+\n" +
-	"\x11conversation_type\x18\x02 \x01(\tR\x10conversationType\x12\x1b\n" +
-	"\ttarget_id\x18\x03 \x01(\tR\btargetId\"\x96\x02\n" +
-	"!CreateOrUpdateConversationRequest\x12+\n" +
-	"\x11conversation_type\x18\x01 \x01(\tR\x10conversationType\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12S\n" +
+	"\x11conversation_type\x18\x02 \x01(\x0e2&.anychat.conversation.ConversationTypeR\x10conversationType\x12\x1b\n" +
+	"\ttarget_id\x18\x03 \x01(\tR\btargetId\"\xbe\x02\n" +
+	"!CreateOrUpdateConversationRequest\x12S\n" +
+	"\x11conversation_type\x18\x01 \x01(\x0e2&.anychat.conversation.ConversationTypeR\x10conversationType\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
 	"\ttarget_id\x18\x03 \x01(\tR\btargetId\x12&\n" +
 	"\x0flast_message_id\x18\x04 \x01(\tR\rlastMessageId\x120\n" +
@@ -1069,7 +1121,12 @@ const file_conversation_conversation_proto_rawDesc = "" +
 	"\x14SetAutoDeleteRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12'\n" +
 	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x12\x1a\n" +
-	"\bduration\x18\x03 \x01(\x05R\bduration2\x9b\b\n" +
+	"\bduration\x18\x03 \x01(\x05R\bduration*\x8e\x01\n" +
+	"\x10ConversationType\x12!\n" +
+	"\x1dCONVERSATION_TYPE_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18CONVERSATION_TYPE_SINGLE\x10\x01\x12\x1b\n" +
+	"\x17CONVERSATION_TYPE_GROUP\x10\x02\x12\x1c\n" +
+	"\x18CONVERSATION_TYPE_SYSTEM\x10\x032\x9b\b\n" +
 	"\x13ConversationService\x12q\n" +
 	"\x10GetConversations\x12-.anychat.conversation.GetConversationsRequest\x1a..anychat.conversation.GetConversationsResponse\x12c\n" +
 	"\x0fGetConversation\x12,.anychat.conversation.GetConversationRequest\x1a\".anychat.conversation.Conversation\x12y\n" +
@@ -1096,59 +1153,64 @@ func file_conversation_conversation_proto_rawDescGZIP() []byte {
 	return file_conversation_conversation_proto_rawDescData
 }
 
+var file_conversation_conversation_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_conversation_conversation_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_conversation_conversation_proto_goTypes = []any{
-	(*Conversation)(nil),                          // 0: anychat.conversation.Conversation
-	(*GetConversationsRequest)(nil),               // 1: anychat.conversation.GetConversationsRequest
-	(*GetConversationsResponse)(nil),              // 2: anychat.conversation.GetConversationsResponse
-	(*GetConversationRequest)(nil),                // 3: anychat.conversation.GetConversationRequest
-	(*GetConversationByUserAndTargetRequest)(nil), // 4: anychat.conversation.GetConversationByUserAndTargetRequest
-	(*CreateOrUpdateConversationRequest)(nil),     // 5: anychat.conversation.CreateOrUpdateConversationRequest
-	(*DeleteConversationRequest)(nil),             // 6: anychat.conversation.DeleteConversationRequest
-	(*SetPinnedRequest)(nil),                      // 7: anychat.conversation.SetPinnedRequest
-	(*SetMutedRequest)(nil),                       // 8: anychat.conversation.SetMutedRequest
-	(*ClearUnreadRequest)(nil),                    // 9: anychat.conversation.ClearUnreadRequest
-	(*GetTotalUnreadRequest)(nil),                 // 10: anychat.conversation.GetTotalUnreadRequest
-	(*GetTotalUnreadResponse)(nil),                // 11: anychat.conversation.GetTotalUnreadResponse
-	(*IncrUnreadRequest)(nil),                     // 12: anychat.conversation.IncrUnreadRequest
-	(*SetBurnAfterReadingRequest)(nil),            // 13: anychat.conversation.SetBurnAfterReadingRequest
-	(*SetAutoDeleteRequest)(nil),                  // 14: anychat.conversation.SetAutoDeleteRequest
-	(*timestamp.Timestamp)(nil),                   // 15: google.protobuf.Timestamp
-	(*common.Empty)(nil),                          // 16: anychat.common.Empty
+	(ConversationType)(0),                         // 0: anychat.conversation.ConversationType
+	(*Conversation)(nil),                          // 1: anychat.conversation.Conversation
+	(*GetConversationsRequest)(nil),               // 2: anychat.conversation.GetConversationsRequest
+	(*GetConversationsResponse)(nil),              // 3: anychat.conversation.GetConversationsResponse
+	(*GetConversationRequest)(nil),                // 4: anychat.conversation.GetConversationRequest
+	(*GetConversationByUserAndTargetRequest)(nil), // 5: anychat.conversation.GetConversationByUserAndTargetRequest
+	(*CreateOrUpdateConversationRequest)(nil),     // 6: anychat.conversation.CreateOrUpdateConversationRequest
+	(*DeleteConversationRequest)(nil),             // 7: anychat.conversation.DeleteConversationRequest
+	(*SetPinnedRequest)(nil),                      // 8: anychat.conversation.SetPinnedRequest
+	(*SetMutedRequest)(nil),                       // 9: anychat.conversation.SetMutedRequest
+	(*ClearUnreadRequest)(nil),                    // 10: anychat.conversation.ClearUnreadRequest
+	(*GetTotalUnreadRequest)(nil),                 // 11: anychat.conversation.GetTotalUnreadRequest
+	(*GetTotalUnreadResponse)(nil),                // 12: anychat.conversation.GetTotalUnreadResponse
+	(*IncrUnreadRequest)(nil),                     // 13: anychat.conversation.IncrUnreadRequest
+	(*SetBurnAfterReadingRequest)(nil),            // 14: anychat.conversation.SetBurnAfterReadingRequest
+	(*SetAutoDeleteRequest)(nil),                  // 15: anychat.conversation.SetAutoDeleteRequest
+	(*timestamp.Timestamp)(nil),                   // 16: google.protobuf.Timestamp
+	(*common.Empty)(nil),                          // 17: anychat.common.Empty
 }
 var file_conversation_conversation_proto_depIdxs = []int32{
-	15, // 0: anychat.conversation.Conversation.last_message_time:type_name -> google.protobuf.Timestamp
-	15, // 1: anychat.conversation.Conversation.pin_time:type_name -> google.protobuf.Timestamp
-	15, // 2: anychat.conversation.Conversation.created_at:type_name -> google.protobuf.Timestamp
-	15, // 3: anychat.conversation.Conversation.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 4: anychat.conversation.GetConversationsResponse.conversations:type_name -> anychat.conversation.Conversation
-	1,  // 5: anychat.conversation.ConversationService.GetConversations:input_type -> anychat.conversation.GetConversationsRequest
-	3,  // 6: anychat.conversation.ConversationService.GetConversation:input_type -> anychat.conversation.GetConversationRequest
-	5,  // 7: anychat.conversation.ConversationService.CreateOrUpdateConversation:input_type -> anychat.conversation.CreateOrUpdateConversationRequest
-	6,  // 8: anychat.conversation.ConversationService.DeleteConversation:input_type -> anychat.conversation.DeleteConversationRequest
-	7,  // 9: anychat.conversation.ConversationService.SetPinned:input_type -> anychat.conversation.SetPinnedRequest
-	8,  // 10: anychat.conversation.ConversationService.SetMuted:input_type -> anychat.conversation.SetMutedRequest
-	9,  // 11: anychat.conversation.ConversationService.ClearUnread:input_type -> anychat.conversation.ClearUnreadRequest
-	10, // 12: anychat.conversation.ConversationService.GetTotalUnread:input_type -> anychat.conversation.GetTotalUnreadRequest
-	12, // 13: anychat.conversation.ConversationService.IncrUnread:input_type -> anychat.conversation.IncrUnreadRequest
-	13, // 14: anychat.conversation.ConversationService.SetBurnAfterReading:input_type -> anychat.conversation.SetBurnAfterReadingRequest
-	14, // 15: anychat.conversation.ConversationService.SetAutoDelete:input_type -> anychat.conversation.SetAutoDeleteRequest
-	2,  // 16: anychat.conversation.ConversationService.GetConversations:output_type -> anychat.conversation.GetConversationsResponse
-	0,  // 17: anychat.conversation.ConversationService.GetConversation:output_type -> anychat.conversation.Conversation
-	0,  // 18: anychat.conversation.ConversationService.CreateOrUpdateConversation:output_type -> anychat.conversation.Conversation
-	16, // 19: anychat.conversation.ConversationService.DeleteConversation:output_type -> anychat.common.Empty
-	16, // 20: anychat.conversation.ConversationService.SetPinned:output_type -> anychat.common.Empty
-	16, // 21: anychat.conversation.ConversationService.SetMuted:output_type -> anychat.common.Empty
-	16, // 22: anychat.conversation.ConversationService.ClearUnread:output_type -> anychat.common.Empty
-	11, // 23: anychat.conversation.ConversationService.GetTotalUnread:output_type -> anychat.conversation.GetTotalUnreadResponse
-	16, // 24: anychat.conversation.ConversationService.IncrUnread:output_type -> anychat.common.Empty
-	16, // 25: anychat.conversation.ConversationService.SetBurnAfterReading:output_type -> anychat.common.Empty
-	16, // 26: anychat.conversation.ConversationService.SetAutoDelete:output_type -> anychat.common.Empty
-	16, // [16:27] is the sub-list for method output_type
-	5,  // [5:16] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	0,  // 0: anychat.conversation.Conversation.conversation_type:type_name -> anychat.conversation.ConversationType
+	16, // 1: anychat.conversation.Conversation.last_message_time:type_name -> google.protobuf.Timestamp
+	16, // 2: anychat.conversation.Conversation.pin_time:type_name -> google.protobuf.Timestamp
+	16, // 3: anychat.conversation.Conversation.created_at:type_name -> google.protobuf.Timestamp
+	16, // 4: anychat.conversation.Conversation.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 5: anychat.conversation.GetConversationsResponse.conversations:type_name -> anychat.conversation.Conversation
+	0,  // 6: anychat.conversation.GetConversationByUserAndTargetRequest.conversation_type:type_name -> anychat.conversation.ConversationType
+	0,  // 7: anychat.conversation.CreateOrUpdateConversationRequest.conversation_type:type_name -> anychat.conversation.ConversationType
+	2,  // 8: anychat.conversation.ConversationService.GetConversations:input_type -> anychat.conversation.GetConversationsRequest
+	4,  // 9: anychat.conversation.ConversationService.GetConversation:input_type -> anychat.conversation.GetConversationRequest
+	6,  // 10: anychat.conversation.ConversationService.CreateOrUpdateConversation:input_type -> anychat.conversation.CreateOrUpdateConversationRequest
+	7,  // 11: anychat.conversation.ConversationService.DeleteConversation:input_type -> anychat.conversation.DeleteConversationRequest
+	8,  // 12: anychat.conversation.ConversationService.SetPinned:input_type -> anychat.conversation.SetPinnedRequest
+	9,  // 13: anychat.conversation.ConversationService.SetMuted:input_type -> anychat.conversation.SetMutedRequest
+	10, // 14: anychat.conversation.ConversationService.ClearUnread:input_type -> anychat.conversation.ClearUnreadRequest
+	11, // 15: anychat.conversation.ConversationService.GetTotalUnread:input_type -> anychat.conversation.GetTotalUnreadRequest
+	13, // 16: anychat.conversation.ConversationService.IncrUnread:input_type -> anychat.conversation.IncrUnreadRequest
+	14, // 17: anychat.conversation.ConversationService.SetBurnAfterReading:input_type -> anychat.conversation.SetBurnAfterReadingRequest
+	15, // 18: anychat.conversation.ConversationService.SetAutoDelete:input_type -> anychat.conversation.SetAutoDeleteRequest
+	3,  // 19: anychat.conversation.ConversationService.GetConversations:output_type -> anychat.conversation.GetConversationsResponse
+	1,  // 20: anychat.conversation.ConversationService.GetConversation:output_type -> anychat.conversation.Conversation
+	1,  // 21: anychat.conversation.ConversationService.CreateOrUpdateConversation:output_type -> anychat.conversation.Conversation
+	17, // 22: anychat.conversation.ConversationService.DeleteConversation:output_type -> anychat.common.Empty
+	17, // 23: anychat.conversation.ConversationService.SetPinned:output_type -> anychat.common.Empty
+	17, // 24: anychat.conversation.ConversationService.SetMuted:output_type -> anychat.common.Empty
+	17, // 25: anychat.conversation.ConversationService.ClearUnread:output_type -> anychat.common.Empty
+	12, // 26: anychat.conversation.ConversationService.GetTotalUnread:output_type -> anychat.conversation.GetTotalUnreadResponse
+	17, // 27: anychat.conversation.ConversationService.IncrUnread:output_type -> anychat.common.Empty
+	17, // 28: anychat.conversation.ConversationService.SetBurnAfterReading:output_type -> anychat.common.Empty
+	17, // 29: anychat.conversation.ConversationService.SetAutoDelete:output_type -> anychat.common.Empty
+	19, // [19:30] is the sub-list for method output_type
+	8,  // [8:19] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_conversation_conversation_proto_init() }
@@ -1162,13 +1224,14 @@ func file_conversation_conversation_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_conversation_conversation_proto_rawDesc), len(file_conversation_conversation_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_conversation_conversation_proto_goTypes,
 		DependencyIndexes: file_conversation_conversation_proto_depIdxs,
+		EnumInfos:         file_conversation_conversation_proto_enumTypes,
 		MessageInfos:      file_conversation_conversation_proto_msgTypes,
 	}.Build()
 	File_conversation_conversation_proto = out.File

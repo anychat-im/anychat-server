@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
     username      VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     email         VARCHAR(100),
-    role          VARCHAR(20) NOT NULL DEFAULT 'admin', -- superadmin, admin, readonly
+    role          SMALLINT NOT NULL DEFAULT 2,          -- 1=superadmin, 2=admin, 3=readonly
     status        SMALLINT NOT NULL DEFAULT 1,          -- 1=active, 0=disabled
     last_login_at TIMESTAMPTZ,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS system_configs (
 
 -- Initial admin account (username: admin, password: Admin@123456)
 INSERT INTO admin_users (username, password_hash, role)
-VALUES ('admin', '$2a$10$AN7p9wUwBMIHWhFsw6h8ouO41ZtoK7XG9ddCZSqQH6pcTZ12v1tPu', 'superadmin')
+VALUES ('admin', '$2a$10$AN7p9wUwBMIHWhFsw6h8ouO41ZtoK7XG9ddCZSqQH6pcTZ12v1tPu', 1)
 ON CONFLICT (username) DO NOTHING;
 
 -- Initial system configs

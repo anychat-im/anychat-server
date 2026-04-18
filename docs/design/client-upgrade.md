@@ -339,10 +339,9 @@ service VersionService {
 }
 
 message CheckVersionRequest {
-    string platform = 1;
+    Platform platform = 1; // 1-ios 2-android 3-pc 4-web 5-h5
     string version = 2;
     int32 build_number = 3;
-    int32 version_code = 4;
 }
 
 message CheckVersionResponse {
@@ -364,8 +363,8 @@ message UpdateInfo {
 }
 
 message GetLatestVersionRequest {
-    string platform = 1;
-    string release_type = 2;
+    Platform platform = 1;
+    ReleaseType release_type = 2; // 1-stable 2-beta 3-alpha
 }
 
 message GetLatestVersionResponse {
@@ -374,14 +373,15 @@ message GetLatestVersionResponse {
 
 message VersionInfo {
     int64 id = 1;
-    string platform = 2;
+    Platform platform = 2;
     string version = 3;
     int32 build_number = 4;
     int32 version_code = 5;
     string min_version = 6;
     int32 min_build_number = 7;
     bool force_update = 8;
-    string release_type = 9;
+    ReleaseType release_type = 9;
+    VersionStatus status = 16; // 1-draft 2-published 3-archived
     string title = 10;
     string content = 11;
     string download_url = 12;
@@ -391,8 +391,8 @@ message VersionInfo {
 }
 
 message ListVersionsRequest {
-    string platform = 1;
-    string release_type = 2;
+    Platform platform = 1;
+    ReleaseType release_type = 2;
     int32 page = 3;
     int32 page_size = 4;
 }
@@ -403,14 +403,14 @@ message ListVersionsResponse {
 }
 
 message CreateVersionRequest {
-    string platform = 1;
+    Platform platform = 1;
     string version = 2;
     int32 build_number = 3;
     int32 version_code = 4;
     string min_version = 5;
     int32 min_build_number = 6;
     bool force_update = 7;
-    string release_type = 8;
+    ReleaseType release_type = 8;
     string title = 9;
     string content = 10;
     string download_url = 11;
@@ -420,7 +420,7 @@ message CreateVersionRequest {
 
 message CreateVersionResponse {
     int64 id = 1;
-    string platform = 2;
+    Platform platform = 2;
     string version = 3;
 }
 
@@ -433,11 +433,13 @@ message DeleteVersionRequest {
 }
 
 message ReportVersionRequest {
-    string platform = 1;
+    Platform platform = 1;
     string version = 2;
+    int32 build_number = 3;
+    string device_id = 4;
+    string os_version = 5;
+    string sdk_version = 6;
 }
-
-message ReportVersionResponse {}
 ```
 
 ---
@@ -454,7 +456,7 @@ sequenceDiagram
     participant Redis
     participant DB
 
-    Client->>Gateway: GET /api/v1/versions/check<br/>?platform=android&version=1.2.0
+    Client->>Gateway: GET /api/v1/versions/check<br/>?platform=2&version=1.2.0
     Gateway->>VersionService: gRPC CheckVersion(platform, version)
     
     VersionService->>Redis: 获取最新版本缓存

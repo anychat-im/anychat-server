@@ -429,10 +429,10 @@ filter_subject: msg.*
   "type": "message",
   "localId": "local-abc-123",  // 客户端生成的本地ID
   "data": {
-    "conversationType": "private",
+    "conversationType": 1,
     "conversationId": "conv-user123-user456",
     "receiverId": "user-456",
-    "contentType": "text",
+    "contentType": 1,
     "content": {"text": "你好"}
   }
 }
@@ -443,8 +443,8 @@ filter_subject: msg.*
 message SendMessageRequest {
   string sender_id = 1;
   string conversation_id = 2;
-  string conversation_type = 3;  // private/group
-  string content_type = 4;
+  int32 conversation_type = 3;  // 1-single/2-group
+  int32 content_type = 4;       // 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
   string content = 5;  // JSON string
   repeated string at_users = 6;
   string reply_to = 7;
@@ -501,9 +501,9 @@ CREATE TABLE messages_202602 (
     id BIGSERIAL PRIMARY KEY,
     message_id VARCHAR(64) NOT NULL UNIQUE,
     conversation_id VARCHAR(64) NOT NULL,
-    conversation_type VARCHAR(20) NOT NULL,
+    conversation_type SMALLINT NOT NULL, -- 1-single/2-group
     sender_id VARCHAR(36) NOT NULL,
-    content_type VARCHAR(20) NOT NULL,
+    content_type SMALLINT NOT NULL,      -- 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
     content JSONB NOT NULL,
     sequence BIGINT NOT NULL,
     status SMALLINT DEFAULT 0,  -- 0-正常 1-撤回 2-删除

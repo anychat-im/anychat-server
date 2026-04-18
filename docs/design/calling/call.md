@@ -97,7 +97,7 @@ sequenceDiagram
 message InitiateCallRequest {
     string caller_id = 1;
     string callee_id = 2;
-    string call_type = 3; // audio/video
+    CallType call_type = 3; // 0-audio/1-video
 }
 
 message InitiateCallResponse {

@@ -6,6 +6,7 @@ import (
 
 	filepb "github.com/anychat/server/api/proto/file"
 	"github.com/anychat/server/internal/file/dto"
+	"github.com/anychat/server/internal/file/model"
 	"github.com/anychat/server/internal/file/service"
 	"github.com/anychat/server/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -31,7 +32,7 @@ func (s *FileServer) GenerateUploadToken(ctx context.Context, req *filepb.Genera
 		FileName:     req.FileName,
 		FileSize:     req.FileSize,
 		MimeType:     req.MimeType,
-		FileType:     req.FileType,
+		FileType:     int32(req.FileType),
 		ExpiresHours: req.ExpiresHours,
 	}
 
@@ -100,7 +101,12 @@ func (s *FileServer) DeleteFile(ctx context.Context, req *filepb.DeleteFileReque
 
 // ListUserFiles lists user files
 func (s *FileServer) ListUserFiles(ctx context.Context, req *filepb.ListUserFilesRequest) (*filepb.ListUserFilesResponse, error) {
-	resp, err := s.fileService.ListUserFiles(ctx, req.UserId, req.FileType, int(req.Page), int(req.PageSize))
+	var fileType *model.FileType
+	if req.FileType != nil {
+		v := model.FileType(*req.FileType)
+		fileType = &v
+	}
+	resp, err := s.fileService.ListUserFiles(ctx, req.UserId, fileType, int(req.Page), int(req.PageSize))
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -141,13 +147,13 @@ func toProtoFileInfo(file *dto.FileInfoResponse) *filepb.FileInfo {
 		FileId:        file.FileID,
 		UserId:        file.UserID,
 		FileName:      file.FileName,
-		FileType:      file.FileType,
+		FileType:      filepb.FileType(file.FileType),
 		FileSize:      file.FileSize,
 		MimeType:      file.MimeType,
 		StoragePath:   file.StoragePath,
 		ThumbnailPath: file.ThumbnailPath,
 		BucketName:    file.BucketName,
-		Status:        file.Status,
+		Status:        filepb.FileStatus(file.Status),
 		CreatedAt:     file.CreatedAt,
 	}
 

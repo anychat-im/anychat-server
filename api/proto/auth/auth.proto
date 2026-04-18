@@ -6,6 +6,32 @@ import "common/common.proto";
 
 option go_package = "github.com/anychat/server/api/proto/auth;authpb";
 
+enum DeviceType {
+  DEVICE_TYPE_UNSPECIFIED = 0;
+  DEVICE_TYPE_IOS = 1;
+  DEVICE_TYPE_ANDROID = 2;
+  DEVICE_TYPE_WEB = 3;
+  DEVICE_TYPE_PC = 4;
+  DEVICE_TYPE_H5 = 5;
+}
+
+enum VerificationTargetType {
+  VERIFICATION_TARGET_TYPE_UNSPECIFIED = 0;
+  VERIFICATION_TARGET_TYPE_SMS = 1;
+  VERIFICATION_TARGET_TYPE_EMAIL = 2;
+}
+
+enum VerificationPurpose {
+  VERIFICATION_PURPOSE_UNSPECIFIED = 0;
+  VERIFICATION_PURPOSE_REGISTER = 1;
+  VERIFICATION_PURPOSE_LOGIN = 2;
+  VERIFICATION_PURPOSE_RESET_PASSWORD = 3;
+  VERIFICATION_PURPOSE_BIND_PHONE = 4;
+  VERIFICATION_PURPOSE_CHANGE_PHONE = 5;
+  VERIFICATION_PURPOSE_BIND_EMAIL = 6;
+  VERIFICATION_PURPOSE_CHANGE_EMAIL = 7;
+}
+
 // AuthService 认证服务
 service AuthService {
   // SendVerificationCode 发送验证码
@@ -35,9 +61,9 @@ service AuthService {
 
 // SendVerificationCodeRequest 发送验证码请求
 message SendVerificationCodeRequest {
-  string target = 1;         // 手机号或邮箱
-  string target_type = 2;    // sms/email
-  string purpose = 3;        // register/reset_password/bind_phone/change_phone/bind_email/change_email
+  string target = 1;                        // 手机号或邮箱
+  VerificationTargetType target_type = 2;  // 1-sms 2-email
+  VerificationPurpose purpose = 3;         // 1-register 2-login 3-reset_password 4-bind_phone 5-change_phone 6-bind_email 7-change_email
   string device_id = 4;
   string ip_address = 5;
 }
@@ -55,7 +81,7 @@ message RegisterRequest {
   string password = 3;
   string verify_code = 4;
   optional string nickname = 5;
-  string device_type = 6;  // iOS/Android/Web
+  DeviceType device_type = 6;  // 1-ios 2-android 3-web 4-pc 5-h5
   string device_id = 7;
   string client_version = 8;  // 客户端版本号，用于客户端升级判断
 }
@@ -72,7 +98,7 @@ message RegisterResponse {
 message LoginRequest {
   string account = 1;      // 手机号或邮箱
   string password = 2;
-  string device_type = 3;
+  DeviceType device_type = 3;  // 1-ios 2-android 3-web 4-pc 5-h5
   string device_id = 4;
   string client_version = 5;  // 客户端版本号，用于客户端升级判断
   string ip_address = 6;     // 客户端IP地址
@@ -130,5 +156,5 @@ message ValidateTokenResponse {
   bool valid = 1;
   string user_id = 2;
   string device_id = 3;
-  string device_type = 4;
+  DeviceType device_type = 4;
 }

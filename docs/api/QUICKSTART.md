@@ -91,12 +91,12 @@ chmod +x tests/api/test-all.sh
 curl -X POST http://localhost:8080/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "phoneNumber": "13800138000",
+    "phone_number": "13800138000",
     "password": "Test@123456",
-    "verifyCode": "123456",
+    "verify_code": "123456",
     "nickname": "测试用户",
-    "deviceType": "iOS",
-    "deviceId": "device-001"
+    "device_type": 1,
+    "device_id": "device-001"
   }' | jq
 
 # 2. 登录（复制上面返回的 accessToken）
@@ -105,8 +105,8 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   -d '{
     "account": "13800138000",
     "password": "Test@123456",
-    "deviceType": "iOS",
-    "deviceId": "device-001"
+    "device_type": 1,
+    "device_id": "device-001"
   }' | jq
 
 # 3. 获取个人资料（替换 YOUR_TOKEN）
@@ -114,7 +114,16 @@ curl -X GET http://localhost:8080/api/v1/users/me \
   -H "Authorization: Bearer YOUR_TOKEN" | jq
 ```
 
+HTTP 枚举值（整型）：
+
+- `device_type`: `1=ios` `2=android` `3=web` `4=pc` `5=h5`
+- `target_type`: `1=sms` `2=email`
+- `purpose`: `1=register` `2=login` `3=reset_password` `4=bind_phone` `5=change_phone` `6=bind_email` `7=change_email`
+- `source`: `1=search` `2=qrcode` `3=group` `4=contacts`
+
 **gRPC API 示例：**
+
+> 注意：gRPC 中 `device_type` / `target_type` / `purpose` 使用 proto 枚举名（例如 `DEVICE_TYPE_IOS`）。
 
 ```bash
 # 1. 注册用户
@@ -123,7 +132,7 @@ grpcurl -plaintext -d '{
   "password": "Test@123456",
   "verify_code": "123456",
   "nickname": "测试用户",
-  "device_type": "iOS",
+  "device_type": "DEVICE_TYPE_IOS",
   "device_id": "device-001"
 }' localhost:9003 anychat.auth.AuthService/Register
 
@@ -131,7 +140,7 @@ grpcurl -plaintext -d '{
 grpcurl -plaintext -d '{
   "account": "13800138000",
   "password": "Test@123456",
-  "device_type": "iOS",
+  "device_type": "DEVICE_TYPE_IOS",
   "device_id": "device-001"
 }' localhost:9003 anychat.auth.AuthService/Login
 
@@ -264,12 +273,12 @@ mage build:gateway
 curl -X POST http://localhost:8080/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "phoneNumber": "13812345678",
+    "phone_number": "13812345678",
     "password": "Test@123456",
-    "verifyCode": "123456",
+    "verify_code": "123456",
     "nickname": "张三",
-    "deviceType": "iOS",
-    "deviceId": "iphone-12-pro"
+    "device_type": 1,
+    "device_id": "iphone-12-pro"
   }' > register_response.json
 
 # 2. 提取 Token
@@ -303,8 +312,8 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   -d "{
     \"account\": \"$PHONE\",
     \"password\": \"$PASSWORD\",
-    \"deviceType\": \"iOS\",
-    \"deviceId\": \"iphone-001\"
+    \"device_type\": 1,
+    \"device_id\": \"iphone-001\"
   }" > ios_login.json
 
 # Android 设备登录
@@ -313,8 +322,8 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   -d "{
     \"account\": \"$PHONE\",
     \"password\": \"$PASSWORD\",
-    \"deviceType\": \"Android\",
-    \"deviceId\": \"android-001\"
+    \"device_type\": 2,
+    \"device_id\": \"android-001\"
   }" > android_login.json
 
 # 验证两个 Token 都有效
@@ -322,10 +331,10 @@ IOS_TOKEN=$(cat ios_login.json | jq -r '.data.accessToken')
 ANDROID_TOKEN=$(cat android_login.json | jq -r '.data.accessToken')
 
 curl -H "Authorization: Bearer $IOS_TOKEN" \
-  http://localhost:8080/api/v1/users/me | jq '.data.userId'
+  http://localhost:8080/api/v1/users/me | jq '.data.user_id'
 
 curl -H "Authorization: Bearer $ANDROID_TOKEN" \
-  http://localhost:8080/api/v1/users/me | jq '.data.userId'
+  http://localhost:8080/api/v1/users/me | jq '.data.user_id'
 ```
 
 ## 故障排查

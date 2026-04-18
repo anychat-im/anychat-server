@@ -1,6 +1,41 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/anychat/server/internal/group/model"
+)
+
+type GroupRole = model.GroupRole
+
+const (
+	GroupRoleUnknown = model.GroupRoleUnknown
+	GroupRoleOwner   = model.GroupRoleOwner
+	GroupRoleAdmin   = model.GroupRoleAdmin
+	GroupRoleMember  = model.GroupRoleMember
+)
+
+type JoinRequestStatus = model.JoinRequestStatus
+
+const (
+	JoinRequestStatusUnknown  = model.JoinRequestStatusUnknown
+	JoinRequestStatusPending  = model.JoinRequestStatusPending
+	JoinRequestStatusAccepted = model.JoinRequestStatusAccepted
+	JoinRequestStatusRejected = model.JoinRequestStatusRejected
+)
+
+type PinnedMessageContentType = model.PinnedMessageContentType
+
+const (
+	PinnedMessageContentTypeUnspecified = model.PinnedMessageContentTypeUnspecified
+	PinnedMessageContentTypeText        = model.PinnedMessageContentTypeText
+	PinnedMessageContentTypeImage       = model.PinnedMessageContentTypeImage
+	PinnedMessageContentTypeVideo       = model.PinnedMessageContentTypeVideo
+	PinnedMessageContentTypeAudio       = model.PinnedMessageContentTypeAudio
+	PinnedMessageContentTypeFile        = model.PinnedMessageContentTypeFile
+	PinnedMessageContentTypeLocation    = model.PinnedMessageContentTypeLocation
+	PinnedMessageContentTypeCard        = model.PinnedMessageContentTypeCard
+)
 
 // ========== Request DTOs ==========
 
@@ -26,7 +61,7 @@ type InviteMembersRequest struct {
 
 // UpdateMemberRoleRequest request for updating member role
 type UpdateMemberRoleRequest struct {
-	Role string `json:"role" binding:"required,oneof=admin member" example:"admin"`
+	Role model.GroupRole `json:"role" binding:"required,oneof=2 3" example:"2"`
 }
 
 // UpdateMemberNicknameRequest request for updating group nickname
@@ -76,28 +111,28 @@ type SetGroupMuteRequest struct {
 
 // MuteMemberRequest request for muting a member
 type MuteMemberRequest struct {
-	Type            string `json:"type" binding:"required,oneof=permanent temporary" example:"temporary"`
-	DurationMinutes int32  `json:"duration_minutes,omitempty" example:"60"`
+	Type            int16 `json:"type" binding:"required,oneof=1 2" example:"2"`
+	DurationMinutes int32 `json:"duration_minutes,omitempty" example:"60"`
 }
 
 // ========== Response DTOs ==========
 
 // GroupResponse response for group info
 type GroupResponse struct {
-	GroupID      string    `json:"group_id" example:"group-123"`
-	Name         string    `json:"name" example:"Tech Discussion Group"`
-	DisplayName  string    `json:"display_name" example:"Product Discussion Group"` // Remark takes priority, falls back to Name
-	Avatar       string    `json:"avatar" example:"https://example.com/avatar.jpg"`
-	Announcement string    `json:"announcement" example:"Welcome to join"`
-	Description  string    `json:"description" example:"Group description"`
-	OwnerID      string    `json:"owner_id" example:"user-123"`
-	MemberCount  int32     `json:"member_count" example:"10"`
-	MaxMembers   int32     `json:"max_members" example:"500"`
-	JoinVerify   bool      `json:"join_verify" example:"true"`
-	IsMuted      bool      `json:"is_muted" example:"false"`
-	MyRole       string    `json:"my_role,omitempty" example:"member"`
-	CreatedAt    time.Time `json:"created_at" example:"2024-01-01T00:00:00Z"`
-	UpdatedAt    time.Time `json:"updated_at" example:"2024-01-01T00:00:00Z"`
+	GroupID      string          `json:"group_id" example:"group-123"`
+	Name         string          `json:"name" example:"Tech Discussion Group"`
+	DisplayName  string          `json:"display_name" example:"Product Discussion Group"` // Remark takes priority, falls back to Name
+	Avatar       string          `json:"avatar" example:"https://example.com/avatar.jpg"`
+	Announcement string          `json:"announcement" example:"Welcome to join"`
+	Description  string          `json:"description" example:"Group description"`
+	OwnerID      string          `json:"owner_id" example:"user-123"`
+	MemberCount  int32           `json:"member_count" example:"10"`
+	MaxMembers   int32           `json:"max_members" example:"500"`
+	JoinVerify   bool            `json:"join_verify" example:"true"`
+	IsMuted      bool            `json:"is_muted" example:"false"`
+	MyRole       model.GroupRole `json:"my_role,omitempty" example:"3"`
+	CreatedAt    time.Time       `json:"created_at" example:"2024-01-01T00:00:00Z"`
+	UpdatedAt    time.Time       `json:"updated_at" example:"2024-01-01T00:00:00Z"`
 }
 
 // GroupListResponse response for group list
@@ -109,13 +144,13 @@ type GroupListResponse struct {
 
 // GroupMemberResponse response for group member
 type GroupMemberResponse struct {
-	UserID        string     `json:"user_id" example:"user-123"`
-	GroupNickname *string    `json:"group_nickname,omitempty" example:"Group nickname"`
-	Role          string     `json:"role" example:"member"`
-	IsMuted       bool       `json:"is_muted" example:"false"`
-	MutedUntil    *time.Time `json:"muted_until,omitempty" example:"2024-01-01T01:00:00Z"`
-	JoinedAt      time.Time  `json:"joined_at" example:"2024-01-01T00:00:00Z"`
-	UserInfo      *UserInfo  `json:"user_info,omitempty"`
+	UserID        string          `json:"user_id" example:"user-123"`
+	GroupNickname *string         `json:"group_nickname,omitempty" example:"Group nickname"`
+	Role          model.GroupRole `json:"role" example:"3"`
+	IsMuted       bool            `json:"is_muted" example:"false"`
+	MutedUntil    *time.Time      `json:"muted_until,omitempty" example:"2024-01-01T01:00:00Z"`
+	JoinedAt      time.Time       `json:"joined_at" example:"2024-01-01T00:00:00Z"`
+	UserInfo      *UserInfo       `json:"user_info,omitempty"`
 }
 
 // GroupMemberListResponse response for group member list
@@ -134,14 +169,14 @@ type JoinGroupResponse struct {
 
 // JoinRequestResponse response for join request
 type JoinRequestResponse struct {
-	ID        int64     `json:"id" example:"123"`
-	GroupID   string    `json:"group_id" example:"group-123"`
-	UserID    string    `json:"user_id" example:"user-123"`
-	InviterID *string   `json:"inviter_id,omitempty" example:"user-456"`
-	Message   string    `json:"message" example:"Hello, I would like to join"`
-	Status    string    `json:"status" example:"pending"`
-	CreatedAt time.Time `json:"created_at" example:"2024-01-01T00:00:00Z"`
-	UserInfo  *UserInfo `json:"user_info,omitempty"`
+	ID        int64                   `json:"id" example:"123"`
+	GroupID   string                  `json:"group_id" example:"group-123"`
+	UserID    string                  `json:"user_id" example:"user-123"`
+	InviterID *string                 `json:"inviter_id,omitempty" example:"user-456"`
+	Message   string                  `json:"message" example:"Hello, I would like to join"`
+	Status    model.JoinRequestStatus `json:"status" example:"1"`
+	CreatedAt time.Time               `json:"created_at" example:"2024-01-01T00:00:00Z"`
+	UserInfo  *UserInfo               `json:"user_info,omitempty"`
 }
 
 // JoinRequestListResponse response for join request list
@@ -166,7 +201,7 @@ type PinnedMessageResponse struct {
 	Content     string `json:"content" example:"Message summary"`
 	PinnedBy    string `json:"pinned_by" example:"user-123"`
 	PinnedAt    int64  `json:"pinned_at" example:"1710000000"`
-	ContentType string `json:"content_type,omitempty" example:"text"`
+	ContentType model.PinnedMessageContentType `json:"content_type,omitempty" example:"1"`
 	MessageSeq  *int64 `json:"message_seq,omitempty" example:"8123"`
 }
 

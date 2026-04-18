@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS group_members (
     user_id VARCHAR(36) NOT NULL,
     group_nickname VARCHAR(50),
     group_remark VARCHAR(20),           -- Custom remark name for this group, visible only to the user
-    role VARCHAR(20) DEFAULT 'member',  -- owner/admin/member
+    role SMALLINT NOT NULL DEFAULT 3,  -- 1-owner, 2-admin, 3-member
     muted_until TIMESTAMP,
     joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS group_join_requests (
     user_id VARCHAR(36) NOT NULL,
     inviter_id VARCHAR(36),  -- Inviter ID (NULL means active application)
     message VARCHAR(200),
-    status VARCHAR(20) DEFAULT 'pending',  -- pending/accepted/rejected
+    status SMALLINT NOT NULL DEFAULT 1,  -- 1-pending, 2-accepted, 3-rejected
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS group_pinned_messages (
     message_seq BIGINT,
     pinned_by VARCHAR(36) NOT NULL,
     content TEXT,
-    content_type VARCHAR(32) NOT NULL DEFAULT 'text',
+    content_type SMALLINT NOT NULL DEFAULT 1, -- 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uk_group_pinned_message UNIQUE (group_id, message_id)
@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS group_pinned_messages (
 
 CREATE INDEX idx_group_pinned_messages_group_id ON group_pinned_messages(group_id);
 CREATE INDEX idx_group_pinned_messages_group_updated_at ON group_pinned_messages(group_id, updated_at DESC);
+CREATE INDEX idx_group_pinned_messages_content_type ON group_pinned_messages(content_type);
 
 -- Create group qrcode table
 CREATE TABLE IF NOT EXISTS group_qrcodes (

@@ -5,10 +5,7 @@ definitions:
       avatar:
         example: https://example.com/avatar.jpg
         type: string
-      joinVerify:
-        example: true
-        type: boolean
-      memberIds:
+      member_ids:
         example:
         - user-123
         - user-456
@@ -17,12 +14,12 @@ definitions:
         minItems: 1
         type: array
       name:
-        example: 技术交流群
+        example: Tech Discussion Group
         maxLength: 100
         minLength: 1
         type: string
     required:
-    - memberIds
+    - member_ids
     - name
     type: object
   github_com_anychat_server_internal_group_dto.GroupListResponse:
@@ -34,7 +31,7 @@ definitions:
       total:
         example: 5
         type: integer
-      updateTime:
+      update_time:
         example: 1609459200
         type: integer
     type: object
@@ -53,60 +50,103 @@ definitions:
     type: object
   github_com_anychat_server_internal_group_dto.GroupMemberResponse:
     properties:
-      groupNickname:
-        example: 群内昵称
+      group_nickname:
+        example: Group nickname
         type: string
-      isMuted:
+      is_muted:
         example: false
         type: boolean
-      joinedAt:
+      joined_at:
         example: "2024-01-01T00:00:00Z"
         type: string
-      role:
-        example: member
+      muted_until:
+        example: "2024-01-01T01:00:00Z"
         type: string
-      userId:
+      role:
+        allOf:
+        - $ref: '#/definitions/github_com_anychat_server_internal_group_model.GroupRole'
+        example: 3
+      user_id:
         example: user-123
         type: string
-      userInfo:
+      user_info:
         $ref: '#/definitions/github_com_anychat_server_internal_group_dto.UserInfo'
+    type: object
+  github_com_anychat_server_internal_group_dto.GroupQRCodePreviewResponse:
+    properties:
+      avatar:
+        example: https://example.com/group.png
+        type: string
+      group_id:
+        example: group-123
+        type: string
+      member_count:
+        example: 42
+        type: integer
+      name:
+        example: Product Team
+        type: string
+      need_verify:
+        example: true
+        type: boolean
+    type: object
+  github_com_anychat_server_internal_group_dto.GroupQRCodeResponse:
+    properties:
+      deep_link:
+        example: anychat://join/group?token=550e8400-e29b-41d4-a716-446655440000
+        type: string
+      expire_at:
+        description: Unix timestamp in seconds
+        example: 1754006400
+        type: integer
+      token:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
     type: object
   github_com_anychat_server_internal_group_dto.GroupResponse:
     properties:
       announcement:
-        example: 欢迎加入
+        example: Welcome to join
         type: string
       avatar:
         example: https://example.com/avatar.jpg
         type: string
-      createdAt:
+      created_at:
         example: "2024-01-01T00:00:00Z"
         type: string
-      groupId:
+      description:
+        example: Group description
+        type: string
+      display_name:
+        description: Remark takes priority, falls back to Name
+        example: Product Discussion Group
+        type: string
+      group_id:
         example: group-123
         type: string
-      isMuted:
+      is_muted:
         example: false
         type: boolean
-      joinVerify:
+      join_verify:
         example: true
         type: boolean
-      maxMembers:
+      max_members:
         example: 500
         type: integer
-      memberCount:
+      member_count:
         example: 10
         type: integer
-      myRole:
-        example: member
-        type: string
+      my_role:
+        allOf:
+        - $ref: '#/definitions/github_com_anychat_server_internal_group_model.GroupRole'
+        example: 3
       name:
-        example: 技术交流群
+        example: Tech Discussion Group
         type: string
-      ownerId:
+      owner_id:
         example: user-123
         type: string
-      updatedAt:
+      updated_at:
         example: "2024-01-01T00:00:00Z"
         type: string
     type: object
@@ -118,7 +158,7 @@ definitions:
     type: object
   github_com_anychat_server_internal_group_dto.InviteMembersRequest:
     properties:
-      userIds:
+      user_ids:
         example:
         - user-123
         - user-456
@@ -127,24 +167,41 @@ definitions:
         minItems: 1
         type: array
     required:
-    - userIds
+    - user_ids
+    type: object
+  github_com_anychat_server_internal_group_dto.JoinGroupByQRCodeResponse:
+    properties:
+      group_id:
+        example: group-123
+        type: string
+      joined:
+        description: true=direct join, false=request submitted
+        example: true
+        type: boolean
+      need_verify:
+        description: whether approval is needed
+        example: false
+        type: boolean
+      request_id:
+        example: 123
+        type: integer
     type: object
   github_com_anychat_server_internal_group_dto.JoinGroupRequest:
     properties:
       message:
-        example: 你好，我想加入群组
+        example: Hello, I would like to join the group
         maxLength: 200
         type: string
     type: object
   github_com_anychat_server_internal_group_dto.JoinGroupResponse:
     properties:
       message:
-        example: 申请已提交，等待审核
+        example: Request submitted, waiting for approval
         type: string
-      needVerify:
+      need_verify:
         example: true
         type: boolean
-      requestId:
+      request_id:
         example: 123
         type: integer
     type: object
@@ -160,52 +217,54 @@ definitions:
     type: object
   github_com_anychat_server_internal_group_dto.JoinRequestResponse:
     properties:
-      createdAt:
+      created_at:
         example: "2024-01-01T00:00:00Z"
         type: string
-      groupId:
+      group_id:
         example: group-123
         type: string
       id:
         example: 123
         type: integer
-      inviterId:
+      inviter_id:
         example: user-456
         type: string
       message:
-        example: 你好，我想加入
+        example: Hello, I would like to join
         type: string
       status:
-        example: pending
-        type: string
-      userId:
+        allOf:
+        - $ref: '#/definitions/github_com_anychat_server_internal_group_model.JoinRequestStatus'
+        example: 1
+      user_id:
         example: user-123
         type: string
-      userInfo:
+      user_info:
         $ref: '#/definitions/github_com_anychat_server_internal_group_dto.UserInfo'
     type: object
   github_com_anychat_server_internal_group_dto.TransferOwnershipRequest:
     properties:
-      newOwnerId:
+      new_owner_id:
         example: user-456
         type: string
     required:
-    - newOwnerId
+    - new_owner_id
     type: object
   github_com_anychat_server_internal_group_dto.UpdateGroupRequest:
     properties:
       announcement:
-        example: 群公告内容
+        example: Group announcement content
         maxLength: 1000
         type: string
       avatar:
         example: https://example.com/new-avatar.jpg
         type: string
-      joinVerify:
-        example: false
-        type: boolean
+      description:
+        example: Group description content
+        maxLength: 1000
+        type: string
       name:
-        example: 新群名称
+        example: New group name
         maxLength: 100
         minLength: 1
         type: string
@@ -213,20 +272,29 @@ definitions:
   github_com_anychat_server_internal_group_dto.UpdateMemberNicknameRequest:
     properties:
       nickname:
-        example: 群内昵称
+        example: Group nickname
         maxLength: 50
         type: string
     required:
     - nickname
     type: object
+  github_com_anychat_server_internal_group_dto.UpdateMemberRemarkRequest:
+    properties:
+      remark:
+        description: Empty string clears remark
+        example: Product Discussion Group
+        maxLength: 20
+        type: string
+    type: object
   github_com_anychat_server_internal_group_dto.UpdateMemberRoleRequest:
     properties:
       role:
+        allOf:
+        - $ref: '#/definitions/github_com_anychat_server_internal_group_model.GroupRole'
         enum:
-        - admin
-        - member
-        example: admin
-        type: string
+        - 2
+        - 3
+        example: 2
     required:
     - role
     type: object
@@ -236,18 +304,44 @@ definitions:
         example: https://example.com/avatar.jpg
         type: string
       bio:
-        example: 个性签名
+        example: Personal signature
         type: string
       gender:
         example: 1
         type: integer
       nickname:
-        example: 张三
+        example: Zhang San
         type: string
-      userId:
+      user_id:
         example: user-123
         type: string
     type: object
+  github_com_anychat_server_internal_group_model.GroupRole:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    format: int32
+    type: integer
+    x-enum-varnames:
+    - GroupRoleUnknown
+    - GroupRoleOwner
+    - GroupRoleAdmin
+    - GroupRoleMember
+  github_com_anychat_server_internal_group_model.JoinRequestStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    format: int32
+    type: integer
+    x-enum-varnames:
+    - JoinRequestStatusUnknown
+    - JoinRequestStatusPending
+    - JoinRequestStatusAccepted
+    - JoinRequestStatusRejected
   github_com_anychat_server_pkg_response.Response:
     properties:
       code:
@@ -266,7 +360,7 @@ definitions:
       password:
         type: string
       role:
-        type: string
+        type: integer
       username:
         type: string
     required:
@@ -299,92 +393,164 @@ definitions:
     type: object
   internal_gateway_handler.AuthResponse:
     properties:
-      accessToken:
+      access_token:
         example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         type: string
-      expiresIn:
+      expires_in:
         example: 7200
         type: integer
-      refreshToken:
+      refresh_token:
         example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         type: string
       user:
         $ref: '#/definitions/internal_gateway_handler.UserInfo'
-      userId:
+      user_id:
         example: user-123
         type: string
     type: object
+  internal_gateway_handler.BindEmailRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      verify_code:
+        example: "123456"
+        type: string
+    required:
+    - email
+    - verify_code
+    type: object
+  internal_gateway_handler.BindPhoneRequest:
+    properties:
+      phone_number:
+        example: "13800138000"
+        type: string
+      verify_code:
+        example: "123456"
+        type: string
+    required:
+    - phone_number
+    - verify_code
+    type: object
+  internal_gateway_handler.ChangeEmailRequest:
+    properties:
+      new_email:
+        example: new@example.com
+        type: string
+      new_verify_code:
+        example: "123456"
+        type: string
+      old_email:
+        example: old@example.com
+        type: string
+      old_verify_code:
+        example: "123456"
+        type: string
+    required:
+    - new_email
+    - new_verify_code
+    - old_email
+    type: object
   internal_gateway_handler.ChangePasswordRequest:
     properties:
-      newPassword:
+      device_id:
+        example: device-uuid-123
+        type: string
+      new_password:
         example: newpass123
         type: string
-      oldPassword:
+      old_password:
         example: oldpass123
         type: string
     required:
-    - newPassword
-    - oldPassword
+    - device_id
+    - new_password
+    - old_password
+    type: object
+  internal_gateway_handler.ChangePhoneRequest:
+    properties:
+      new_phone_number:
+        example: "13900139000"
+        type: string
+      new_verify_code:
+        example: "123456"
+        type: string
+      old_phone_number:
+        example: "13800138000"
+        type: string
+      old_verify_code:
+        example: "123456"
+        type: string
+    required:
+    - new_phone_number
+    - new_verify_code
+    - old_phone_number
     type: object
   internal_gateway_handler.LoginRequest:
     properties:
       account:
         example: "13800138000"
         type: string
-      clientVersion:
+      client_version:
         example: 1.0.0
         type: string
-      deviceId:
+      device_id:
         example: device-uuid-123
         type: string
-      deviceType:
+      device_type:
         enum:
-        - ios
-        - android
-        - web
-        example: ios
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        example: 1
+        type: integer
+      ip_address:
         type: string
       password:
         example: password123
         type: string
     required:
     - account
-    - clientVersion
-    - deviceId
-    - deviceType
+    - client_version
+    - device_id
+    - device_type
     - password
     type: object
   internal_gateway_handler.LogoutRequest:
     properties:
-      deviceId:
+      device_id:
         example: device-uuid-123
         type: string
     required:
-    - deviceId
+    - device_id
     type: object
   internal_gateway_handler.RefreshTokenRequest:
     properties:
-      refreshToken:
+      refresh_token:
         example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         type: string
     required:
-    - refreshToken
+    - refresh_token
     type: object
   internal_gateway_handler.RegisterRequest:
     properties:
-      clientVersion:
+      client_version:
         example: 1.0.0
         type: string
-      deviceId:
+      device_id:
         example: device-uuid-123
         type: string
-      deviceType:
+      device_type:
         enum:
-        - ios
-        - android
-        - web
-        example: ios
-        type: string
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        example: 1
+        type: integer
       email:
         example: user@example.com
         type: string
@@ -394,47 +560,71 @@ definitions:
       password:
         example: password123
         type: string
-      phoneNumber:
+      phone_number:
         example: "13800138000"
         type: string
-      verifyCode:
+      verify_code:
         example: "123456"
         type: string
     required:
-    - clientVersion
-    - deviceId
-    - deviceType
+    - client_version
+    - device_id
+    - device_type
     - password
-    - verifyCode
+    - verify_code
+    type: object
+  internal_gateway_handler.ResetPasswordRequest:
+    properties:
+      account:
+        example: "13800138000"
+        type: string
+      new_password:
+        example: NewPass123
+        type: string
+      verify_code:
+        example: "123456"
+        type: string
+    required:
+    - account
+    - new_password
+    - verify_code
     type: object
   internal_gateway_handler.SendCodeRequest:
     properties:
-      deviceId:
+      device_id:
         example: device-uuid-123
         type: string
       purpose:
-        example: register
-        type: string
+        enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        example: 1
+        type: integer
       target:
         example: "13800138000"
         type: string
-      targetType:
+      target_type:
         enum:
-        - sms
-        - email
-        example: sms
-        type: string
+        - 1
+        - 2
+        example: 1
+        type: integer
     required:
     - purpose
     - target
-    - targetType
+    - target_type
     type: object
   internal_gateway_handler.SendCodeResponse:
     properties:
-      codeId:
+      code_id:
         example: vc_20260405_xxx
         type: string
-      expiresIn:
+      expires_in:
         example: 300
         type: integer
     type: object
@@ -465,47 +655,47 @@ definitions:
     type: object
   internal_gateway_handler.UpdatePushTokenRequest:
     properties:
-      deviceId:
+      device_id:
         example: device-uuid-123
         type: string
       platform:
         enum:
-        - ios
-        - android
-        example: ios
-        type: string
-      pushToken:
+        - 1
+        - 2
+        example: 1
+        type: integer
+      push_token:
         example: push-token-xxx
         type: string
     required:
-    - deviceId
+    - device_id
     - platform
-    - pushToken
+    - push_token
     type: object
   internal_gateway_handler.UpdateSettingsRequest:
     properties:
-      friendVerifyRequired:
+      friend_verify_required:
         example: true
         type: boolean
       language:
         example: zh-CN
         type: string
-      messagePreviewEnabled:
+      message_preview_enabled:
         example: true
         type: boolean
-      notificationEnabled:
+      notification_enabled:
         example: true
         type: boolean
-      searchById:
+      search_by_id:
         example: true
         type: boolean
-      searchByPhone:
+      search_by_phone:
         example: true
         type: boolean
-      soundEnabled:
+      sound_enabled:
         example: true
         type: boolean
-      vibrationEnabled:
+      vibration_enabled:
         example: true
         type: boolean
     type: object
@@ -523,7 +713,7 @@ definitions:
       phone:
         example: "13800138000"
         type: string
-      userId:
+      user_id:
         example: user-123
         type: string
     type: object
@@ -535,7 +725,7 @@ definitions:
       birthday:
         example: "1990-01-01T00:00:00Z"
         type: string
-      createdAt:
+      created_at:
         example: "2024-01-01T00:00:00Z"
         type: string
       email:
@@ -550,7 +740,7 @@ definitions:
       phone:
         example: "13800138000"
         type: string
-      qrcodeUrl:
+      qrcode_url:
         example: https://example.com/qrcode.png
         type: string
       region:
@@ -559,7 +749,7 @@ definitions:
       signature:
         example: 这是我的个性签名
         type: string
-      userId:
+      user_id:
         example: user-123
         type: string
     type: object
@@ -574,7 +764,7 @@ definitions:
       signature:
         example: 这是我的个性签名
         type: string
-      userId:
+      user_id:
         example: user-123
         type: string
     type: object
@@ -590,46 +780,56 @@ definitions:
     type: object
   internal_gateway_handler.UserSettings:
     properties:
-      friendVerifyRequired:
+      friend_verify_required:
         example: true
         type: boolean
       language:
         example: zh-CN
         type: string
-      messagePreviewEnabled:
+      message_preview_enabled:
         example: true
         type: boolean
-      notificationEnabled:
+      notification_enabled:
         example: true
         type: boolean
-      searchById:
+      search_by_id:
         example: true
         type: boolean
-      searchByPhone:
+      search_by_phone:
         example: true
         type: boolean
-      soundEnabled:
+      sound_enabled:
         example: true
         type: boolean
-      userId:
+      user_id:
         example: user-123
         type: string
-      vibrationEnabled:
+      vibration_enabled:
         example: true
         type: boolean
     type: object
+  internal_gateway_handler.ackReadTriggersRequest:
+    properties:
+      events:
+        items:
+          $ref: '#/definitions/internal_gateway_handler.readTriggerEvent'
+        minItems: 1
+        type: array
+    required:
+    - events
+    type: object
   internal_gateway_handler.conversationSeqItem:
     properties:
-      conversationId:
+      conversation_id:
         type: string
-      conversationType:
-        type: string
-      lastSeq:
+      conversation_type:
+        type: integer
+      last_seq:
         type: integer
     type: object
   internal_gateway_handler.createMeetingRequest:
     properties:
-      maxParticipants:
+      max_participants:
         type: integer
       password:
         type: string
@@ -640,18 +840,92 @@ definitions:
     type: object
   internal_gateway_handler.initiateCallRequest:
     properties:
-      callType:
-        description: audio/video（默认 audio）
-        type: string
-      calleeId:
+      call_type:
+        description: '0-audio/1-video (default: 0)'
+        type: integer
+      callee_id:
         type: string
     required:
-    - calleeId
+    - callee_id
     type: object
   internal_gateway_handler.joinMeetingRequest:
     properties:
       password:
         type: string
+    type: object
+  internal_gateway_handler.markMessagesReadRequest:
+    properties:
+      client_read_at:
+        type: integer
+      idempotency_key:
+        type: string
+      message_ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - message_ids
+    type: object
+  internal_gateway_handler.readTriggerEvent:
+    properties:
+      client_at:
+        type: integer
+      idempotency_key:
+        type: string
+      message_id:
+        type: string
+    required:
+    - message_id
+    type: object
+  internal_gateway_handler.recallMessageRequest:
+    properties:
+      message_id:
+        type: string
+    required:
+    - message_id
+    type: object
+  internal_gateway_handler.sendMessageRequest:
+    properties:
+      at_users:
+        items:
+          type: string
+        type: array
+      content:
+        type: string
+      content_type:
+        enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        type: integer
+      conversation_id:
+        type: string
+      local_id:
+        type: string
+      reply_to:
+        type: string
+    required:
+    - content
+    - content_type
+    - conversation_id
+    - local_id
+    type: object
+  internal_gateway_handler.setAutoDeleteRequest:
+    properties:
+      duration:
+        description: seconds, 0 means cancel
+        type: integer
+    type: object
+  internal_gateway_handler.setBurnAfterReadingRequest:
+    properties:
+      duration:
+        description: seconds, 0 means cancel
+        type: integer
     type: object
   internal_gateway_handler.setMutedRequest:
     properties:
@@ -665,20 +939,20 @@ definitions:
     type: object
   internal_gateway_handler.syncMessagesRequest:
     properties:
-      conversationSeqs:
+      conversation_seqs:
         items:
           $ref: '#/definitions/internal_gateway_handler.conversationSeqItem'
         type: array
-      limitPerConversation:
+      limit_per_conversation:
         type: integer
     type: object
   internal_gateway_handler.syncRequest:
     properties:
-      conversationSeqs:
+      conversation_seqs:
         items:
           $ref: '#/definitions/internal_gateway_handler.conversationSeqItem'
         type: array
-      lastSyncTime:
+      last_sync_time:
         type: integer
     type: object
 host: localhost:8080
@@ -688,8 +962,8 @@ info:
     name: AnyChat API Support
     url: https://github.com/yzhgit/anychat-server
   description: |-
-    AnyChat 即时通讯系统的网关 API 服务，提供用户认证、用户管理等功能的 HTTP 接口。
-    所有需要认证的接口都需要在 Header 中携带 Authorization: Bearer <token>
+    AnyChat instant messaging system gateway API service, providing HTTP interfaces for user authentication, user management, and other functions.
+    All endpoints requiring authentication must include Authorization: Bearer <token> in the Header.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -702,7 +976,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -712,14 +986,14 @@ paths:
               type: object
       security:
       - BearerAuth: []
-      summary: 管理员列表
+      summary: admin list
       tags:
-      - 管理后台-管理员管理
+      - admin-admin-management
     post:
       consumes:
       - application/json
       parameters:
-      - description: 管理员信息
+      - description: admin info
         in: body
         name: request
         required: true
@@ -729,25 +1003,25 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 创建管理员
+      summary: create admin
       tags:
-      - 管理后台-管理员管理
+      - admin-admin-management
   /admin/admins/{adminId}/status:
     put:
       consumes:
       - application/json
       parameters:
-      - description: 管理员ID
+      - description: admin ID
         in: path
         name: adminId
         required: true
         type: string
-      - description: 状态
+      - description: status
         in: body
         name: request
         required: true
@@ -757,30 +1031,30 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 更新管理员状态
+      summary: update admin status
       tags:
-      - 管理后台-管理员管理
+      - admin-admin-management
   /admin/audit-logs:
     get:
       parameters:
-      - description: 管理员ID筛选
+      - description: admin ID filter
         in: query
         name: adminId
         type: string
-      - description: 操作类型筛选
+      - description: action filter
         in: query
         name: action
         type: string
-      - description: 页码
+      - description: page number
         in: query
         name: page
         type: integer
-      - description: 每页数量
+      - description: page size
         in: query
         name: pageSize
         type: integer
@@ -788,7 +1062,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -798,16 +1072,16 @@ paths:
               type: object
       security:
       - BearerAuth: []
-      summary: 查询审计日志
+      summary: query audit logs
       tags:
-      - 管理后台-审计日志
+      - admin-audit-logs
   /admin/auth/login:
     post:
       consumes:
       - application/json
-      description: 管理员通过用户名密码登录，返回访问Token
+      description: admin login with username and password, returns access token
       parameters:
-      - description: 登录信息
+      - description: login info
         in: body
         name: request
         required: true
@@ -817,7 +1091,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 登录成功
+          description: login success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -826,41 +1100,41 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 账号或密码错误
+          description: invalid username or password
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-      summary: 管理员登录
+      summary: admin login
       tags:
-      - 管理后台-认证
+      - admin-auth
   /admin/auth/logout:
     post:
       produces:
       - application/json
       responses:
         "200":
-          description: 退出成功
+          description: logout success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 管理员退出
+      summary: admin logout
       tags:
-      - 管理后台-认证
+      - admin-auth
   /admin/config:
     get:
       produces:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -870,20 +1144,20 @@ paths:
               type: object
       security:
       - BearerAuth: []
-      summary: 获取系统配置
+      summary: get system config
       tags:
-      - 管理后台-系统配置
+      - admin-system-config
   /admin/config/{key}:
     put:
       consumes:
       - application/json
       parameters:
-      - description: 配置键
+      - description: config key
         in: path
         name: key
         required: true
         type: string
-      - description: 配置值
+      - description: config value
         in: body
         name: request
         required: true
@@ -893,18 +1167,18 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 更新系统配置
+      summary: update system config
       tags:
-      - 管理后台-系统配置
+      - admin-system-config
   /admin/groups/{groupId}:
     delete:
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: groupId
         required: true
@@ -913,17 +1187,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 解散群组
+      summary: dissolve group
       tags:
-      - 管理后台-群组管理
+      - admin-group-management
     get:
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: groupId
         required: true
@@ -932,7 +1206,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -942,16 +1216,16 @@ paths:
               type: object
       security:
       - BearerAuth: []
-      summary: 获取群组详情
+      summary: get group details
       tags:
-      - 管理后台-群组管理
+      - admin-group-management
   /admin/stats/overview:
     get:
       produces:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -961,22 +1235,22 @@ paths:
               type: object
       security:
       - BearerAuth: []
-      summary: 系统统计概览
+      summary: system statistics overview
       tags:
-      - 管理后台-统计
+      - admin-statistics
   /admin/users:
     get:
-      description: 管理员搜索/列举系统用户
+      description: admin search/list system users
       parameters:
-      - description: 搜索关键字
+      - description: search keyword
         in: query
         name: keyword
         type: string
-      - description: 页码
+      - description: page number
         in: query
         name: page
         type: integer
-      - description: 每页数量
+      - description: page size
         in: query
         name: pageSize
         type: integer
@@ -984,7 +1258,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -994,13 +1268,13 @@ paths:
               type: object
       security:
       - BearerAuth: []
-      summary: 查询用户列表
+      summary: query user list
       tags:
-      - 管理后台-用户管理
+      - admin-user-management
   /admin/users/{userId}:
     get:
       parameters:
-      - description: 用户ID
+      - description: user ID
         in: path
         name: userId
         required: true
@@ -1009,7 +1283,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1019,20 +1293,20 @@ paths:
               type: object
       security:
       - BearerAuth: []
-      summary: 获取用户详情
+      summary: get user details
       tags:
-      - 管理后台-用户管理
+      - admin-user-management
   /admin/users/{userId}/ban:
     post:
       consumes:
       - application/json
       parameters:
-      - description: 用户ID
+      - description: user ID
         in: path
         name: userId
         required: true
         type: string
-      - description: 封禁原因
+      - description: ban reason
         in: body
         name: request
         schema:
@@ -1041,18 +1315,18 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 封禁用户
+      summary: ban user
       tags:
-      - 管理后台-用户管理
+      - admin-user-management
   /admin/users/{userId}/unban:
     post:
       parameters:
-      - description: 用户ID
+      - description: user ID
         in: path
         name: userId
         required: true
@@ -1061,21 +1335,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 解封用户
+      summary: unban user
       tags:
-      - 管理后台-用户管理
+      - admin-user-management
   /auth/login:
     post:
       consumes:
       - application/json
-      description: 用户通过账号密码登录
+      description: User login via account and password
       parameters:
-      - description: 登录信息
+      - description: login info
         in: body
         name: request
         required: true
@@ -1085,7 +1359,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 登录成功
+          description: login success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1094,27 +1368,27 @@ paths:
                   $ref: '#/definitions/internal_gateway_handler.AuthResponse'
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 账号或密码错误
+          description: incorrect account or password
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-      summary: 用户登录
+      summary: user login
       tags:
-      - 认证
+      - auth
   /auth/logout:
     post:
       consumes:
       - application/json
-      description: 用户登出，使当前设备的令牌失效
+      description: User logout, invalidate token for current device
       parameters:
-      - description: 登出信息
+      - description: logout info
         in: body
         name: request
         required: true
@@ -1124,33 +1398,33 @@ paths:
       - application/json
       responses:
         "200":
-          description: 登出成功
+          description: logout success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 用户登出
+      summary: user logout
       tags:
-      - 认证
+      - auth
   /auth/password/change:
     post:
       consumes:
       - application/json
-      description: 用户修改登录密码
+      description: User changes login password
       parameters:
-      - description: 修改密码信息
+      - description: change password info
         in: body
         name: request
         required: true
@@ -1160,33 +1434,67 @@ paths:
       - application/json
       responses:
         "200":
-          description: 修改成功
+          description: change success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权或原密码错误
+          description: unauthorized or wrong original password
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 修改密码
+      summary: change password
       tags:
-      - 认证
+      - auth
+  /auth/password/reset:
+    post:
+      consumes:
+      - application/json
+      description: User forgets password, reset via verification code
+      parameters:
+      - description: reset password info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: reset success
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: verification code error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      summary: reset password
+      tags:
+      - auth
   /auth/refresh:
     post:
       consumes:
       - application/json
-      description: 使用刷新令牌获取新的访问令牌
+      description: Use refresh token to get new access token
       parameters:
-      - description: 刷新令牌
+      - description: refresh token
         in: body
         name: request
         required: true
@@ -1196,7 +1504,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 刷新成功
+          description: refresh success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1205,27 +1513,27 @@ paths:
                   $ref: '#/definitions/internal_gateway_handler.AuthResponse'
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 刷新令牌无效
+          description: invalid refresh token
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-      summary: 刷新访问令牌
+      summary: refresh access token
       tags:
-      - 认证
+      - auth
   /auth/register:
     post:
       consumes:
       - application/json
-      description: 用户通过手机号或邮箱注册新账号
+      description: User registers new account via phone or email
       parameters:
-      - description: 注册信息
+      - description: registration info
         in: body
         name: request
         required: true
@@ -1235,7 +1543,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 注册成功
+          description: registration success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1244,27 +1552,28 @@ paths:
                   $ref: '#/definitions/internal_gateway_handler.AuthResponse'
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "409":
-          description: 用户已存在
+          description: user already exists
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-      summary: 用户注册
+      summary: user registration
       tags:
-      - 认证
+      - auth
   /auth/send-code:
     post:
       consumes:
       - application/json
-      description: 发送注册、找回密码或绑定场景使用的短信/邮箱验证码
+      description: Send SMS/email verification code for registration, password recovery
+        or binding scenarios
       parameters:
-      - description: 验证码请求
+      - description: verification code request
         in: body
         name: request
         required: true
@@ -1274,7 +1583,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 发送成功
+          description: send success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1283,31 +1592,31 @@ paths:
                   $ref: '#/definitions/internal_gateway_handler.SendCodeResponse'
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "429":
-          description: 请求过于频繁
+          description: too many requests
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-      summary: 发送验证码
+      summary: send verification code
       tags:
-      - 认证
+      - auth
   /calling/calls:
     get:
       consumes:
       - application/json
-      description: 获取当前用户的通话历史记录
+      description: Get current user's call history
       parameters:
-      - description: 页码（默认1）
+      - description: page number (default 1)
         in: query
         name: page
         type: integer
-      - description: 每页数量（默认20）
+      - description: page size (default 20)
         in: query
         name: pageSize
         type: integer
@@ -1315,7 +1624,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1324,24 +1633,25 @@ paths:
                   type: object
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 通话记录
+      summary: call logs
       tags:
       - Calling
     post:
       consumes:
       - application/json
-      description: 向指定用户发起音视频通话，返回 Calling Room 名称和 JWT Token
+      description: Initiate audio/video call to specified user, returns Calling Room
+        name and JWT Token
       parameters:
-      - description: 通话请求
+      - description: call request
         in: body
         name: request
         required: true
@@ -1351,7 +1661,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 通话发起成功
+          description: call initiated successfully
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1360,29 +1670,29 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 发起通话
+      summary: initiate call
       tags:
       - Calling
   /calling/calls/{callId}:
     get:
       consumes:
       - application/json
-      description: 获取指定通话会话的详细信息
+      description: Get detailed info of specified call session
       parameters:
-      - description: 通话ID
+      - description: call ID
         in: path
         name: callId
         required: true
@@ -1391,7 +1701,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1400,29 +1710,29 @@ paths:
                   type: object
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 通话不存在
+          description: call not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取通话详情
+      summary: get call details
       tags:
       - Calling
   /calling/calls/{callId}/end:
     post:
       consumes:
       - application/json
-      description: 主叫方或被叫方挂断通话
+      description: Caller or callee ends the call
       parameters:
-      - description: 通话ID
+      - description: call ID
         in: path
         name: callId
         required: true
@@ -1431,33 +1741,34 @@ paths:
       - application/json
       responses:
         "200":
-          description: 挂断成功
+          description: end success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 通话不存在
+          description: call not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 挂断通话
+      summary: end call
       tags:
       - Calling
   /calling/calls/{callId}/join:
     post:
       consumes:
       - application/json
-      description: 被叫方接受通话邀请，返回 Calling Room 名称和 JWT Token
+      description: Callee accepts call invitation, returns Calling Room name and JWT
+        Token
       parameters:
-      - description: 通话ID
+      - description: call ID
         in: path
         name: callId
         required: true
@@ -1466,7 +1777,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 接听成功
+          description: answer success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1475,33 +1786,33 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 通话不存在
+          description: call not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 接听通话
+      summary: answer call
       tags:
       - Calling
   /calling/calls/{callId}/reject:
     post:
       consumes:
       - application/json
-      description: 被叫方拒绝通话邀请
+      description: Callee rejects call invitation
       parameters:
-      - description: 通话ID
+      - description: call ID
         in: path
         name: callId
         required: true
@@ -1510,37 +1821,37 @@ paths:
       - application/json
       responses:
         "200":
-          description: 拒绝成功
+          description: reject success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 通话不存在
+          description: call not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 拒绝通话
+      summary: reject call
       tags:
       - Calling
   /calling/meetings:
     get:
       consumes:
       - application/json
-      description: 获取当前活跃的会议室列表
+      description: Get list of currently active meeting rooms
       parameters:
-      - description: 页码（默认1）
+      - description: page number (default 1)
         in: query
         name: page
         type: integer
-      - description: 每页数量（默认20）
+      - description: page size (default 20)
         in: query
         name: pageSize
         type: integer
@@ -1548,7 +1859,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1557,24 +1868,25 @@ paths:
                   type: object
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 会议室列表
+      summary: meeting room list
       tags:
       - Calling
     post:
       consumes:
       - application/json
-      description: 创建新的音视频会议室，返回会议信息和 Calling Token
+      description: Create new audio/video meeting room, returns meeting info and Calling
+        Token
       parameters:
-      - description: 会议室信息
+      - description: meeting room info
         in: body
         name: request
         required: true
@@ -1584,7 +1896,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 创建成功
+          description: create success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1593,29 +1905,29 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 创建会议室
+      summary: create meeting room
       tags:
       - Calling
   /calling/meetings/{roomId}:
     get:
       consumes:
       - application/json
-      description: 获取指定会议室的详细信息
+      description: Get detailed info of specified meeting room
       parameters:
-      - description: 会议室ID
+      - description: meeting room ID
         in: path
         name: roomId
         required: true
@@ -1624,7 +1936,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1633,29 +1945,30 @@ paths:
                   type: object
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 会议室不存在
+          description: meeting room not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取会议室
+      summary: get meeting room
       tags:
       - Calling
   /calling/meetings/{roomId}/end:
     post:
       consumes:
       - application/json
-      description: 创建者结束会议室，会议室关闭后所有参与者将被移出
+      description: Creator ends meeting room, all participants will be removed after
+        room closes
       parameters:
-      - description: 会议室ID
+      - description: meeting room ID
         in: path
         name: roomId
         required: true
@@ -1664,42 +1977,42 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 无权限
+          description: no permission
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 会议室不存在
+          description: meeting room not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 结束会议室
+      summary: end meeting room
       tags:
       - Calling
   /calling/meetings/{roomId}/join:
     post:
       consumes:
       - application/json
-      description: 加入指定会议室，返回 Calling Token
+      description: Join specified meeting room, returns Calling Token
       parameters:
-      - description: 会议室ID
+      - description: meeting room ID
         in: path
         name: roomId
         required: true
         type: string
-      - description: 会议室密码（若有）
+      - description: meeting room password (if any)
         in: body
         name: request
         schema:
@@ -1708,7 +2021,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 加入成功
+          description: join success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1717,47 +2030,775 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 密码错误
+          description: wrong password
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 会议室不存在
+          description: meeting room not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 加入会议室
+      summary: join meeting room
       tags:
       - Calling
+  /conversations:
+    get:
+      consumes:
+      - application/json
+      description: Get current user's conversation list, supports incremental sync
+        (via updatedBefore parameter)
+      parameters:
+      - description: return count (default 20, max 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Unix timestamp, only return conversations updated before this
+          time (incremental sync)
+        format: int64
+        in: query
+        name: updatedBefore
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: get conversation list
+      tags:
+      - conversation
+  /conversations/{conversationId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete specified conversation (doesn't affect messages, only removes
+        from conversation list)
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: delete conversation
+      tags:
+      - conversation
+    get:
+      consumes:
+      - application/json
+      description: Get details of specified conversation
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "404":
+          description: conversation not found
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: get single conversation
+      tags:
+      - conversation
+  /conversations/{conversationId}/auto_delete:
+    put:
+      consumes:
+      - application/json
+      description: Set conversation auto delete duration, 0 means cancel
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      - description: auto delete duration (seconds)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.setAutoDeleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: set auto delete
+      tags:
+      - conversation
+  /conversations/{conversationId}/burn:
+    put:
+      consumes:
+      - application/json
+      description: Set conversation burn after reading duration, 0 means cancel
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      - description: burn after reading duration (seconds)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.setBurnAfterReadingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: set burn after reading
+      tags:
+      - conversation
+  /conversations/{conversationId}/messages/after:
+    get:
+      consumes:
+      - application/json
+      description: Query messages after an anchor_message_id in a conversation
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      - description: anchor message ID
+        in: query
+        name: anchor_message_id
+        required: true
+        type: string
+      - description: limit (default 20, max 100)
+        format: int32
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: get messages after anchor
+      tags:
+      - message
+  /conversations/{conversationId}/messages/around-anchor:
+    get:
+      consumes:
+      - application/json
+      description: Query messages before and after anchor_message_id in one request
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      - description: anchor message ID
+        in: query
+        name: anchor_message_id
+        required: true
+        type: string
+      - description: messages before anchor (default 20, max 100)
+        format: int32
+        in: query
+        name: before
+        type: integer
+      - description: messages after anchor (default 20, max 100)
+        format: int32
+        in: query
+        name: after
+        type: integer
+      - description: include anchor message (default true)
+        in: query
+        name: include_anchor
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: get messages around anchor
+      tags:
+      - message
+  /conversations/{conversationId}/messages/before:
+    get:
+      consumes:
+      - application/json
+      description: Query messages before an anchor_message_id in a conversation
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      - description: anchor message ID
+        in: query
+        name: anchor_message_id
+        required: true
+        type: string
+      - description: limit (default 20, max 100)
+        format: int32
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: get messages before anchor
+      tags:
+      - message
+  /conversations/{conversationId}/messages/first-unread-anchor:
+    get:
+      consumes:
+      - application/json
+      description: Query first unread message anchor, optionally returning context
+        windows
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      - description: whether to include before/after context
+        in: query
+        name: with_context
+        type: boolean
+      - description: messages before anchor when with_context=true (default 20, max
+          100)
+        format: int32
+        in: query
+        name: before
+        type: integer
+      - description: messages after anchor when with_context=true (default 20, max
+          100)
+        format: int32
+        in: query
+        name: after
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: get first unread anchor
+      tags:
+      - message
+  /conversations/{conversationId}/messages/read:
+    post:
+      consumes:
+      - application/json
+      description: Used in scrolling list scenarios, batch report visible message
+        IDs and advance conversation read cursor
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      - description: message read list
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.markMessagesReadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: mark read by message ID
+      tags:
+      - conversation
+  /conversations/{conversationId}/messages/read-receipts:
+    get:
+      consumes:
+      - application/json
+      description: Return last read sequence for members in conversation
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: get message read receipts
+      tags:
+      - conversation
+  /conversations/{conversationId}/messages/sequence:
+    get:
+      consumes:
+      - application/json
+      description: Get latest message sequence in conversation
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: get conversation message sequence
+      tags:
+      - conversation
+  /conversations/{conversationId}/messages/unread-count:
+    get:
+      consumes:
+      - application/json
+      description: Query unread message count for current user in specified conversation
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      - description: optional, client read sequence
+        format: int64
+        in: query
+        name: last_read_seq
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: get conversation unread count
+      tags:
+      - conversation
+  /conversations/{conversationId}/mute:
+    put:
+      consumes:
+      - application/json
+      description: Enable or disable mute for specified conversation
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      - description: mute status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.setMutedRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: set conversation mute
+      tags:
+      - conversation
+  /conversations/{conversationId}/pin:
+    put:
+      consumes:
+      - application/json
+      description: Pin or unpin specified conversation
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      - description: pin status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.setPinnedRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: set conversation pin
+      tags:
+      - conversation
+  /conversations/{conversationId}/read-all:
+    post:
+      consumes:
+      - application/json
+      description: Clear unread count for specified conversation and advance message
+        read cursor to latest sequence
+      parameters:
+      - description: conversation ID
+        in: path
+        name: conversationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: mark conversation as read
+      tags:
+      - conversation
+  /conversations/unread/total:
+    get:
+      consumes:
+      - application/json
+      description: Get total unread message count for all conversations of current
+        user (muted conversations excluded)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: get total unread count
+      tags:
+      - conversation
   /files:
     get:
       consumes:
       - application/json
-      description: 分页列出当前用户的文件，支持按类型过滤
+      description: Paginate list of current user's files, supports filtering by type
       parameters:
-      - description: 文件类型（image/video/audio/file）
+      - description: file type (1-image/2-video/3-audio/4-file/5-log)
         in: query
         name: fileType
-        type: string
+        type: integer
       - default: 1
-        description: 页码
+        description: page number
         in: query
         name: page
         type: integer
       - default: 20
-        description: 每页数量
+        description: page size
         in: query
         name: pageSize
         type: integer
@@ -1765,7 +2806,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1774,29 +2815,29 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 列出用户文件
+      summary: list user files
       tags:
-      - 文件
+      - file
   /files/{fileId}:
     delete:
       consumes:
       - application/json
-      description: 删除文件（包括MinIO中的对象）
+      description: Delete file (including object in MinIO)
       parameters:
-      - description: 文件ID
+      - description: file ID
         in: path
         name: fileId
         required: true
@@ -1805,40 +2846,40 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 无权访问
+          description: no permission
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 文件不存在
+          description: file not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 删除文件
+      summary: delete file
       tags:
-      - 文件
+      - file
     get:
       consumes:
       - application/json
-      description: 获取文件元数据信息
+      description: Get file metadata info
       parameters:
-      - description: 文件ID
+      - description: file ID
         in: path
         name: fileId
         required: true
@@ -1847,7 +2888,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1856,37 +2897,37 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 无权访问
+          description: no permission
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 文件不存在
+          description: file not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取文件信息
+      summary: get file info
       tags:
-      - 文件
+      - file
   /files/{fileId}/complete:
     post:
       consumes:
       - application/json
-      description: 客户端上传完成后，通知服务端激活文件
+      description: After client finishes upload, notify server to activate file
       parameters:
-      - description: 文件ID
+      - description: file ID
         in: path
         name: fileId
         required: true
@@ -1895,7 +2936,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1904,39 +2945,40 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 文件不存在
+          description: file not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 完成文件上传
+      summary: complete file upload
       tags:
-      - 文件
+      - file
   /files/{fileId}/download:
     get:
       consumes:
       - application/json
-      description: 生成预签名下载URL，客户端使用此URL直接从MinIO下载
+      description: Generate presigned download URL, client uses this URL to download
+        directly from MinIO
       parameters:
-      - description: 文件ID
+      - description: file ID
         in: path
         name: fileId
         required: true
         type: string
       - default: 60
-        description: URL有效期（分钟）
+        description: URL expiration (minutes)
         in: query
         name: expiresMinutes
         type: integer
@@ -1944,7 +2986,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -1953,37 +2995,38 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 无权访问
+          description: no permission
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 文件不存在
+          description: file not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 生成文件下载链接
+      summary: generate file download URL
       tags:
-      - 文件
+      - file
   /files/upload-token:
     post:
       consumes:
       - application/json
-      description: 生成预签名上传URL，客户端使用此URL直接上传到MinIO
+      description: Generate presigned upload URL, client uses this URL to upload directly
+        to MinIO
       parameters:
-      - description: 上传请求
+      - description: upload request
         in: body
         name: request
         required: true
@@ -1993,7 +3036,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -2002,29 +3045,29 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 生成文件上传凭证
+      summary: generate file upload token
       tags:
-      - 文件
+      - file
   /friends:
     get:
       consumes:
       - application/json
-      description: 获取当前用户的所有好友,支持增量同步
+      description: Get all friends of current user, supports incremental sync
       parameters:
-      - description: 上次更新时间戳(增量同步)
+      - description: last update timestamp (incremental sync)
         format: int64
         in: query
         name: lastUpdateTime
@@ -2033,7 +3076,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -2042,25 +3085,25 @@ paths:
                   type: object
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取好友列表
+      summary: get friend list
       tags:
-      - 好友
+      - friend
   /friends/{id}:
     delete:
       consumes:
       - application/json
-      description: 删除指定好友
+      description: Delete specified friend
       parameters:
-      - description: 好友用户ID
+      - description: friend user ID
         in: path
         name: id
         required: true
@@ -2069,34 +3112,34 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 删除好友
+      summary: delete friend
       tags:
-      - 好友
+      - friend
   /friends/{id}/remark:
     put:
       consumes:
       - application/json
-      description: 更新指定好友的备注名称
+      description: Update remark name for specified friend
       parameters:
-      - description: 好友用户ID
+      - description: friend user ID
         in: path
         name: id
         required: true
         type: string
-      - description: 备注信息
+      - description: remark info
         in: body
         name: request
         required: true
@@ -2106,36 +3149,36 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 更新好友备注
+      summary: update friend remark
       tags:
-      - 好友
+      - friend
   /friends/blacklist:
     get:
       consumes:
       - application/json
-      description: 获取当前用户的黑名单列表
+      description: Get current user's blacklist
       produces:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -2144,24 +3187,24 @@ paths:
                   type: object
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取黑名单
+      summary: get blacklist
       tags:
-      - 好友
+      - friend
     post:
       consumes:
       - application/json
-      description: 将指定用户添加到黑名单
+      description: Add specified user to blacklist
       parameters:
-      - description: 用户ID
+      - description: user ID
         in: body
         name: request
         required: true
@@ -2171,33 +3214,33 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 添加黑名单
+      summary: add to blacklist
       tags:
-      - 好友
+      - friend
   /friends/blacklist/{id}:
     delete:
       consumes:
       - application/json
-      description: 将指定用户从黑名单移除
+      description: Remove specified user from blacklist
       parameters:
-      - description: 被拉黑用户ID
+      - description: blocked user ID
         in: path
         name: id
         required: true
@@ -2206,38 +3249,38 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 从黑名单移除
+      summary: remove from blacklist
       tags:
-      - 好友
+      - friend
   /friends/requests:
     get:
       consumes:
       - application/json
-      description: 获取收到的或发送的好友申请列表
+      description: Get friend request list by numeric request_type
       parameters:
-      - default: received
-        description: '类型: received(收到的)/sent(发送的)'
+      - default: 1
+        description: 'request type: 1-received 2-sent'
         in: query
-        name: type
-        type: string
+        name: request_type
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -2246,24 +3289,24 @@ paths:
                   type: object
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取好友申请列表
+      summary: get friend request list
       tags:
-      - 好友
+      - friend
     post:
       consumes:
       - application/json
-      description: 向指定用户发送好友申请
+      description: Send friend request to specified user
       parameters:
-      - description: 申请信息
+      - description: request info
         in: body
         name: request
         required: true
@@ -2273,7 +3316,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -2282,34 +3325,34 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 发送好友申请
+      summary: send friend request
       tags:
-      - 好友
+      - friend
   /friends/requests/{id}:
     put:
       consumes:
       - application/json
-      description: 接受或拒绝好友申请
+      description: Handle friend request with numeric action
       parameters:
-      - description: 申请ID
+      - description: request ID
         in: path
         name: id
         required: true
         type: integer
-      - description: 处理动作
+      - description: 'handle action: 1-accept 2-reject'
         in: body
         name: request
         required: true
@@ -2319,33 +3362,33 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 处理好友申请
+      summary: handle friend request
       tags:
-      - 好友
+      - friend
   /groups:
     get:
       consumes:
       - application/json
-      description: 获取当前用户加入的所有群组列表
+      description: Get all groups the current user has joined
       parameters:
-      - description: 最后更新时间戳（增量同步）
+      - description: last update timestamp (incremental sync)
         in: query
         name: lastUpdateTime
         type: integer
@@ -2362,20 +3405,20 @@ paths:
                   $ref: '#/definitions/github_com_anychat_server_internal_group_dto.GroupListResponse'
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取我的群组列表
+      summary: get my groups
       tags:
-      - 群组
+      - group
     post:
       consumes:
       - application/json
-      description: 创建一个新的群组，至少需要2个成员（包括创建者）
+      description: Create a new group, requires at least 2 members (including creator)
       parameters:
-      - description: 群组信息
+      - description: group info
         in: body
         name: request
         required: true
@@ -2385,7 +3428,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 创建成功
+          description: create success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -2394,29 +3437,29 @@ paths:
                   $ref: '#/definitions/github_com_anychat_server_internal_group_dto.GroupResponse'
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 创建群组
+      summary: create group
       tags:
-      - 群组
+      - group
   /groups/{id}:
     delete:
       consumes:
       - application/json
-      description: 解散群组（仅群主可操作）
+      description: Dissolve group (owner only)
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
@@ -2425,28 +3468,28 @@ paths:
       - application/json
       responses:
         "200":
-          description: 解散成功
+          description: dissolve success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 无权限
+          description: no permission
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 解散群组
+      summary: dissolve group
       tags:
-      - 群组
+      - group
     get:
       consumes:
       - application/json
-      description: 获取指定群组的详细信息
+      description: Get detailed info of specified group
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
@@ -2464,29 +3507,29 @@ paths:
                   $ref: '#/definitions/github_com_anychat_server_internal_group_dto.GroupResponse'
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 群组不存在
+          description: group not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取群组信息
+      summary: get group info
       tags:
-      - 群组
+      - group
     put:
       consumes:
       - application/json
-      description: 更新群组的名称、头像、公告等信息（需要管理员权限）
+      description: Update group name, avatar, announcement etc (requires admin permission)
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
         type: string
-      - description: 更新信息
+      - description: update info
         in: body
         name: request
         required: true
@@ -2496,38 +3539,38 @@ paths:
       - application/json
       responses:
         "200":
-          description: 更新成功
+          description: update success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 无权限
+          description: no permission
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 更新群信息
+      summary: update group info
       tags:
-      - 群组
+      - group
   /groups/{id}/join:
     post:
       consumes:
       - application/json
-      description: 申请加入指定群组
+      description: Request to join specified group
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
         type: string
-      - description: 申请信息
+      - description: join request
         in: body
         name: request
         required: true
@@ -2537,7 +3580,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 申请成功
+          description: request success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -2546,36 +3589,36 @@ paths:
                   $ref: '#/definitions/github_com_anychat_server_internal_group_dto.JoinGroupResponse'
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 加入群组
+      summary: join group
       tags:
-      - 群组
+      - group
   /groups/{id}/members:
     get:
       consumes:
       - application/json
-      description: 获取指定群组的成员列表，支持分页
+      description: Get members of specified group, supports pagination
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
         type: string
       - default: 1
-        description: 页码
+        description: page number
         in: query
         name: page
         type: integer
       - default: 20
-        description: 每页数量
+        description: page size
         in: query
         name: pageSize
         type: integer
@@ -2592,29 +3635,29 @@ paths:
                   $ref: '#/definitions/github_com_anychat_server_internal_group_dto.GroupMemberListResponse'
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 群组不存在
+          description: group not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取群成员列表
+      summary: get group members
       tags:
-      - 群组
+      - group
     post:
       consumes:
       - application/json
-      description: 邀请用户加入群组
+      description: Invite users to join group
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
         type: string
-      - description: 邀请信息
+      - description: invite info
         in: body
         name: request
         required: true
@@ -2624,34 +3667,34 @@ paths:
       - application/json
       responses:
         "200":
-          description: 邀请成功
+          description: invite success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 邀请成员
+      summary: invite members
       tags:
-      - 群组
+      - group
   /groups/{id}/members/{userId}:
     delete:
       consumes:
       - application/json
-      description: 从群组中移除成员（需要管理员权限）
+      description: Remove member from group (requires admin permission)
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
         type: string
-      - description: 要移除的用户ID
+      - description: user ID to remove
         in: path
         name: userId
         required: true
@@ -2660,39 +3703,39 @@ paths:
       - application/json
       responses:
         "200":
-          description: 移除成功
+          description: remove success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 无权限
+          description: no permission
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 移除成员
+      summary: remove member
       tags:
-      - 群组
+      - group
   /groups/{id}/members/{userId}/role:
     put:
       consumes:
       - application/json
-      description: 设置或取消群管理员（仅群主可操作）
+      description: Set or remove group admin (owner only)
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
         type: string
-      - description: 用户ID
+      - description: user ID
         in: path
         name: userId
         required: true
         type: string
-      - description: 角色信息
+      - description: role info
         in: body
         name: request
         required: true
@@ -2702,38 +3745,38 @@ paths:
       - application/json
       responses:
         "200":
-          description: 更新成功
+          description: update success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 无权限
+          description: no permission
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 更新成员角色
+      summary: update member role
       tags:
-      - 群组
+      - group
   /groups/{id}/nickname:
     put:
       consumes:
       - application/json
-      description: 设置自己在群内的昵称
+      description: Set your nickname in the group
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
         type: string
-      - description: 昵称信息
+      - description: nickname info
         in: body
         name: request
         required: true
@@ -2743,29 +3786,30 @@ paths:
       - application/json
       responses:
         "200":
-          description: 更新成功
+          description: update success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 更新群昵称
+      summary: update member nickname
       tags:
-      - 群组
-  /groups/{id}/quit:
-    post:
+      - group
+  /groups/{id}/qrcode:
+    get:
       consumes:
       - application/json
-      description: 退出指定群组
+      description: Get current valid group QR code, auto create/renew if not exists
+        or expiring soon (all members)
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
@@ -2774,33 +3818,148 @@ paths:
       - application/json
       responses:
         "200":
-          description: 退出成功
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anychat_server_internal_group_dto.GroupQRCodeResponse'
+              type: object
+        "401":
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "401":
-          description: 未授权
+        "403":
+          description: not a group member
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 退出群组
+      summary: get group QR code
       tags:
-      - 群组
-  /groups/{id}/requests:
-    get:
+      - group
+  /groups/{id}/qrcode/refresh:
+    post:
       consumes:
       - application/json
-      description: 获取指定群组的入群申请列表（需要管理员权限）
+      description: Refresh group QR code, invalidate old one and generate new one
+        (owner/admin only)
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
         type: string
-      - description: 申请状态（pending/accepted/rejected）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anychat_server_internal_group_dto.GroupQRCodeResponse'
+              type: object
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "403":
+          description: no permission
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: refresh group QR code
+      tags:
+      - group
+  /groups/{id}/quit:
+    post:
+      consumes:
+      - application/json
+      description: Quit specified group
+      parameters:
+      - description: group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: quit success
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: quit group
+      tags:
+      - group
+  /groups/{id}/remark:
+    put:
+      consumes:
+      - application/json
+      description: Set a remark for the group that only you can see, pass empty string
+        to clear
+      parameters:
+      - description: group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: remark info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_anychat_server_internal_group_dto.UpdateMemberRemarkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: set success
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "403":
+          description: not a group member
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: set group remark
+      tags:
+      - group
+  /groups/{id}/requests:
+    get:
+      consumes:
+      - application/json
+      description: Get join requests for specified group (requires admin permission)
+      parameters:
+      - description: group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'request status: 1=pending,2=accepted,3=rejected'
         in: query
         name: status
-        type: string
+        type: integer
       produces:
       - application/json
       responses:
@@ -2814,35 +3973,35 @@ paths:
                   $ref: '#/definitions/github_com_anychat_server_internal_group_dto.JoinRequestListResponse'
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 无权限
+          description: no permission
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取入群申请列表
+      summary: get join requests
       tags:
-      - 群组
+      - group
   /groups/{id}/requests/{requestId}:
     put:
       consumes:
       - application/json
-      description: 接受或拒绝入群申请（需要管理员权限）
+      description: Accept or reject join request (requires admin permission)
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
         type: string
-      - description: 申请ID
+      - description: request ID
         in: path
         name: requestId
         required: true
         type: integer
-      - description: 处理信息
+      - description: handle info
         in: body
         name: request
         required: true
@@ -2852,38 +4011,38 @@ paths:
       - application/json
       responses:
         "200":
-          description: 处理成功
+          description: handle success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 无权限
+          description: no permission
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 处理入群申请
+      summary: handle join request
       tags:
-      - 群组
+      - group
   /groups/{id}/transfer:
     post:
       consumes:
       - application/json
-      description: 将群主转让给其他成员（仅群主可操作）
+      description: Transfer group owner to another member (owner only)
       parameters:
-      - description: 群组ID
+      - description: group ID
         in: path
         name: id
         required: true
         type: string
-      - description: 转让信息
+      - description: transfer info
         in: body
         name: request
         required: true
@@ -2893,259 +4052,115 @@ paths:
       - application/json
       responses:
         "200":
-          description: 转让成功
+          description: transfer success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "403":
-          description: 无权限
+          description: no permission
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 转让群主
+      summary: transfer ownership
       tags:
-      - 群组
-  /conversations:
-    get:
-      consumes:
-      - application/json
-      description: 获取当前用户的会话列表，支持增量同步（通过updatedBefore参数）
-      parameters:
-      - description: 返回数量（默认20，最大100）
-        in: query
-        name: limit
-        type: integer
-      - description: Unix时间戳，仅返回此时间之前更新的会话（增量同步）
-        format: int64
-        in: query
-        name: updatedBefore
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "500":
-          description: 服务器错误
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-      security:
-      - BearerAuth: []
-      summary: 获取会话列表
-      tags:
-      - 会话
-  /conversations/{conversationId}:
-    delete:
-      consumes:
-      - application/json
-      description: 删除指定会话（不影响消息，仅从会话列表中移除）
-      parameters:
-      - description: 会话ID
-        in: path
-        name: conversationId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "500":
-          description: 服务器错误
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-      security:
-      - BearerAuth: []
-      summary: 删除会话
-      tags:
-      - 会话
-    get:
-      consumes:
-      - application/json
-      description: 获取指定会话的详情
-      parameters:
-      - description: 会话ID
-        in: path
-        name: conversationId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-            - properties:
-                data:
-                  type: object
-              type: object
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "404":
-          description: 会话不存在
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "500":
-          description: 服务器错误
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-      security:
-      - BearerAuth: []
-      summary: 获取单个会话
-      tags:
-      - 会话
-  /conversations/{conversationId}/mute:
-    put:
-      consumes:
-      - application/json
-      description: 开启或关闭指定会话的免打扰
-      parameters:
-      - description: 会话ID
-        in: path
-        name: conversationId
-        required: true
-        type: string
-      - description: 免打扰状态
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/internal_gateway_handler.setMutedRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "400":
-          description: 参数错误
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "500":
-          description: 服务器错误
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-      security:
-      - BearerAuth: []
-      summary: 设置会话免打扰
-      tags:
-      - 会话
-  /conversations/{conversationId}/pin:
-    put:
-      consumes:
-      - application/json
-      description: 置顶或取消置顶指定会话
-      parameters:
-      - description: 会话ID
-        in: path
-        name: conversationId
-        required: true
-        type: string
-      - description: 置顶状态
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/internal_gateway_handler.setPinnedRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "400":
-          description: 参数错误
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "500":
-          description: 服务器错误
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-      security:
-      - BearerAuth: []
-      summary: 设置会话置顶
-      tags:
-      - 会话
-  /conversations/{conversationId}/read:
+      - group
+  /groups/join-by-qrcode:
     post:
       consumes:
       - application/json
-      description: 清除指定会话的未读消息数
+      description: Join group via QR code token, join directly or submit request based
+        on group settings
       parameters:
-      - description: 会话ID
-        in: path
-        name: conversationId
+      - description: QR code token
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            token:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anychat_server_internal_group_dto.JoinGroupByQRCodeResponse'
+              type: object
+        "400":
+          description: QR code invalid or expired
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: join group via QR code
+      tags:
+      - group
+  /groups/preview:
+    get:
+      consumes:
+      - application/json
+      description: Get group name, avatar, member count and join verification via
+        QR code token
+      parameters:
+      - description: QR code token
+        in: query
+        name: token
         required: true
         type: string
       produces:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_anychat_server_internal_group_dto.GroupQRCodePreviewResponse'
+              type: object
+        "400":
+          description: invalid parameter or QR code expired
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-        "500":
-          description: 服务器错误
-          schema:
-            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
-      security:
-      - BearerAuth: []
-      summary: 标记会话已读
+      summary: group preview
       tags:
-      - 会话
-  /conversations/unread/total:
-    get:
+      - group
+  /messages:
+    post:
       consumes:
       - application/json
-      description: 获取当前用户所有会话的总未读消息数（免打扰会话不计入）
+      description: Send conversation message via HTTP (supports idempotent local_id)
+      parameters:
+      - description: message content
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.sendMessageRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -3153,27 +4168,260 @@ paths:
                 data:
                   type: object
               type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取总未读数
+      summary: send message
       tags:
-      - 会话
+      - message
+  /messages/{messageId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete specified message, can only delete own messages
+      parameters:
+      - description: message ID
+        in: path
+        name: messageId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "403":
+          description: no permission
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "404":
+          description: message not found
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: delete message
+      tags:
+      - message
+    get:
+      consumes:
+      - application/json
+      description: Get single message by message ID
+      parameters:
+      - description: message ID
+        in: path
+        name: messageId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "404":
+          description: message not found
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: get message detail
+      tags:
+      - message
+  /messages/read-triggers:
+    post:
+      consumes:
+      - application/json
+      description: Client batch reports message read trigger events, server starts
+        burn timer accordingly
+      parameters:
+      - description: read trigger events
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.ackReadTriggersRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: burn after reading read trigger acknowledgment
+      tags:
+      - message
+  /messages/recall:
+    post:
+      consumes:
+      - application/json
+      description: Recall specified message, can only recall own messages within 2
+        minutes
+      parameters:
+      - description: message ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.recallMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "403":
+          description: no permission or timeout
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "404":
+          description: message not found
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: recall message
+      tags:
+      - message
+  /messages/search:
+    get:
+      consumes:
+      - application/json
+      description: Search messages by keyword and conversation scope
+      parameters:
+      - description: keyword
+        in: query
+        name: keyword
+        required: true
+        type: string
+      - description: conversation ID
+        in: query
+        name: conversation_id
+        required: true
+        type: string
+      - description: message type (1-text/2-image/3-video/4-audio/5-file/6-location/7-card)
+        in: query
+        name: content_type
+        type: integer
+      - description: page size (default 20, max 100)
+        format: int32
+        in: query
+        name: limit
+        type: integer
+      - description: offset
+        format: int32
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: search messages
+      tags:
+      - message
   /sync:
     post:
       consumes:
       - application/json
-      description: 客户端登录或从后台恢复时调用，返回自 lastSyncTime 后的好友、群组、会话变更，以及各会话的离线消息。lastSyncTime=0
-        表示全量同步。
+      description: Called when client logs in or resumes from background. Returns
+        friends, groups, conversation changes since lastSyncTime, and offline messages
+        for each conversation. lastSyncTime=0 means full sync.
       parameters:
-      - description: 同步请求
+      - description: sync request
         in: body
         name: request
         required: true
@@ -3183,7 +4431,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 同步成功
+          description: sync success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -3192,33 +4440,34 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 数据同步
+      summary: data sync
       tags:
-      - 同步
+      - sync
   /sync/messages:
     post:
       consumes:
       - application/json
-      description: 按照每个会话的最新已知序列号，拉取离线消息
+      description: Pull offline messages based on the latest known sequence number
+        for each conversation
       parameters:
-      - description: 每个会话最多返回的消息数（默认50）
+      - description: max messages per conversation (default 50)
         in: query
         name: limit
         type: integer
-      - description: 消息补齐请求
+      - description: message sync request
         in: body
         name: request
         required: true
@@ -3228,7 +4477,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功
+          description: success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -3237,29 +4486,29 @@ paths:
                   type: object
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 消息补齐
+      summary: message sync
       tags:
-      - 同步
+      - sync
   /users/{userId}:
     get:
       consumes:
       - application/json
-      description: 获取指定用户的公开信息
+      description: Get public info of specified user
       parameters:
-      - description: 用户ID
+      - description: user ID
         in: path
         name: userId
         required: true
@@ -3268,7 +4517,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 获取成功
+          description: get success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -3277,32 +4526,32 @@ paths:
                   $ref: '#/definitions/internal_gateway_handler.UserSearchItem'
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "404":
-          description: 用户不存在
+          description: user not found
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取用户信息
+      summary: get user info
       tags:
-      - 用户
+      - user
   /users/me:
     get:
       consumes:
       - application/json
-      description: 获取当前登录用户的详细资料
+      description: Get detailed profile of currently logged in user
       produces:
       - application/json
       responses:
         "200":
-          description: 获取成功
+          description: get success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -3311,24 +4560,24 @@ paths:
                   $ref: '#/definitions/internal_gateway_handler.UserProfile'
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取个人资料
+      summary: get personal profile
       tags:
-      - 用户
+      - user
     put:
       consumes:
       - application/json
-      description: 更新当前登录用户的个人资料
+      description: Update personal profile of currently logged in user
       parameters:
-      - description: 资料信息
+      - description: profile info
         in: body
         name: request
         required: true
@@ -3338,7 +4587,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 更新成功
+          description: update success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -3347,29 +4596,209 @@ paths:
                   $ref: '#/definitions/internal_gateway_handler.UserProfile'
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 更新个人资料
+      summary: update personal profile
       tags:
-      - 用户
+      - user
+  /users/me/email/bind:
+    post:
+      consumes:
+      - application/json
+      description: Bind email for currently logged in user
+      parameters:
+      - description: bind email info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.BindEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: bind success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "409":
+          description: email already in use
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: bind email
+      tags:
+      - user
+  /users/me/email/change:
+    post:
+      consumes:
+      - application/json
+      description: Change bound email for currently logged in user
+      parameters:
+      - description: change email info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.ChangeEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: change success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "409":
+          description: email already in use
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: change email
+      tags:
+      - user
+  /users/me/phone/bind:
+    post:
+      consumes:
+      - application/json
+      description: Bind phone number for currently logged in user
+      parameters:
+      - description: bind phone info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.BindPhoneRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: bind success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "409":
+          description: phone number already in use
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: bind phone
+      tags:
+      - user
+  /users/me/phone/change:
+    post:
+      consumes:
+      - application/json
+      description: Change bound phone number for currently logged in user
+      parameters:
+      - description: change phone info
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handler.ChangePhoneRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: change success
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: parameter error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "401":
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "409":
+          description: phone number already in use
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+        "500":
+          description: server error
+          schema:
+            $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
+      security:
+      - BearerAuth: []
+      summary: change phone
+      tags:
+      - user
   /users/me/push-token:
     post:
       consumes:
       - application/json
-      description: 更新设备的推送通知Token
+      description: Update device push notification token
       parameters:
-      - description: 推送Token信息
+      - description: push token info
         in: body
         name: request
         required: true
@@ -3379,36 +4808,36 @@ paths:
       - application/json
       responses:
         "200":
-          description: 更新成功
+          description: update success
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 更新推送Token
+      summary: update push token
       tags:
-      - 用户
+      - user
   /users/me/settings:
     get:
       consumes:
       - application/json
-      description: 获取当前用户的偏好设置
+      description: Get current user's preference settings
       produces:
       - application/json
       responses:
         "200":
-          description: 获取成功
+          description: get success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -3417,24 +4846,24 @@ paths:
                   $ref: '#/definitions/internal_gateway_handler.UserSettings'
               type: object
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 获取用户设置
+      summary: get user settings
       tags:
-      - 用户
+      - user
     put:
       consumes:
       - application/json
-      description: 更新当前用户的偏好设置
+      description: Update current user's preference settings
       parameters:
-      - description: 设置信息
+      - description: settings info
         in: body
         name: request
         required: true
@@ -3444,7 +4873,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 更新成功
+          description: update success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -3453,40 +4882,40 @@ paths:
                   $ref: '#/definitions/internal_gateway_handler.UserSettings'
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 更新用户设置
+      summary: update user settings
       tags:
-      - 用户
+      - user
   /users/search:
     get:
       consumes:
       - application/json
-      description: 通过关键字搜索用户（支持昵称、手机号、用户ID）
+      description: Search users by keyword (supports nickname, phone, user ID)
       parameters:
-      - description: 搜索关键字
+      - description: search keyword
         in: query
         name: keyword
         required: true
         type: string
       - default: 1
-        description: 页码
+        description: page number
         in: query
         name: page
         type: integer
       - default: 20
-        description: 每页数量
+        description: page size
         in: query
         name: pageSize
         type: integer
@@ -3494,7 +4923,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: 搜索成功
+          description: search success
           schema:
             allOf:
             - $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
@@ -3503,26 +4932,27 @@ paths:
                   $ref: '#/definitions/internal_gateway_handler.UserSearchResult'
               type: object
         "400":
-          description: 参数错误
+          description: parameter error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "401":
-          description: 未授权
+          description: unauthorized
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
         "500":
-          description: 服务器错误
+          description: server error
           schema:
             $ref: '#/definitions/github_com_anychat_server_pkg_response.Response'
       security:
       - BearerAuth: []
-      summary: 搜索用户
+      summary: search users
       tags:
-      - 用户
+      - user
   /ws:
     get:
-      description: 客户端通过WebSocket保持长连接，接收实时通知和消息推送。由于WebSocket协议不支持自定义Header，JWT token通过URL
-        query参数传入。
+      description: Client maintains long connection via WebSocket to receive real-time
+        notifications and message pushes. Since WebSocket protocol doesn't support
+        custom headers, JWT token is passed via URL query parameter.
       parameters:
       - description: JWT access token
         in: query
@@ -3530,9 +4960,9 @@ paths:
         required: true
         type: string
       responses: {}
-      summary: 建立WebSocket长连接
+      summary: establish WebSocket long connection
       tags:
-      - 实时通信
+      - realtime
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.

@@ -36,11 +36,11 @@ Admin服务提供后台管理功能，包括管理员管理、用户管理、群
 
 ## 3. 管理员角色
 
-| 角色 | 说明 |
-|------|------|
-| super | 超级管理员 |
-| admin | 普通管理员 |
-| operator | 操作员 |
+| 枚举值 | 角色 | 说明 |
+|--------|------|------|
+| 1 | superadmin | 超级管理员 |
+| 2 | admin | 普通管理员 |
+| 3 | readonly | 只读管理员 |
 
 ## 4. 数据模型
 
@@ -51,7 +51,7 @@ type AdminUser struct {
     ID        string    // 管理员ID
     Username  string    // 用户名
     Password  string    // 密码哈希
-    Role      string    // 角色
+    Role      int16     // 角色: 1-superadmin 2-admin 3-readonly
     Status    int8      // 状态: 1-正常 2-禁用
     CreatedAt time.Time
     UpdatedAt time.Time

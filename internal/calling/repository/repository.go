@@ -108,7 +108,7 @@ func (r *meetingRepository) ListActiveMeetings(page, pageSize int) ([]*model.Mee
 	var total int64
 
 	query := r.db.Model(&model.MeetingRoom{}).
-		Where("status = ?", "active")
+		Where("status = ?", model.MeetingStatusActive)
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err

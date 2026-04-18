@@ -130,7 +130,7 @@ func (h *WSHandler) handleClientMessage(c *websocket.Client, msg *websocket.Mess
 // sendMessagePayload payload structure for client sending messages
 type sendMessagePayload struct {
 	ConversationID string   `json:"conversation_id"`
-	ContentType    string   `json:"content_type"`
+	ContentType    int32    `json:"content_type"`
 	Content        string   `json:"content"`
 	ReplyTo        string   `json:"reply_to,omitempty"`
 	AtUsers        []string `json:"at_users,omitempty"`
@@ -176,7 +176,7 @@ func (h *WSHandler) handleSendMessage(c *websocket.Client, payload json.RawMessa
 	grpcReq := &messagepb.SendMessageRequest{
 		SenderId:       c.UserID,
 		ConversationId: req.ConversationID,
-		ContentType:    req.ContentType,
+		ContentType:    messagepb.ContentType(req.ContentType),
 		Content:        req.Content,
 		LocalId:        req.LocalID,
 	}

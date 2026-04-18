@@ -25,8 +25,8 @@ type FriendRequest struct {
     FromUserID  string    // 申请人ID
     ToUserID    string    // 被申请人ID
     Message     string    // 验证消息
-    Source      string    // 来源：search/qrcode/group/contacts
-    Status      int       // 状态: 0-待处理 1-已同意 2-已拒绝
+    Source      int16     // 来源：1-search 2-qrcode 3-group 4-contacts
+    Status      int16     // 状态: 1-待处理 2-已同意 3-已拒绝 4-已过期
     CreatedAt   time.Time
     UpdatedAt   time.Time
 }
@@ -145,11 +145,11 @@ sequenceDiagram
     participant DB as 数据库
     participant NATS as 消息通知
 
-    Client->>Gateway: PUT /friends/requests/{requestId}<br/>Body: {action: accept/reject}
+    Client->>Gateway: PUT /friends/requests/{requestId}<br/>Body: {action: 1|2}
     Gateway->>FriendService: gRPC HandleFriendRequest(userId, requestId, action)
 
     FriendService->>DB: 查询申请记录
-    alt 同意 (action=accept)
+    alt 同意 (action=1)
         Note over FriendService,NATS: 事务内处理
         FriendService->>DB: 更新申请状态为 accepted
         FriendService->>DB: 创建双向好友关系
@@ -157,7 +157,7 @@ sequenceDiagram
         DB-->>FriendService: 成功
 
         FriendService->>NATS: 发布 TypeFriendRequestHandled 通知
-    else 拒绝 (action=reject)
+    else 拒绝 (action=2)
         FriendService->>DB: 更新申请状态为 rejected
         FriendService->>NATS: 发布 TypeFriendRequestHandled 通知
     end
@@ -175,7 +175,7 @@ sequenceDiagram
     participant FriendService as 好友服务
     participant DB as 数据库
 
-    Client->>Gateway: GET /friends/requests?type=received/sent
+    Client->>Gateway: GET /friends/requests?request_type=1/2
     Gateway->>FriendService: gRPC GetFriendRequests(userId, requestType)
     FriendService->>DB: 查询申请列表
     DB-->>FriendService: 申请列表
@@ -192,7 +192,7 @@ message SendFriendRequestRequest {
     string from_user_id = 1;  // 申请人ID
     string to_user_id = 2;   // 被申请人ID
     string message = 3;       // 验证消息
-    string source = 4;        // 来源：search/qrcode/group/contacts
+    FriendRequestSource source = 4; // 1-search/2-qrcode/3-group/4-contacts
 }
 
 message SendFriendRequestResponse {
@@ -207,7 +207,7 @@ message SendFriendRequestResponse {
 message HandleFriendRequestRequest {
     string user_id = 1;        // 处理人ID
     int64 request_id = 2;      // 申请ID
-    string action = 3;         // 操作：accept/reject
+    FriendRequestAction action = 3; // 1-accept, 2-reject
 }
 ```
 
@@ -216,7 +216,7 @@ message HandleFriendRequestRequest {
 ```protobuf
 message GetFriendRequestsRequest {
     string user_id = 1;
-    string request_type = 2;   // received/sent
+    FriendRequestQueryType request_type = 2; // 1-received, 2-sent
 }
 
 message FriendRequestInfo {
@@ -225,7 +225,7 @@ message FriendRequestInfo {
     string from_nickname = 3;
     string from_avatar = 4;
     string message = 5;
-    string source = 6;
+    FriendRequestSource source = 6;
     int32 status = 7;
     int64 created_at = 8;
 }

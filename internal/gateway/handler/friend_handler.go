@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	friendpb "github.com/anychat/server/api/proto/friend"
+	friendmodel "github.com/anychat/server/internal/friend/model"
 	"github.com/anychat/server/internal/gateway/client"
 	gwmiddleware "github.com/anychat/server/internal/gateway/middleware"
 	"github.com/anychat/server/pkg/response"
@@ -76,11 +77,16 @@ func (h *FriendHandler) SendFriendRequest(c *gin.Context) {
 	var req struct {
 		UserID  string `json:"user_id" binding:"required" example:"user-456"`
 		Message string `json:"message" example:"你好,我想加你为好友"`
-		Source  string `json:"source" binding:"required,oneof=search qrcode group contacts" example:"search"`
+		Source  int16  `json:"source" binding:"required,oneof=1 2 3 4" example:"1"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.ParamError(c, err.Error())
+		return
+	}
+	source := friendmodel.FriendRequestSource(req.Source)
+	if !source.IsValid() {
+		response.ParamError(c, "invalid source")
 		return
 	}
 
@@ -88,7 +94,7 @@ func (h *FriendHandler) SendFriendRequest(c *gin.Context) {
 		FromUserId: userID,
 		ToUserId:   req.UserID,
 		Message:    req.Message,
-		Source:     req.Source,
+		Source:     friendpb.FriendRequestSource(source),
 	})
 	if err != nil {
 		handleGRPCError(c, err)
@@ -100,13 +106,13 @@ func (h *FriendHandler) SendFriendRequest(c *gin.Context) {
 
 // HandleFriendRequest handle friend request
 // @Summary      handle friend request
-// @Description  Accept or reject friend request
+// @Description  Handle friend request with numeric action
 // @Tags         friend
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id       path  int  true  "request ID"
-// @Param        request  body  object  true  "handle action"
+// @Param        request  body  object  true  "handle action: 1-accept 2-reject"
 // @Success      200  {object}  response.Response  "success"
 // @Failure      400  {object}  response.Response  "parameter error"
 // @Failure      401  {object}  response.Response  "unauthorized"
@@ -122,7 +128,7 @@ func (h *FriendHandler) HandleFriendRequest(c *gin.Context) {
 	}
 
 	var req struct {
-		Action string `json:"action" binding:"required,oneof=accept reject" example:"accept"`
+		Action int16 `json:"action" binding:"required,oneof=1 2" example:"1"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -130,10 +136,16 @@ func (h *FriendHandler) HandleFriendRequest(c *gin.Context) {
 		return
 	}
 
+	action := friendmodel.FriendRequestAction(req.Action)
+	if !action.IsValid() {
+		response.ParamError(c, "invalid action")
+		return
+	}
+
 	_, err = h.clientManager.Friend().HandleFriendRequest(c.Request.Context(), &friendpb.HandleFriendRequestRequest{
 		UserId:    userID,
 		RequestId: requestID,
-		Action:    req.Action,
+		Action:    friendpb.FriendRequestAction(action),
 	})
 	if err != nil {
 		handleGRPCError(c, err)
@@ -145,12 +157,12 @@ func (h *FriendHandler) HandleFriendRequest(c *gin.Context) {
 
 // GetFriendRequests get friend request list
 // @Summary      get friend request list
-// @Description  Get received or sent friend request list
+// @Description  Get friend request list by numeric request_type
 // @Tags         friend
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        type  query  string  false  "type: received/sent"  default(received)
+// @Param        request_type  query  int  false  "request type: 1-received 2-sent"  default(1)
 // @Success      200  {object}  response.Response{data=object}  "success"
 // @Failure      401  {object}  response.Response  "unauthorized"
 // @Failure      500  {object}  response.Response  "server error"
@@ -158,11 +170,23 @@ func (h *FriendHandler) HandleFriendRequest(c *gin.Context) {
 func (h *FriendHandler) GetFriendRequests(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 
-	requestType := c.DefaultQuery("type", "received")
+	requestType := friendmodel.FriendRequestQueryTypeReceived
+	if v := c.Query("request_type"); v != "" {
+		parsed, err := strconv.ParseInt(v, 10, 16)
+		if err != nil {
+			response.ParamError(c, "invalid request_type")
+			return
+		}
+		requestType = friendmodel.FriendRequestQueryType(parsed)
+	}
+	if !requestType.IsValid() {
+		response.ParamError(c, "invalid request_type")
+		return
+	}
 
 	resp, err := h.clientManager.Friend().GetFriendRequests(c.Request.Context(), &friendpb.GetFriendRequestsRequest{
-		UserId: userID,
-		Type:   requestType,
+		UserId:      userID,
+		RequestType: friendpb.FriendRequestQueryType(requestType),
 	})
 	if err != nil {
 		handleGRPCError(c, err)

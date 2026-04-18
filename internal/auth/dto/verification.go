@@ -1,12 +1,16 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/anychat/server/internal/auth/model"
+)
 
 type SendCodeRequest struct {
-	Target     string `json:"target" binding:"required"`
-	TargetType string `json:"target_type" binding:"required,oneof=sms email"`
-	Purpose    string `json:"purpose" binding:"required"`
-	DeviceID   string `json:"device_id"`
+	Target     string                       `json:"target" binding:"required"`
+	TargetType model.VerificationTargetType `json:"target_type" binding:"required"`
+	Purpose    model.VerificationPurpose    `json:"purpose" binding:"required"`
+	DeviceID   string                       `json:"device_id"`
 }
 
 type SendCodeResponse struct {
@@ -17,10 +21,10 @@ type SendCodeResponse struct {
 }
 
 type VerifyCodeRequest struct {
-	Target     string `json:"target" binding:"required"`
-	TargetType string `json:"target_type" binding:"required,oneof=sms email"`
-	Purpose    string `json:"purpose" binding:"required"`
-	Code       string `json:"code" binding:"required,len=6"`
+	Target     string                       `json:"target" binding:"required"`
+	TargetType model.VerificationTargetType `json:"target_type" binding:"required"`
+	Purpose    model.VerificationPurpose    `json:"purpose" binding:"required"`
+	Code       string                       `json:"code" binding:"required,len=6"`
 }
 
 type VerifyCodeResponse struct {
@@ -30,6 +34,6 @@ type VerifyCodeResponse struct {
 }
 
 type CheckCodeStatusResponse struct {
-	Status    string    `json:"status"`
-	ExpiresAt time.Time `json:"expires_at"`
+	Status    model.VerificationCodeStatus `json:"status"`
+	ExpiresAt time.Time                    `json:"expires_at"`
 }

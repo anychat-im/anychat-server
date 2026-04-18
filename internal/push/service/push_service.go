@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/anychat/server/internal/push/jpush"
@@ -15,18 +16,26 @@ import (
 )
 
 // pushTypeTitle default titles for each push type
-var pushTypeTitle = map[string]string{
-	notification.TypeMessageNew:        "New Message",
-	notification.TypeMessageMentioned:  "You were mentioned",
-	notification.TypeFriendRequest:     "Friend Request",
-	notification.TypeGroupInvited:      "Group Invitation",
-	notification.TypeLiveKitCallInvite: "Incoming Call",
+var pushTypeTitle = map[model.PushType]string{
+	model.PushTypeMessageNew:     "New Message",
+	model.PushTypeMessageMention: "You were mentioned",
+	model.PushTypeFriendRequest:  "Friend Request",
+	model.PushTypeGroupInvited:   "Group Invitation",
+	model.PushTypeCallInvite:     "Incoming Call",
+}
+
+var notificationPushTypeMap = map[string]model.PushType{
+	notification.TypeMessageNew:        model.PushTypeMessageNew,
+	notification.TypeMessageMentioned:  model.PushTypeMessageMention,
+	notification.TypeFriendRequest:     model.PushTypeFriendRequest,
+	notification.TypeGroupInvited:      model.PushTypeGroupInvited,
+	notification.TypeLiveKitCallInvite: model.PushTypeCallInvite,
 }
 
 // PushService push service interface
 type PushService interface {
 	// SendPush sends push to specified user list
-	SendPush(ctx context.Context, userIDs []string, title, content, pushType string, extras map[string]string) (successCount, failureCount int, msgID string, err error)
+	SendPush(ctx context.Context, userIDs []string, title, content string, pushType model.PushType, extras map[string]string) (successCount, failureCount int, msgID string, err error)
 	// HandleNotification handles NATS notification events
 	HandleNotification(msg *nats.Msg)
 }
@@ -48,7 +57,8 @@ func NewPushService(jpushClient *jpush.Client, repo repository.PushLogRepository
 func (s *pushServiceImpl) SendPush(
 	ctx context.Context,
 	userIDs []string,
-	title, content, pushType string,
+	title, content string,
+	pushType model.PushType,
 	extras map[string]string,
 ) (successCount, failureCount int, msgID string, err error) {
 	if len(userIDs) == 0 {
@@ -84,16 +94,16 @@ func (s *pushServiceImpl) SendPush(
 	if pushErr != nil {
 		logger.Error("PushService: JPush request failed", zap.Error(pushErr))
 		failureCount = len(regIDs)
-		s.logPush(userIDs[0], pushType, title, content, len(regIDs), 0, failureCount, "", "failed", pushErr.Error())
+		s.logPush(userIDs[0], pushType, title, content, len(regIDs), 0, failureCount, "", model.PushStatusFailed, pushErr.Error())
 		return 0, failureCount, "", pushErr
 	}
 
 	successCount = len(regIDs)
-	s.logPush(userIDs[0], pushType, title, content, len(regIDs), successCount, 0, result.MsgID, "sent", "")
+	s.logPush(userIDs[0], pushType, title, content, len(regIDs), successCount, 0, result.MsgID, model.PushStatusSent, "")
 
 	logger.Info("PushService: push sent",
 		zap.Strings("userIDs", userIDs),
-		zap.String("pushType", pushType),
+		zap.Int16("pushType", int16(pushType)),
 		zap.Int("regIDCount", len(regIDs)),
 		zap.String("msgID", result.MsgID))
 
@@ -108,9 +118,8 @@ func (s *pushServiceImpl) HandleNotification(msg *nats.Msg) {
 		return
 	}
 
-	// Only handle types that need offline push
-	title, needPush := s.buildPushContent(notif)
-	if !needPush {
+	pushType, title, ok := s.buildPushContent(notif)
+	if !ok {
 		return
 	}
 
@@ -123,27 +132,23 @@ func (s *pushServiceImpl) HandleNotification(msg *nats.Msg) {
 
 	s.SendPush(context.Background(), //nolint:errcheck
 		[]string{notif.ToUserID},
-		title, content, notif.Type,
+		title, content, pushType,
 		extras,
 	)
 }
 
-// buildPushContent builds push title based on notification type; returns (title, needPush)
-func (s *pushServiceImpl) buildPushContent(notif notification.Notification) (string, bool) {
-	switch notif.Type {
-	case notification.TypeMessageNew,
-		notification.TypeMessageMentioned,
-		notification.TypeFriendRequest,
-		notification.TypeGroupInvited,
-		notification.TypeLiveKitCallInvite:
-		title, ok := pushTypeTitle[notif.Type]
-		if !ok {
-			title = "New Notification"
-		}
-		return title, true
-	default:
-		return "", false
+// buildPushContent maps notification type to push type and title.
+func (s *pushServiceImpl) buildPushContent(notif notification.Notification) (model.PushType, string, bool) {
+	pushType, ok := notificationPushTypeMap[notif.Type]
+	if !ok {
+		return model.PushTypeUnspecified, "", false
 	}
+
+	title, exists := pushTypeTitle[pushType]
+	if !exists {
+		title = "New Notification"
+	}
+	return pushType, title, true
 }
 
 // extractContent extracts push body from notification Payload
@@ -180,15 +185,30 @@ func (s *pushServiceImpl) extractExtras(notif notification.Notification) map[str
 	for k, v := range notif.Payload {
 		if str, ok := v.(string); ok {
 			extras[k] = str
+			continue
+		}
+		switch val := v.(type) {
+		case int:
+			extras[k] = fmt.Sprintf("%d", val)
+		case int32:
+			extras[k] = fmt.Sprintf("%d", val)
+		case int64:
+			extras[k] = fmt.Sprintf("%d", val)
+		case float32:
+			extras[k] = fmt.Sprintf("%v", val)
+		case float64:
+			extras[k] = fmt.Sprintf("%v", val)
+		case bool:
+			extras[k] = fmt.Sprintf("%t", val)
 		}
 	}
 	return extras
 }
 
 // logPush asynchronously writes push log
-func (s *pushServiceImpl) logPush(userID, pushType, title, content string,
+func (s *pushServiceImpl) logPush(userID string, pushType model.PushType, title, content string,
 	targetCount, successCount, failureCount int,
-	jpushMsgID, status, errMsg string,
+	jpushMsgID string, status model.PushStatus, errMsg string,
 ) {
 	log := &model.PushLog{
 		UserID:       userID,

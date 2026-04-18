@@ -21,19 +21,184 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// FileType 文件类型
+type FileType int32
+
+const (
+	FileType_FILE_TYPE_UNSPECIFIED FileType = 0
+	FileType_FILE_TYPE_IMAGE       FileType = 1
+	FileType_FILE_TYPE_VIDEO       FileType = 2
+	FileType_FILE_TYPE_AUDIO       FileType = 3
+	FileType_FILE_TYPE_FILE        FileType = 4
+	FileType_FILE_TYPE_LOG         FileType = 5
+)
+
+// Enum value maps for FileType.
+var (
+	FileType_name = map[int32]string{
+		0: "FILE_TYPE_UNSPECIFIED",
+		1: "FILE_TYPE_IMAGE",
+		2: "FILE_TYPE_VIDEO",
+		3: "FILE_TYPE_AUDIO",
+		4: "FILE_TYPE_FILE",
+		5: "FILE_TYPE_LOG",
+	}
+	FileType_value = map[string]int32{
+		"FILE_TYPE_UNSPECIFIED": 0,
+		"FILE_TYPE_IMAGE":       1,
+		"FILE_TYPE_VIDEO":       2,
+		"FILE_TYPE_AUDIO":       3,
+		"FILE_TYPE_FILE":        4,
+		"FILE_TYPE_LOG":         5,
+	}
+)
+
+func (x FileType) Enum() *FileType {
+	p := new(FileType)
+	*p = x
+	return p
+}
+
+func (x FileType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FileType) Descriptor() protoreflect.EnumDescriptor {
+	return file_file_file_proto_enumTypes[0].Descriptor()
+}
+
+func (FileType) Type() protoreflect.EnumType {
+	return &file_file_file_proto_enumTypes[0]
+}
+
+func (x FileType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FileType.Descriptor instead.
+func (FileType) EnumDescriptor() ([]byte, []int) {
+	return file_file_file_proto_rawDescGZIP(), []int{0}
+}
+
+// FileStatus 文件状态
+type FileStatus int32
+
+const (
+	FileStatus_FILE_STATUS_DELETED    FileStatus = 0
+	FileStatus_FILE_STATUS_ACTIVE     FileStatus = 1
+	FileStatus_FILE_STATUS_PROCESSING FileStatus = 2
+)
+
+// Enum value maps for FileStatus.
+var (
+	FileStatus_name = map[int32]string{
+		0: "FILE_STATUS_DELETED",
+		1: "FILE_STATUS_ACTIVE",
+		2: "FILE_STATUS_PROCESSING",
+	}
+	FileStatus_value = map[string]int32{
+		"FILE_STATUS_DELETED":    0,
+		"FILE_STATUS_ACTIVE":     1,
+		"FILE_STATUS_PROCESSING": 2,
+	}
+)
+
+func (x FileStatus) Enum() *FileStatus {
+	p := new(FileStatus)
+	*p = x
+	return p
+}
+
+func (x FileStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FileStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_file_file_proto_enumTypes[1].Descriptor()
+}
+
+func (FileStatus) Type() protoreflect.EnumType {
+	return &file_file_file_proto_enumTypes[1]
+}
+
+func (x FileStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FileStatus.Descriptor instead.
+func (FileStatus) EnumDescriptor() ([]byte, []int) {
+	return file_file_file_proto_rawDescGZIP(), []int{1}
+}
+
+// UploadStatus 分片上传状态
+type UploadStatus int32
+
+const (
+	UploadStatus_UPLOAD_STATUS_UNSPECIFIED UploadStatus = 0
+	UploadStatus_UPLOAD_STATUS_PENDING     UploadStatus = 1
+	UploadStatus_UPLOAD_STATUS_UPLOADING   UploadStatus = 2
+	UploadStatus_UPLOAD_STATUS_COMPLETED   UploadStatus = 3
+	UploadStatus_UPLOAD_STATUS_FAILED      UploadStatus = 4
+)
+
+// Enum value maps for UploadStatus.
+var (
+	UploadStatus_name = map[int32]string{
+		0: "UPLOAD_STATUS_UNSPECIFIED",
+		1: "UPLOAD_STATUS_PENDING",
+		2: "UPLOAD_STATUS_UPLOADING",
+		3: "UPLOAD_STATUS_COMPLETED",
+		4: "UPLOAD_STATUS_FAILED",
+	}
+	UploadStatus_value = map[string]int32{
+		"UPLOAD_STATUS_UNSPECIFIED": 0,
+		"UPLOAD_STATUS_PENDING":     1,
+		"UPLOAD_STATUS_UPLOADING":   2,
+		"UPLOAD_STATUS_COMPLETED":   3,
+		"UPLOAD_STATUS_FAILED":      4,
+	}
+)
+
+func (x UploadStatus) Enum() *UploadStatus {
+	p := new(UploadStatus)
+	*p = x
+	return p
+}
+
+func (x UploadStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (UploadStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_file_file_proto_enumTypes[2].Descriptor()
+}
+
+func (UploadStatus) Type() protoreflect.EnumType {
+	return &file_file_file_proto_enumTypes[2]
+}
+
+func (x UploadStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use UploadStatus.Descriptor instead.
+func (UploadStatus) EnumDescriptor() ([]byte, []int) {
+	return file_file_file_proto_rawDescGZIP(), []int{2}
+}
+
 // FileInfo 文件信息
 type FileInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FileId        string                 `protobuf:"bytes,1,opt,name=file_id,json=fileId,proto3" json:"file_id,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	FileName      string                 `protobuf:"bytes,3,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
-	FileType      string                 `protobuf:"bytes,4,opt,name=file_type,json=fileType,proto3" json:"file_type,omitempty"` // image/video/audio/file
+	FileType      FileType               `protobuf:"varint,4,opt,name=file_type,json=fileType,proto3,enum=file.FileType" json:"file_type,omitempty"`
 	FileSize      int64                  `protobuf:"varint,5,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`
 	MimeType      string                 `protobuf:"bytes,6,opt,name=mime_type,json=mimeType,proto3" json:"mime_type,omitempty"`
 	StoragePath   string                 `protobuf:"bytes,7,opt,name=storage_path,json=storagePath,proto3" json:"storage_path,omitempty"`
 	ThumbnailPath string                 `protobuf:"bytes,8,opt,name=thumbnail_path,json=thumbnailPath,proto3" json:"thumbnail_path,omitempty"`
 	BucketName    string                 `protobuf:"bytes,9,opt,name=bucket_name,json=bucketName,proto3" json:"bucket_name,omitempty"`
-	Status        int32                  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"` // 0-deleted 1-active 2-processing
+	Status        FileStatus             `protobuf:"varint,10,opt,name=status,proto3,enum=file.FileStatus" json:"status,omitempty"`
 	CreatedAt     int64                  `protobuf:"varint,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	ExpiresAt     *int64                 `protobuf:"varint,12,opt,name=expires_at,json=expiresAt,proto3,oneof" json:"expires_at,omitempty"`
 	Metadata      *string                `protobuf:"bytes,13,opt,name=metadata,proto3,oneof" json:"metadata,omitempty"` // JSON string
@@ -94,11 +259,11 @@ func (x *FileInfo) GetFileName() string {
 	return ""
 }
 
-func (x *FileInfo) GetFileType() string {
+func (x *FileInfo) GetFileType() FileType {
 	if x != nil {
 		return x.FileType
 	}
-	return ""
+	return FileType_FILE_TYPE_UNSPECIFIED
 }
 
 func (x *FileInfo) GetFileSize() int64 {
@@ -136,11 +301,11 @@ func (x *FileInfo) GetBucketName() string {
 	return ""
 }
 
-func (x *FileInfo) GetStatus() int32 {
+func (x *FileInfo) GetStatus() FileStatus {
 	if x != nil {
 		return x.Status
 	}
-	return 0
+	return FileStatus_FILE_STATUS_DELETED
 }
 
 func (x *FileInfo) GetCreatedAt() int64 {
@@ -185,7 +350,7 @@ type GenerateUploadTokenRequest struct {
 	FileName      string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
 	FileSize      int64                  `protobuf:"varint,3,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`
 	MimeType      string                 `protobuf:"bytes,4,opt,name=mime_type,json=mimeType,proto3" json:"mime_type,omitempty"`
-	FileType      string                 `protobuf:"bytes,5,opt,name=file_type,json=fileType,proto3" json:"file_type,omitempty"`                    // image/video/audio/file
+	FileType      FileType               `protobuf:"varint,5,opt,name=file_type,json=fileType,proto3,enum=file.FileType" json:"file_type,omitempty"`
 	ExpiresHours  *int32                 `protobuf:"varint,6,opt,name=expires_hours,json=expiresHours,proto3,oneof" json:"expires_hours,omitempty"` // 文件过期时间（小时），0表示永不过期
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -249,11 +414,11 @@ func (x *GenerateUploadTokenRequest) GetMimeType() string {
 	return ""
 }
 
-func (x *GenerateUploadTokenRequest) GetFileType() string {
+func (x *GenerateUploadTokenRequest) GetFileType() FileType {
 	if x != nil {
 		return x.FileType
 	}
-	return ""
+	return FileType_FILE_TYPE_UNSPECIFIED
 }
 
 func (x *GenerateUploadTokenRequest) GetExpiresHours() int32 {
@@ -654,7 +819,7 @@ func (x *DeleteFileResponse) GetSuccess() bool {
 type ListUserFilesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	FileType      *string                `protobuf:"bytes,2,opt,name=file_type,json=fileType,proto3,oneof" json:"file_type,omitempty"` // 可选：按文件类型过滤
+	FileType      *FileType              `protobuf:"varint,2,opt,name=file_type,json=fileType,proto3,enum=file.FileType,oneof" json:"file_type,omitempty"` // 可选：按文件类型过滤
 	Page          int32                  `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
 	PageSize      int32                  `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -698,11 +863,11 @@ func (x *ListUserFilesRequest) GetUserId() string {
 	return ""
 }
 
-func (x *ListUserFilesRequest) GetFileType() string {
+func (x *ListUserFilesRequest) GetFileType() FileType {
 	if x != nil && x.FileType != nil {
 		return *x.FileType
 	}
-	return ""
+	return FileType_FILE_TYPE_UNSPECIFIED
 }
 
 func (x *ListUserFilesRequest) GetPage() int32 {
@@ -890,20 +1055,20 @@ var File_file_file_proto protoreflect.FileDescriptor
 
 const file_file_file_proto_rawDesc = "" +
 	"\n" +
-	"\x0ffile/file.proto\x12\x04file\"\xa8\x04\n" +
+	"\x0ffile/file.proto\x12\x04file\"\xca\x04\n" +
 	"\bFileInfo\x12\x17\n" +
 	"\afile_id\x18\x01 \x01(\tR\x06fileId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
-	"\tfile_name\x18\x03 \x01(\tR\bfileName\x12\x1b\n" +
-	"\tfile_type\x18\x04 \x01(\tR\bfileType\x12\x1b\n" +
+	"\tfile_name\x18\x03 \x01(\tR\bfileName\x12+\n" +
+	"\tfile_type\x18\x04 \x01(\x0e2\x0e.file.FileTypeR\bfileType\x12\x1b\n" +
 	"\tfile_size\x18\x05 \x01(\x03R\bfileSize\x12\x1b\n" +
 	"\tmime_type\x18\x06 \x01(\tR\bmimeType\x12!\n" +
 	"\fstorage_path\x18\a \x01(\tR\vstoragePath\x12%\n" +
 	"\x0ethumbnail_path\x18\b \x01(\tR\rthumbnailPath\x12\x1f\n" +
 	"\vbucket_name\x18\t \x01(\tR\n" +
-	"bucketName\x12\x16\n" +
+	"bucketName\x12(\n" +
 	"\x06status\x18\n" +
-	" \x01(\x05R\x06status\x12\x1d\n" +
+	" \x01(\x0e2\x10.file.FileStatusR\x06status\x12\x1d\n" +
 	"\n" +
 	"created_at\x18\v \x01(\x03R\tcreatedAt\x12\"\n" +
 	"\n" +
@@ -914,13 +1079,13 @@ const file_file_file_proto_rawDesc = "" +
 	"\v_expires_atB\v\n" +
 	"\t_metadataB\x0f\n" +
 	"\r_download_urlB\x10\n" +
-	"\x0e_thumbnail_url\"\xe5\x01\n" +
+	"\x0e_thumbnail_url\"\xf5\x01\n" +
 	"\x1aGenerateUploadTokenRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12\x1b\n" +
 	"\tfile_size\x18\x03 \x01(\x03R\bfileSize\x12\x1b\n" +
-	"\tmime_type\x18\x04 \x01(\tR\bmimeType\x12\x1b\n" +
-	"\tfile_type\x18\x05 \x01(\tR\bfileType\x12(\n" +
+	"\tmime_type\x18\x04 \x01(\tR\bmimeType\x12+\n" +
+	"\tfile_type\x18\x05 \x01(\x0e2\x0e.file.FileTypeR\bfileType\x12(\n" +
 	"\rexpires_hours\x18\x06 \x01(\x05H\x00R\fexpiresHours\x88\x01\x01B\x10\n" +
 	"\x0e_expires_hours\"t\n" +
 	"\x1bGenerateUploadTokenResponse\x12\x17\n" +
@@ -950,10 +1115,10 @@ const file_file_file_proto_rawDesc = "" +
 	"\afile_id\x18\x01 \x01(\tR\x06fileId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\".\n" +
 	"\x12DeleteFileResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x90\x01\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xa0\x01\n" +
 	"\x14ListUserFilesRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12 \n" +
-	"\tfile_type\x18\x02 \x01(\tH\x00R\bfileType\x88\x01\x01\x12\x12\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x120\n" +
+	"\tfile_type\x18\x02 \x01(\x0e2\x0e.file.FileTypeH\x00R\bfileType\x88\x01\x01\x12\x12\n" +
 	"\x04page\x18\x03 \x01(\x05R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x04 \x01(\x05R\bpageSizeB\f\n" +
 	"\n" +
@@ -967,7 +1132,25 @@ const file_file_file_proto_rawDesc = "" +
 	"\bfile_ids\x18\x01 \x03(\tR\afileIds\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"@\n" +
 	"\x18BatchGetFileInfoResponse\x12$\n" +
-	"\x05files\x18\x01 \x03(\v2\x0e.file.FileInfoR\x05files2\x9b\x04\n" +
+	"\x05files\x18\x01 \x03(\v2\x0e.file.FileInfoR\x05files*\x8b\x01\n" +
+	"\bFileType\x12\x19\n" +
+	"\x15FILE_TYPE_UNSPECIFIED\x10\x00\x12\x13\n" +
+	"\x0fFILE_TYPE_IMAGE\x10\x01\x12\x13\n" +
+	"\x0fFILE_TYPE_VIDEO\x10\x02\x12\x13\n" +
+	"\x0fFILE_TYPE_AUDIO\x10\x03\x12\x12\n" +
+	"\x0eFILE_TYPE_FILE\x10\x04\x12\x11\n" +
+	"\rFILE_TYPE_LOG\x10\x05*Y\n" +
+	"\n" +
+	"FileStatus\x12\x17\n" +
+	"\x13FILE_STATUS_DELETED\x10\x00\x12\x16\n" +
+	"\x12FILE_STATUS_ACTIVE\x10\x01\x12\x1a\n" +
+	"\x16FILE_STATUS_PROCESSING\x10\x02*\x9c\x01\n" +
+	"\fUploadStatus\x12\x1d\n" +
+	"\x19UPLOAD_STATUS_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15UPLOAD_STATUS_PENDING\x10\x01\x12\x1b\n" +
+	"\x17UPLOAD_STATUS_UPLOADING\x10\x02\x12\x1b\n" +
+	"\x17UPLOAD_STATUS_COMPLETED\x10\x03\x12\x18\n" +
+	"\x14UPLOAD_STATUS_FAILED\x10\x042\x9b\x04\n" +
 	"\vFileService\x12Z\n" +
 	"\x13GenerateUploadToken\x12 .file.GenerateUploadTokenRequest\x1a!.file.GenerateUploadTokenResponse\x12=\n" +
 	"\x0eCompleteUpload\x12\x1b.file.CompleteUploadRequest\x1a\x0e.file.FileInfo\x12Z\n" +
@@ -990,44 +1173,52 @@ func file_file_file_proto_rawDescGZIP() []byte {
 	return file_file_file_proto_rawDescData
 }
 
+var file_file_file_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_file_file_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_file_file_proto_goTypes = []any{
-	(*FileInfo)(nil),                    // 0: file.FileInfo
-	(*GenerateUploadTokenRequest)(nil),  // 1: file.GenerateUploadTokenRequest
-	(*GenerateUploadTokenResponse)(nil), // 2: file.GenerateUploadTokenResponse
-	(*CompleteUploadRequest)(nil),       // 3: file.CompleteUploadRequest
-	(*GenerateDownloadURLRequest)(nil),  // 4: file.GenerateDownloadURLRequest
-	(*GenerateDownloadURLResponse)(nil), // 5: file.GenerateDownloadURLResponse
-	(*GetFileInfoRequest)(nil),          // 6: file.GetFileInfoRequest
-	(*DeleteFileRequest)(nil),           // 7: file.DeleteFileRequest
-	(*DeleteFileResponse)(nil),          // 8: file.DeleteFileResponse
-	(*ListUserFilesRequest)(nil),        // 9: file.ListUserFilesRequest
-	(*ListUserFilesResponse)(nil),       // 10: file.ListUserFilesResponse
-	(*BatchGetFileInfoRequest)(nil),     // 11: file.BatchGetFileInfoRequest
-	(*BatchGetFileInfoResponse)(nil),    // 12: file.BatchGetFileInfoResponse
+	(FileType)(0),                       // 0: file.FileType
+	(FileStatus)(0),                     // 1: file.FileStatus
+	(UploadStatus)(0),                   // 2: file.UploadStatus
+	(*FileInfo)(nil),                    // 3: file.FileInfo
+	(*GenerateUploadTokenRequest)(nil),  // 4: file.GenerateUploadTokenRequest
+	(*GenerateUploadTokenResponse)(nil), // 5: file.GenerateUploadTokenResponse
+	(*CompleteUploadRequest)(nil),       // 6: file.CompleteUploadRequest
+	(*GenerateDownloadURLRequest)(nil),  // 7: file.GenerateDownloadURLRequest
+	(*GenerateDownloadURLResponse)(nil), // 8: file.GenerateDownloadURLResponse
+	(*GetFileInfoRequest)(nil),          // 9: file.GetFileInfoRequest
+	(*DeleteFileRequest)(nil),           // 10: file.DeleteFileRequest
+	(*DeleteFileResponse)(nil),          // 11: file.DeleteFileResponse
+	(*ListUserFilesRequest)(nil),        // 12: file.ListUserFilesRequest
+	(*ListUserFilesResponse)(nil),       // 13: file.ListUserFilesResponse
+	(*BatchGetFileInfoRequest)(nil),     // 14: file.BatchGetFileInfoRequest
+	(*BatchGetFileInfoResponse)(nil),    // 15: file.BatchGetFileInfoResponse
 }
 var file_file_file_proto_depIdxs = []int32{
-	0,  // 0: file.ListUserFilesResponse.files:type_name -> file.FileInfo
-	0,  // 1: file.BatchGetFileInfoResponse.files:type_name -> file.FileInfo
-	1,  // 2: file.FileService.GenerateUploadToken:input_type -> file.GenerateUploadTokenRequest
-	3,  // 3: file.FileService.CompleteUpload:input_type -> file.CompleteUploadRequest
-	4,  // 4: file.FileService.GenerateDownloadURL:input_type -> file.GenerateDownloadURLRequest
-	6,  // 5: file.FileService.GetFileInfo:input_type -> file.GetFileInfoRequest
-	7,  // 6: file.FileService.DeleteFile:input_type -> file.DeleteFileRequest
-	9,  // 7: file.FileService.ListUserFiles:input_type -> file.ListUserFilesRequest
-	11, // 8: file.FileService.BatchGetFileInfo:input_type -> file.BatchGetFileInfoRequest
-	2,  // 9: file.FileService.GenerateUploadToken:output_type -> file.GenerateUploadTokenResponse
-	0,  // 10: file.FileService.CompleteUpload:output_type -> file.FileInfo
-	5,  // 11: file.FileService.GenerateDownloadURL:output_type -> file.GenerateDownloadURLResponse
-	0,  // 12: file.FileService.GetFileInfo:output_type -> file.FileInfo
-	8,  // 13: file.FileService.DeleteFile:output_type -> file.DeleteFileResponse
-	10, // 14: file.FileService.ListUserFiles:output_type -> file.ListUserFilesResponse
-	12, // 15: file.FileService.BatchGetFileInfo:output_type -> file.BatchGetFileInfoResponse
-	9,  // [9:16] is the sub-list for method output_type
-	2,  // [2:9] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	0,  // 0: file.FileInfo.file_type:type_name -> file.FileType
+	1,  // 1: file.FileInfo.status:type_name -> file.FileStatus
+	0,  // 2: file.GenerateUploadTokenRequest.file_type:type_name -> file.FileType
+	0,  // 3: file.ListUserFilesRequest.file_type:type_name -> file.FileType
+	3,  // 4: file.ListUserFilesResponse.files:type_name -> file.FileInfo
+	3,  // 5: file.BatchGetFileInfoResponse.files:type_name -> file.FileInfo
+	4,  // 6: file.FileService.GenerateUploadToken:input_type -> file.GenerateUploadTokenRequest
+	6,  // 7: file.FileService.CompleteUpload:input_type -> file.CompleteUploadRequest
+	7,  // 8: file.FileService.GenerateDownloadURL:input_type -> file.GenerateDownloadURLRequest
+	9,  // 9: file.FileService.GetFileInfo:input_type -> file.GetFileInfoRequest
+	10, // 10: file.FileService.DeleteFile:input_type -> file.DeleteFileRequest
+	12, // 11: file.FileService.ListUserFiles:input_type -> file.ListUserFilesRequest
+	14, // 12: file.FileService.BatchGetFileInfo:input_type -> file.BatchGetFileInfoRequest
+	5,  // 13: file.FileService.GenerateUploadToken:output_type -> file.GenerateUploadTokenResponse
+	3,  // 14: file.FileService.CompleteUpload:output_type -> file.FileInfo
+	8,  // 15: file.FileService.GenerateDownloadURL:output_type -> file.GenerateDownloadURLResponse
+	3,  // 16: file.FileService.GetFileInfo:output_type -> file.FileInfo
+	11, // 17: file.FileService.DeleteFile:output_type -> file.DeleteFileResponse
+	13, // 18: file.FileService.ListUserFiles:output_type -> file.ListUserFilesResponse
+	15, // 19: file.FileService.BatchGetFileInfo:output_type -> file.BatchGetFileInfoResponse
+	13, // [13:20] is the sub-list for method output_type
+	6,  // [6:13] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_file_file_proto_init() }
@@ -1045,13 +1236,14 @@ func file_file_file_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_file_file_proto_rawDesc), len(file_file_file_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      3,
 			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_file_file_proto_goTypes,
 		DependencyIndexes: file_file_file_proto_depIdxs,
+		EnumInfos:         file_file_file_proto_enumTypes,
 		MessageInfos:      file_file_file_proto_msgTypes,
 	}.Build()
 	File_file_file_proto = out.File

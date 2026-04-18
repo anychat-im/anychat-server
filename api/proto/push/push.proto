@@ -12,6 +12,16 @@ service PushService {
   rpc SendPush(SendPushRequest) returns (SendPushResponse);
 }
 
+// PushType 推送类型
+enum PushType {
+  PUSH_TYPE_UNSPECIFIED = 0;
+  PUSH_TYPE_MESSAGE_NEW = 1;
+  PUSH_TYPE_MESSAGE_MENTION = 2;
+  PUSH_TYPE_FRIEND_REQUEST = 3;
+  PUSH_TYPE_GROUP_INVITED = 4;
+  PUSH_TYPE_CALL_INVITE = 5;
+}
+
 // SendPushRequest 推送请求
 message SendPushRequest {
   // 目标用户 ID 列表
@@ -20,8 +30,8 @@ message SendPushRequest {
   string title = 2;
   // 推送正文
   string content = 3;
-  // 推送类型: message / friend_request / group_invite / mention / call
-  string push_type = 4;
+  // 推送类型
+  PushType push_type = 4;
   // 附加数据（键值对），客户端根据业务处理
   map<string, string> extras = 5;
 }

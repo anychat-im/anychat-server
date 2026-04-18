@@ -110,7 +110,7 @@ func (s *authServiceImpl) Register(ctx context.Context, req *dto.RegisterRequest
 	}
 
 	// validate device type
-	if !validator.ValidateDeviceType(req.DeviceType) {
+	if !req.DeviceType.IsValid() {
 		return nil, errors.NewBusiness(errors.CodeParamError, "invalid device type")
 	}
 
@@ -183,12 +183,12 @@ func (s *authServiceImpl) Register(ctx context.Context, req *dto.RegisterRequest
 	}
 
 	// generate tokens
-	accessToken, err := s.jwtManager.GenerateAccessToken(userID, req.DeviceID, req.DeviceType)
+	accessToken, err := s.jwtManager.GenerateAccessToken(userID, req.DeviceID, int16(req.DeviceType))
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := s.jwtManager.GenerateRefreshToken(userID, req.DeviceID, req.DeviceType)
+	refreshToken, err := s.jwtManager.GenerateRefreshToken(userID, req.DeviceID, int16(req.DeviceType))
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +225,7 @@ func (s *authServiceImpl) Register(ctx context.Context, req *dto.RegisterRequest
 // Login user login
 func (s *authServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error) {
 	// validate device type
-	if !validator.ValidateDeviceType(req.DeviceType) {
+	if !req.DeviceType.IsValid() {
 		return nil, errors.NewBusiness(errors.CodeParamError, "invalid device type")
 	}
 
@@ -278,12 +278,12 @@ func (s *authServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (*dt
 	}
 
 	// generate tokens
-	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID, req.DeviceID, req.DeviceType)
+	accessToken, err := s.jwtManager.GenerateAccessToken(user.ID, req.DeviceID, int16(req.DeviceType))
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := s.jwtManager.GenerateRefreshToken(user.ID, req.DeviceID, req.DeviceType)
+	refreshToken, err := s.jwtManager.GenerateRefreshToken(user.ID, req.DeviceID, int16(req.DeviceType))
 	if err != nil {
 		return nil, err
 	}
@@ -330,7 +330,7 @@ func (s *authServiceImpl) Login(ctx context.Context, req *dto.LoginRequest) (*dt
 }
 
 // handleSameTypeDeviceKick handles same type device login, forces logout of old devices
-func (s *authServiceImpl) handleSameTypeDeviceKick(ctx context.Context, userID, deviceID, deviceType string) error {
+func (s *authServiceImpl) handleSameTypeDeviceKick(ctx context.Context, userID, deviceID string, deviceType model.DeviceType) error {
 	devices, err := s.deviceRepo.GetByUserIDAndDeviceType(ctx, userID, deviceType)
 	if err != nil {
 		return err
@@ -353,7 +353,7 @@ func (s *authServiceImpl) handleSameTypeDeviceKick(ctx context.Context, userID, 
 			)
 			notif.Payload = map[string]interface{}{
 				"device_id":   device.DeviceID,
-				"device_type": device.DeviceType,
+				"device_type": device.DeviceType.String(),
 				"reason":      "new_device_login",
 			}
 			if err := s.notificationPub.PublishToUser(userID, notif); err != nil {
@@ -390,7 +390,7 @@ func (s *authServiceImpl) forceLogoutOtherDevices(ctx context.Context, userID, e
 			)
 			notif.Payload = map[string]interface{}{
 				"device_id":   device.DeviceID,
-				"device_type": device.DeviceType,
+				"device_type": device.DeviceType.String(),
 				"reason":      reason,
 			}
 			if err := s.notificationPub.PublishToUser(userID, notif); err != nil {
@@ -560,7 +560,7 @@ func (s *authServiceImpl) forceLogoutAllDevices(ctx context.Context, userID, rea
 			)
 			notif.Payload = map[string]interface{}{
 				"device_id":   device.DeviceID,
-				"device_type": device.DeviceType,
+				"device_type": device.DeviceType.String(),
 				"reason":      reason,
 			}
 			if err := s.notificationPub.PublishToUser(userID, notif); err != nil {
@@ -581,7 +581,7 @@ func (s *authServiceImpl) ValidateToken(ctx context.Context, token string) (*jwt
 	return claims, nil
 }
 
-func (s *authServiceImpl) resolveVerificationTarget(req *dto.RegisterRequest) (string, string) {
+func (s *authServiceImpl) resolveVerificationTarget(req *dto.RegisterRequest) (string, model.VerificationTargetType) {
 	if req.PhoneNumber != "" {
 		return req.PhoneNumber, model.TargetTypeSMS
 	}

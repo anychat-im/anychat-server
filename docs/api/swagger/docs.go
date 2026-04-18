@@ -34,12 +34,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-管理员管理"
+                    "admin-admin-management"
                 ],
-                "summary": "管理员列表",
+                "summary": "admin list",
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -71,12 +71,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-管理员管理"
+                    "admin-admin-management"
                 ],
-                "summary": "创建管理员",
+                "summary": "create admin",
                 "parameters": [
                     {
-                        "description": "管理员信息",
+                        "description": "admin info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -87,7 +87,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -109,19 +109,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-管理员管理"
+                    "admin-admin-management"
                 ],
-                "summary": "更新管理员状态",
+                "summary": "update admin status",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "管理员ID",
+                        "description": "admin ID",
                         "name": "adminId",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "状态",
+                        "description": "status",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -132,7 +132,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -151,38 +151,38 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-审计日志"
+                    "admin-audit-logs"
                 ],
-                "summary": "查询审计日志",
+                "summary": "query audit logs",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "管理员ID筛选",
+                        "description": "admin ID filter",
                         "name": "adminId",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "操作类型筛选",
+                        "description": "action filter",
                         "name": "action",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "页码",
+                        "description": "page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "每页数量",
+                        "description": "page size",
                         "name": "pageSize",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -204,7 +204,7 @@ const docTemplate = `{
         },
         "/admin/auth/login": {
             "post": {
-                "description": "管理员通过用户名密码登录，返回访问Token",
+                "description": "admin login with username and password, returns access token",
                 "consumes": [
                     "application/json"
                 ],
@@ -212,12 +212,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-认证"
+                    "admin-auth"
                 ],
-                "summary": "管理员登录",
+                "summary": "admin login",
                 "parameters": [
                     {
-                        "description": "登录信息",
+                        "description": "login info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -228,7 +228,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "登录成功",
+                        "description": "login success",
                         "schema": {
                             "allOf": [
                                 {
@@ -246,19 +246,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "账号或密码错误",
+                        "description": "invalid username or password",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -277,12 +277,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-认证"
+                    "admin-auth"
                 ],
-                "summary": "管理员退出",
+                "summary": "admin logout",
                 "responses": {
                     "200": {
-                        "description": "退出成功",
+                        "description": "logout success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -301,12 +301,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-系统配置"
+                    "admin-system-config"
                 ],
-                "summary": "获取系统配置",
+                "summary": "get system config",
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -340,19 +340,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-系统配置"
+                    "admin-system-config"
                 ],
-                "summary": "更新系统配置",
+                "summary": "update system config",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "配置键",
+                        "description": "config key",
                         "name": "key",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "配置值",
+                        "description": "config value",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -363,7 +363,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -382,13 +382,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-群组管理"
+                    "admin-group-management"
                 ],
-                "summary": "获取群组详情",
+                "summary": "get group details",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "groupId",
                         "in": "path",
                         "required": true
@@ -396,7 +396,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -425,13 +425,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-群组管理"
+                    "admin-group-management"
                 ],
-                "summary": "解散群组",
+                "summary": "dissolve group",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "groupId",
                         "in": "path",
                         "required": true
@@ -439,7 +439,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -458,12 +458,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-统计"
+                    "admin-statistics"
                 ],
-                "summary": "系统统计概览",
+                "summary": "system statistics overview",
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -490,37 +490,37 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "管理员搜索/列举系统用户",
+                "description": "admin search/list system users",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-用户管理"
+                    "admin-user-management"
                 ],
-                "summary": "查询用户列表",
+                "summary": "query user list",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "搜索关键字",
+                        "description": "search keyword",
                         "name": "keyword",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "页码",
+                        "description": "page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "每页数量",
+                        "description": "page size",
                         "name": "pageSize",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -551,13 +551,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-用户管理"
+                    "admin-user-management"
                 ],
-                "summary": "获取用户详情",
+                "summary": "get user details",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
+                        "description": "user ID",
                         "name": "userId",
                         "in": "path",
                         "required": true
@@ -565,7 +565,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -599,19 +599,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-用户管理"
+                    "admin-user-management"
                 ],
-                "summary": "封禁用户",
+                "summary": "ban user",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
+                        "description": "user ID",
                         "name": "userId",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "封禁原因",
+                        "description": "ban reason",
                         "name": "request",
                         "in": "body",
                         "schema": {
@@ -621,7 +621,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -640,13 +640,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理后台-用户管理"
+                    "admin-user-management"
                 ],
-                "summary": "解封用户",
+                "summary": "unban user",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
+                        "description": "user ID",
                         "name": "userId",
                         "in": "path",
                         "required": true
@@ -654,7 +654,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -664,7 +664,7 @@ const docTemplate = `{
         },
         "/auth/login": {
             "post": {
-                "description": "用户通过账号密码登录",
+                "description": "User login via account and password",
                 "consumes": [
                     "application/json"
                 ],
@@ -672,12 +672,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证"
+                    "auth"
                 ],
-                "summary": "用户登录",
+                "summary": "user login",
                 "parameters": [
                     {
-                        "description": "登录信息",
+                        "description": "login info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -688,7 +688,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "登录成功",
+                        "description": "login success",
                         "schema": {
                             "allOf": [
                                 {
@@ -706,19 +706,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "账号或密码错误",
+                        "description": "incorrect account or password",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -733,7 +733,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "用户登出，使当前设备的令牌失效",
+                "description": "User logout, invalidate token for current device",
                 "consumes": [
                     "application/json"
                 ],
@@ -741,12 +741,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证"
+                    "auth"
                 ],
-                "summary": "用户登出",
+                "summary": "user logout",
                 "parameters": [
                     {
-                        "description": "登出信息",
+                        "description": "logout info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -757,25 +757,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "登出成功",
+                        "description": "logout success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -790,7 +790,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "用户修改登录密码",
+                "description": "User changes login password",
                 "consumes": [
                     "application/json"
                 ],
@@ -798,12 +798,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证"
+                    "auth"
                 ],
-                "summary": "修改密码",
+                "summary": "change password",
                 "parameters": [
                     {
-                        "description": "修改密码信息",
+                        "description": "change password info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -814,25 +814,77 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "修改成功",
+                        "description": "change success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权或原密码错误",
+                        "description": "unauthorized or wrong original password",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/password/reset": {
+            "post": {
+                "description": "User forgets password, reset via verification code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "reset password",
+                "parameters": [
+                    {
+                        "description": "reset password info",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.ResetPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "reset success",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "verification code error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -842,7 +894,7 @@ const docTemplate = `{
         },
         "/auth/refresh": {
             "post": {
-                "description": "使用刷新令牌获取新的访问令牌",
+                "description": "Use refresh token to get new access token",
                 "consumes": [
                     "application/json"
                 ],
@@ -850,12 +902,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证"
+                    "auth"
                 ],
-                "summary": "刷新访问令牌",
+                "summary": "refresh access token",
                 "parameters": [
                     {
-                        "description": "刷新令牌",
+                        "description": "refresh token",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -866,7 +918,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "刷新成功",
+                        "description": "refresh success",
                         "schema": {
                             "allOf": [
                                 {
@@ -884,19 +936,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "刷新令牌无效",
+                        "description": "invalid refresh token",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -906,7 +958,7 @@ const docTemplate = `{
         },
         "/auth/register": {
             "post": {
-                "description": "用户通过手机号或邮箱注册新账号",
+                "description": "User registers new account via phone or email",
                 "consumes": [
                     "application/json"
                 ],
@@ -914,12 +966,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证"
+                    "auth"
                 ],
-                "summary": "用户注册",
+                "summary": "user registration",
                 "parameters": [
                     {
-                        "description": "注册信息",
+                        "description": "registration info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -930,7 +982,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "注册成功",
+                        "description": "registration success",
                         "schema": {
                             "allOf": [
                                 {
@@ -948,19 +1000,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "409": {
-                        "description": "用户已存在",
+                        "description": "user already exists",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -970,7 +1022,7 @@ const docTemplate = `{
         },
         "/auth/send-code": {
             "post": {
-                "description": "发送注册、找回密码或绑定场景使用的短信/邮箱验证码",
+                "description": "Send SMS/email verification code for registration, password recovery or binding scenarios",
                 "consumes": [
                     "application/json"
                 ],
@@ -978,12 +1030,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "认证"
+                    "auth"
                 ],
-                "summary": "发送验证码",
+                "summary": "send verification code",
                 "parameters": [
                     {
-                        "description": "验证码请求",
+                        "description": "verification code request",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -994,7 +1046,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "发送成功",
+                        "description": "send success",
                         "schema": {
                             "allOf": [
                                 {
@@ -1012,19 +1064,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "429": {
-                        "description": "请求过于频繁",
+                        "description": "too many requests",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1039,7 +1091,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取当前用户的通话历史记录",
+                "description": "Get current user's call history",
                 "consumes": [
                     "application/json"
                 ],
@@ -1049,24 +1101,24 @@ const docTemplate = `{
                 "tags": [
                     "Calling"
                 ],
-                "summary": "通话记录",
+                "summary": "call logs",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "页码（默认1）",
+                        "description": "page number (default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "每页数量（默认20）",
+                        "description": "page size (default 20)",
                         "name": "pageSize",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -1084,13 +1136,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1103,7 +1155,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "向指定用户发起音视频通话，返回 Calling Room 名称和 JWT Token",
+                "description": "Initiate audio/video call to specified user, returns Calling Room name and JWT Token",
                 "consumes": [
                     "application/json"
                 ],
@@ -1113,10 +1165,10 @@ const docTemplate = `{
                 "tags": [
                     "Calling"
                 ],
-                "summary": "发起通话",
+                "summary": "initiate call",
                 "parameters": [
                     {
-                        "description": "通话请求",
+                        "description": "call request",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1127,7 +1179,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "通话发起成功",
+                        "description": "call initiated successfully",
                         "schema": {
                             "allOf": [
                                 {
@@ -1145,19 +1197,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1172,7 +1224,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取指定通话会话的详细信息",
+                "description": "Get detailed info of specified call session",
                 "consumes": [
                     "application/json"
                 ],
@@ -1182,11 +1234,11 @@ const docTemplate = `{
                 "tags": [
                     "Calling"
                 ],
-                "summary": "获取通话详情",
+                "summary": "get call details",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "通话ID",
+                        "description": "call ID",
                         "name": "callId",
                         "in": "path",
                         "required": true
@@ -1194,7 +1246,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -1212,19 +1264,19 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "通话不存在",
+                        "description": "call not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1239,7 +1291,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "主叫方或被叫方挂断通话",
+                "description": "Caller or callee ends the call",
                 "consumes": [
                     "application/json"
                 ],
@@ -1249,11 +1301,11 @@ const docTemplate = `{
                 "tags": [
                     "Calling"
                 ],
-                "summary": "挂断通话",
+                "summary": "end call",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "通话ID",
+                        "description": "call ID",
                         "name": "callId",
                         "in": "path",
                         "required": true
@@ -1261,25 +1313,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "挂断成功",
+                        "description": "end success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "通话不存在",
+                        "description": "call not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1294,7 +1346,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "被叫方接受通话邀请，返回 Calling Room 名称和 JWT Token",
+                "description": "Callee accepts call invitation, returns Calling Room name and JWT Token",
                 "consumes": [
                     "application/json"
                 ],
@@ -1304,11 +1356,11 @@ const docTemplate = `{
                 "tags": [
                     "Calling"
                 ],
-                "summary": "接听通话",
+                "summary": "answer call",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "通话ID",
+                        "description": "call ID",
                         "name": "callId",
                         "in": "path",
                         "required": true
@@ -1316,7 +1368,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "接听成功",
+                        "description": "answer success",
                         "schema": {
                             "allOf": [
                                 {
@@ -1334,25 +1386,25 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "通话不存在",
+                        "description": "call not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1367,7 +1419,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "被叫方拒绝通话邀请",
+                "description": "Callee rejects call invitation",
                 "consumes": [
                     "application/json"
                 ],
@@ -1377,11 +1429,11 @@ const docTemplate = `{
                 "tags": [
                     "Calling"
                 ],
-                "summary": "拒绝通话",
+                "summary": "reject call",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "通话ID",
+                        "description": "call ID",
                         "name": "callId",
                         "in": "path",
                         "required": true
@@ -1389,25 +1441,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "拒绝成功",
+                        "description": "reject success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "通话不存在",
+                        "description": "call not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1422,7 +1474,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取当前活跃的会议室列表",
+                "description": "Get list of currently active meeting rooms",
                 "consumes": [
                     "application/json"
                 ],
@@ -1432,24 +1484,24 @@ const docTemplate = `{
                 "tags": [
                     "Calling"
                 ],
-                "summary": "会议室列表",
+                "summary": "meeting room list",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "页码（默认1）",
+                        "description": "page number (default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "每页数量（默认20）",
+                        "description": "page size (default 20)",
                         "name": "pageSize",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -1467,13 +1519,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1486,7 +1538,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "创建新的音视频会议室，返回会议信息和 Calling Token",
+                "description": "Create new audio/video meeting room, returns meeting info and Calling Token",
                 "consumes": [
                     "application/json"
                 ],
@@ -1496,10 +1548,10 @@ const docTemplate = `{
                 "tags": [
                     "Calling"
                 ],
-                "summary": "创建会议室",
+                "summary": "create meeting room",
                 "parameters": [
                     {
-                        "description": "会议室信息",
+                        "description": "meeting room info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1510,7 +1562,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "创建成功",
+                        "description": "create success",
                         "schema": {
                             "allOf": [
                                 {
@@ -1528,19 +1580,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1555,7 +1607,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取指定会议室的详细信息",
+                "description": "Get detailed info of specified meeting room",
                 "consumes": [
                     "application/json"
                 ],
@@ -1565,11 +1617,11 @@ const docTemplate = `{
                 "tags": [
                     "Calling"
                 ],
-                "summary": "获取会议室",
+                "summary": "get meeting room",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "会议室ID",
+                        "description": "meeting room ID",
                         "name": "roomId",
                         "in": "path",
                         "required": true
@@ -1577,7 +1629,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -1595,19 +1647,19 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "会议室不存在",
+                        "description": "meeting room not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1622,7 +1674,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "创建者结束会议室，会议室关闭后所有参与者将被移出",
+                "description": "Creator ends meeting room, all participants will be removed after room closes",
                 "consumes": [
                     "application/json"
                 ],
@@ -1632,11 +1684,11 @@ const docTemplate = `{
                 "tags": [
                     "Calling"
                 ],
-                "summary": "结束会议室",
+                "summary": "end meeting room",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "会议室ID",
+                        "description": "meeting room ID",
                         "name": "roomId",
                         "in": "path",
                         "required": true
@@ -1644,31 +1696,31 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "会议室不存在",
+                        "description": "meeting room not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1683,7 +1735,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "加入指定会议室，返回 Calling Token",
+                "description": "Join specified meeting room, returns Calling Token",
                 "consumes": [
                     "application/json"
                 ],
@@ -1693,17 +1745,17 @@ const docTemplate = `{
                 "tags": [
                     "Calling"
                 ],
-                "summary": "加入会议室",
+                "summary": "join meeting room",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "会议室ID",
+                        "description": "meeting room ID",
                         "name": "roomId",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "会议室密码（若有）",
+                        "description": "meeting room password (if any)",
                         "name": "request",
                         "in": "body",
                         "schema": {
@@ -1713,7 +1765,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "加入成功",
+                        "description": "join success",
                         "schema": {
                             "allOf": [
                                 {
@@ -1731,31 +1783,1196 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "密码错误",
+                        "description": "wrong password",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "会议室不存在",
+                        "description": "meeting room not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get current user's conversation list, supports incremental sync (via updatedBefore parameter)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "get conversation list",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "return count (default 20, max 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Unix timestamp, only return conversations updated before this time (incremental sync)",
+                        "name": "updatedBefore",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/unread/total": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get total unread message count for all conversations of current user (muted conversations excluded)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "get total unread count",
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get details of specified conversation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "get single conversation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "conversation not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete specified conversation (doesn't affect messages, only removes from conversation list)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "delete conversation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/auto_delete": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Set conversation auto delete duration, 0 means cancel",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "set auto delete",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "auto delete duration (seconds)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.setAutoDeleteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/burn": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Set conversation burn after reading duration, 0 means cancel",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "set burn after reading",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "burn after reading duration (seconds)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.setBurnAfterReadingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/messages/after": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Query messages after an anchor_message_id in a conversation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "get messages after anchor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "anchor message ID",
+                        "name": "anchor_message_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "limit (default 20, max 100)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/messages/around-anchor": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Query messages before and after anchor_message_id in one request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "get messages around anchor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "anchor message ID",
+                        "name": "anchor_message_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "messages before anchor (default 20, max 100)",
+                        "name": "before",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "messages after anchor (default 20, max 100)",
+                        "name": "after",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "include anchor message (default true)",
+                        "name": "include_anchor",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/messages/before": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Query messages before an anchor_message_id in a conversation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "get messages before anchor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "anchor message ID",
+                        "name": "anchor_message_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "limit (default 20, max 100)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/messages/first-unread-anchor": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Query first unread message anchor, optionally returning context windows",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "get first unread anchor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "whether to include before/after context",
+                        "name": "with_context",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "messages before anchor when with_context=true (default 20, max 100)",
+                        "name": "before",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "messages after anchor when with_context=true (default 20, max 100)",
+                        "name": "after",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/messages/read": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Used in scrolling list scenarios, batch report visible message IDs and advance conversation read cursor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "mark read by message ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "message read list",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.markMessagesReadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/messages/read-receipts": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Return last read sequence for members in conversation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "get message read receipts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/messages/sequence": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get latest message sequence in conversation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "get conversation message sequence",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/messages/unread-count": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Query unread message count for current user in specified conversation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "get conversation unread count",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "optional, client read sequence",
+                        "name": "last_read_seq",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/mute": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Enable or disable mute for specified conversation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "set conversation mute",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "mute status",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.setMutedRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/pin": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Pin or unpin specified conversation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "set conversation pin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "pin status",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.setPinnedRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversationId}/read-all": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Clear unread count for specified conversation and advance message read cursor to latest sequence",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conversation"
+                ],
+                "summary": "mark conversation as read",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1770,7 +2987,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "分页列出当前用户的文件，支持按类型过滤",
+                "description": "Paginate list of current user's files, supports filtering by type",
                 "consumes": [
                     "application/json"
                 ],
@@ -1778,34 +2995,34 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文件"
+                    "file"
                 ],
-                "summary": "列出用户文件",
+                "summary": "list user files",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "文件类型（image/video/audio/file）",
+                        "type": "integer",
+                        "description": "file type (1-image/2-video/3-audio/4-file/5-log)",
                         "name": "fileType",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "页码",
+                        "description": "page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 20,
-                        "description": "每页数量",
+                        "description": "page size",
                         "name": "pageSize",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -1823,19 +3040,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1850,7 +3067,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "生成预签名上传URL，客户端使用此URL直接上传到MinIO",
+                "description": "Generate presigned upload URL, client uses this URL to upload directly to MinIO",
                 "consumes": [
                     "application/json"
                 ],
@@ -1858,12 +3075,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文件"
+                    "file"
                 ],
-                "summary": "生成文件上传凭证",
+                "summary": "generate file upload token",
                 "parameters": [
                     {
-                        "description": "上传请求",
+                        "description": "upload request",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1874,7 +3091,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -1892,19 +3109,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1919,7 +3136,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取文件元数据信息",
+                "description": "Get file metadata info",
                 "consumes": [
                     "application/json"
                 ],
@@ -1927,13 +3144,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文件"
+                    "file"
                 ],
-                "summary": "获取文件信息",
+                "summary": "get file info",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "文件ID",
+                        "description": "file ID",
                         "name": "fileId",
                         "in": "path",
                         "required": true
@@ -1941,7 +3158,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -1959,31 +3176,31 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权访问",
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "文件不存在",
+                        "description": "file not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -1996,7 +3213,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "删除文件（包括MinIO中的对象）",
+                "description": "Delete file (including object in MinIO)",
                 "consumes": [
                     "application/json"
                 ],
@@ -2004,13 +3221,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文件"
+                    "file"
                 ],
-                "summary": "删除文件",
+                "summary": "delete file",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "文件ID",
+                        "description": "file ID",
                         "name": "fileId",
                         "in": "path",
                         "required": true
@@ -2018,37 +3235,37 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权访问",
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "文件不存在",
+                        "description": "file not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2063,7 +3280,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "客户端上传完成后，通知服务端激活文件",
+                "description": "After client finishes upload, notify server to activate file",
                 "consumes": [
                     "application/json"
                 ],
@@ -2071,13 +3288,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文件"
+                    "file"
                 ],
-                "summary": "完成文件上传",
+                "summary": "complete file upload",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "文件ID",
+                        "description": "file ID",
                         "name": "fileId",
                         "in": "path",
                         "required": true
@@ -2085,7 +3302,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -2103,25 +3320,25 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "文件不存在",
+                        "description": "file not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2136,7 +3353,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "生成预签名下载URL，客户端使用此URL直接从MinIO下载",
+                "description": "Generate presigned download URL, client uses this URL to download directly from MinIO",
                 "consumes": [
                     "application/json"
                 ],
@@ -2144,13 +3361,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文件"
+                    "file"
                 ],
-                "summary": "生成文件下载链接",
+                "summary": "generate file download URL",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "文件ID",
+                        "description": "file ID",
                         "name": "fileId",
                         "in": "path",
                         "required": true
@@ -2158,14 +3375,14 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 60,
-                        "description": "URL有效期（分钟）",
+                        "description": "URL expiration (minutes)",
                         "name": "expiresMinutes",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -2183,31 +3400,31 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权访问",
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "文件不存在",
+                        "description": "file not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2222,7 +3439,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取当前用户的所有好友,支持增量同步",
+                "description": "Get all friends of current user, supports incremental sync",
                 "consumes": [
                     "application/json"
                 ],
@@ -2230,21 +3447,21 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "好友"
+                    "friend"
                 ],
-                "summary": "获取好友列表",
+                "summary": "get friend list",
                 "parameters": [
                     {
                         "type": "integer",
                         "format": "int64",
-                        "description": "上次更新时间戳(增量同步)",
+                        "description": "last update timestamp (incremental sync)",
                         "name": "lastUpdateTime",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -2262,13 +3479,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2283,7 +3500,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取当前用户的黑名单列表",
+                "description": "Get current user's blacklist",
                 "consumes": [
                     "application/json"
                 ],
@@ -2291,12 +3508,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "好友"
+                    "friend"
                 ],
-                "summary": "获取黑名单",
+                "summary": "get blacklist",
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -2314,13 +3531,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2333,7 +3550,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "将指定用户添加到黑名单",
+                "description": "Add specified user to blacklist",
                 "consumes": [
                     "application/json"
                 ],
@@ -2341,12 +3558,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "好友"
+                    "friend"
                 ],
-                "summary": "添加黑名单",
+                "summary": "add to blacklist",
                 "parameters": [
                     {
-                        "description": "用户ID",
+                        "description": "user ID",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2357,25 +3574,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2390,7 +3607,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "将指定用户从黑名单移除",
+                "description": "Remove specified user from blacklist",
                 "consumes": [
                     "application/json"
                 ],
@@ -2398,13 +3615,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "好友"
+                    "friend"
                 ],
-                "summary": "从黑名单移除",
+                "summary": "remove from blacklist",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "被拉黑用户ID",
+                        "description": "blocked user ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2412,19 +3629,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2439,7 +3656,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取收到的或发送的好友申请列表",
+                "description": "Get friend request list by numeric request_type",
                 "consumes": [
                     "application/json"
                 ],
@@ -2447,21 +3664,21 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "好友"
+                    "friend"
                 ],
-                "summary": "获取好友申请列表",
+                "summary": "get friend request list",
                 "parameters": [
                     {
-                        "type": "string",
-                        "default": "received",
-                        "description": "类型: received(收到的)/sent(发送的)",
-                        "name": "type",
+                        "type": "integer",
+                        "default": 1,
+                        "description": "request type: 1-received 2-sent",
+                        "name": "request_type",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -2479,13 +3696,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2498,7 +3715,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "向指定用户发送好友申请",
+                "description": "Send friend request to specified user",
                 "consumes": [
                     "application/json"
                 ],
@@ -2506,12 +3723,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "好友"
+                    "friend"
                 ],
-                "summary": "发送好友申请",
+                "summary": "send friend request",
                 "parameters": [
                     {
-                        "description": "申请信息",
+                        "description": "request info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2522,7 +3739,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -2540,19 +3757,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2567,7 +3784,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "接受或拒绝好友申请",
+                "description": "Handle friend request with numeric action",
                 "consumes": [
                     "application/json"
                 ],
@@ -2575,19 +3792,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "好友"
+                    "friend"
                 ],
-                "summary": "处理好友申请",
+                "summary": "handle friend request",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "申请ID",
+                        "description": "request ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "处理动作",
+                        "description": "handle action: 1-accept 2-reject",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2598,25 +3815,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2631,7 +3848,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "删除指定好友",
+                "description": "Delete specified friend",
                 "consumes": [
                     "application/json"
                 ],
@@ -2639,13 +3856,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "好友"
+                    "friend"
                 ],
-                "summary": "删除好友",
+                "summary": "delete friend",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "好友用户ID",
+                        "description": "friend user ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2653,19 +3870,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2680,7 +3897,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "更新指定好友的备注名称",
+                "description": "Update remark name for specified friend",
                 "consumes": [
                     "application/json"
                 ],
@@ -2688,19 +3905,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "好友"
+                    "friend"
                 ],
-                "summary": "更新好友备注",
+                "summary": "update friend remark",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "好友用户ID",
+                        "description": "friend user ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "备注信息",
+                        "description": "remark info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2711,25 +3928,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2744,7 +3961,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取当前用户加入的所有群组列表",
+                "description": "Get all groups the current user has joined",
                 "consumes": [
                     "application/json"
                 ],
@@ -2752,13 +3969,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "获取我的群组列表",
+                "summary": "get my groups",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "最后更新时间戳（增量同步）",
+                        "description": "last update timestamp (incremental sync)",
                         "name": "lastUpdateTime",
                         "in": "query"
                     }
@@ -2783,7 +4000,7 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2796,7 +4013,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "创建一个新的群组，至少需要2个成员（包括创建者）",
+                "description": "Create a new group, requires at least 2 members (including creator)",
                 "consumes": [
                     "application/json"
                 ],
@@ -2804,12 +4021,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "创建群组",
+                "summary": "create group",
                 "parameters": [
                     {
-                        "description": "群组信息",
+                        "description": "group info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2820,7 +4037,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "创建成功",
+                        "description": "create success",
                         "schema": {
                             "allOf": [
                                 {
@@ -2838,19 +4055,137 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/join-by-qrcode": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Join group via QR code token, join directly or submit request based on group settings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "group"
+                ],
+                "summary": "join group via QR code",
+                "parameters": [
+                    {
+                        "description": "QR code token",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "token": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_anychat_server_internal_group_dto.JoinGroupByQRCodeResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "QR code invalid or expired",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/preview": {
+            "get": {
+                "description": "Get group name, avatar, member count and join verification via QR code token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "group"
+                ],
+                "summary": "group preview",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "QR code token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_anychat_server_internal_group_dto.GroupQRCodePreviewResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "invalid parameter or QR code expired",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2865,7 +4200,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取指定群组的详细信息",
+                "description": "Get detailed info of specified group",
                 "consumes": [
                     "application/json"
                 ],
@@ -2873,13 +4208,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "获取群组信息",
+                "summary": "get group info",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -2905,13 +4240,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "群组不存在",
+                        "description": "group not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2924,7 +4259,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "更新群组的名称、头像、公告等信息（需要管理员权限）",
+                "description": "Update group name, avatar, announcement etc (requires admin permission)",
                 "consumes": [
                     "application/json"
                 ],
@@ -2932,19 +4267,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "更新群信息",
+                "summary": "update group info",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "更新信息",
+                        "description": "update info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -2955,25 +4290,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "更新成功",
+                        "description": "update success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -2986,7 +4321,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "解散群组（仅群主可操作）",
+                "description": "Dissolve group (owner only)",
                 "consumes": [
                     "application/json"
                 ],
@@ -2994,13 +4329,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "解散群组",
+                "summary": "dissolve group",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -3008,19 +4343,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "解散成功",
+                        "description": "dissolve success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3035,7 +4370,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "申请加入指定群组",
+                "description": "Request to join specified group",
                 "consumes": [
                     "application/json"
                 ],
@@ -3043,19 +4378,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "加入群组",
+                "summary": "join group",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "申请信息",
+                        "description": "join request",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -3066,7 +4401,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "申请成功",
+                        "description": "request success",
                         "schema": {
                             "allOf": [
                                 {
@@ -3084,13 +4419,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3105,7 +4440,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取指定群组的成员列表，支持分页",
+                "description": "Get members of specified group, supports pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -3113,13 +4448,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "获取群成员列表",
+                "summary": "get group members",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -3127,14 +4462,14 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "页码",
+                        "description": "page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 20,
-                        "description": "每页数量",
+                        "description": "page size",
                         "name": "pageSize",
                         "in": "query"
                     }
@@ -3159,13 +4494,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "群组不存在",
+                        "description": "group not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3178,7 +4513,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "邀请用户加入群组",
+                "description": "Invite users to join group",
                 "consumes": [
                     "application/json"
                 ],
@@ -3186,19 +4521,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "邀请成员",
+                "summary": "invite members",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "邀请信息",
+                        "description": "invite info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -3209,19 +4544,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "邀请成功",
+                        "description": "invite success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3236,7 +4571,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "从群组中移除成员（需要管理员权限）",
+                "description": "Remove member from group (requires admin permission)",
                 "consumes": [
                     "application/json"
                 ],
@@ -3244,20 +4579,20 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "移除成员",
+                "summary": "remove member",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "要移除的用户ID",
+                        "description": "user ID to remove",
                         "name": "userId",
                         "in": "path",
                         "required": true
@@ -3265,19 +4600,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "移除成功",
+                        "description": "remove success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3292,7 +4627,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "设置或取消群管理员（仅群主可操作）",
+                "description": "Set or remove group admin (owner only)",
                 "consumes": [
                     "application/json"
                 ],
@@ -3300,26 +4635,26 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "更新成员角色",
+                "summary": "update member role",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "用户ID",
+                        "description": "user ID",
                         "name": "userId",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "角色信息",
+                        "description": "role info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -3330,25 +4665,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "更新成功",
+                        "description": "update success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3363,7 +4698,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "设置自己在群内的昵称",
+                "description": "Set your nickname in the group",
                 "consumes": [
                     "application/json"
                 ],
@@ -3371,19 +4706,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "更新群昵称",
+                "summary": "update member nickname",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "昵称信息",
+                        "description": "nickname info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -3394,19 +4729,141 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "更新成功",
+                        "description": "update success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/{id}/qrcode": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get current valid group QR code, auto create/renew if not exists or expiring soon (all members)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "group"
+                ],
+                "summary": "get group QR code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_anychat_server_internal_group_dto.GroupQRCodeResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "not a group member",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/{id}/qrcode/refresh": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Refresh group QR code, invalidate old one and generate new one (owner/admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "group"
+                ],
+                "summary": "refresh group QR code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_anychat_server_internal_group_dto.GroupQRCodeResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3421,7 +4878,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "退出指定群组",
+                "description": "Quit specified group",
                 "consumes": [
                     "application/json"
                 ],
@@ -3429,13 +4886,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "退出群组",
+                "summary": "quit group",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -3443,13 +4900,77 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "退出成功",
+                        "description": "quit success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups/{id}/remark": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Set a remark for the group that only you can see, pass empty string to clear",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "group"
+                ],
+                "summary": "set group remark",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "remark info",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_internal_group_dto.UpdateMemberRemarkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "set success",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "not a group member",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3464,7 +4985,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取指定群组的入群申请列表（需要管理员权限）",
+                "description": "Get join requests for specified group (requires admin permission)",
                 "consumes": [
                     "application/json"
                 ],
@@ -3472,20 +4993,20 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "获取入群申请列表",
+                "summary": "get join requests",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "申请状态（pending/accepted/rejected）",
+                        "type": "integer",
+                        "description": "request status: 1=pending,2=accepted,3=rejected",
                         "name": "status",
                         "in": "query"
                     }
@@ -3510,13 +5031,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3531,7 +5052,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "接受或拒绝入群申请（需要管理员权限）",
+                "description": "Accept or reject join request (requires admin permission)",
                 "consumes": [
                     "application/json"
                 ],
@@ -3539,26 +5060,26 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "处理入群申请",
+                "summary": "handle join request",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "申请ID",
+                        "description": "request ID",
                         "name": "requestId",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "处理信息",
+                        "description": "handle info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -3569,25 +5090,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "处理成功",
+                        "description": "handle success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3602,7 +5123,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "将群主转让给其他成员（仅群主可操作）",
+                "description": "Transfer group owner to another member (owner only)",
                 "consumes": [
                     "application/json"
                 ],
@@ -3610,19 +5131,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "群组"
+                    "group"
                 ],
-                "summary": "转让群主",
+                "summary": "transfer ownership",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "群组ID",
+                        "description": "group ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "转让信息",
+                        "description": "transfer info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -3633,25 +5154,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "转让成功",
+                        "description": "transfer success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "403": {
-                        "description": "无权限",
+                        "description": "no permission",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3659,14 +5180,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/conversations": {
-            "get": {
+        "/messages": {
+            "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取当前用户的会话列表，支持增量同步（通过updatedBefore参数）",
+                "description": "Send conversation message via HTTP (supports idempotent local_id)",
                 "consumes": [
                     "application/json"
                 ],
@@ -3674,27 +5195,255 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "会话"
+                    "message"
                 ],
-                "summary": "获取会话列表",
+                "summary": "send message",
                 "parameters": [
                     {
+                        "description": "message content",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.sendMessageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/read-triggers": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Client batch reports message read trigger events, server starts burn timer accordingly",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "burn after reading read trigger acknowledgment",
+                "parameters": [
+                    {
+                        "description": "read trigger events",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.ackReadTriggersRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/recall": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Recall specified message, can only recall own messages within 2 minutes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "recall message",
+                "parameters": [
+                    {
+                        "description": "message ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.recallMessageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "no permission or timeout",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "message not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/search": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Search messages by keyword and conversation scope",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "search messages",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "keyword",
+                        "name": "keyword",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "conversation ID",
+                        "name": "conversation_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
-                        "description": "返回数量（默认20，最大100）",
+                        "description": "message type (1-text/2-image/3-video/4-audio/5-file/6-location/7-card)",
+                        "name": "content_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "page size (default 20, max 100)",
                         "name": "limit",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "format": "int64",
-                        "description": "Unix时间戳，仅返回此时间之前更新的会话（增量同步）",
-                        "name": "updatedBefore",
+                        "format": "int32",
+                        "description": "offset",
+                        "name": "offset",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -3711,14 +5460,20 @@ const docTemplate = `{
                             ]
                         }
                     },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3726,14 +5481,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/conversations/unread/total": {
+        "/messages/{messageId}": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取当前用户所有会话的总未读消息数（免打扰会话不计入）",
+                "description": "Get single message by message ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -3741,73 +5496,21 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "会话"
+                    "message"
                 ],
-                "summary": "获取总未读数",
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器错误",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/conversations/{conversationId}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "获取指定会话的详情",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "会话"
-                ],
-                "summary": "获取单个会话",
+                "summary": "get message detail",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "会话ID",
-                        "name": "conversationId",
+                        "description": "message ID",
+                        "name": "messageId",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -3824,20 +5527,26 @@ const docTemplate = `{
                             ]
                         }
                     },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "会话不存在",
+                        "description": "message not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -3850,7 +5559,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "删除指定会话（不影响消息，仅从会话列表中移除）",
+                "description": "Delete specified message, can only delete own messages",
                 "consumes": [
                     "application/json"
                 ],
@@ -3858,210 +5567,45 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "会话"
+                    "message"
                 ],
-                "summary": "删除会话",
+                "summary": "delete message",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "会话ID",
-                        "name": "conversationId",
+                        "description": "message ID",
+                        "name": "messageId",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "no permission",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "message not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/conversations/{conversationId}/mute": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "开启或关闭指定会话的免打扰",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "会话"
-                ],
-                "summary": "设置会话免打扰",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "会话ID",
-                        "name": "conversationId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "免打扰状态",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_gateway_handler.setMutedRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器错误",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/conversations/{conversationId}/pin": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "置顶或取消置顶指定会话",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "会话"
-                ],
-                "summary": "设置会话置顶",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "会话ID",
-                        "name": "conversationId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "置顶状态",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_gateway_handler.setPinnedRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器错误",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/conversations/{conversationId}/read": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "清除指定会话的未读消息数",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "会话"
-                ],
-                "summary": "标记会话已读",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "会话ID",
-                        "name": "conversationId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -4076,7 +5620,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "客户端登录或从后台恢复时调用，返回自 lastSyncTime 后的好友、群组、会话变更，以及各会话的离线消息。lastSyncTime=0 表示全量同步。",
+                "description": "Called when client logs in or resumes from background. Returns friends, groups, conversation changes since lastSyncTime, and offline messages for each conversation. lastSyncTime=0 means full sync.",
                 "consumes": [
                     "application/json"
                 ],
@@ -4084,12 +5628,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "同步"
+                    "sync"
                 ],
-                "summary": "数据同步",
+                "summary": "data sync",
                 "parameters": [
                     {
-                        "description": "同步请求",
+                        "description": "sync request",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -4100,7 +5644,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "同步成功",
+                        "description": "sync success",
                         "schema": {
                             "allOf": [
                                 {
@@ -4118,19 +5662,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -4145,7 +5689,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "按照每个会话的最新已知序列号，拉取离线消息",
+                "description": "Pull offline messages based on the latest known sequence number for each conversation",
                 "consumes": [
                     "application/json"
                 ],
@@ -4153,18 +5697,18 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "同步"
+                    "sync"
                 ],
-                "summary": "消息补齐",
+                "summary": "message sync",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "每个会话最多返回的消息数（默认50）",
+                        "description": "max messages per conversation (default 50)",
                         "name": "limit",
                         "in": "query"
                     },
                     {
-                        "description": "消息补齐请求",
+                        "description": "message sync request",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -4175,7 +5719,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功",
+                        "description": "success",
                         "schema": {
                             "allOf": [
                                 {
@@ -4193,19 +5737,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -4220,7 +5764,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取当前登录用户的详细资料",
+                "description": "Get detailed profile of currently logged in user",
                 "consumes": [
                     "application/json"
                 ],
@@ -4228,12 +5772,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "user"
                 ],
-                "summary": "获取个人资料",
+                "summary": "get personal profile",
                 "responses": {
                     "200": {
-                        "description": "获取成功",
+                        "description": "get success",
                         "schema": {
                             "allOf": [
                                 {
@@ -4251,13 +5795,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -4270,7 +5814,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "更新当前登录用户的个人资料",
+                "description": "Update personal profile of currently logged in user",
                 "consumes": [
                     "application/json"
                 ],
@@ -4278,12 +5822,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "user"
                 ],
-                "summary": "更新个人资料",
+                "summary": "update personal profile",
                 "parameters": [
                     {
-                        "description": "资料信息",
+                        "description": "profile info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -4294,7 +5838,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "更新成功",
+                        "description": "update success",
                         "schema": {
                             "allOf": [
                                 {
@@ -4312,19 +5856,319 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/email/bind": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Bind email for currently logged in user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "bind email",
+                "parameters": [
+                    {
+                        "description": "bind email info",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.BindEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "bind success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "email already in use",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/email/change": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Change bound email for currently logged in user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "change email",
+                "parameters": [
+                    {
+                        "description": "change email info",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.ChangeEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "change success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "email already in use",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/phone/bind": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Bind phone number for currently logged in user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "bind phone",
+                "parameters": [
+                    {
+                        "description": "bind phone info",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.BindPhoneRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "bind success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "phone number already in use",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/phone/change": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Change bound phone number for currently logged in user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "change phone",
+                "parameters": [
+                    {
+                        "description": "change phone info",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_handler.ChangePhoneRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "change success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "parameter error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "phone number already in use",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -4339,7 +6183,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "更新设备的推送通知Token",
+                "description": "Update device push notification token",
                 "consumes": [
                     "application/json"
                 ],
@@ -4347,12 +6191,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "user"
                 ],
-                "summary": "更新推送Token",
+                "summary": "update push token",
                 "parameters": [
                     {
-                        "description": "推送Token信息",
+                        "description": "push token info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -4363,25 +6207,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "更新成功",
+                        "description": "update success",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -4396,7 +6240,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取当前用户的偏好设置",
+                "description": "Get current user's preference settings",
                 "consumes": [
                     "application/json"
                 ],
@@ -4404,12 +6248,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "user"
                 ],
-                "summary": "获取用户设置",
+                "summary": "get user settings",
                 "responses": {
                     "200": {
-                        "description": "获取成功",
+                        "description": "get success",
                         "schema": {
                             "allOf": [
                                 {
@@ -4427,13 +6271,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -4446,7 +6290,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "更新当前用户的偏好设置",
+                "description": "Update current user's preference settings",
                 "consumes": [
                     "application/json"
                 ],
@@ -4454,12 +6298,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "user"
                 ],
-                "summary": "更新用户设置",
+                "summary": "update user settings",
                 "parameters": [
                     {
-                        "description": "设置信息",
+                        "description": "settings info",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -4470,7 +6314,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "更新成功",
+                        "description": "update success",
                         "schema": {
                             "allOf": [
                                 {
@@ -4488,19 +6332,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -4515,7 +6359,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "通过关键字搜索用户（支持昵称、手机号、用户ID）",
+                "description": "Search users by keyword (supports nickname, phone, user ID)",
                 "consumes": [
                     "application/json"
                 ],
@@ -4523,13 +6367,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "user"
                 ],
-                "summary": "搜索用户",
+                "summary": "search users",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "搜索关键字",
+                        "description": "search keyword",
                         "name": "keyword",
                         "in": "query",
                         "required": true
@@ -4537,21 +6381,21 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "页码",
+                        "description": "page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 20,
-                        "description": "每页数量",
+                        "description": "page size",
                         "name": "pageSize",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "搜索成功",
+                        "description": "search success",
                         "schema": {
                             "allOf": [
                                 {
@@ -4569,19 +6413,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "parameter error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -4596,7 +6440,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取指定用户的公开信息",
+                "description": "Get public info of specified user",
                 "consumes": [
                     "application/json"
                 ],
@@ -4604,13 +6448,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户"
+                    "user"
                 ],
-                "summary": "获取用户信息",
+                "summary": "get user info",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
+                        "description": "user ID",
                         "name": "userId",
                         "in": "path",
                         "required": true
@@ -4618,7 +6462,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "获取成功",
+                        "description": "get success",
                         "schema": {
                             "allOf": [
                                 {
@@ -4636,19 +6480,19 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "未授权",
+                        "description": "unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "404": {
-                        "description": "用户不存在",
+                        "description": "user not found",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
                     },
                     "500": {
-                        "description": "服务器错误",
+                        "description": "server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_anychat_server_pkg_response.Response"
                         }
@@ -4658,11 +6502,11 @@ const docTemplate = `{
         },
         "/ws": {
             "get": {
-                "description": "客户端通过WebSocket保持长连接，接收实时通知和消息推送。由于WebSocket协议不支持自定义Header，JWT token通过URL query参数传入。",
+                "description": "Client maintains long connection via WebSocket to receive real-time notifications and message pushes. Since WebSocket protocol doesn't support custom headers, JWT token is passed via URL query parameter.",
                 "tags": [
-                    "实时通信"
+                    "realtime"
                 ],
-                "summary": "建立WebSocket长连接",
+                "summary": "establish WebSocket long connection",
                 "parameters": [
                     {
                         "type": "string",
@@ -4680,7 +6524,7 @@ const docTemplate = `{
         "github_com_anychat_server_internal_group_dto.CreateGroupRequest": {
             "type": "object",
             "required": [
-                "memberIds",
+                "member_ids",
                 "name"
             ],
             "properties": {
@@ -4688,11 +6532,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://example.com/avatar.jpg"
                 },
-                "joinVerify": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "memberIds": {
+                "member_ids": {
                     "type": "array",
                     "minItems": 1,
                     "items": {
@@ -4707,7 +6547,7 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 100,
                     "minLength": 1,
-                    "example": "技术交流群"
+                    "example": "Tech Discussion Group"
                 }
             }
         },
@@ -4724,7 +6564,7 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 5
                 },
-                "updateTime": {
+                "update_time": {
                     "type": "integer",
                     "example": 1609459200
                 }
@@ -4752,28 +6592,79 @@ const docTemplate = `{
         "github_com_anychat_server_internal_group_dto.GroupMemberResponse": {
             "type": "object",
             "properties": {
-                "groupNickname": {
+                "group_nickname": {
                     "type": "string",
-                    "example": "群内昵称"
+                    "example": "Group nickname"
                 },
-                "isMuted": {
+                "is_muted": {
                     "type": "boolean",
                     "example": false
                 },
-                "joinedAt": {
+                "joined_at": {
                     "type": "string",
                     "example": "2024-01-01T00:00:00Z"
                 },
-                "role": {
+                "muted_until": {
                     "type": "string",
-                    "example": "member"
+                    "example": "2024-01-01T01:00:00Z"
                 },
-                "userId": {
+                "role": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_anychat_server_internal_group_model.GroupRole"
+                        }
+                    ],
+                    "example": 3
+                },
+                "user_id": {
                     "type": "string",
                     "example": "user-123"
                 },
-                "userInfo": {
+                "user_info": {
                     "$ref": "#/definitions/github_com_anychat_server_internal_group_dto.UserInfo"
+                }
+            }
+        },
+        "github_com_anychat_server_internal_group_dto.GroupQRCodePreviewResponse": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string",
+                    "example": "https://example.com/group.png"
+                },
+                "group_id": {
+                    "type": "string",
+                    "example": "group-123"
+                },
+                "member_count": {
+                    "type": "integer",
+                    "example": 42
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Product Team"
+                },
+                "need_verify": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "github_com_anychat_server_internal_group_dto.GroupQRCodeResponse": {
+            "type": "object",
+            "properties": {
+                "deep_link": {
+                    "type": "string",
+                    "example": "anychat://join/group?token=550e8400-e29b-41d4-a716-446655440000"
+                },
+                "expire_at": {
+                    "description": "Unix timestamp in seconds",
+                    "type": "integer",
+                    "example": 1754006400
+                },
+                "token": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 }
             }
         },
@@ -4782,49 +6673,62 @@ const docTemplate = `{
             "properties": {
                 "announcement": {
                     "type": "string",
-                    "example": "欢迎加入"
+                    "example": "Welcome to join"
                 },
                 "avatar": {
                     "type": "string",
                     "example": "https://example.com/avatar.jpg"
                 },
-                "createdAt": {
+                "created_at": {
                     "type": "string",
                     "example": "2024-01-01T00:00:00Z"
                 },
-                "groupId": {
+                "description": {
+                    "type": "string",
+                    "example": "Group description"
+                },
+                "display_name": {
+                    "description": "Remark takes priority, falls back to Name",
+                    "type": "string",
+                    "example": "Product Discussion Group"
+                },
+                "group_id": {
                     "type": "string",
                     "example": "group-123"
                 },
-                "isMuted": {
+                "is_muted": {
                     "type": "boolean",
                     "example": false
                 },
-                "joinVerify": {
+                "join_verify": {
                     "type": "boolean",
                     "example": true
                 },
-                "maxMembers": {
+                "max_members": {
                     "type": "integer",
                     "example": 500
                 },
-                "memberCount": {
+                "member_count": {
                     "type": "integer",
                     "example": 10
                 },
-                "myRole": {
-                    "type": "string",
-                    "example": "member"
+                "my_role": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_anychat_server_internal_group_model.GroupRole"
+                        }
+                    ],
+                    "example": 3
                 },
                 "name": {
                     "type": "string",
-                    "example": "技术交流群"
+                    "example": "Tech Discussion Group"
                 },
-                "ownerId": {
+                "owner_id": {
                     "type": "string",
                     "example": "user-123"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string",
                     "example": "2024-01-01T00:00:00Z"
                 }
@@ -4842,10 +6746,10 @@ const docTemplate = `{
         "github_com_anychat_server_internal_group_dto.InviteMembersRequest": {
             "type": "object",
             "required": [
-                "userIds"
+                "user_ids"
             ],
             "properties": {
-                "userIds": {
+                "user_ids": {
                     "type": "array",
                     "minItems": 1,
                     "items": {
@@ -4858,13 +6762,36 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_anychat_server_internal_group_dto.JoinGroupByQRCodeResponse": {
+            "type": "object",
+            "properties": {
+                "group_id": {
+                    "type": "string",
+                    "example": "group-123"
+                },
+                "joined": {
+                    "description": "true=direct join, false=request submitted",
+                    "type": "boolean",
+                    "example": true
+                },
+                "need_verify": {
+                    "description": "whether approval is needed",
+                    "type": "boolean",
+                    "example": false
+                },
+                "request_id": {
+                    "type": "integer",
+                    "example": 123
+                }
+            }
+        },
         "github_com_anychat_server_internal_group_dto.JoinGroupRequest": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string",
                     "maxLength": 200,
-                    "example": "你好，我想加入群组"
+                    "example": "Hello, I would like to join the group"
                 }
             }
         },
@@ -4873,13 +6800,13 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string",
-                    "example": "申请已提交，等待审核"
+                    "example": "Request submitted, waiting for approval"
                 },
-                "needVerify": {
+                "need_verify": {
                     "type": "boolean",
                     "example": true
                 },
-                "requestId": {
+                "request_id": {
                     "type": "integer",
                     "example": 123
                 }
@@ -4903,11 +6830,11 @@ const docTemplate = `{
         "github_com_anychat_server_internal_group_dto.JoinRequestResponse": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "created_at": {
                     "type": "string",
                     "example": "2024-01-01T00:00:00Z"
                 },
-                "groupId": {
+                "group_id": {
                     "type": "string",
                     "example": "group-123"
                 },
@@ -4915,23 +6842,27 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 123
                 },
-                "inviterId": {
+                "inviter_id": {
                     "type": "string",
                     "example": "user-456"
                 },
                 "message": {
                     "type": "string",
-                    "example": "你好，我想加入"
+                    "example": "Hello, I would like to join"
                 },
                 "status": {
-                    "type": "string",
-                    "example": "pending"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_anychat_server_internal_group_model.JoinRequestStatus"
+                        }
+                    ],
+                    "example": 1
                 },
-                "userId": {
+                "user_id": {
                     "type": "string",
                     "example": "user-123"
                 },
-                "userInfo": {
+                "user_info": {
                     "$ref": "#/definitions/github_com_anychat_server_internal_group_dto.UserInfo"
                 }
             }
@@ -4939,10 +6870,10 @@ const docTemplate = `{
         "github_com_anychat_server_internal_group_dto.TransferOwnershipRequest": {
             "type": "object",
             "required": [
-                "newOwnerId"
+                "new_owner_id"
             ],
             "properties": {
-                "newOwnerId": {
+                "new_owner_id": {
                     "type": "string",
                     "example": "user-456"
                 }
@@ -4954,21 +6885,22 @@ const docTemplate = `{
                 "announcement": {
                     "type": "string",
                     "maxLength": 1000,
-                    "example": "群公告内容"
+                    "example": "Group announcement content"
                 },
                 "avatar": {
                     "type": "string",
                     "example": "https://example.com/new-avatar.jpg"
                 },
-                "joinVerify": {
-                    "type": "boolean",
-                    "example": false
+                "description": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "example": "Group description content"
                 },
                 "name": {
                     "type": "string",
                     "maxLength": 100,
                     "minLength": 1,
-                    "example": "新群名称"
+                    "example": "New group name"
                 }
             }
         },
@@ -4981,7 +6913,18 @@ const docTemplate = `{
                 "nickname": {
                     "type": "string",
                     "maxLength": 50,
-                    "example": "群内昵称"
+                    "example": "Group nickname"
+                }
+            }
+        },
+        "github_com_anychat_server_internal_group_dto.UpdateMemberRemarkRequest": {
+            "type": "object",
+            "properties": {
+                "remark": {
+                    "description": "Empty string clears remark",
+                    "type": "string",
+                    "maxLength": 20,
+                    "example": "Product Discussion Group"
                 }
             }
         },
@@ -4992,12 +6935,16 @@ const docTemplate = `{
             ],
             "properties": {
                 "role": {
-                    "type": "string",
                     "enum": [
-                        "admin",
-                        "member"
+                        2,
+                        3
                     ],
-                    "example": "admin"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_anychat_server_internal_group_model.GroupRole"
+                        }
+                    ],
+                    "example": 2
                 }
             }
         },
@@ -5010,7 +6957,7 @@ const docTemplate = `{
                 },
                 "bio": {
                     "type": "string",
-                    "example": "个性签名"
+                    "example": "Personal signature"
                 },
                 "gender": {
                     "type": "integer",
@@ -5018,13 +6965,45 @@ const docTemplate = `{
                 },
                 "nickname": {
                     "type": "string",
-                    "example": "张三"
+                    "example": "Zhang San"
                 },
-                "userId": {
+                "user_id": {
                     "type": "string",
                     "example": "user-123"
                 }
             }
+        },
+        "github_com_anychat_server_internal_group_model.GroupRole": {
+            "type": "integer",
+            "format": "int32",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "x-enum-varnames": [
+                "GroupRoleUnknown",
+                "GroupRoleOwner",
+                "GroupRoleAdmin",
+                "GroupRoleMember"
+            ]
+        },
+        "github_com_anychat_server_internal_group_model.JoinRequestStatus": {
+            "type": "integer",
+            "format": "int32",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "x-enum-varnames": [
+                "JoinRequestStatusUnknown",
+                "JoinRequestStatusPending",
+                "JoinRequestStatusAccepted",
+                "JoinRequestStatusRejected"
+            ]
         },
         "github_com_anychat_server_pkg_response.Response": {
             "type": "object",
@@ -5057,7 +7036,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "username": {
                     "type": "string"
@@ -5104,41 +7083,132 @@ const docTemplate = `{
         "internal_gateway_handler.AuthResponse": {
             "type": "object",
             "properties": {
-                "accessToken": {
+                "access_token": {
                     "type": "string",
                     "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                 },
-                "expiresIn": {
+                "expires_in": {
                     "type": "integer",
                     "example": 7200
                 },
-                "refreshToken": {
+                "refresh_token": {
                     "type": "string",
                     "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                 },
                 "user": {
                     "$ref": "#/definitions/internal_gateway_handler.UserInfo"
                 },
-                "userId": {
+                "user_id": {
                     "type": "string",
                     "example": "user-123"
+                }
+            }
+        },
+        "internal_gateway_handler.BindEmailRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "verify_code"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "verify_code": {
+                    "type": "string",
+                    "example": "123456"
+                }
+            }
+        },
+        "internal_gateway_handler.BindPhoneRequest": {
+            "type": "object",
+            "required": [
+                "phone_number",
+                "verify_code"
+            ],
+            "properties": {
+                "phone_number": {
+                    "type": "string",
+                    "example": "13800138000"
+                },
+                "verify_code": {
+                    "type": "string",
+                    "example": "123456"
+                }
+            }
+        },
+        "internal_gateway_handler.ChangeEmailRequest": {
+            "type": "object",
+            "required": [
+                "new_email",
+                "new_verify_code",
+                "old_email"
+            ],
+            "properties": {
+                "new_email": {
+                    "type": "string",
+                    "example": "new@example.com"
+                },
+                "new_verify_code": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "old_email": {
+                    "type": "string",
+                    "example": "old@example.com"
+                },
+                "old_verify_code": {
+                    "type": "string",
+                    "example": "123456"
                 }
             }
         },
         "internal_gateway_handler.ChangePasswordRequest": {
             "type": "object",
             "required": [
-                "newPassword",
-                "oldPassword"
+                "device_id",
+                "new_password",
+                "old_password"
             ],
             "properties": {
-                "newPassword": {
+                "device_id": {
+                    "type": "string",
+                    "example": "device-uuid-123"
+                },
+                "new_password": {
                     "type": "string",
                     "example": "newpass123"
                 },
-                "oldPassword": {
+                "old_password": {
                     "type": "string",
                     "example": "oldpass123"
+                }
+            }
+        },
+        "internal_gateway_handler.ChangePhoneRequest": {
+            "type": "object",
+            "required": [
+                "new_phone_number",
+                "new_verify_code",
+                "old_phone_number"
+            ],
+            "properties": {
+                "new_phone_number": {
+                    "type": "string",
+                    "example": "13900139000"
+                },
+                "new_verify_code": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "old_phone_number": {
+                    "type": "string",
+                    "example": "13800138000"
+                },
+                "old_verify_code": {
+                    "type": "string",
+                    "example": "123456"
                 }
             }
         },
@@ -5146,9 +7216,9 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "account",
-                "clientVersion",
-                "deviceId",
-                "deviceType",
+                "client_version",
+                "device_id",
+                "device_type",
                 "password"
             ],
             "properties": {
@@ -5156,22 +7226,27 @@ const docTemplate = `{
                     "type": "string",
                     "example": "13800138000"
                 },
-                "clientVersion": {
+                "client_version": {
                     "type": "string",
                     "example": "1.0.0"
                 },
-                "deviceId": {
+                "device_id": {
                     "type": "string",
                     "example": "device-uuid-123"
                 },
-                "deviceType": {
-                    "type": "string",
+                "device_type": {
+                    "type": "integer",
                     "enum": [
-                        "ios",
-                        "android",
-                        "web"
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
                     ],
-                    "example": "ios"
+                    "example": 1
+                },
+                "ip_address": {
+                    "type": "string"
                 },
                 "password": {
                     "type": "string",
@@ -5182,10 +7257,10 @@ const docTemplate = `{
         "internal_gateway_handler.LogoutRequest": {
             "type": "object",
             "required": [
-                "deviceId"
+                "device_id"
             ],
             "properties": {
-                "deviceId": {
+                "device_id": {
                     "type": "string",
                     "example": "device-uuid-123"
                 }
@@ -5194,10 +7269,10 @@ const docTemplate = `{
         "internal_gateway_handler.RefreshTokenRequest": {
             "type": "object",
             "required": [
-                "refreshToken"
+                "refresh_token"
             ],
             "properties": {
-                "refreshToken": {
+                "refresh_token": {
                     "type": "string",
                     "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                 }
@@ -5206,29 +7281,31 @@ const docTemplate = `{
         "internal_gateway_handler.RegisterRequest": {
             "type": "object",
             "required": [
-                "clientVersion",
-                "deviceId",
-                "deviceType",
+                "client_version",
+                "device_id",
+                "device_type",
                 "password",
-                "verifyCode"
+                "verify_code"
             ],
             "properties": {
-                "clientVersion": {
+                "client_version": {
                     "type": "string",
                     "example": "1.0.0"
                 },
-                "deviceId": {
+                "device_id": {
                     "type": "string",
                     "example": "device-uuid-123"
                 },
-                "deviceType": {
-                    "type": "string",
+                "device_type": {
+                    "type": "integer",
                     "enum": [
-                        "ios",
-                        "android",
-                        "web"
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
                     ],
-                    "example": "ios"
+                    "example": 1
                 },
                 "email": {
                     "type": "string",
@@ -5242,11 +7319,33 @@ const docTemplate = `{
                     "type": "string",
                     "example": "password123"
                 },
-                "phoneNumber": {
+                "phone_number": {
                     "type": "string",
                     "example": "13800138000"
                 },
-                "verifyCode": {
+                "verify_code": {
+                    "type": "string",
+                    "example": "123456"
+                }
+            }
+        },
+        "internal_gateway_handler.ResetPasswordRequest": {
+            "type": "object",
+            "required": [
+                "account",
+                "new_password",
+                "verify_code"
+            ],
+            "properties": {
+                "account": {
+                    "type": "string",
+                    "example": "13800138000"
+                },
+                "new_password": {
+                    "type": "string",
+                    "example": "NewPass123"
+                },
+                "verify_code": {
                     "type": "string",
                     "example": "123456"
                 }
@@ -5257,39 +7356,48 @@ const docTemplate = `{
             "required": [
                 "purpose",
                 "target",
-                "targetType"
+                "target_type"
             ],
             "properties": {
-                "deviceId": {
+                "device_id": {
                     "type": "string",
                     "example": "device-uuid-123"
                 },
                 "purpose": {
-                    "type": "string",
-                    "example": "register"
+                    "type": "integer",
+                    "enum": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ],
+                    "example": 1
                 },
                 "target": {
                     "type": "string",
                     "example": "13800138000"
                 },
-                "targetType": {
-                    "type": "string",
+                "target_type": {
+                    "type": "integer",
                     "enum": [
-                        "sms",
-                        "email"
+                        1,
+                        2
                     ],
-                    "example": "sms"
+                    "example": 1
                 }
             }
         },
         "internal_gateway_handler.SendCodeResponse": {
             "type": "object",
             "properties": {
-                "codeId": {
+                "code_id": {
                     "type": "string",
                     "example": "vc_20260405_xxx"
                 },
-                "expiresIn": {
+                "expires_in": {
                     "type": "integer",
                     "example": 300
                 }
@@ -5332,24 +7440,24 @@ const docTemplate = `{
         "internal_gateway_handler.UpdatePushTokenRequest": {
             "type": "object",
             "required": [
-                "deviceId",
+                "device_id",
                 "platform",
-                "pushToken"
+                "push_token"
             ],
             "properties": {
-                "deviceId": {
+                "device_id": {
                     "type": "string",
                     "example": "device-uuid-123"
                 },
                 "platform": {
-                    "type": "string",
+                    "type": "integer",
                     "enum": [
-                        "ios",
-                        "android"
+                        1,
+                        2
                     ],
-                    "example": "ios"
+                    "example": 1
                 },
-                "pushToken": {
+                "push_token": {
                     "type": "string",
                     "example": "push-token-xxx"
                 }
@@ -5358,7 +7466,7 @@ const docTemplate = `{
         "internal_gateway_handler.UpdateSettingsRequest": {
             "type": "object",
             "properties": {
-                "friendVerifyRequired": {
+                "friend_verify_required": {
                     "type": "boolean",
                     "example": true
                 },
@@ -5366,27 +7474,27 @@ const docTemplate = `{
                     "type": "string",
                     "example": "zh-CN"
                 },
-                "messagePreviewEnabled": {
+                "message_preview_enabled": {
                     "type": "boolean",
                     "example": true
                 },
-                "notificationEnabled": {
+                "notification_enabled": {
                     "type": "boolean",
                     "example": true
                 },
-                "searchById": {
+                "search_by_id": {
                     "type": "boolean",
                     "example": true
                 },
-                "searchByPhone": {
+                "search_by_phone": {
                     "type": "boolean",
                     "example": true
                 },
-                "soundEnabled": {
+                "sound_enabled": {
                     "type": "boolean",
                     "example": true
                 },
-                "vibrationEnabled": {
+                "vibration_enabled": {
                     "type": "boolean",
                     "example": true
                 }
@@ -5411,7 +7519,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "13800138000"
                 },
-                "userId": {
+                "user_id": {
                     "type": "string",
                     "example": "user-123"
                 }
@@ -5428,7 +7536,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "1990-01-01T00:00:00Z"
                 },
-                "createdAt": {
+                "created_at": {
                     "type": "string",
                     "example": "2024-01-01T00:00:00Z"
                 },
@@ -5448,7 +7556,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "13800138000"
                 },
-                "qrcodeUrl": {
+                "qrcode_url": {
                     "type": "string",
                     "example": "https://example.com/qrcode.png"
                 },
@@ -5460,7 +7568,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "这是我的个性签名"
                 },
-                "userId": {
+                "user_id": {
                     "type": "string",
                     "example": "user-123"
                 }
@@ -5481,7 +7589,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "这是我的个性签名"
                 },
-                "userId": {
+                "user_id": {
                     "type": "string",
                     "example": "user-123"
                 }
@@ -5505,7 +7613,7 @@ const docTemplate = `{
         "internal_gateway_handler.UserSettings": {
             "type": "object",
             "properties": {
-                "friendVerifyRequired": {
+                "friend_verify_required": {
                     "type": "boolean",
                     "example": true
                 },
@@ -5513,46 +7621,61 @@ const docTemplate = `{
                     "type": "string",
                     "example": "zh-CN"
                 },
-                "messagePreviewEnabled": {
+                "message_preview_enabled": {
                     "type": "boolean",
                     "example": true
                 },
-                "notificationEnabled": {
+                "notification_enabled": {
                     "type": "boolean",
                     "example": true
                 },
-                "searchById": {
+                "search_by_id": {
                     "type": "boolean",
                     "example": true
                 },
-                "searchByPhone": {
+                "search_by_phone": {
                     "type": "boolean",
                     "example": true
                 },
-                "soundEnabled": {
+                "sound_enabled": {
                     "type": "boolean",
                     "example": true
                 },
-                "userId": {
+                "user_id": {
                     "type": "string",
                     "example": "user-123"
                 },
-                "vibrationEnabled": {
+                "vibration_enabled": {
                     "type": "boolean",
                     "example": true
+                }
+            }
+        },
+        "internal_gateway_handler.ackReadTriggersRequest": {
+            "type": "object",
+            "required": [
+                "events"
+            ],
+            "properties": {
+                "events": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/internal_gateway_handler.readTriggerEvent"
+                    }
                 }
             }
         },
         "internal_gateway_handler.conversationSeqItem": {
             "type": "object",
             "properties": {
-                "conversationId": {
+                "conversation_id": {
                     "type": "string"
                 },
-                "conversationType": {
-                    "type": "string"
+                "conversation_type": {
+                    "type": "integer"
                 },
-                "lastSeq": {
+                "last_seq": {
                     "type": "integer"
                 }
             }
@@ -5563,7 +7686,7 @@ const docTemplate = `{
                 "title"
             ],
             "properties": {
-                "maxParticipants": {
+                "max_participants": {
                     "type": "integer"
                 },
                 "password": {
@@ -5577,14 +7700,14 @@ const docTemplate = `{
         "internal_gateway_handler.initiateCallRequest": {
             "type": "object",
             "required": [
-                "calleeId"
+                "callee_id"
             ],
             "properties": {
-                "callType": {
-                    "description": "audio/video（默认 audio）",
-                    "type": "string"
+                "call_type": {
+                    "description": "0-audio/1-video (default: 0)",
+                    "type": "integer"
                 },
-                "calleeId": {
+                "callee_id": {
                     "type": "string"
                 }
             }
@@ -5594,6 +7717,114 @@ const docTemplate = `{
             "properties": {
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_gateway_handler.markMessagesReadRequest": {
+            "type": "object",
+            "required": [
+                "message_ids"
+            ],
+            "properties": {
+                "client_read_at": {
+                    "type": "integer"
+                },
+                "idempotency_key": {
+                    "type": "string"
+                },
+                "message_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "internal_gateway_handler.readTriggerEvent": {
+            "type": "object",
+            "required": [
+                "message_id"
+            ],
+            "properties": {
+                "client_at": {
+                    "type": "integer"
+                },
+                "idempotency_key": {
+                    "type": "string"
+                },
+                "message_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_gateway_handler.recallMessageRequest": {
+            "type": "object",
+            "required": [
+                "message_id"
+            ],
+            "properties": {
+                "message_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_gateway_handler.sendMessageRequest": {
+            "type": "object",
+            "required": [
+                "content",
+                "content_type",
+                "conversation_id",
+                "local_id"
+            ],
+            "properties": {
+                "at_users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "type": "integer",
+                    "enum": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7
+                    ]
+                },
+                "conversation_id": {
+                    "type": "string"
+                },
+                "local_id": {
+                    "type": "string"
+                },
+                "reply_to": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_gateway_handler.setAutoDeleteRequest": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "description": "seconds, 0 means cancel",
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_gateway_handler.setBurnAfterReadingRequest": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "description": "seconds, 0 means cancel",
+                    "type": "integer"
                 }
             }
         },
@@ -5616,13 +7847,13 @@ const docTemplate = `{
         "internal_gateway_handler.syncMessagesRequest": {
             "type": "object",
             "properties": {
-                "conversationSeqs": {
+                "conversation_seqs": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internal_gateway_handler.conversationSeqItem"
                     }
                 },
-                "limitPerConversation": {
+                "limit_per_conversation": {
                     "type": "integer"
                 }
             }
@@ -5630,13 +7861,13 @@ const docTemplate = `{
         "internal_gateway_handler.syncRequest": {
             "type": "object",
             "properties": {
-                "conversationSeqs": {
+                "conversation_seqs": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internal_gateway_handler.conversationSeqItem"
                     }
                 },
-                "lastSyncTime": {
+                "last_sync_time": {
                     "type": "integer"
                 }
             }
@@ -5659,7 +7890,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "AnyChat Gateway API",
-	Description:      "AnyChat 即时通讯系统的网关 API 服务，提供用户认证、用户管理等功能的 HTTP 接口。\n所有需要认证的接口都需要在 Header 中携带 Authorization: Bearer <token>",
+	Description:      "AnyChat instant messaging system gateway API service, providing HTTP interfaces for user authentication, user management, and other functions.\nAll endpoints requiring authentication must include Authorization: Bearer <token> in the Header.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

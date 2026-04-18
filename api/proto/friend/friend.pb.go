@@ -23,6 +23,214 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type FriendRequestSource int32
+
+const (
+	FriendRequestSource_FRIEND_REQUEST_SOURCE_UNSPECIFIED FriendRequestSource = 0
+	FriendRequestSource_FRIEND_REQUEST_SOURCE_SEARCH      FriendRequestSource = 1
+	FriendRequestSource_FRIEND_REQUEST_SOURCE_QRCODE      FriendRequestSource = 2
+	FriendRequestSource_FRIEND_REQUEST_SOURCE_GROUP       FriendRequestSource = 3
+	FriendRequestSource_FRIEND_REQUEST_SOURCE_CONTACTS    FriendRequestSource = 4
+)
+
+// Enum value maps for FriendRequestSource.
+var (
+	FriendRequestSource_name = map[int32]string{
+		0: "FRIEND_REQUEST_SOURCE_UNSPECIFIED",
+		1: "FRIEND_REQUEST_SOURCE_SEARCH",
+		2: "FRIEND_REQUEST_SOURCE_QRCODE",
+		3: "FRIEND_REQUEST_SOURCE_GROUP",
+		4: "FRIEND_REQUEST_SOURCE_CONTACTS",
+	}
+	FriendRequestSource_value = map[string]int32{
+		"FRIEND_REQUEST_SOURCE_UNSPECIFIED": 0,
+		"FRIEND_REQUEST_SOURCE_SEARCH":      1,
+		"FRIEND_REQUEST_SOURCE_QRCODE":      2,
+		"FRIEND_REQUEST_SOURCE_GROUP":       3,
+		"FRIEND_REQUEST_SOURCE_CONTACTS":    4,
+	}
+)
+
+func (x FriendRequestSource) Enum() *FriendRequestSource {
+	p := new(FriendRequestSource)
+	*p = x
+	return p
+}
+
+func (x FriendRequestSource) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FriendRequestSource) Descriptor() protoreflect.EnumDescriptor {
+	return file_friend_friend_proto_enumTypes[0].Descriptor()
+}
+
+func (FriendRequestSource) Type() protoreflect.EnumType {
+	return &file_friend_friend_proto_enumTypes[0]
+}
+
+func (x FriendRequestSource) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FriendRequestSource.Descriptor instead.
+func (FriendRequestSource) EnumDescriptor() ([]byte, []int) {
+	return file_friend_friend_proto_rawDescGZIP(), []int{0}
+}
+
+type FriendRequestStatus int32
+
+const (
+	FriendRequestStatus_FRIEND_REQUEST_STATUS_UNSPECIFIED FriendRequestStatus = 0
+	FriendRequestStatus_FRIEND_REQUEST_STATUS_PENDING     FriendRequestStatus = 1
+	FriendRequestStatus_FRIEND_REQUEST_STATUS_ACCEPTED    FriendRequestStatus = 2
+	FriendRequestStatus_FRIEND_REQUEST_STATUS_REJECTED    FriendRequestStatus = 3
+	FriendRequestStatus_FRIEND_REQUEST_STATUS_EXPIRED     FriendRequestStatus = 4
+)
+
+// Enum value maps for FriendRequestStatus.
+var (
+	FriendRequestStatus_name = map[int32]string{
+		0: "FRIEND_REQUEST_STATUS_UNSPECIFIED",
+		1: "FRIEND_REQUEST_STATUS_PENDING",
+		2: "FRIEND_REQUEST_STATUS_ACCEPTED",
+		3: "FRIEND_REQUEST_STATUS_REJECTED",
+		4: "FRIEND_REQUEST_STATUS_EXPIRED",
+	}
+	FriendRequestStatus_value = map[string]int32{
+		"FRIEND_REQUEST_STATUS_UNSPECIFIED": 0,
+		"FRIEND_REQUEST_STATUS_PENDING":     1,
+		"FRIEND_REQUEST_STATUS_ACCEPTED":    2,
+		"FRIEND_REQUEST_STATUS_REJECTED":    3,
+		"FRIEND_REQUEST_STATUS_EXPIRED":     4,
+	}
+)
+
+func (x FriendRequestStatus) Enum() *FriendRequestStatus {
+	p := new(FriendRequestStatus)
+	*p = x
+	return p
+}
+
+func (x FriendRequestStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FriendRequestStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_friend_friend_proto_enumTypes[1].Descriptor()
+}
+
+func (FriendRequestStatus) Type() protoreflect.EnumType {
+	return &file_friend_friend_proto_enumTypes[1]
+}
+
+func (x FriendRequestStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FriendRequestStatus.Descriptor instead.
+func (FriendRequestStatus) EnumDescriptor() ([]byte, []int) {
+	return file_friend_friend_proto_rawDescGZIP(), []int{1}
+}
+
+type FriendRequestAction int32
+
+const (
+	FriendRequestAction_FRIEND_REQUEST_ACTION_UNSPECIFIED FriendRequestAction = 0
+	FriendRequestAction_FRIEND_REQUEST_ACTION_ACCEPT      FriendRequestAction = 1
+	FriendRequestAction_FRIEND_REQUEST_ACTION_REJECT      FriendRequestAction = 2
+)
+
+// Enum value maps for FriendRequestAction.
+var (
+	FriendRequestAction_name = map[int32]string{
+		0: "FRIEND_REQUEST_ACTION_UNSPECIFIED",
+		1: "FRIEND_REQUEST_ACTION_ACCEPT",
+		2: "FRIEND_REQUEST_ACTION_REJECT",
+	}
+	FriendRequestAction_value = map[string]int32{
+		"FRIEND_REQUEST_ACTION_UNSPECIFIED": 0,
+		"FRIEND_REQUEST_ACTION_ACCEPT":      1,
+		"FRIEND_REQUEST_ACTION_REJECT":      2,
+	}
+)
+
+func (x FriendRequestAction) Enum() *FriendRequestAction {
+	p := new(FriendRequestAction)
+	*p = x
+	return p
+}
+
+func (x FriendRequestAction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FriendRequestAction) Descriptor() protoreflect.EnumDescriptor {
+	return file_friend_friend_proto_enumTypes[2].Descriptor()
+}
+
+func (FriendRequestAction) Type() protoreflect.EnumType {
+	return &file_friend_friend_proto_enumTypes[2]
+}
+
+func (x FriendRequestAction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FriendRequestAction.Descriptor instead.
+func (FriendRequestAction) EnumDescriptor() ([]byte, []int) {
+	return file_friend_friend_proto_rawDescGZIP(), []int{2}
+}
+
+type FriendRequestQueryType int32
+
+const (
+	FriendRequestQueryType_FRIEND_REQUEST_QUERY_TYPE_UNSPECIFIED FriendRequestQueryType = 0
+	FriendRequestQueryType_FRIEND_REQUEST_QUERY_TYPE_RECEIVED    FriendRequestQueryType = 1
+	FriendRequestQueryType_FRIEND_REQUEST_QUERY_TYPE_SENT        FriendRequestQueryType = 2
+)
+
+// Enum value maps for FriendRequestQueryType.
+var (
+	FriendRequestQueryType_name = map[int32]string{
+		0: "FRIEND_REQUEST_QUERY_TYPE_UNSPECIFIED",
+		1: "FRIEND_REQUEST_QUERY_TYPE_RECEIVED",
+		2: "FRIEND_REQUEST_QUERY_TYPE_SENT",
+	}
+	FriendRequestQueryType_value = map[string]int32{
+		"FRIEND_REQUEST_QUERY_TYPE_UNSPECIFIED": 0,
+		"FRIEND_REQUEST_QUERY_TYPE_RECEIVED":    1,
+		"FRIEND_REQUEST_QUERY_TYPE_SENT":        2,
+	}
+)
+
+func (x FriendRequestQueryType) Enum() *FriendRequestQueryType {
+	p := new(FriendRequestQueryType)
+	*p = x
+	return p
+}
+
+func (x FriendRequestQueryType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FriendRequestQueryType) Descriptor() protoreflect.EnumDescriptor {
+	return file_friend_friend_proto_enumTypes[3].Descriptor()
+}
+
+func (FriendRequestQueryType) Type() protoreflect.EnumType {
+	return &file_friend_friend_proto_enumTypes[3]
+}
+
+func (x FriendRequestQueryType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FriendRequestQueryType.Descriptor instead.
+func (FriendRequestQueryType) EnumDescriptor() ([]byte, []int) {
+	return file_friend_friend_proto_rawDescGZIP(), []int{3}
+}
+
 // Friend 好友信息
 type Friend struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -107,8 +315,8 @@ type FriendRequest struct {
 	FromUserId    string                 `protobuf:"bytes,2,opt,name=from_user_id,json=fromUserId,proto3" json:"from_user_id,omitempty"`
 	ToUserId      string                 `protobuf:"bytes,3,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`
 	Message       string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
-	Source        string                 `protobuf:"bytes,5,opt,name=source,proto3" json:"source,omitempty"` // search/qrcode/group/contacts
-	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"` // pending/accepted/rejected/expired
+	Source        FriendRequestSource    `protobuf:"varint,5,opt,name=source,proto3,enum=anychat.friend.FriendRequestSource" json:"source,omitempty"`
+	Status        FriendRequestStatus    `protobuf:"varint,6,opt,name=status,proto3,enum=anychat.friend.FriendRequestStatus" json:"status,omitempty"`
 	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	FromUserInfo  *common.UserInfo       `protobuf:"bytes,8,opt,name=from_user_info,json=fromUserInfo,proto3" json:"from_user_info,omitempty"` // 申请人信息
 	unknownFields protoimpl.UnknownFields
@@ -173,18 +381,18 @@ func (x *FriendRequest) GetMessage() string {
 	return ""
 }
 
-func (x *FriendRequest) GetSource() string {
+func (x *FriendRequest) GetSource() FriendRequestSource {
 	if x != nil {
 		return x.Source
 	}
-	return ""
+	return FriendRequestSource_FRIEND_REQUEST_SOURCE_UNSPECIFIED
 }
 
-func (x *FriendRequest) GetStatus() string {
+func (x *FriendRequest) GetStatus() FriendRequestStatus {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return FriendRequestStatus_FRIEND_REQUEST_STATUS_UNSPECIFIED
 }
 
 func (x *FriendRequest) GetCreatedAt() *timestamp.Timestamp {
@@ -390,7 +598,7 @@ type SendFriendRequestRequest struct {
 	FromUserId    string                 `protobuf:"bytes,1,opt,name=from_user_id,json=fromUserId,proto3" json:"from_user_id,omitempty"`
 	ToUserId      string                 `protobuf:"bytes,2,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`
 	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
-	Source        string                 `protobuf:"bytes,4,opt,name=source,proto3" json:"source,omitempty"`
+	Source        FriendRequestSource    `protobuf:"varint,4,opt,name=source,proto3,enum=anychat.friend.FriendRequestSource" json:"source,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -446,11 +654,11 @@ func (x *SendFriendRequestRequest) GetMessage() string {
 	return ""
 }
 
-func (x *SendFriendRequestRequest) GetSource() string {
+func (x *SendFriendRequestRequest) GetSource() FriendRequestSource {
 	if x != nil {
 		return x.Source
 	}
-	return ""
+	return FriendRequestSource_FRIEND_REQUEST_SOURCE_UNSPECIFIED
 }
 
 // SendFriendRequestResponse 发送好友申请响应
@@ -511,7 +719,7 @@ type HandleFriendRequestRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"` // 当前用户ID（申请接收方）
 	RequestId     int64                  `protobuf:"varint,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	Action        string                 `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"` // accept/reject
+	Action        FriendRequestAction    `protobuf:"varint,3,opt,name=action,proto3,enum=anychat.friend.FriendRequestAction" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -560,18 +768,18 @@ func (x *HandleFriendRequestRequest) GetRequestId() int64 {
 	return 0
 }
 
-func (x *HandleFriendRequestRequest) GetAction() string {
+func (x *HandleFriendRequestRequest) GetAction() FriendRequestAction {
 	if x != nil {
 		return x.Action
 	}
-	return ""
+	return FriendRequestAction_FRIEND_REQUEST_ACTION_UNSPECIFIED
 }
 
 // GetFriendRequestsRequest 获取好友申请列表请求
 type GetFriendRequestsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"` // received/sent
+	RequestType   FriendRequestQueryType `protobuf:"varint,2,opt,name=request_type,json=requestType,proto3,enum=anychat.friend.FriendRequestQueryType" json:"request_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -613,11 +821,11 @@ func (x *GetFriendRequestsRequest) GetUserId() string {
 	return ""
 }
 
-func (x *GetFriendRequestsRequest) GetType() string {
+func (x *GetFriendRequestsRequest) GetRequestType() FriendRequestQueryType {
 	if x != nil {
-		return x.Type
+		return x.RequestType
 	}
-	return ""
+	return FriendRequestQueryType_FRIEND_REQUEST_QUERY_TYPE_UNSPECIFIED
 }
 
 // GetFriendRequestsResponse 获取好友申请列表响应
@@ -1297,16 +1505,16 @@ const file_friend_friend_proto_rawDesc = "" +
 	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x125\n" +
-	"\tuser_info\x18\x05 \x01(\v2\x18.anychat.common.UserInfoR\buserInfo\"\xa4\x02\n" +
+	"\tuser_info\x18\x05 \x01(\v2\x18.anychat.common.UserInfoR\buserInfo\"\xee\x02\n" +
 	"\rFriendRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12 \n" +
 	"\ffrom_user_id\x18\x02 \x01(\tR\n" +
 	"fromUserId\x12\x1c\n" +
 	"\n" +
 	"to_user_id\x18\x03 \x01(\tR\btoUserId\x12\x18\n" +
-	"\amessage\x18\x04 \x01(\tR\amessage\x12\x16\n" +
-	"\x06source\x18\x05 \x01(\tR\x06source\x12\x16\n" +
-	"\x06status\x18\x06 \x01(\tR\x06status\x129\n" +
+	"\amessage\x18\x04 \x01(\tR\amessage\x12;\n" +
+	"\x06source\x18\x05 \x01(\x0e2#.anychat.friend.FriendRequestSourceR\x06source\x12;\n" +
+	"\x06status\x18\x06 \x01(\x0e2#.anychat.friend.FriendRequestStatusR\x06status\x129\n" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
 	"\x0efrom_user_info\x18\b \x01(\v2\x18.anychat.common.UserInfoR\ffromUserInfo\"\xe1\x01\n" +
@@ -1323,26 +1531,26 @@ const file_friend_friend_proto_rawDesc = "" +
 	"\x11_last_update_time\"_\n" +
 	"\x15GetFriendListResponse\x120\n" +
 	"\afriends\x18\x01 \x03(\v2\x16.anychat.friend.FriendR\afriends\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"\x8c\x01\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\xb1\x01\n" +
 	"\x18SendFriendRequestRequest\x12 \n" +
 	"\ffrom_user_id\x18\x01 \x01(\tR\n" +
 	"fromUserId\x12\x1c\n" +
 	"\n" +
 	"to_user_id\x18\x02 \x01(\tR\btoUserId\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\x12\x16\n" +
-	"\x06source\x18\x04 \x01(\tR\x06source\"_\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\x12;\n" +
+	"\x06source\x18\x04 \x01(\x0e2#.anychat.friend.FriendRequestSourceR\x06source\"_\n" +
 	"\x19SendFriendRequestResponse\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\x03R\trequestId\x12#\n" +
-	"\rauto_accepted\x18\x02 \x01(\bR\fautoAccepted\"l\n" +
+	"\rauto_accepted\x18\x02 \x01(\bR\fautoAccepted\"\x91\x01\n" +
 	"\x1aHandleFriendRequestRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
-	"request_id\x18\x02 \x01(\x03R\trequestId\x12\x16\n" +
-	"\x06action\x18\x03 \x01(\tR\x06action\"G\n" +
+	"request_id\x18\x02 \x01(\x03R\trequestId\x12;\n" +
+	"\x06action\x18\x03 \x01(\x0e2#.anychat.friend.FriendRequestActionR\x06action\"~\n" +
 	"\x18GetFriendRequestsRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
-	"\x04type\x18\x02 \x01(\tR\x04type\"l\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12I\n" +
+	"\frequest_type\x18\x02 \x01(\x0e2&.anychat.friend.FriendRequestQueryTypeR\vrequestType\"l\n" +
 	"\x19GetFriendRequestsResponse\x129\n" +
 	"\brequests\x18\x01 \x03(\v2\x1d.anychat.friend.FriendRequestR\brequests\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"K\n" +
@@ -1383,7 +1591,27 @@ const file_friend_friend_proto_rawDesc = "" +
 	"\aresults\x18\x01 \x03(\v25.anychat.friend.BatchCheckFriendResponse.ResultsEntryR\aresults\x1a:\n" +
 	"\fResultsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\bR\x05value:\x028\x012\xc0\b\n" +
+	"\x05value\x18\x02 \x01(\bR\x05value:\x028\x01*\xc5\x01\n" +
+	"\x13FriendRequestSource\x12%\n" +
+	"!FRIEND_REQUEST_SOURCE_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cFRIEND_REQUEST_SOURCE_SEARCH\x10\x01\x12 \n" +
+	"\x1cFRIEND_REQUEST_SOURCE_QRCODE\x10\x02\x12\x1f\n" +
+	"\x1bFRIEND_REQUEST_SOURCE_GROUP\x10\x03\x12\"\n" +
+	"\x1eFRIEND_REQUEST_SOURCE_CONTACTS\x10\x04*\xca\x01\n" +
+	"\x13FriendRequestStatus\x12%\n" +
+	"!FRIEND_REQUEST_STATUS_UNSPECIFIED\x10\x00\x12!\n" +
+	"\x1dFRIEND_REQUEST_STATUS_PENDING\x10\x01\x12\"\n" +
+	"\x1eFRIEND_REQUEST_STATUS_ACCEPTED\x10\x02\x12\"\n" +
+	"\x1eFRIEND_REQUEST_STATUS_REJECTED\x10\x03\x12!\n" +
+	"\x1dFRIEND_REQUEST_STATUS_EXPIRED\x10\x04*\x80\x01\n" +
+	"\x13FriendRequestAction\x12%\n" +
+	"!FRIEND_REQUEST_ACTION_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cFRIEND_REQUEST_ACTION_ACCEPT\x10\x01\x12 \n" +
+	"\x1cFRIEND_REQUEST_ACTION_REJECT\x10\x02*\x8f\x01\n" +
+	"\x16FriendRequestQueryType\x12)\n" +
+	"%FRIEND_REQUEST_QUERY_TYPE_UNSPECIFIED\x10\x00\x12&\n" +
+	"\"FRIEND_REQUEST_QUERY_TYPE_RECEIVED\x10\x01\x12\"\n" +
+	"\x1eFRIEND_REQUEST_QUERY_TYPE_SENT\x10\x022\xc0\b\n" +
 	"\rFriendService\x12\\\n" +
 	"\rGetFriendList\x12$.anychat.friend.GetFriendListRequest\x1a%.anychat.friend.GetFriendListResponse\x12h\n" +
 	"\x11SendFriendRequest\x12(.anychat.friend.SendFriendRequestRequest\x1a).anychat.friend.SendFriendRequestResponse\x12X\n" +
@@ -1410,76 +1638,86 @@ func file_friend_friend_proto_rawDescGZIP() []byte {
 	return file_friend_friend_proto_rawDescData
 }
 
+var file_friend_friend_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
 var file_friend_friend_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_friend_friend_proto_goTypes = []any{
-	(*Friend)(nil),                     // 0: anychat.friend.Friend
-	(*FriendRequest)(nil),              // 1: anychat.friend.FriendRequest
-	(*BlacklistItem)(nil),              // 2: anychat.friend.BlacklistItem
-	(*GetFriendListRequest)(nil),       // 3: anychat.friend.GetFriendListRequest
-	(*GetFriendListResponse)(nil),      // 4: anychat.friend.GetFriendListResponse
-	(*SendFriendRequestRequest)(nil),   // 5: anychat.friend.SendFriendRequestRequest
-	(*SendFriendRequestResponse)(nil),  // 6: anychat.friend.SendFriendRequestResponse
-	(*HandleFriendRequestRequest)(nil), // 7: anychat.friend.HandleFriendRequestRequest
-	(*GetFriendRequestsRequest)(nil),   // 8: anychat.friend.GetFriendRequestsRequest
-	(*GetFriendRequestsResponse)(nil),  // 9: anychat.friend.GetFriendRequestsResponse
-	(*DeleteFriendRequest)(nil),        // 10: anychat.friend.DeleteFriendRequest
-	(*UpdateRemarkRequest)(nil),        // 11: anychat.friend.UpdateRemarkRequest
-	(*AddToBlacklistRequest)(nil),      // 12: anychat.friend.AddToBlacklistRequest
-	(*RemoveFromBlacklistRequest)(nil), // 13: anychat.friend.RemoveFromBlacklistRequest
-	(*GetBlacklistRequest)(nil),        // 14: anychat.friend.GetBlacklistRequest
-	(*GetBlacklistResponse)(nil),       // 15: anychat.friend.GetBlacklistResponse
-	(*IsFriendRequest)(nil),            // 16: anychat.friend.IsFriendRequest
-	(*IsFriendResponse)(nil),           // 17: anychat.friend.IsFriendResponse
-	(*IsBlockedRequest)(nil),           // 18: anychat.friend.IsBlockedRequest
-	(*IsBlockedResponse)(nil),          // 19: anychat.friend.IsBlockedResponse
-	(*BatchCheckFriendRequest)(nil),    // 20: anychat.friend.BatchCheckFriendRequest
-	(*BatchCheckFriendResponse)(nil),   // 21: anychat.friend.BatchCheckFriendResponse
-	nil,                                // 22: anychat.friend.BatchCheckFriendResponse.ResultsEntry
-	(*timestamp.Timestamp)(nil),        // 23: google.protobuf.Timestamp
-	(*common.UserInfo)(nil),            // 24: anychat.common.UserInfo
-	(*common.Empty)(nil),               // 25: anychat.common.Empty
+	(FriendRequestSource)(0),           // 0: anychat.friend.FriendRequestSource
+	(FriendRequestStatus)(0),           // 1: anychat.friend.FriendRequestStatus
+	(FriendRequestAction)(0),           // 2: anychat.friend.FriendRequestAction
+	(FriendRequestQueryType)(0),        // 3: anychat.friend.FriendRequestQueryType
+	(*Friend)(nil),                     // 4: anychat.friend.Friend
+	(*FriendRequest)(nil),              // 5: anychat.friend.FriendRequest
+	(*BlacklistItem)(nil),              // 6: anychat.friend.BlacklistItem
+	(*GetFriendListRequest)(nil),       // 7: anychat.friend.GetFriendListRequest
+	(*GetFriendListResponse)(nil),      // 8: anychat.friend.GetFriendListResponse
+	(*SendFriendRequestRequest)(nil),   // 9: anychat.friend.SendFriendRequestRequest
+	(*SendFriendRequestResponse)(nil),  // 10: anychat.friend.SendFriendRequestResponse
+	(*HandleFriendRequestRequest)(nil), // 11: anychat.friend.HandleFriendRequestRequest
+	(*GetFriendRequestsRequest)(nil),   // 12: anychat.friend.GetFriendRequestsRequest
+	(*GetFriendRequestsResponse)(nil),  // 13: anychat.friend.GetFriendRequestsResponse
+	(*DeleteFriendRequest)(nil),        // 14: anychat.friend.DeleteFriendRequest
+	(*UpdateRemarkRequest)(nil),        // 15: anychat.friend.UpdateRemarkRequest
+	(*AddToBlacklistRequest)(nil),      // 16: anychat.friend.AddToBlacklistRequest
+	(*RemoveFromBlacklistRequest)(nil), // 17: anychat.friend.RemoveFromBlacklistRequest
+	(*GetBlacklistRequest)(nil),        // 18: anychat.friend.GetBlacklistRequest
+	(*GetBlacklistResponse)(nil),       // 19: anychat.friend.GetBlacklistResponse
+	(*IsFriendRequest)(nil),            // 20: anychat.friend.IsFriendRequest
+	(*IsFriendResponse)(nil),           // 21: anychat.friend.IsFriendResponse
+	(*IsBlockedRequest)(nil),           // 22: anychat.friend.IsBlockedRequest
+	(*IsBlockedResponse)(nil),          // 23: anychat.friend.IsBlockedResponse
+	(*BatchCheckFriendRequest)(nil),    // 24: anychat.friend.BatchCheckFriendRequest
+	(*BatchCheckFriendResponse)(nil),   // 25: anychat.friend.BatchCheckFriendResponse
+	nil,                                // 26: anychat.friend.BatchCheckFriendResponse.ResultsEntry
+	(*timestamp.Timestamp)(nil),        // 27: google.protobuf.Timestamp
+	(*common.UserInfo)(nil),            // 28: anychat.common.UserInfo
+	(*common.Empty)(nil),               // 29: anychat.common.Empty
 }
 var file_friend_friend_proto_depIdxs = []int32{
-	23, // 0: anychat.friend.Friend.created_at:type_name -> google.protobuf.Timestamp
-	23, // 1: anychat.friend.Friend.updated_at:type_name -> google.protobuf.Timestamp
-	24, // 2: anychat.friend.Friend.user_info:type_name -> anychat.common.UserInfo
-	23, // 3: anychat.friend.FriendRequest.created_at:type_name -> google.protobuf.Timestamp
-	24, // 4: anychat.friend.FriendRequest.from_user_info:type_name -> anychat.common.UserInfo
-	23, // 5: anychat.friend.BlacklistItem.created_at:type_name -> google.protobuf.Timestamp
-	24, // 6: anychat.friend.BlacklistItem.blocked_user_info:type_name -> anychat.common.UserInfo
-	0,  // 7: anychat.friend.GetFriendListResponse.friends:type_name -> anychat.friend.Friend
-	1,  // 8: anychat.friend.GetFriendRequestsResponse.requests:type_name -> anychat.friend.FriendRequest
-	2,  // 9: anychat.friend.GetBlacklistResponse.items:type_name -> anychat.friend.BlacklistItem
-	22, // 10: anychat.friend.BatchCheckFriendResponse.results:type_name -> anychat.friend.BatchCheckFriendResponse.ResultsEntry
-	3,  // 11: anychat.friend.FriendService.GetFriendList:input_type -> anychat.friend.GetFriendListRequest
-	5,  // 12: anychat.friend.FriendService.SendFriendRequest:input_type -> anychat.friend.SendFriendRequestRequest
-	7,  // 13: anychat.friend.FriendService.HandleFriendRequest:input_type -> anychat.friend.HandleFriendRequestRequest
-	8,  // 14: anychat.friend.FriendService.GetFriendRequests:input_type -> anychat.friend.GetFriendRequestsRequest
-	10, // 15: anychat.friend.FriendService.DeleteFriend:input_type -> anychat.friend.DeleteFriendRequest
-	11, // 16: anychat.friend.FriendService.UpdateRemark:input_type -> anychat.friend.UpdateRemarkRequest
-	12, // 17: anychat.friend.FriendService.AddToBlacklist:input_type -> anychat.friend.AddToBlacklistRequest
-	13, // 18: anychat.friend.FriendService.RemoveFromBlacklist:input_type -> anychat.friend.RemoveFromBlacklistRequest
-	14, // 19: anychat.friend.FriendService.GetBlacklist:input_type -> anychat.friend.GetBlacklistRequest
-	16, // 20: anychat.friend.FriendService.IsFriend:input_type -> anychat.friend.IsFriendRequest
-	18, // 21: anychat.friend.FriendService.IsBlocked:input_type -> anychat.friend.IsBlockedRequest
-	20, // 22: anychat.friend.FriendService.BatchCheckFriend:input_type -> anychat.friend.BatchCheckFriendRequest
-	4,  // 23: anychat.friend.FriendService.GetFriendList:output_type -> anychat.friend.GetFriendListResponse
-	6,  // 24: anychat.friend.FriendService.SendFriendRequest:output_type -> anychat.friend.SendFriendRequestResponse
-	25, // 25: anychat.friend.FriendService.HandleFriendRequest:output_type -> anychat.common.Empty
-	9,  // 26: anychat.friend.FriendService.GetFriendRequests:output_type -> anychat.friend.GetFriendRequestsResponse
-	25, // 27: anychat.friend.FriendService.DeleteFriend:output_type -> anychat.common.Empty
-	25, // 28: anychat.friend.FriendService.UpdateRemark:output_type -> anychat.common.Empty
-	25, // 29: anychat.friend.FriendService.AddToBlacklist:output_type -> anychat.common.Empty
-	25, // 30: anychat.friend.FriendService.RemoveFromBlacklist:output_type -> anychat.common.Empty
-	15, // 31: anychat.friend.FriendService.GetBlacklist:output_type -> anychat.friend.GetBlacklistResponse
-	17, // 32: anychat.friend.FriendService.IsFriend:output_type -> anychat.friend.IsFriendResponse
-	19, // 33: anychat.friend.FriendService.IsBlocked:output_type -> anychat.friend.IsBlockedResponse
-	21, // 34: anychat.friend.FriendService.BatchCheckFriend:output_type -> anychat.friend.BatchCheckFriendResponse
-	23, // [23:35] is the sub-list for method output_type
-	11, // [11:23] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	27, // 0: anychat.friend.Friend.created_at:type_name -> google.protobuf.Timestamp
+	27, // 1: anychat.friend.Friend.updated_at:type_name -> google.protobuf.Timestamp
+	28, // 2: anychat.friend.Friend.user_info:type_name -> anychat.common.UserInfo
+	0,  // 3: anychat.friend.FriendRequest.source:type_name -> anychat.friend.FriendRequestSource
+	1,  // 4: anychat.friend.FriendRequest.status:type_name -> anychat.friend.FriendRequestStatus
+	27, // 5: anychat.friend.FriendRequest.created_at:type_name -> google.protobuf.Timestamp
+	28, // 6: anychat.friend.FriendRequest.from_user_info:type_name -> anychat.common.UserInfo
+	27, // 7: anychat.friend.BlacklistItem.created_at:type_name -> google.protobuf.Timestamp
+	28, // 8: anychat.friend.BlacklistItem.blocked_user_info:type_name -> anychat.common.UserInfo
+	4,  // 9: anychat.friend.GetFriendListResponse.friends:type_name -> anychat.friend.Friend
+	0,  // 10: anychat.friend.SendFriendRequestRequest.source:type_name -> anychat.friend.FriendRequestSource
+	2,  // 11: anychat.friend.HandleFriendRequestRequest.action:type_name -> anychat.friend.FriendRequestAction
+	3,  // 12: anychat.friend.GetFriendRequestsRequest.request_type:type_name -> anychat.friend.FriendRequestQueryType
+	5,  // 13: anychat.friend.GetFriendRequestsResponse.requests:type_name -> anychat.friend.FriendRequest
+	6,  // 14: anychat.friend.GetBlacklistResponse.items:type_name -> anychat.friend.BlacklistItem
+	26, // 15: anychat.friend.BatchCheckFriendResponse.results:type_name -> anychat.friend.BatchCheckFriendResponse.ResultsEntry
+	7,  // 16: anychat.friend.FriendService.GetFriendList:input_type -> anychat.friend.GetFriendListRequest
+	9,  // 17: anychat.friend.FriendService.SendFriendRequest:input_type -> anychat.friend.SendFriendRequestRequest
+	11, // 18: anychat.friend.FriendService.HandleFriendRequest:input_type -> anychat.friend.HandleFriendRequestRequest
+	12, // 19: anychat.friend.FriendService.GetFriendRequests:input_type -> anychat.friend.GetFriendRequestsRequest
+	14, // 20: anychat.friend.FriendService.DeleteFriend:input_type -> anychat.friend.DeleteFriendRequest
+	15, // 21: anychat.friend.FriendService.UpdateRemark:input_type -> anychat.friend.UpdateRemarkRequest
+	16, // 22: anychat.friend.FriendService.AddToBlacklist:input_type -> anychat.friend.AddToBlacklistRequest
+	17, // 23: anychat.friend.FriendService.RemoveFromBlacklist:input_type -> anychat.friend.RemoveFromBlacklistRequest
+	18, // 24: anychat.friend.FriendService.GetBlacklist:input_type -> anychat.friend.GetBlacklistRequest
+	20, // 25: anychat.friend.FriendService.IsFriend:input_type -> anychat.friend.IsFriendRequest
+	22, // 26: anychat.friend.FriendService.IsBlocked:input_type -> anychat.friend.IsBlockedRequest
+	24, // 27: anychat.friend.FriendService.BatchCheckFriend:input_type -> anychat.friend.BatchCheckFriendRequest
+	8,  // 28: anychat.friend.FriendService.GetFriendList:output_type -> anychat.friend.GetFriendListResponse
+	10, // 29: anychat.friend.FriendService.SendFriendRequest:output_type -> anychat.friend.SendFriendRequestResponse
+	29, // 30: anychat.friend.FriendService.HandleFriendRequest:output_type -> anychat.common.Empty
+	13, // 31: anychat.friend.FriendService.GetFriendRequests:output_type -> anychat.friend.GetFriendRequestsResponse
+	29, // 32: anychat.friend.FriendService.DeleteFriend:output_type -> anychat.common.Empty
+	29, // 33: anychat.friend.FriendService.UpdateRemark:output_type -> anychat.common.Empty
+	29, // 34: anychat.friend.FriendService.AddToBlacklist:output_type -> anychat.common.Empty
+	29, // 35: anychat.friend.FriendService.RemoveFromBlacklist:output_type -> anychat.common.Empty
+	19, // 36: anychat.friend.FriendService.GetBlacklist:output_type -> anychat.friend.GetBlacklistResponse
+	21, // 37: anychat.friend.FriendService.IsFriend:output_type -> anychat.friend.IsFriendResponse
+	23, // 38: anychat.friend.FriendService.IsBlocked:output_type -> anychat.friend.IsBlockedResponse
+	25, // 39: anychat.friend.FriendService.BatchCheckFriend:output_type -> anychat.friend.BatchCheckFriendResponse
+	28, // [28:40] is the sub-list for method output_type
+	16, // [16:28] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_friend_friend_proto_init() }
@@ -1493,13 +1731,14 @@ func file_friend_friend_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_friend_friend_proto_rawDesc), len(file_friend_friend_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      4,
 			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_friend_friend_proto_goTypes,
 		DependencyIndexes: file_friend_friend_proto_depIdxs,
+		EnumInfos:         file_friend_friend_proto_enumTypes,
 		MessageInfos:      file_friend_friend_proto_msgTypes,
 	}.Build()
 	File_friend_friend_proto = out.File

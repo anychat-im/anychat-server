@@ -17,7 +17,7 @@ API_BASE="${GATEWAY_URL}/api/v1"
 
 # Test data
 TIMESTAMP=$(date +%s)
-TEST_PLATFORM="android"
+TEST_PLATFORM=2 # 1-ios,2-android,3-pc,4-web,5-h5
 TEST_VERSION="1.0.0"
 TEST_BUILD_NUMBER=100
 
@@ -150,7 +150,7 @@ test_report_version() {
     print_header "Test 5: Version Report"
 
     local response=$(http_post "${API_BASE}/versions/report" \
-        "{\"platform\":\"${TEST_PLATFORM}\",\"version\":\"1.0.0\",\"buildNumber\":${TEST_BUILD_NUMBER},\"deviceId\":\"test-device-001\"}")
+        "{\"platform\":${TEST_PLATFORM},\"version\":\"1.0.0\",\"build_number\":${TEST_BUILD_NUMBER},\"device_id\":\"test-device-001\"}")
     echo "Response: $response"
 
     local code=$(echo "$response" | jq -r '.code // -1')
@@ -176,13 +176,13 @@ test_create_version() {
 
     local response=$(http_post "${ADMIN_API}/versions" \
         "{
-            \"platform\": \"${TEST_PLATFORM}\",
+            \"platform\": ${TEST_PLATFORM},
             \"version\": \"2.0.0\",
             \"buildNumber\": 200,
             \"minVersion\": \"1.0.0\",
             \"minBuildNumber\": 100,
             \"forceUpdate\": false,
-            \"releaseType\": \"stable\",
+            \"releaseType\": 1,
             \"title\": \"Test Version v2.0.0\",
             \"content\": \"## Update Content\\n- New Feature Test\\n- Bug Fix\",
             \"downloadUrl\": \"https://example.com/app/android/v2.0.0.apk\",

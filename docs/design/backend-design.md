@@ -1600,7 +1600,7 @@ Authorization: Bearer {accessToken}
 请求体:
 ```json
 {
-  "action": "string"            // accept 或 reject
+  "action": 1                   // 1-accept, 2-reject
 }
 ```
 
@@ -1803,10 +1803,10 @@ Authorization: Bearer {accessToken}
       {
         "messageId": "string",
         "conversationId": "string",
-        "sessionType": "string",    // single/group
+        "sessionType": "number",    // 1-single/2-group
         "senderId": "string",
         "senderName": "string",
-        "contentType": "string",    // text/image/video/voice/file
+        "contentType": "number",    // 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
         "content": "string",
         "timestamp": "timestamp",
         "seq": "int64"
@@ -1841,7 +1841,7 @@ Authorization: Bearer {accessToken}
         "senderId": "string",
         "senderName": "string",
         "senderAvatar": "string",
-        "contentType": "string",
+        "contentType": "number",
         "content": "string",
         "timestamp": "timestamp",
         "seq": "int64",
@@ -1861,7 +1861,7 @@ Authorization: Bearer {accessToken}
 ```json
 {
   "conversationId": "string",
-  "sessionType": "string",
+  "sessionType": "number",
   "messageIds": ["string"]         // 已读的消息ID列表
 }
 ```
@@ -1920,12 +1920,12 @@ Authorization: Bearer {accessToken}
     "conversations": [
       {
         "conversationId": "string",
-        "sessionType": "string",      // single/group/system
+        "sessionType": "number",      // 1-single/2-group/3-system
         "name": "string",
         "avatar": "string",
         "lastMessage": {
           "content": "string",
-          "contentType": "string",
+          "contentType": "number",
           "timestamp": "timestamp"
         },
         "unreadCount": "int",
@@ -2478,7 +2478,7 @@ message FriendRequest {
   string from_user_id = 2;
   string message = 3;
   int64 created_at = 4;
-  string status = 5;
+  int32 status = 5; // 1-pending 2-accepted 3-rejected 4-expired
 }
 ```
 
@@ -2535,7 +2535,7 @@ message GroupMember {
   string nickname = 2;
   string group_nickname = 3;
   string avatar = 4;
-  string role = 5; // owner/admin/member
+  int32 role = 5; // 1-owner 2-admin 3-member
   int64 joined_at = 6;
 }
 
@@ -2546,7 +2546,7 @@ message IsMemberRequest {
 
 message IsMemberResponse {
   bool is_member = 1;
-  string role = 2;
+  int32 role = 2; // 1-owner 2-admin 3-member
 }
 
 message GetUserGroupsRequest {
@@ -2595,9 +2595,9 @@ service MessageService {
 
 message SendMessageRequest {
   string conversation_id = 1;
-  string conversation_type = 2; // single/group
+  int32 conversation_type = 2; // 1-single/2-group
   string sender_id = 3;
-  string content_type = 4; // text/image/video/voice/file
+  int32 content_type = 4; // 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
   string content = 5;
   string client_msg_id = 6;
 }
@@ -2614,7 +2614,7 @@ message RecallMessageRequest {
 
 message GetHistoryRequest {
   string conversation_id = 1;
-  string conversation_type = 2;
+  int32 conversation_type = 2;
   int64 start_seq = 3;
   int32 limit = 4;
 }
@@ -2628,7 +2628,7 @@ message Message {
   string message_id = 1;
   string sender_id = 2;
   string sender_name = 3;
-  string content_type = 4;
+  int32 content_type = 4;
   string content = 5;
   int64 timestamp = 6;
   int64 seq = 7;
@@ -2636,7 +2636,7 @@ message Message {
 
 message MarkReadRequest {
   string conversation_id = 1;
-  string conversation_type = 2;
+  int32 conversation_type = 2;
   string user_id = 3;
   repeated string message_ids = 4;
 }
@@ -2970,7 +2970,7 @@ Token验证失败时,服务器关闭连接并返回错误：
   "type": "USER_ONLINE",
   "data": {
     "userId": "string",
-    "platform": "iOS",
+    "platform": 1,
     "timestamp": 1234567890
   }
 }
@@ -3267,7 +3267,7 @@ CREATE TABLE user_push_tokens (
   user_id BIGINT NOT NULL,
   device_id VARCHAR(100) NOT NULL,
   push_token VARCHAR(255) NOT NULL,
-  platform VARCHAR(20) NOT NULL,            -- iOS/Android/Web
+  platform SMALLINT NOT NULL,               -- 1-iOS/2-Android
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -3452,9 +3452,9 @@ CREATE TABLE group_join_requests (
 CREATE TABLE messages_202401 (
   message_id BIGINT PRIMARY KEY,
   conversation_id VARCHAR(100) NOT NULL,
-  conversation_type VARCHAR(20) NOT NULL,        -- single/group
+  conversation_type SMALLINT NOT NULL,           -- 1-single/2-group
   sender_id BIGINT NOT NULL,
-  content_type VARCHAR(20) NOT NULL,        -- text/image/video/voice/file
+  content_type SMALLINT NOT NULL,                -- 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
   content TEXT NOT NULL,
   seq BIGINT NOT NULL,                      -- 消息序列号
   status TINYINT DEFAULT 1,                 -- 0-已删除 1-正常 2-已撤回
@@ -3518,7 +3518,7 @@ CREATE TABLE message_reads (
 ```sql
 CREATE TABLE conversations (
   conversation_id VARCHAR(100) PRIMARY KEY,
-  conversation_type VARCHAR(20) NOT NULL,        -- single/group/system
+  conversation_type SMALLINT NOT NULL,           -- 1-single/2-group/3-system
   user_id BIGINT NOT NULL,
   target_id BIGINT NOT NULL,                -- 对方用户ID或群ID
   last_message_id BIGINT,
@@ -3549,7 +3549,7 @@ CREATE TABLE files (
   file_name VARCHAR(255) NOT NULL,
   file_size BIGINT NOT NULL,
   mime_type VARCHAR(100),
-  file_type VARCHAR(20) NOT NULL,           -- avatar/group_avatar/chat_image/chat_video/chat_file
+  file_type SMALLINT NOT NULL,              -- 1-image/2-video/3-audio/4-file/5-log
   storage_path VARCHAR(500) NOT NULL,
   url VARCHAR(500) NOT NULL,
   thumbnail_url VARCHAR(500),
@@ -3574,10 +3574,10 @@ CREATE TABLE push_logs (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   user_id BIGINT NOT NULL,
   device_id VARCHAR(100),
-  push_type VARCHAR(50) NOT NULL,
+  push_type SMALLINT NOT NULL,              -- 1-message_new/2-message_mention/3-friend_request/4-group_invited/5-call_invite
   title VARCHAR(200),
   content VARCHAR(500),
-  status VARCHAR(20) NOT NULL,              -- success/failed
+  status SMALLINT NOT NULL,                 -- 1-pending/2-sent/3-failed
   error_message TEXT,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -3596,12 +3596,12 @@ CREATE TABLE push_logs (
 ```sql
 CREATE TABLE call_sessions (
   call_id VARCHAR(100) PRIMARY KEY,
-  call_type VARCHAR(20) NOT NULL,           -- audio/video
+  call_type SMALLINT NOT NULL,              -- 0-audio/1-video
   caller_id BIGINT NOT NULL,
   callee_id BIGINT,
   group_id BIGINT,
   room_name VARCHAR(100) NOT NULL,
-  status VARCHAR(20) NOT NULL,              -- calling/connected/ended/rejected
+  status SMALLINT NOT NULL,                 -- 0-ringing/1-connected/2-ended/3-rejected/4-missed/5-cancelled
   start_time TIMESTAMP,
   end_time TIMESTAMP,
   duration INT,                             -- 通话时长（秒）
@@ -3628,7 +3628,7 @@ CREATE TABLE meeting_rooms (
   max_participants INT DEFAULT 100,
   start_time TIMESTAMP,
   end_time TIMESTAMP,
-  status VARCHAR(20) DEFAULT 'scheduled',   -- scheduled/active/ended
+  status SMALLINT DEFAULT 0,                -- 0-active/1-ended
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   INDEX idx_owner_id (owner_id),

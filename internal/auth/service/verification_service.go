@@ -130,7 +130,7 @@ func (s *verifyServiceImpl) SendCode(ctx context.Context, req *dto.SendCodeReque
 	if err := s.cache.HSet(ctx, cacheKey,
 		"code_id", codeID,
 		"code_hash", codeHash,
-		"target_type", req.TargetType,
+		"target_type", req.TargetType.String(),
 		"expires_at", expiresAt.UTC().Format(time.RFC3339),
 		"attempts", "0",
 		"max_attempts", fmt.Sprintf("%d", s.config.MaxAttempts),
@@ -209,7 +209,7 @@ func (s *verifyServiceImpl) VerifyCode(ctx context.Context, req *dto.VerifyCodeR
 	}
 
 	codeID := fields["code_id"]
-	if fields["target_type"] != req.TargetType {
+	if fields["target_type"] != req.TargetType.String() {
 		return nil, pkgerrors.NewBusiness(pkgerrors.CodeVerifyCodeNotFound, "")
 	}
 
@@ -273,13 +273,13 @@ func (s *verifyServiceImpl) CheckCodeStatus(ctx context.Context, codeID string) 
 	}, nil
 }
 
-func (s *verifyServiceImpl) dispatchCode(ctx context.Context, target, targetType, purpose, code string) error {
+func (s *verifyServiceImpl) dispatchCode(ctx context.Context, target string, targetType model.VerificationTargetType, purpose model.VerificationPurpose, code string) error {
 	if !s.isReleaseMode() {
 		logger.Info(
 			"verification code generated for local environment",
 			zap.String("target", maskTarget(target, targetType)),
-			zap.String("targetType", targetType),
-			zap.String("purpose", purpose),
+			zap.String("targetType", targetType.String()),
+			zap.String("purpose", purpose.String()),
 			zap.String("code", code),
 		)
 	}
@@ -330,7 +330,7 @@ func (s *verifyServiceImpl) dispatchCode(ctx context.Context, target, targetType
 	return nil
 }
 
-func (s *verifyServiceImpl) cancelPreviousCode(ctx context.Context, target, targetType, purpose string) error {
+func (s *verifyServiceImpl) cancelPreviousCode(ctx context.Context, target string, targetType model.VerificationTargetType, purpose model.VerificationPurpose) error {
 	code, err := s.codeRepo.GetLatestByTarget(ctx, target, targetType, purpose)
 	if err == gorm.ErrRecordNotFound {
 		return nil
@@ -348,17 +348,17 @@ func (s *verifyServiceImpl) cancelPreviousCode(ctx context.Context, target, targ
 	return nil
 }
 
-func (s *verifyServiceImpl) applyRateLimits(ctx context.Context, target, targetType, purpose, deviceID, ipAddress string) ([]string, error) {
+func (s *verifyServiceImpl) applyRateLimits(ctx context.Context, target string, targetType model.VerificationTargetType, purpose model.VerificationPurpose, deviceID, ipAddress string) ([]string, error) {
 	targetHash := s.targetHash(target)
 	keys := make([]string, 0, 4)
 
-	targetMinuteKey := fmt.Sprintf("auth:vc:rl:target:%s:%s:1m", purpose, targetHash)
+	targetMinuteKey := fmt.Sprintf("auth:vc:rl:target:%s:%s:1m", purpose.String(), targetHash)
 	if err := s.incrementAndCheck(ctx, targetMinuteKey, time.Minute, s.config.TargetPerMinute, pkgerrors.CodeSendRateLimited); err != nil {
 		return nil, err
 	}
 	keys = append(keys, targetMinuteKey)
 
-	targetDayKey := fmt.Sprintf("auth:vc:rl:target:%s:%s:24h", purpose, targetHash)
+	targetDayKey := fmt.Sprintf("auth:vc:rl:target:%s:%s:24h", purpose.String(), targetHash)
 	if err := s.incrementAndCheck(ctx, targetDayKey, 24*time.Hour, s.config.TargetPerDay, pkgerrors.CodeSendLimitReached); err != nil {
 		s.rollbackRateLimits(ctx, keys)
 		return nil, err
@@ -413,7 +413,7 @@ func (s *verifyServiceImpl) incrementAndCheck(ctx context.Context, key string, t
 	return nil
 }
 
-func (s *verifyServiceImpl) resolveMissingCodeError(ctx context.Context, target, targetType, purpose string) error {
+func (s *verifyServiceImpl) resolveMissingCodeError(ctx context.Context, target string, targetType model.VerificationTargetType, purpose model.VerificationPurpose) error {
 	code, err := s.codeRepo.GetLatestByTarget(ctx, target, targetType, purpose)
 	if err == gorm.ErrRecordNotFound {
 		return pkgerrors.NewBusiness(pkgerrors.CodeVerifyCodeNotFound, "")
@@ -435,7 +435,7 @@ func (s *verifyServiceImpl) resolveMissingCodeError(ctx context.Context, target,
 	}
 }
 
-func (s *verifyServiceImpl) validateAndNormalizeTarget(target, targetType string) (string, error) {
+func (s *verifyServiceImpl) validateAndNormalizeTarget(target string, targetType model.VerificationTargetType) (string, error) {
 	normalized := strings.TrimSpace(target)
 	switch targetType {
 	case model.TargetTypeSMS:
@@ -453,23 +453,15 @@ func (s *verifyServiceImpl) validateAndNormalizeTarget(target, targetType string
 	return normalized, nil
 }
 
-func (s *verifyServiceImpl) validatePurpose(purpose string) error {
-	switch purpose {
-	case model.PurposeRegister,
-		model.PurposeLogin,
-		model.PurposeResetPassword,
-		model.PurposeBindPhone,
-		model.PurposeChangePhone,
-		model.PurposeBindEmail,
-		model.PurposeChangeEmail:
+func (s *verifyServiceImpl) validatePurpose(purpose model.VerificationPurpose) error {
+	if purpose.IsValid() {
 		return nil
-	default:
-		return pkgerrors.NewBusiness(pkgerrors.CodeParamError, "verification purpose not supported")
 	}
+	return pkgerrors.NewBusiness(pkgerrors.CodeParamError, "verification purpose not supported")
 }
 
-func (s *verifyServiceImpl) codeCacheKey(purpose, target string) string {
-	return fmt.Sprintf("auth:vc:%s:%s", purpose, s.targetHash(target))
+func (s *verifyServiceImpl) codeCacheKey(purpose model.VerificationPurpose, target string) string {
+	return fmt.Sprintf("auth:vc:%s:%s", purpose.String(), s.targetHash(target))
 }
 
 func (s *verifyServiceImpl) targetHash(target string) string {
@@ -477,13 +469,13 @@ func (s *verifyServiceImpl) targetHash(target string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func (s *verifyServiceImpl) hashCode(purpose, target, code string) string {
+func (s *verifyServiceImpl) hashCode(purpose model.VerificationPurpose, target, code string) string {
 	secret := s.config.HashSecret
 	if secret == "" {
 		secret = "anychat-verification-secret"
 	}
 	mac := hmac.New(sha256.New, []byte(secret))
-	_, _ = mac.Write([]byte(strings.Join([]string{purpose, target, code}, ":")))
+	_, _ = mac.Write([]byte(strings.Join([]string{purpose.String(), target, code}, ":")))
 	return hex.EncodeToString(mac.Sum(nil))
 }
 
@@ -529,7 +521,7 @@ func parseInt64(value string) (int64, error) {
 	return result, err
 }
 
-func maskTarget(target, targetType string) string {
+func maskTarget(target string, targetType model.VerificationTargetType) string {
 	if target == "" {
 		return ""
 	}

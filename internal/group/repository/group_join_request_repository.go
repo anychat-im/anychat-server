@@ -12,10 +12,10 @@ import (
 type GroupJoinRequestRepository interface {
 	Create(ctx context.Context, request *model.GroupJoinRequest) error
 	GetByID(ctx context.Context, id int64) (*model.GroupJoinRequest, error)
-	UpdateStatus(ctx context.Context, id int64, status string) error
+	UpdateStatus(ctx context.Context, id int64, status model.JoinRequestStatus) error
 	GetPendingRequestsByGroup(ctx context.Context, groupID string) ([]*model.GroupJoinRequest, error)
 	GetPendingRequestsByUser(ctx context.Context, userID string) ([]*model.GroupJoinRequest, error)
-	GetRequestsByGroup(ctx context.Context, groupID string, status *string) ([]*model.GroupJoinRequest, error)
+	GetRequestsByGroup(ctx context.Context, groupID string, status *model.JoinRequestStatus) ([]*model.GroupJoinRequest, error)
 	GetExistingRequest(ctx context.Context, groupID, userID string) (*model.GroupJoinRequest, error)
 	WithTx(tx *gorm.DB) GroupJoinRequestRepository
 }
@@ -48,7 +48,7 @@ func (r *groupJoinRequestRepositoryImpl) GetByID(ctx context.Context, id int64) 
 }
 
 // UpdateStatus updates request status
-func (r *groupJoinRequestRepositoryImpl) UpdateStatus(ctx context.Context, id int64, status string) error {
+func (r *groupJoinRequestRepositoryImpl) UpdateStatus(ctx context.Context, id int64, status model.JoinRequestStatus) error {
 	return r.db.WithContext(ctx).
 		Model(&model.GroupJoinRequest{}).
 		Where("id = ?", id).
@@ -79,12 +79,12 @@ func (r *groupJoinRequestRepositoryImpl) GetPendingRequestsByUser(ctx context.Co
 }
 
 // GetRequestsByGroup gets request list for group (filterable by status)
-func (r *groupJoinRequestRepositoryImpl) GetRequestsByGroup(ctx context.Context, groupID string, status *string) ([]*model.GroupJoinRequest, error) {
+func (r *groupJoinRequestRepositoryImpl) GetRequestsByGroup(ctx context.Context, groupID string, status *model.JoinRequestStatus) ([]*model.GroupJoinRequest, error) {
 	var requests []*model.GroupJoinRequest
 	query := r.db.WithContext(ctx).Where("group_id = ?", groupID)
 
 	if status != nil {
-		query = query.Where("status = ?", *status)
+		query = query.Where("status = ?", status)
 	}
 
 	err := query.Order("created_at DESC").Find(&requests).Error

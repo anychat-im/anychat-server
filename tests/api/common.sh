@@ -142,9 +142,9 @@ json_code() {
 extract_user_id() {
     local response=$1
     if command -v jq &> /dev/null; then
-        echo "$response" | jq -r '.data.userId // .data.user_id // empty'
+        echo "$response" | jq -r '.data.user_id // .data.userId // .data.user_id // empty'
     else
-        echo "$response" | grep -o '"userId":"[^"]*"' | head -n1 | cut -d'"' -f4
+        echo "$response" | grep -o '"user_id":"[^"]*"' | head -n1 | cut -d'"' -f4
     fi
 }
 
@@ -152,7 +152,7 @@ extract_user_id() {
 extract_access_token() {
     local response=$1
     if command -v jq &> /dev/null; then
-        echo "$response" | jq -r '.data.accessToken // .data.access_token // empty'
+        echo "$response" | jq -r '.data.access_token // .data.accessToken // .data.access_token // empty'
     else
         echo "$response" | grep -o '"accessToken":"[^"]*"' | head -n1 | cut -d'"' -f4
     fi
@@ -165,7 +165,7 @@ register_test_user() {
     local password=$3
     local nickname=$4
     local device_id=$5
-    local device_type=${6:-iOS}
+    local device_type=${6:-1}
     local client_version=${7:-1.0.0}
     local verify_code=${8:-123456}
 
@@ -174,11 +174,11 @@ register_test_user() {
 {
     "email": "${email}",
     "password": "${password}",
-    "verifyCode": "${verify_code}",
+    "verify_code": "${verify_code}",
     "nickname": "${nickname}",
-    "deviceType": "${device_type}",
-    "deviceId": "${device_id}",
-    "clientVersion": "${client_version}"
+    "device_type": ${device_type},
+    "device_id": "${device_id}",
+    "client_version": "${client_version}"
 }
 EOF
 )
@@ -191,7 +191,7 @@ login_test_user() {
     local account=$2
     local password=$3
     local device_id=$4
-    local device_type=${5:-Web}
+    local device_type=${5:-3}
     local client_version=${6:-1.0.0}
 
     local data
@@ -199,9 +199,9 @@ login_test_user() {
 {
     "account": "${account}",
     "password": "${password}",
-    "deviceId": "${device_id}",
-    "deviceType": "${device_type}",
-    "clientVersion": "${client_version}"
+    "device_id": "${device_id}",
+    "device_type": ${device_type},
+    "client_version": "${client_version}"
 }
 EOF
 )
@@ -215,7 +215,7 @@ register_and_login_test_user() {
     local password=$3
     local nickname=$4
     local device_id=$5
-    local device_type=${6:-Web}
+    local device_type=${6:-3}
     local client_version=${7:-1.0.0}
     local verify_code=${8:-123456}
 

@@ -661,7 +661,7 @@ func (s *userServiceImpl) ensureEmailAvailable(ctx context.Context, email, exclu
 	return nil
 }
 
-func (s *userServiceImpl) verifyCode(ctx context.Context, target, targetType, purpose, code string) error {
+func (s *userServiceImpl) verifyCode(ctx context.Context, target string, targetType authmodel.VerificationTargetType, purpose authmodel.VerificationPurpose, code string) error {
 	if s.verifySvc == nil {
 		return errors.NewBusiness(errors.CodeInternalError, "verification module not initialized")
 	}

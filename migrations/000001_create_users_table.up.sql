@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS user_devices (
     id BIGSERIAL PRIMARY KEY,
     user_id VARCHAR(36) NOT NULL,
     device_id VARCHAR(100) NOT NULL,
-    device_type VARCHAR(20) NOT NULL, -- iOS/Android/Web/PC
+    device_type SMALLINT NOT NULL, -- 1-ios, 2-android, 3-web, 4-pc, 5-h5
     client_version VARCHAR(50),
     last_login_at TIMESTAMP,
     last_login_ip VARCHAR(50),
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS user_push_tokens (
     user_id VARCHAR(36) NOT NULL,
     device_id VARCHAR(100) NOT NULL,
     push_token VARCHAR(500) NOT NULL,
-    platform VARCHAR(20) NOT NULL, -- iOS/Android
+    platform SMALLINT NOT NULL, -- 1-iOS/2-Android
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, device_id)

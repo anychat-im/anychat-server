@@ -112,18 +112,18 @@ setup_test_user() {
 {
     "email": "${TEST_EMAIL}",
     "password": "${TEST_PASSWORD}",
-    "verifyCode": "123456",
+    "verify_code": "123456",
     "nickname": "FileTestUser_${TIMESTAMP}",
-    "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}",
-    "clientVersion": "1.0.0"
+    "device_type": 1,
+    "device_id": "${TEST_DEVICE_ID}",
+    "client_version": "1.0.0"
 }
 EOF
 )
     local response=$(http_post "${API_BASE}/auth/register" "$data")
     if check_response "$response"; then
-        USER_ID=$(echo "$response" | jq -r '.data.userId')
-        USER_TOKEN=$(echo "$response" | jq -r '.data.accessToken')
+        USER_ID=$(echo "$response" | jq -r '.data.user_id // .data.userId // empty')
+        USER_TOKEN=$(echo "$response" | jq -r '.data.access_token // .data.accessToken // empty')
         print_success "User registered successfully (ID: ${USER_ID})"
     else
         print_error "User registration failed"
@@ -155,11 +155,11 @@ test_generate_upload_token() {
 
     local data=$(cat <<EOF
 {
-    "fileName": "test-image-${TIMESTAMP}.jpg",
-    "fileSize": 102400,
-    "mimeType": "image/jpeg",
-    "fileType": "image",
-    "expiresHours": 0
+    "file_name": "test-image-${TIMESTAMP}.jpg",
+    "file_size": 102400,
+    "mime_type": "image/jpeg",
+    "file_type": 1,
+    "expires_hours": 0
 }
 EOF
 )
@@ -321,7 +321,7 @@ test_list_user_files() {
 
     # Test filter by type
     print_info "Listing image type files..."
-    local response2=$(http_get "${API_BASE}/files?fileType=image&page=1&pageSize=20" "$USER_TOKEN")
+    local response2=$(http_get "${API_BASE}/files?file_type=1&page=1&page_size=20" "$USER_TOKEN")
 
     if check_response "$response2"; then
         local count2=$(echo "$response2" | jq -r '.data.files | length')

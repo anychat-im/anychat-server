@@ -261,9 +261,9 @@ test_update_push_token() {
 
     local data=$(cat <<EOF
 {
-    "deviceId": "${TEST_DEVICE_ID}",
-    "pushToken": "test-push-token-${TIMESTAMP}",
-    "platform": "iOS"
+    "device_id": "${TEST_DEVICE_ID}",
+    "push_token": "test-push-token-${TIMESTAMP}",
+    "platform": 1
 }
 EOF
 )
@@ -285,8 +285,8 @@ test_bind_phone() {
 
     local data=$(cat <<EOF
 {
-    "phoneNumber": "${TEST_PHONE}",
-    "verifyCode": "123456"
+    "phone_number": "${TEST_PHONE}",
+    "verify_code": "123456"
 }
 EOF
 )
@@ -310,9 +310,9 @@ test_change_phone() {
     local new_phone="139${TIMESTAMP:(-8)}"
     local data=$(cat <<EOF
 {
-    "oldPhoneNumber": "${TEST_PHONE}",
-    "newPhoneNumber": "${new_phone}",
-    "newVerifyCode": "123456"
+    "old_phone_number": "${TEST_PHONE}",
+    "new_phone_number": "${new_phone}",
+    "new_verify_code": "123456"
 }
 EOF
 )
@@ -337,7 +337,7 @@ test_bind_email() {
     local data=$(cat <<EOF
 {
     "email": "${TEST_EMAIL}",
-    "verifyCode": "123456"
+    "verify_code": "123456"
 }
 EOF
 )
@@ -361,9 +361,9 @@ test_change_email() {
     local new_email="new${TIMESTAMP}@example.com"
     local data=$(cat <<EOF
 {
-    "oldEmail": "${TEST_EMAIL}",
-    "newEmail": "${new_email}",
-    "newVerifyCode": "123456"
+    "old_email": "${TEST_EMAIL}",
+    "new_email": "${new_email}",
+    "new_verify_code": "123456"
 }
 EOF
 )
@@ -387,7 +387,7 @@ test_blacklist_blocks_user_info() {
 
     local blacklist_data=$(cat <<EOF
 {
-    "userId": "${USER_ID_2}"
+    "user_id": "${USER_ID_2}"
 }
 EOF
 )

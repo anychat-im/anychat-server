@@ -4,6 +4,32 @@ package file;
 
 option go_package = "github.com/anychat/server/api/proto/file;file";
 
+// FileType 文件类型
+enum FileType {
+  FILE_TYPE_UNSPECIFIED = 0;
+  FILE_TYPE_IMAGE = 1;
+  FILE_TYPE_VIDEO = 2;
+  FILE_TYPE_AUDIO = 3;
+  FILE_TYPE_FILE = 4;
+  FILE_TYPE_LOG = 5;
+}
+
+// FileStatus 文件状态
+enum FileStatus {
+  FILE_STATUS_DELETED = 0;
+  FILE_STATUS_ACTIVE = 1;
+  FILE_STATUS_PROCESSING = 2;
+}
+
+// UploadStatus 分片上传状态
+enum UploadStatus {
+  UPLOAD_STATUS_UNSPECIFIED = 0;
+  UPLOAD_STATUS_PENDING = 1;
+  UPLOAD_STATUS_UPLOADING = 2;
+  UPLOAD_STATUS_COMPLETED = 3;
+  UPLOAD_STATUS_FAILED = 4;
+}
+
 // FileService 文件服务
 service FileService {
   // GenerateUploadToken 生成上传凭证
@@ -33,13 +59,13 @@ message FileInfo {
   string file_id = 1;
   string user_id = 2;
   string file_name = 3;
-  string file_type = 4;  // image/video/audio/file
+  FileType file_type = 4;
   int64 file_size = 5;
   string mime_type = 6;
   string storage_path = 7;
   string thumbnail_path = 8;
   string bucket_name = 9;
-  int32 status = 10;  // 0-deleted 1-active 2-processing
+  FileStatus status = 10;
   int64 created_at = 11;
   optional int64 expires_at = 12;
   optional string metadata = 13;  // JSON string
@@ -53,7 +79,7 @@ message GenerateUploadTokenRequest {
   string file_name = 2;
   int64 file_size = 3;
   string mime_type = 4;
-  string file_type = 5;  // image/video/audio/file
+  FileType file_type = 5;
   optional int32 expires_hours = 6;  // 文件过期时间（小时），0表示永不过期
 }
 
@@ -104,7 +130,7 @@ message DeleteFileResponse {
 // ListUserFilesRequest 列出用户文件请求
 message ListUserFilesRequest {
   string user_id = 1;
-  optional string file_type = 2;  // 可选：按文件类型过滤
+  optional FileType file_type = 2;  // 可选：按文件类型过滤
   int32 page = 3;
   int32 page_size = 4;
 }

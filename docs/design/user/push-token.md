@@ -17,7 +17,7 @@ type UserPushToken struct {
     ID          string    // 主键
     UserID      string    // 用户ID
     Token       string    // 推送Token
-    Platform    string    // 平台: ios/fcm/huawei/xg
+    Platform    int16     // 平台: 1=iOS, 2=Android
     DeviceID    string    // 设备ID
     DeviceType  string    // 设备类型
     CreatedAt   time.Time
@@ -27,12 +27,10 @@ type UserPushToken struct {
 
 ## 4. 推送平台
 
-| 平台 | 说明 |
-|------|------|
-| ios | Apple APNs |
-| fcm | Firebase Cloud Messaging |
-| huawei | 华为推送 |
-| xg | 腾讯信鸽 |
+| 枚举值 | 平台 |
+|--------|------|
+| 1 | iOS |
+| 2 | Android |
 
 ## 5. 业务流程
 
@@ -44,7 +42,7 @@ sequenceDiagram
     participant DB
     participant PushService
 
-    Client->>Gateway: POST /user/push-token<br/>Header: Authorization: Bearer {token}<br/>Body: {push_token, platform, device_id, device_type}
+    Client->>Gateway: POST /user/push-token<br/>Header: Authorization: Bearer {token}<br/>Body: {push_token, platform(1/2), device_id}
     Gateway->>Gateway: 从JWT解析userId
     Gateway->>UserService: gRPC UpdatePushToken(userId, token, platform, deviceId)
     UserService->>DB: 查询是否存在
@@ -65,10 +63,9 @@ sequenceDiagram
 ```protobuf
 message UpdatePushTokenRequest {
     string user_id = 1;
-    string token = 2;
-    string platform = 3;
-    string device_id = 4;
-    string device_type = 5;
+    string device_id = 2;
+    string push_token = 3;
+    PushPlatform platform = 4; // 1-iOS/2-Android
 }
 ```
 

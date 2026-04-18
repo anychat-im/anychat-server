@@ -9,7 +9,7 @@
 
 - `keyword` 必填；
 - `conversation_id` 必填（当前实现仅支持会话内搜索）；
-- `content_type` 选填（text/image/file 等）；
+- `content_type` 选填（`1..7`，如 `1=text`, `2=image`, `5=file`）；
 - `limit` 默认 20，最大 100；
 - `offset` 默认 0。
 

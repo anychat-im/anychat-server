@@ -5,6 +5,7 @@ import (
 
 	callingpb "github.com/anychat/server/api/proto/calling"
 	commonpb "github.com/anychat/server/api/proto/common"
+	"github.com/anychat/server/internal/calling/model"
 	"github.com/anychat/server/internal/calling/service"
 	"github.com/anychat/server/pkg/logger"
 	"go.uber.org/zap"
@@ -30,10 +31,7 @@ func (s *Server) InitiateCall(ctx context.Context, req *callingpb.InitiateCallRe
 	if req.CallerId == req.CalleeId {
 		return nil, status.Error(codes.InvalidArgument, "caller and callee cannot be the same")
 	}
-	callType := "audio"
-	if req.CallType == callingpb.CallType_CALL_TYPE_VIDEO {
-		callType = "video"
-	}
+	callType := model.CallType(req.CallType)
 	resp, err := s.svc.InitiateCall(ctx, req.CallerId, req.CalleeId, callType)
 	if err != nil {
 		logger.Error("InitiateCall gRPC failed", zap.Error(err))

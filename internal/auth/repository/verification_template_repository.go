@@ -8,7 +8,7 @@ import (
 )
 
 type VerificationTemplateRepository interface {
-	GetByPurpose(ctx context.Context, purpose string) (*model.VerificationTemplate, error)
+	GetByPurpose(ctx context.Context, purpose model.VerificationPurpose) (*model.VerificationTemplate, error)
 	GetActive(ctx context.Context) ([]*model.VerificationTemplate, error)
 	Update(ctx context.Context, template *model.VerificationTemplate) error
 	WithTx(tx *gorm.DB) VerificationTemplateRepository
@@ -22,7 +22,7 @@ func NewVerificationTemplateRepository(db *gorm.DB) VerificationTemplateReposito
 	return &verificationTemplateRepositoryImpl{db: db}
 }
 
-func (r *verificationTemplateRepositoryImpl) GetByPurpose(ctx context.Context, purpose string) (*model.VerificationTemplate, error) {
+func (r *verificationTemplateRepositoryImpl) GetByPurpose(ctx context.Context, purpose model.VerificationPurpose) (*model.VerificationTemplate, error) {
 	var template model.VerificationTemplate
 	err := r.db.WithContext(ctx).
 		Where("purpose = ? AND is_active = ?", purpose, true).

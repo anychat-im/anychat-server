@@ -5,7 +5,7 @@ type GenerateUploadTokenRequest struct {
 	FileName     string `json:"file_name" binding:"required" example:"photo.jpg"`
 	FileSize     int64  `json:"file_size" binding:"required,gt=0" example:"1024000"`
 	MimeType     string `json:"mime_type" binding:"required" example:"image/jpeg"`
-	FileType     string `json:"file_type" binding:"required,oneof=image video audio file" example:"image"`
+	FileType     int32  `json:"file_type" binding:"required,oneof=1 2 3 4 5" example:"1"`
 	ExpiresHours *int32 `json:"expires_hours,omitempty" example:"0"`
 }
 
@@ -26,7 +26,7 @@ type FileInfoResponse struct {
 	FileID        string            `json:"file_id" example:"file-123"`
 	UserID        string            `json:"user_id" example:"user-123"`
 	FileName      string            `json:"file_name" example:"photo.jpg"`
-	FileType      string            `json:"file_type" example:"image"`
+	FileType      int32             `json:"file_type" example:"1"`
 	FileSize      int64             `json:"file_size" example:"1024000"`
 	MimeType      string            `json:"mime_type" example:"image/jpeg"`
 	StoragePath   string            `json:"storage_path" example:"chat-file/user-123/2024-01-15/uuid.jpg"`
@@ -55,9 +55,9 @@ type GenerateDownloadURLResponse struct {
 
 // ListFilesRequest list files request
 type ListFilesRequest struct {
-	FileType *string `form:"file_type" example:"image"`
-	Page     int     `form:"page" binding:"required,min=1" example:"1"`
-	PageSize int     `form:"page_size" binding:"required,min=1,max=100" example:"20"`
+	FileType *int32 `form:"file_type" example:"1"`
+	Page     int    `form:"page" binding:"required,min=1" example:"1"`
+	PageSize int    `form:"page_size" binding:"required,min=1,max=100" example:"20"`
 }
 
 // ListFilesResponse list files response

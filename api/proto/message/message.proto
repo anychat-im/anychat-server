@@ -61,13 +61,30 @@ service MessageService {
   rpc SendTyping(SendTypingRequest) returns (common.Empty);
 }
 
+enum ConversationType {
+  CONVERSATION_TYPE_UNSPECIFIED = 0;
+  CONVERSATION_TYPE_SINGLE = 1;
+  CONVERSATION_TYPE_GROUP = 2;
+}
+
+enum ContentType {
+  CONTENT_TYPE_UNSPECIFIED = 0;
+  CONTENT_TYPE_TEXT = 1;
+  CONTENT_TYPE_IMAGE = 2;
+  CONTENT_TYPE_VIDEO = 3;
+  CONTENT_TYPE_AUDIO = 4;
+  CONTENT_TYPE_FILE = 5;
+  CONTENT_TYPE_LOCATION = 6;
+  CONTENT_TYPE_CARD = 7;
+}
+
 // Message 消息
 message Message {
   string message_id = 1;
   string conversation_id = 2;
-  string conversation_type = 3;  // single/group
+  ConversationType conversation_type = 3;  // 1-single/2-group
   string sender_id = 4;
-  string content_type = 5;  // text/image/video/audio/file/location/card
+  ContentType content_type = 5;  // 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
   string content = 6;  // JSON string
   int64 sequence = 7;
   optional string reply_to = 8;
@@ -87,7 +104,7 @@ message Message {
 message SendMessageRequest {
   string sender_id = 1;
   string conversation_id = 2;
-  string content_type = 3;
+  ContentType content_type = 3;
   string content = 4;  // JSON string
   optional string reply_to = 5;
   repeated string at_users = 6;
@@ -282,7 +299,7 @@ message GetConversationSequenceResponse {
 message SearchMessagesRequest {
   string keyword = 1;  // 操作用户由调用链路透传的x-user-id元数据提供
   optional string conversation_id = 2;
-  optional string content_type = 3;
+  optional ContentType content_type = 3;
   int32 limit = 4;
   int32 offset = 5;
 }

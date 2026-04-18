@@ -18,7 +18,7 @@ type UserDevice struct {
     ID            int64      // 主键ID
     UserID        string     // 用户ID
     DeviceID      string     // 设备唯一标识
-    DeviceType    string     // 设备类型: ios/android/web/pc/h5
+    DeviceType    int16      // 设备类型: 1-ios 2-android 3-web 4-pc 5-h5
     ClientVersion string     // 客户端版本
     LastLoginAt   *time.Time // 最后登录时间
     LastLoginIP   string     // 最后登录IP
@@ -29,13 +29,13 @@ type UserDevice struct {
 
 ## 4. 设备类型
 
-| 类型 | 说明 |
-|------|------|
-| ios | iOS 应用 |
-| android | Android 应用 |
-| web | Web 浏览器 |
-| pc | PC 客户端 |
-| h5 | H5 页面 |
+| 枚举值 | 类型 | 说明 |
+|--------|------|------|
+| 1 | ios | iOS 应用 |
+| 2 | android | Android 应用 |
+| 3 | web | Web 浏览器 |
+| 4 | pc | PC 客户端 |
+| 5 | h5 | H5 页面 |
 
 ## 5. 业务流程
 
@@ -163,7 +163,7 @@ Payload:
 {
     "type": "auth.force_logout",
     "device_id": "旧设备ID",
-    "device_type": "ios",
+    "device_type": 1,
     "reason": "new_device_login"
 }
 ```
@@ -185,7 +185,7 @@ message GetUserDevicesResponse {
 
 message DeviceInfo {
     string device_id = 1;
-    string device_type = 2;
+    int32 device_type = 2; // 1-ios 2-android 3-web 4-pc 5-h5
     string client_version = 3;
     google.protobuf.Timestamp last_login_at = 4;
     string last_login_ip = 5;
@@ -208,7 +208,7 @@ message ForceLogoutRequest {
 
 ```go
 // 处理同类型设备登录，强制下线旧设备
-func (s *authServiceImpl) handleSameTypeDeviceKick(ctx context.Context, userID, deviceID, deviceType string) error {
+func (s *authServiceImpl) handleSameTypeDeviceKick(ctx context.Context, userID, deviceID string, deviceType int16) error {
     // 查询同类型的其他设备
     devices, err := s.deviceRepo.GetByUserIDAndDeviceType(ctx, userID, deviceType)
     if err != nil {

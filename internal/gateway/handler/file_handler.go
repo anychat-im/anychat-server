@@ -42,7 +42,7 @@ func (h *FileHandler) GenerateUploadToken(c *gin.Context) {
 		FileName     string `json:"file_name" binding:"required" example:"photo.jpg"`
 		FileSize     int64  `json:"file_size" binding:"required,gt=0" example:"1024000"`
 		MimeType     string `json:"mime_type" binding:"required" example:"image/jpeg"`
-		FileType     string `json:"file_type" binding:"required,oneof=image video audio file" example:"image"`
+		FileType     int32  `json:"file_type" binding:"required,oneof=1 2 3 4 5" example:"1"`
 		ExpiresHours int32  `json:"expires_hours,omitempty" example:"0"`
 	}
 
@@ -56,7 +56,7 @@ func (h *FileHandler) GenerateUploadToken(c *gin.Context) {
 		FileName:     req.FileName,
 		FileSize:     req.FileSize,
 		MimeType:     req.MimeType,
-		FileType:     req.FileType,
+		FileType:     filepb.FileType(req.FileType),
 		ExpiresHours: &req.ExpiresHours,
 	})
 
@@ -233,7 +233,7 @@ func (h *FileHandler) DeleteFile(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        fileType  query  string  false  "file type (image/video/audio/file)"
+// @Param        fileType  query  int  false  "file type (1-image/2-video/3-audio/4-file/5-log)"
 // @Param        page      query  int     false  "page number"  default(1)
 // @Param        pageSize  query  int     false  "page size"  default(20)
 // @Success      200       {object}  response.Response{data=object}  "success"
@@ -245,7 +245,7 @@ func (h *FileHandler) ListFiles(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 
 	// Parse query parameters
-	fileType := c.Query("file_type")
+	fileTypeQuery := c.Query("file_type")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
@@ -262,7 +262,13 @@ func (h *FileHandler) ListFiles(c *gin.Context) {
 		PageSize: int32(pageSize),
 	}
 
-	if fileType != "" {
+	if fileTypeQuery != "" {
+		fileTypeInt, err := strconv.Atoi(fileTypeQuery)
+		if err != nil || fileTypeInt < int(filepb.FileType_FILE_TYPE_IMAGE) || fileTypeInt > int(filepb.FileType_FILE_TYPE_LOG) {
+			response.ParamError(c, "file_type must be one of 1,2,3,4,5")
+			return
+		}
+		fileType := filepb.FileType(fileTypeInt)
 		req.FileType = &fileType
 	}
 

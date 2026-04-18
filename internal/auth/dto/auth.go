@@ -1,12 +1,14 @@
 package dto
 
+import "github.com/anychat/server/internal/auth/model"
+
 // SendVerificationCodeRequest send verification code request
 type SendVerificationCodeRequest struct {
-	Target     string `json:"target" binding:"required"`
-	TargetType string `json:"target_type" binding:"required"`
-	Purpose    string `json:"purpose" binding:"required"`
-	DeviceID   string `json:"device_id"`
-	IPAddress  string `json:"ip_address"`
+	Target     string                       `json:"target" binding:"required"`
+	TargetType model.VerificationTargetType `json:"target_type" binding:"required"`
+	Purpose    model.VerificationPurpose    `json:"purpose" binding:"required"`
+	DeviceID   string                       `json:"device_id"`
+	IPAddress  string                       `json:"ip_address"`
 }
 
 // SendVerificationCodeResponse send verification code response
@@ -17,14 +19,14 @@ type SendVerificationCodeResponse struct {
 
 // RegisterRequest register request
 type RegisterRequest struct {
-	PhoneNumber   string `json:"phone_number" binding:"required_without=Email"`
-	Email         string `json:"email" binding:"required_without=PhoneNumber,omitempty,email"`
-	Password      string `json:"password" binding:"required,min=8,max=32"`
-	VerifyCode    string `json:"verify_code" binding:"required"`
-	Nickname      string `json:"nickname"`
-	DeviceType    string `json:"device_type" binding:"required"`
-	DeviceID      string `json:"device_id" binding:"required"`
-	ClientVersion string `json:"client_version" binding:"required"`
+	PhoneNumber   string           `json:"phone_number" binding:"required_without=Email"`
+	Email         string           `json:"email" binding:"required_without=PhoneNumber,omitempty,email"`
+	Password      string           `json:"password" binding:"required,min=8,max=32"`
+	VerifyCode    string           `json:"verify_code" binding:"required"`
+	Nickname      string           `json:"nickname"`
+	DeviceType    model.DeviceType `json:"device_type" binding:"required"`
+	DeviceID      string           `json:"device_id" binding:"required"`
+	ClientVersion string           `json:"client_version" binding:"required"`
 }
 
 // RegisterResponse register response
@@ -37,12 +39,12 @@ type RegisterResponse struct {
 
 // LoginRequest login request
 type LoginRequest struct {
-	Account       string `json:"account" binding:"required"`
-	Password      string `json:"password" binding:"required"`
-	DeviceType    string `json:"device_type" binding:"required"`
-	DeviceID      string `json:"device_id" binding:"required"`
-	ClientVersion string `json:"client_version" binding:"required"`
-	IpAddress     string `json:"ip_address"`
+	Account       string           `json:"account" binding:"required"`
+	Password      string           `json:"password" binding:"required"`
+	DeviceType    model.DeviceType `json:"device_type" binding:"required"`
+	DeviceID      string           `json:"device_id" binding:"required"`
+	ClientVersion string           `json:"client_version" binding:"required"`
+	IpAddress     string           `json:"ip_address"`
 }
 
 // LoginResponse login response

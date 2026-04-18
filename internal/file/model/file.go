@@ -6,19 +6,28 @@ import (
 	"time"
 )
 
+// FileType represents file category.
+type FileType int16
+
+// FileStatus represents file lifecycle status.
+type FileStatus int16
+
+// UploadStatus represents chunked upload lifecycle status.
+type UploadStatus int16
+
 // File file metadata model
 type File struct {
 	ID            int64        `gorm:"column:id;primaryKey;autoIncrement"`
 	FileID        string       `gorm:"column:file_id;not null;uniqueIndex"`
 	UserID        string       `gorm:"column:user_id;not null"`
 	FileName      string       `gorm:"column:file_name;not null"`
-	FileType      string       `gorm:"column:file_type;not null"`
+	FileType      FileType     `gorm:"column:file_type;type:smallint;not null"`
 	FileSize      int64        `gorm:"column:file_size;not null"`
 	MimeType      string       `gorm:"column:mime_type;not null"`
 	StoragePath   string       `gorm:"column:storage_path;not null"`
 	ThumbnailPath string       `gorm:"column:thumbnail_path"`
 	BucketName    string       `gorm:"column:bucket_name;not null"`
-	Status        int16        `gorm:"column:status;default:1"`
+	Status        FileStatus   `gorm:"column:status;type:smallint;default:1"`
 	CreatedAt     time.Time    `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP"`
 	ExpiresAt     *time.Time   `gorm:"column:expires_at"`
 	Metadata      FileMetadata `gorm:"column:metadata;type:jsonb"`
@@ -62,16 +71,16 @@ func (File) TableName() string {
 
 // FileUpload file upload tracking model (for chunked upload)
 type FileUpload struct {
-	ID             int64     `gorm:"column:id;primaryKey;autoIncrement"`
-	UploadID       string    `gorm:"column:upload_id;not null;uniqueIndex"`
-	UserID         string    `gorm:"column:user_id;not null"`
-	FileName       string    `gorm:"column:file_name;not null"`
-	FileSize       int64     `gorm:"column:file_size;not null"`
-	ChunkSize      int64     `gorm:"column:chunk_size;not null"`
-	UploadedChunks ChunkInfo `gorm:"column:uploaded_chunks;type:jsonb"`
-	Status         string    `gorm:"column:status;default:pending"`
-	CreatedAt      time.Time `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP"`
-	UpdatedAt      time.Time `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP"`
+	ID             int64        `gorm:"column:id;primaryKey;autoIncrement"`
+	UploadID       string       `gorm:"column:upload_id;not null;uniqueIndex"`
+	UserID         string       `gorm:"column:user_id;not null"`
+	FileName       string       `gorm:"column:file_name;not null"`
+	FileSize       int64        `gorm:"column:file_size;not null"`
+	ChunkSize      int64        `gorm:"column:chunk_size;not null"`
+	UploadedChunks ChunkInfo    `gorm:"column:uploaded_chunks;type:jsonb"`
+	Status         UploadStatus `gorm:"column:status;type:smallint;default:1"`
+	CreatedAt      time.Time    `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP"`
+	UpdatedAt      time.Time    `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP"`
 	CompletedAt    *time.Time
 	ExpiresAt      time.Time `gorm:"column:expires_at;not null"`
 }
@@ -108,17 +117,19 @@ func (FileUpload) TableName() string {
 
 // file status constants
 const (
-	FileStatusDeleted    = 0
-	FileStatusActive     = 1
-	FileStatusProcessing = 2
+	FileStatusDeleted    FileStatus = 0
+	FileStatusActive     FileStatus = 1
+	FileStatusProcessing FileStatus = 2
 )
 
 // file type constants
 const (
-	FileTypeImage = "image"
-	FileTypeVideo = "video"
-	FileTypeAudio = "audio"
-	FileTypeFile  = "file"
+	FileTypeUnspecified FileType = 0
+	FileTypeImage       FileType = 1
+	FileTypeVideo       FileType = 2
+	FileTypeAudio       FileType = 3
+	FileTypeFile        FileType = 4
+	FileTypeLog         FileType = 5
 )
 
 // bucket name constants
@@ -134,12 +145,13 @@ const (
 	MaxVideoSize = 100 * 1024 * 1024 // 100MB
 	MaxAudioSize = 20 * 1024 * 1024  // 20MB
 	MaxFileSize  = 50 * 1024 * 1024  // 50MB
+	MaxLogSize   = 50 * 1024 * 1024  // 50MB
 )
 
 // upload status constants
 const (
-	UploadStatusPending   = "pending"
-	UploadStatusUploading = "uploading"
-	UploadStatusCompleted = "completed"
-	UploadStatusFailed    = "failed"
+	UploadStatusPending   UploadStatus = 1
+	UploadStatusUploading UploadStatus = 2
+	UploadStatusCompleted UploadStatus = 3
+	UploadStatusFailed    UploadStatus = 4
 )

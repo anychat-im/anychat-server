@@ -112,7 +112,7 @@ message SendTypingRequest {
 
 - `conversation_id`、`from_user_id` 必填
 - 会话必须存在且属于请求用户
-- 仅允许 `conversation_type=single`
+- 仅允许 `conversation_type=1(single)`
 
 ### 5.3 NATS 通知
 

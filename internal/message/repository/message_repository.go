@@ -17,16 +17,16 @@ type MessageRepository interface {
 	GetByConversation(ctx context.Context, conversationID string, startSeq, endSeq int64, limit int, reverse bool) ([]*model.Message, error)
 	GetLatestByConversation(ctx context.Context, conversationID string, limit int) ([]*model.Message, error)
 	GetBySender(ctx context.Context, senderID string, limit, offset int) ([]*model.Message, error)
-	UpdateStatus(ctx context.Context, messageID string, status int16) error
+	UpdateStatus(ctx context.Context, messageID string, status model.MessageStatus) error
 	Delete(ctx context.Context, messageID string) error
 	CountByConversation(ctx context.Context, conversationID string) (int64, error)
 	CountUnreadByConversation(ctx context.Context, conversationID string, lastReadSeq int64) (int64, error)
-	SearchMessages(ctx context.Context, keyword string, conversationID *string, contentType *string, limit, offset int) ([]*model.Message, int64, error)
+	SearchMessages(ctx context.Context, keyword string, conversationID *string, contentType *model.ContentType, limit, offset int) ([]*model.Message, int64, error)
 	GetByReplyTo(ctx context.Context, replyToMessageID string) ([]*model.Message, error)
 	// GetExpiredMessages retrieves expired messages (paginated)
 	GetExpiredMessages(ctx context.Context, before time.Time, limit int) ([]*model.Message, error)
 	// BatchUpdateStatus batch updates message status
-	BatchUpdateStatus(ctx context.Context, messageIDs []string, status int16) error
+	BatchUpdateStatus(ctx context.Context, messageIDs []string, status model.MessageStatus) error
 	// GetExpiredMessageIDs retrieves expired message IDs (for notification)
 	GetExpiredMessageIDs(ctx context.Context, before time.Time, limit int) ([]string, error)
 	WithTx(tx *gorm.DB) MessageRepository
@@ -127,7 +127,7 @@ func (r *messageRepositoryImpl) GetBySender(ctx context.Context, senderID string
 }
 
 // UpdateStatus updates message status
-func (r *messageRepositoryImpl) UpdateStatus(ctx context.Context, messageID string, status int16) error {
+func (r *messageRepositoryImpl) UpdateStatus(ctx context.Context, messageID string, status model.MessageStatus) error {
 	return r.db.WithContext(ctx).
 		Model(&model.Message{}).
 		Where("message_id = ?", messageID).
@@ -160,7 +160,7 @@ func (r *messageRepositoryImpl) CountUnreadByConversation(ctx context.Context, c
 }
 
 // SearchMessages searches messages
-func (r *messageRepositoryImpl) SearchMessages(ctx context.Context, keyword string, conversationID *string, contentType *string, limit, offset int) ([]*model.Message, int64, error) {
+func (r *messageRepositoryImpl) SearchMessages(ctx context.Context, keyword string, conversationID *string, contentType *model.ContentType, limit, offset int) ([]*model.Message, int64, error) {
 	var messages []*model.Message
 	var total int64
 
@@ -179,7 +179,7 @@ func (r *messageRepositoryImpl) SearchMessages(ctx context.Context, keyword stri
 	}
 
 	// Content type filter
-	if contentType != nil && *contentType != "" {
+	if contentType != nil && *contentType != model.ContentTypeUnspecified {
 		query = query.Where("content_type = ?", *contentType)
 	}
 
@@ -220,7 +220,7 @@ func (r *messageRepositoryImpl) GetExpiredMessages(ctx context.Context, before t
 }
 
 // BatchUpdateStatus batch updates message status
-func (r *messageRepositoryImpl) BatchUpdateStatus(ctx context.Context, messageIDs []string, status int16) error {
+func (r *messageRepositoryImpl) BatchUpdateStatus(ctx context.Context, messageIDs []string, status model.MessageStatus) error {
 	if len(messageIDs) == 0 {
 		return nil
 	}

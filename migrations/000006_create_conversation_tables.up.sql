@@ -1,7 +1,7 @@
 -- Conversations table
 CREATE TABLE conversations (
     conversation_id      VARCHAR(100) PRIMARY KEY,
-    conversation_type    VARCHAR(20)  NOT NULL,                -- single/group/system
+    conversation_type    SMALLINT     NOT NULL,                -- 1-single/2-group/3-system
     user_id         VARCHAR(100) NOT NULL,
     target_id       VARCHAR(100) NOT NULL,                -- For private chat: peer user ID, for group chat: group ID
     last_message_id VARCHAR(100),

@@ -64,7 +64,7 @@ func parseMessageAnchorLimit(c *gin.Context, key string, defaultValue int32) (in
 
 type sendMessageRequest struct {
 	ConversationID string   `json:"conversation_id" binding:"required"`
-	ContentType    string   `json:"content_type" binding:"required"`
+	ContentType    int32    `json:"content_type" binding:"required,oneof=1 2 3 4 5 6 7"`
 	Content        string   `json:"content" binding:"required"`
 	ReplyTo        *string  `json:"reply_to,omitempty"`
 	AtUsers        []string `json:"at_users,omitempty"`
@@ -110,7 +110,7 @@ func (h *MessageHandler) SendMessage(c *gin.Context) {
 	grpcReq := &messagepb.SendMessageRequest{
 		SenderId:       userID,
 		ConversationId: req.ConversationID,
-		ContentType:    req.ContentType,
+		ContentType:    messagepb.ContentType(req.ContentType),
 		Content:        req.Content,
 		LocalId:        req.LocalID,
 		AtUsers:        req.AtUsers,
@@ -410,7 +410,7 @@ func (h *MessageHandler) GetMessageByID(c *gin.Context) {
 // @Security     BearerAuth
 // @Param        keyword          query     string  true   "keyword"
 // @Param        conversation_id  query     string  true   "conversation ID"
-// @Param        content_type     query     string  false  "message type"
+// @Param        content_type     query     int     false  "message type (1-text/2-image/3-video/4-audio/5-file/6-location/7-card)"
 // @Param        limit            query     int32   false  "page size (default 20, max 100)"
 // @Param        offset           query     int32   false  "offset"
 // @Success      200              {object}  response.Response{data=object}  "success"
@@ -438,7 +438,13 @@ func (h *MessageHandler) SearchMessages(c *gin.Context) {
 	}
 
 	if contentType := c.Query("content_type"); contentType != "" {
-		req.ContentType = &contentType
+		contentTypeInt, err := strconv.Atoi(contentType)
+		if err != nil || contentTypeInt < int(messagepb.ContentType_CONTENT_TYPE_TEXT) || contentTypeInt > int(messagepb.ContentType_CONTENT_TYPE_CARD) {
+			response.ParamError(c, "content_type must be one of 1,2,3,4,5,6,7")
+			return
+		}
+		typed := messagepb.ContentType(contentTypeInt)
+		req.ContentType = &typed
 	}
 
 	if limitStr := c.Query("limit"); limitStr != "" {

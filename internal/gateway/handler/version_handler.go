@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	versionpb "github.com/anychat/server/api/proto/version"
 	"github.com/gin-gonic/gin"
@@ -20,14 +21,22 @@ func NewVersionHandler(cm interface {
 }
 
 func (h *VersionHandler) CheckVersion(c *gin.Context) {
-	platform := c.Query("platform")
+	platformValue := c.Query("platform")
 	version := c.Query("version")
 	buildNumber := c.DefaultQuery("build_number", "0")
 
-	if platform == "" || version == "" {
+	platform, err := strconv.Atoi(platformValue)
+	if platformValue == "" || version == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    1,
 			"message": "platform and version are required",
+		})
+		return
+	}
+	if err != nil || platform < int(versionpb.Platform_PLATFORM_IOS) || platform > int(versionpb.Platform_PLATFORM_H5) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    1,
+			"message": "platform must be one of 1,2,3,4,5",
 		})
 		return
 	}
@@ -41,7 +50,7 @@ func (h *VersionHandler) CheckVersion(c *gin.Context) {
 	}
 
 	resp, err := h.clientManager.Version().CheckVersion(c.Request.Context(), &versionpb.CheckVersionRequest{
-		Platform:    platform,
+		Platform:    versionpb.Platform(platform),
 		Version:     version,
 		BuildNumber: bn,
 	})
@@ -58,32 +67,48 @@ func (h *VersionHandler) CheckVersion(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": map[string]interface{}{
-			"has_update":         resp.HasUpdate,
-			"latest_version":     resp.LatestVersion,
+			"has_update":          resp.HasUpdate,
+			"latest_version":      resp.LatestVersion,
 			"latest_build_number": resp.LatestBuildNumber,
-			"force_update":       resp.ForceUpdate,
-			"min_version":        resp.MinVersion,
+			"force_update":        resp.ForceUpdate,
+			"min_version":         resp.MinVersion,
 			"min_build_number":    resp.MinBuildNumber,
-			"update_info":        resp.UpdateInfo,
+			"update_info":         resp.UpdateInfo,
 		},
 	})
 }
 
 func (h *VersionHandler) GetLatestVersion(c *gin.Context) {
-	platform := c.Query("platform")
-	releaseType := c.DefaultQuery("release_type", "stable")
+	platformValue := c.Query("platform")
+	releaseTypeValue := c.DefaultQuery("release_type", "1")
 
-	if platform == "" {
+	platform, err := strconv.Atoi(platformValue)
+	if platformValue == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    1,
 			"message": "platform is required",
 		})
 		return
 	}
+	if err != nil || platform < int(versionpb.Platform_PLATFORM_IOS) || platform > int(versionpb.Platform_PLATFORM_H5) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    1,
+			"message": "platform must be one of 1,2,3,4,5",
+		})
+		return
+	}
+	releaseType, err := strconv.Atoi(releaseTypeValue)
+	if err != nil || releaseType < int(versionpb.ReleaseType_RELEASE_TYPE_STABLE) || releaseType > int(versionpb.ReleaseType_RELEASE_TYPE_ALPHA) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    1,
+			"message": "release_type must be one of 1,2,3",
+		})
+		return
+	}
 
 	resp, err := h.clientManager.Version().GetLatestVersion(c.Request.Context(), &versionpb.GetLatestVersionRequest{
-		Platform:    platform,
-		ReleaseType: releaseType,
+		Platform:    versionpb.Platform(platform),
+		ReleaseType: versionpb.ReleaseType(releaseType),
 	})
 
 	if err != nil {
@@ -104,10 +129,34 @@ func (h *VersionHandler) GetLatestVersion(c *gin.Context) {
 }
 
 func (h *VersionHandler) ListVersions(c *gin.Context) {
-	platform := c.Query("platform")
-	releaseType := c.DefaultQuery("release_type", "")
+	platformValue := c.Query("platform")
+	releaseTypeValue := c.DefaultQuery("release_type", "0")
 	page := c.DefaultQuery("page", "1")
 	pageSize := c.DefaultQuery("page_size", "20")
+
+	platform, err := strconv.Atoi(platformValue)
+	if platformValue == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    1,
+			"message": "platform is required",
+		})
+		return
+	}
+	if err != nil || platform < int(versionpb.Platform_PLATFORM_IOS) || platform > int(versionpb.Platform_PLATFORM_H5) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    1,
+			"message": "platform must be one of 1,2,3,4,5",
+		})
+		return
+	}
+	releaseType, err := strconv.Atoi(releaseTypeValue)
+	if err != nil || releaseType < int(versionpb.ReleaseType_RELEASE_TYPE_UNSPECIFIED) || releaseType > int(versionpb.ReleaseType_RELEASE_TYPE_ALPHA) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    1,
+			"message": "release_type must be one of 0,1,2,3",
+		})
+		return
+	}
 
 	var pageInt, pageSizeInt int32
 	for _, ch := range page {
@@ -122,10 +171,10 @@ func (h *VersionHandler) ListVersions(c *gin.Context) {
 	}
 
 	resp, err := h.clientManager.Version().ListVersions(c.Request.Context(), &versionpb.ListVersionsRequest{
-		Platform:    platform,
+		Platform:    versionpb.Platform(platform),
 		Page:        pageInt,
 		PageSize:    pageSizeInt,
-		ReleaseType: releaseType,
+		ReleaseType: versionpb.ReleaseType(releaseType),
 	})
 
 	if err != nil {
@@ -148,7 +197,7 @@ func (h *VersionHandler) ListVersions(c *gin.Context) {
 
 func (h *VersionHandler) ReportVersion(c *gin.Context) {
 	var req struct {
-		Platform    string `json:"platform"`
+		Platform    int32  `json:"platform"`
 		Version     string `json:"version"`
 		BuildNumber int32  `json:"build_number"`
 		DeviceID    string `json:"device_id"`
@@ -164,16 +213,16 @@ func (h *VersionHandler) ReportVersion(c *gin.Context) {
 		return
 	}
 
-	if req.Platform == "" || req.Version == "" {
+	if req.Platform < int32(versionpb.Platform_PLATFORM_IOS) || req.Platform > int32(versionpb.Platform_PLATFORM_H5) || req.Version == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    1,
-			"message": "platform and version are required",
+			"message": "platform must be 1..5 and version is required",
 		})
 		return
 	}
 
 	_, err := h.clientManager.Version().ReportVersion(c.Request.Context(), &versionpb.ReportVersionRequest{
-		Platform:    req.Platform,
+		Platform:    versionpb.Platform(req.Platform),
 		Version:     req.Version,
 		BuildNumber: req.BuildNumber,
 		DeviceId:    req.DeviceID,

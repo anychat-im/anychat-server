@@ -23,6 +23,8 @@ TEST_EMAIL="test${TIMESTAMP}@example.com"
 TEST_PASSWORD="Test@123456"
 TEST_DEVICE_ID="test-device-${TIMESTAMP}"
 FIXED_CODE="${VERIFY_DEBUG_FIXED_CODE:-123456}"
+DEVICE_TYPE_IOS=1
+DEVICE_TYPE_WEB=3
 
 # Global variables
 ACCESS_TOKEN=""
@@ -106,12 +108,27 @@ send_code() {
     local target_type=$2
     local purpose=$3
     local device_id=${4:-$TEST_DEVICE_ID}
+
+    case "$target_type" in
+        sms|SMS) target_type=1 ;;
+        email|EMAIL) target_type=2 ;;
+    esac
+    case "$purpose" in
+        register) purpose=1 ;;
+        login) purpose=2 ;;
+        reset_password) purpose=3 ;;
+        bind_phone) purpose=4 ;;
+        change_phone) purpose=5 ;;
+        bind_email) purpose=6 ;;
+        change_email) purpose=7 ;;
+    esac
+
     local data=$(cat <<EOF
 {
     "target": "${target}",
-    "targetType": "${target_type}",
-    "purpose": "${purpose}",
-    "deviceId": "${device_id}"
+    "target_type": ${target_type},
+    "purpose": ${purpose},
+    "device_id": "${device_id}"
 }
 EOF
 )
@@ -234,11 +251,11 @@ test_register_with_wrong_code() {
 {
     "email": "${email}",
     "password": "${TEST_PASSWORD}",
-    "verifyCode": "000000",
+    "verify_code": "000000",
     "nickname": "WrongCodeUser${TIMESTAMP}",
-    "deviceType": "Web",
-    "deviceId": "${device_id}",
-    "clientVersion": "1.0.0"
+    "device_type": ${DEVICE_TYPE_WEB},
+    "device_id": "${device_id}",
+    "client_version": "1.0.0"
 }
 EOF
 )
@@ -272,11 +289,11 @@ test_register_with_fixed_code() {
 {
     "email": "${email}",
     "password": "${TEST_PASSWORD}",
-    "verifyCode": "${FIXED_CODE}",
+    "verify_code": "${FIXED_CODE}",
     "nickname": "VerifyFlowUser${TIMESTAMP}",
-    "deviceType": "Web",
-    "deviceId": "${device_id}",
-    "clientVersion": "1.0.0"
+    "device_type": ${DEVICE_TYPE_WEB},
+    "device_id": "${device_id}",
+    "client_version": "1.0.0"
 }
 EOF
 )
@@ -320,13 +337,13 @@ test_register() {
 
     local data=$(cat <<EOF
 {
-    "phoneNumber": "${TEST_PHONE}",
+    "phone_number": "${TEST_PHONE}",
     "password": "${TEST_PASSWORD}",
-    "verifyCode": "${FIXED_CODE}",
+    "verify_code": "${FIXED_CODE}",
     "nickname": "TestUser${TIMESTAMP}",
-    "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}",
-    "clientVersion": "1.0.0"
+    "device_type": ${DEVICE_TYPE_IOS},
+    "device_id": "${TEST_DEVICE_ID}",
+    "client_version": "1.0.0"
 }
 EOF
 )
@@ -337,8 +354,8 @@ EOF
     print_info "Response: $response"
 
     if check_response "$response"; then
-        USER_ID=$(echo "$response" | jq -r '.data.userId // .data.user_id // empty')
-        ACCESS_TOKEN=$(echo "$response" | jq -r '.data.accessToken // .data.access_token // empty')
+        USER_ID=$(echo "$response" | jq -r '.data.user_id // .data.userId // .data.user_id // empty')
+        ACCESS_TOKEN=$(echo "$response" | jq -r '.data.access_token // .data.accessToken // .data.access_token // empty')
         REFRESH_TOKEN=$(echo "$response" | jq -r '.data.refreshToken // .data.refresh_token // empty')
 
         if [ -z "$USER_ID" ] || [ "$USER_ID" = "null" ]; then
@@ -363,9 +380,9 @@ test_login() {
 {
     "account": "${TEST_PHONE}",
     "password": "${TEST_PASSWORD}",
-    "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}",
-    "clientVersion": "1.0.0"
+    "device_type": ${DEVICE_TYPE_IOS},
+    "device_id": "${TEST_DEVICE_ID}",
+    "client_version": "1.0.0"
 }
 EOF
 )
@@ -376,8 +393,8 @@ EOF
     print_info "Response: $response"
 
     if check_response "$response"; then
-        USER_ID=$(echo "$response" | jq -r '.data.userId // .data.user_id // empty')
-        ACCESS_TOKEN=$(echo "$response" | jq -r '.data.accessToken // .data.access_token // empty')
+        USER_ID=$(echo "$response" | jq -r '.data.user_id // .data.userId // .data.user_id // empty')
+        ACCESS_TOKEN=$(echo "$response" | jq -r '.data.access_token // .data.accessToken // .data.access_token // empty')
         REFRESH_TOKEN=$(echo "$response" | jq -r '.data.refreshToken // .data.refresh_token // empty')
 
         if [ -z "$USER_ID" ] || [ "$USER_ID" = "null" ]; then
@@ -400,9 +417,9 @@ test_change_password() {
     local new_password="NewPass@123456"
     local data=$(cat <<EOF
 {
-    "deviceId": "${TEST_DEVICE_ID}",
-    "oldPassword": "${TEST_PASSWORD}",
-    "newPassword": "${new_password}"
+    "device_id": "${TEST_DEVICE_ID}",
+    "old_password": "${TEST_PASSWORD}",
+    "new_password": "${new_password}"
 }
 EOF
 )
@@ -429,9 +446,9 @@ test_login_with_new_password() {
 {
     "account": "${TEST_PHONE}",
     "password": "${TEST_PASSWORD}",
-    "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}_2",
-    "clientVersion": "1.0.0"
+    "device_type": ${DEVICE_TYPE_IOS},
+    "device_id": "${TEST_DEVICE_ID}_2",
+    "client_version": "1.0.0"
 }
 EOF
 )
@@ -442,7 +459,7 @@ EOF
     print_info "Response: $response"
 
     if check_response "$response"; then
-        ACCESS_TOKEN=$(echo "$response" | jq -r '.data.accessToken // .data.access_token // empty')
+        ACCESS_TOKEN=$(echo "$response" | jq -r '.data.access_token // .data.accessToken // .data.access_token // empty')
         REFRESH_TOKEN=$(echo "$response" | jq -r '.data.refreshToken // .data.refresh_token // empty')
 
         print_success "New password login successful"
@@ -458,7 +475,7 @@ test_refresh_token() {
 
     local data=$(cat <<EOF
 {
-    "refreshToken": "${REFRESH_TOKEN}"
+    "refresh_token": "${REFRESH_TOKEN}"
 }
 EOF
 )
@@ -469,7 +486,7 @@ EOF
     print_info "Response: $response"
 
     if check_response "$response"; then
-        local new_access=$(echo "$response" | jq -r '.data.accessToken // .data.access_token // empty')
+        local new_access=$(echo "$response" | jq -r '.data.access_token // .data.accessToken // .data.access_token // empty')
         local new_refresh=$(echo "$response" | jq -r '.data.refreshToken // .data.refresh_token // empty')
 
         if [ -z "$new_access" ] || [ "$new_access" = "null" ]; then
@@ -494,7 +511,7 @@ test_logout() {
 
     local data=$(cat <<EOF
 {
-    "deviceId": "${TEST_DEVICE_ID}"
+    "device_id": "${TEST_DEVICE_ID}"
 }
 EOF
 )

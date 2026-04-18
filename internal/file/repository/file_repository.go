@@ -23,13 +23,13 @@ type FileRepository interface {
 	BatchGetByFileIDs(ctx context.Context, fileIDs []string) ([]*model.File, error)
 
 	// ListByUserID lists user files (supports pagination and type filter)
-	ListByUserID(ctx context.Context, userID string, fileType *string, page, pageSize int) ([]*model.File, int64, error)
+	ListByUserID(ctx context.Context, userID string, fileType *model.FileType, page, pageSize int) ([]*model.File, int64, error)
 
 	// Update updates file info
 	Update(ctx context.Context, file *model.File) error
 
 	// UpdateStatus updates file status
-	UpdateStatus(ctx context.Context, fileID string, status int16) error
+	UpdateStatus(ctx context.Context, fileID string, status model.FileStatus) error
 
 	// Delete soft deletes file
 	Delete(ctx context.Context, fileID string) error
@@ -93,7 +93,7 @@ func (r *fileRepositoryImpl) BatchGetByFileIDs(ctx context.Context, fileIDs []st
 }
 
 // ListByUserID lists user files (supports pagination and type filter)
-func (r *fileRepositoryImpl) ListByUserID(ctx context.Context, userID string, fileType *string, page, pageSize int) ([]*model.File, int64, error) {
+func (r *fileRepositoryImpl) ListByUserID(ctx context.Context, userID string, fileType *model.FileType, page, pageSize int) ([]*model.File, int64, error) {
 	var files []*model.File
 	var total int64
 
@@ -101,7 +101,7 @@ func (r *fileRepositoryImpl) ListByUserID(ctx context.Context, userID string, fi
 		Where("user_id = ? AND status = ?", userID, model.FileStatusActive)
 
 	// filter by file type
-	if fileType != nil && *fileType != "" {
+	if fileType != nil && *fileType != model.FileTypeUnspecified {
 		query = query.Where("file_type = ?", *fileType)
 	}
 
@@ -130,7 +130,7 @@ func (r *fileRepositoryImpl) Update(ctx context.Context, file *model.File) error
 }
 
 // UpdateStatus updates file status
-func (r *fileRepositoryImpl) UpdateStatus(ctx context.Context, fileID string, status int16) error {
+func (r *fileRepositoryImpl) UpdateStatus(ctx context.Context, fileID string, status model.FileStatus) error {
 	return r.db.WithContext(ctx).
 		Model(&model.File{}).
 		Where("file_id = ?", fileID).

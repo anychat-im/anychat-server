@@ -223,7 +223,7 @@ message ResetPasswordRequest {
     "priority": "high",
     "payload": {
         "device_id": "device-uuid",
-        "device_type": "ios",
+        "device_type": 1,
         "reason": "password_changed",
         "timestamp": 1704067200
     }
@@ -236,7 +236,7 @@ message ResetPasswordRequest {
 | user_id | string | 用户ID |
 | priority | string | 优先级 `high` |
 | payload.device_id | string | 被下线的设备ID |
-| payload.device_type | string | 设备类型 |
+| payload.device_type | int | 设备类型（1-ios/2-android/3-web/4-pc/5-h5） |
 | payload.reason | string | 下线原因：`password_changed` / `password_reset` |
 | payload.timestamp | int64 | 时间戳 |
 

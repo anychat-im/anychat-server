@@ -143,8 +143,8 @@ sequenceDiagram
 ```protobuf
 message SendVerificationCodeRequest {
     string target = 1;         // 手机号或邮箱
-    string target_type = 2;    // sms/email
-    string purpose = 3;        // register/reset_password/bind_phone/change_phone/bind_email/change_email
+    VerificationTargetType target_type = 2; // 1-sms 2-email
+    VerificationPurpose purpose = 3;        // 1-register 2-login 3-reset_password 4-bind_phone 5-change_phone 6-bind_email 7-change_email
     string device_id = 4;
     string ip_address = 5;
 }

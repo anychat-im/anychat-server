@@ -22,7 +22,7 @@ type FriendService interface {
 	GetFriendList(ctx context.Context, userID string, lastUpdateTime *int64) (*dto.FriendListResponse, error)
 	SendFriendRequest(ctx context.Context, fromUserID string, req *dto.SendFriendRequestRequest) (*dto.SendFriendRequestResponse, error)
 	HandleFriendRequest(ctx context.Context, userID string, requestID int64, req *dto.HandleFriendRequestRequest) error
-	GetFriendRequests(ctx context.Context, userID string, requestType string) (*dto.FriendRequestListResponse, error)
+	GetFriendRequests(ctx context.Context, userID string, requestType model.FriendRequestQueryType) (*dto.FriendRequestListResponse, error)
 	DeleteFriend(ctx context.Context, userID, friendID string) error
 	UpdateRemark(ctx context.Context, userID, friendID string, req *dto.UpdateRemarkRequest) error
 	AddToBlacklist(ctx context.Context, userID string, req *dto.AddToBlacklistRequest) error
@@ -274,8 +274,13 @@ func (s *friendServiceImpl) HandleFriendRequest(ctx context.Context, userID stri
 		return errors.NewBusiness(errors.CodeRequestProcessed, "")
 	}
 
+	action := model.FriendRequestAction(req.Action)
+	if !action.IsValid() {
+		return errors.NewBusiness(errors.CodeParamError, "invalid action")
+	}
+
 	// Handle request
-	if req.Action == "accept" {
+	if action == model.FriendRequestActionAccept {
 		// Use transaction: update request status + create bidirectional friendship
 		err = s.db.Transaction(func(tx *gorm.DB) error {
 			// Update request status
@@ -313,26 +318,26 @@ func (s *friendServiceImpl) HandleFriendRequest(ctx context.Context, userID stri
 		}
 
 		// Publish friend request accepted notification
-		s.publishFriendRequestHandledNotification(friendRequest, "accepted")
-	} else if req.Action == "reject" {
+		s.publishFriendRequestHandledNotification(friendRequest, model.FriendRequestStatusAccepted)
+	} else if action == model.FriendRequestActionReject {
 		if err := s.requestRepo.UpdateStatus(ctx, requestID, model.FriendRequestStatusRejected); err != nil {
 			logger.Error("Failed to reject friend request", zap.Error(err))
 			return err
 		}
 
 		// Publish friend request rejected notification
-		s.publishFriendRequestHandledNotification(friendRequest, "rejected")
+		s.publishFriendRequestHandledNotification(friendRequest, model.FriendRequestStatusRejected)
 	}
 
 	return nil
 }
 
 // GetFriendRequests retrieves the friend request list
-func (s *friendServiceImpl) GetFriendRequests(ctx context.Context, userID string, requestType string) (*dto.FriendRequestListResponse, error) {
+func (s *friendServiceImpl) GetFriendRequests(ctx context.Context, userID string, requestType model.FriendRequestQueryType) (*dto.FriendRequestListResponse, error) {
 	var requests []*model.FriendRequest
 	var err error
 
-	if requestType == "sent" {
+	if requestType == model.FriendRequestQueryTypeSent {
 		requests, err = s.requestRepo.GetSentRequests(ctx, userID)
 	} else {
 		requests, err = s.requestRepo.GetReceivedRequests(ctx, userID)
@@ -619,7 +624,7 @@ func (s *friendServiceImpl) publishFriendRequestNotification(req *model.FriendRe
 }
 
 // publishFriendRequestHandledNotification publishes friend request handled notification
-func (s *friendServiceImpl) publishFriendRequestHandledNotification(req *model.FriendRequest, status string) {
+func (s *friendServiceImpl) publishFriendRequestHandledNotification(req *model.FriendRequest, status model.FriendRequestStatus) {
 	if s.notificationPub == nil {
 		return
 	}
@@ -729,7 +734,7 @@ func (s *friendServiceImpl) createFriendConversation(ctx context.Context, userID
 
 	_, err := s.conversationClient.CreateOrUpdateConversation(ctx, &conversationpb.CreateOrUpdateConversationRequest{
 		UserId:           userID,
-		ConversationType: "single",
+		ConversationType: conversationpb.ConversationType_CONVERSATION_TYPE_SINGLE,
 		TargetId:         friendID,
 	})
 	if err != nil {

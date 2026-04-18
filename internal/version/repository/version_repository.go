@@ -71,10 +71,10 @@ func (r *versionRepositoryImpl) ListVersions(ctx context.Context, platform model
 
 	query := r.db.WithContext(ctx).Model(&model.AppVersion{})
 
-	if platform != "" {
+	if platform != model.PlatformUnknown {
 		query = query.Where("platform = ?", platform)
 	}
-	if releaseType != "" {
+	if releaseType != model.ReleaseTypeUnknown {
 		query = query.Where("release_type = ?", releaseType)
 	}
 

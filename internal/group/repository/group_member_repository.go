@@ -13,13 +13,13 @@ type GroupMemberRepository interface {
 	AddMember(ctx context.Context, member *model.GroupMember) error
 	AddMembers(ctx context.Context, members []*model.GroupMember) error
 	RemoveMember(ctx context.Context, groupID, userID string) error
-	UpdateRole(ctx context.Context, groupID, userID, role string) error
+	UpdateRole(ctx context.Context, groupID, userID string, role model.GroupRole) error
 	UpdateNickname(ctx context.Context, groupID, userID, nickname string) error
 	UpdateRemark(ctx context.Context, groupID, userID, remark string) error
 	UpdateMutedUntil(ctx context.Context, groupID, userID string, mutedUntil *time.Time) error
 	GetMember(ctx context.Context, groupID, userID string) (*model.GroupMember, error)
 	GetMembers(ctx context.Context, groupID string, page, pageSize int) ([]*model.GroupMember, int64, error)
-	GetMembersByRole(ctx context.Context, groupID, role string) ([]*model.GroupMember, error)
+	GetMembersByRole(ctx context.Context, groupID string, role model.GroupRole) ([]*model.GroupMember, error)
 	GetMemberCount(ctx context.Context, groupID string) (int64, error)
 	IsMember(ctx context.Context, groupID, userID string) (bool, error)
 	GetUserGroups(ctx context.Context, userID string) ([]*model.GroupMember, error)
@@ -55,7 +55,7 @@ func (r *groupMemberRepositoryImpl) RemoveMember(ctx context.Context, groupID, u
 }
 
 // UpdateRole updates member role
-func (r *groupMemberRepositoryImpl) UpdateRole(ctx context.Context, groupID, userID, role string) error {
+func (r *groupMemberRepositoryImpl) UpdateRole(ctx context.Context, groupID, userID string, role model.GroupRole) error {
 	return r.db.WithContext(ctx).
 		Model(&model.GroupMember{}).
 		Where("group_id = ? AND user_id = ?", groupID, userID).
@@ -139,7 +139,7 @@ func (r *groupMemberRepositoryImpl) GetMembers(ctx context.Context, groupID stri
 }
 
 // GetMembersByRole gets members by role
-func (r *groupMemberRepositoryImpl) GetMembersByRole(ctx context.Context, groupID, role string) ([]*model.GroupMember, error) {
+func (r *groupMemberRepositoryImpl) GetMembersByRole(ctx context.Context, groupID string, role model.GroupRole) ([]*model.GroupMember, error) {
 	var members []*model.GroupMember
 	err := r.db.WithContext(ctx).
 		Where("group_id = ? AND role = ?", groupID, role).

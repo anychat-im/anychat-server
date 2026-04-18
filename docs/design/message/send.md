@@ -31,10 +31,10 @@
 type Message struct {
     MessageID                  string
     ConversationID             string
-    ConversationType           string // single/group
+    ConversationType           int16  // 1-single/2-group
     TargetID                   string // single=对方userID, group=groupID
     SenderID                   string
-    ContentType                string // text/image/video/audio/file/location/card
+    ContentType                int16  // 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
     Content                    string // JSON string
     Sequence                   int64  // 会话内递增序号
     ReplyTo                    *string
@@ -73,7 +73,7 @@ type ConversationSequence struct {
   "type": "message.send",
   "payload": {
     "conversationId": "single_u1_u2",
-    "contentType": "text",
+    "contentType": 1,
     "content": "{\"text\":\"hello\"}",
     "replyTo": "",
     "atUsers": [],
@@ -105,7 +105,7 @@ type ConversationSequence struct {
 ```json
 {
   "conversation_id": "conv_xxx",
-  "content_type": "text",
+  "content_type": 1,
   "content": "{\"text\":\"hello\"}",
   "reply_to": "msg_xxx",
   "at_users": ["u1", "u2"],
@@ -129,7 +129,7 @@ type ConversationSequence struct {
 message SendMessageRequest {
   string sender_id = 1;
   string conversation_id = 2;
-  string content_type = 3;
+  ContentType content_type = 3; // 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
   string content = 4;             // JSON string
   optional string reply_to = 5;
   repeated string at_users = 6;
@@ -256,13 +256,13 @@ sequenceDiagram
 
 ### 6.1 `content_type`
 
-- `text`
-- `image`
-- `video`
-- `audio`
-- `file`
-- `location`
-- `card`
+- `1`：text
+- `2`：image
+- `3`：video
+- `4`：audio
+- `5`：file
+- `6`：location
+- `7`：card
 
 ### 6.2 `status`
 

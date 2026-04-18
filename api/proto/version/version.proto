@@ -6,6 +6,29 @@ import "common/common.proto";
 
 option go_package = "github.com/anychat/server/api/proto/version;versionpb";
 
+enum Platform {
+  PLATFORM_UNSPECIFIED = 0;
+  PLATFORM_IOS = 1;
+  PLATFORM_ANDROID = 2;
+  PLATFORM_PC = 3;
+  PLATFORM_WEB = 4;
+  PLATFORM_H5 = 5;
+}
+
+enum ReleaseType {
+  RELEASE_TYPE_UNSPECIFIED = 0;
+  RELEASE_TYPE_STABLE = 1;
+  RELEASE_TYPE_BETA = 2;
+  RELEASE_TYPE_ALPHA = 3;
+}
+
+enum VersionStatus {
+  VERSION_STATUS_UNSPECIFIED = 0;
+  VERSION_STATUS_DRAFT = 1;
+  VERSION_STATUS_PUBLISHED = 2;
+  VERSION_STATUS_ARCHIVED = 3;
+}
+
 // VersionService 版本服务
 service VersionService {
   // CheckVersion 检测版本更新
@@ -32,7 +55,7 @@ service VersionService {
 
 // CheckVersionRequest 版本检测请求
 message CheckVersionRequest {
-  string platform = 1;   // 平台: ios/android/pc/web/h5
+  Platform platform = 1;   // 平台
   string version = 2;    // 当前版本号，如 1.0.0
   int32 build_number = 3; // 构建号（iOS/Android）
 }
@@ -59,8 +82,8 @@ message UpdateInfo {
 
 // GetLatestVersionRequest 获取最新版本请求
 message GetLatestVersionRequest {
-  string platform = 1;
-  string release_type = 2; // stable/beta/alpha
+  Platform platform = 1;
+  ReleaseType release_type = 2;
 }
 
 // GetLatestVersionResponse 获取最新版本响应
@@ -71,14 +94,15 @@ message GetLatestVersionResponse {
 // VersionInfo 版本信息
 message VersionInfo {
   int64 id = 1;
-  string platform = 2;
+  Platform platform = 2;
   string version = 3;
   int32 build_number = 4;
   int32 version_code = 5;
   string min_version = 6;
   int32 min_build_number = 7;
   bool force_update = 8;
-  string release_type = 9;
+  ReleaseType release_type = 9;
+  VersionStatus status = 16;
   string title = 10;
   string content = 11;
   string download_url = 12;
@@ -89,8 +113,8 @@ message VersionInfo {
 
 // ListVersionsRequest 获取版本列表请求
 message ListVersionsRequest {
-  string platform = 1;
-  string release_type = 2;
+  Platform platform = 1;
+  ReleaseType release_type = 2;
   int32 page = 3;
   int32 page_size = 4;
 }
@@ -103,14 +127,14 @@ message ListVersionsResponse {
 
 // CreateVersionRequest 创建版本请求
 message CreateVersionRequest {
-  string platform = 1;
+  Platform platform = 1;
   string version = 2;
   int32 build_number = 3;
   int32 version_code = 4;
   string min_version = 5;
   int32 min_build_number = 6;
   bool force_update = 7;
-  string release_type = 8;
+  ReleaseType release_type = 8;
   string title = 9;
   string content = 10;
   string download_url = 11;
@@ -121,7 +145,7 @@ message CreateVersionRequest {
 // CreateVersionResponse 创建版本响应
 message CreateVersionResponse {
   int64 id = 1;
-  string platform = 2;
+  Platform platform = 2;
   string version = 3;
 }
 
@@ -142,7 +166,7 @@ message DeleteVersionRequest {
 
 // ReportVersionRequest 上报版本请求
 message ReportVersionRequest {
-  string platform = 1;
+  Platform platform = 1;
   string version = 2;
   int32 build_number = 3;
   string device_id = 4;

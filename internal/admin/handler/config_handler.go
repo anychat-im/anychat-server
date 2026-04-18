@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/anychat/server/internal/admin/model"
 	"github.com/anychat/server/internal/admin/service"
 	"github.com/anychat/server/pkg/response"
 	"github.com/gin-gonic/gin"
@@ -103,7 +104,7 @@ func (h *AdminManageHandler) ListAdmins(c *gin.Context) {
 type createAdminRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
-	Role     string `json:"role"`
+	Role     int16  `json:"role"`
 }
 
 // CreateAdmin create admin
@@ -121,10 +122,16 @@ func (h *AdminManageHandler) CreateAdmin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if req.Role == "" {
-		req.Role = "admin"
+
+	role := model.AdminRole(req.Role)
+	if role == model.AdminRoleUnspecified {
+		role = model.AdminRoleAdmin
 	}
-	admin, err := h.svc.CreateAdmin(c.Request.Context(), req.Username, req.Password, req.Role)
+	if role < model.AdminRoleSuperAdmin || role > model.AdminRoleReadonly {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid role"})
+		return
+	}
+	admin, err := h.svc.CreateAdmin(c.Request.Context(), req.Username, req.Password, role)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

@@ -41,7 +41,7 @@ setup_test_users() {
     # Register user 1
     print_info "Registering user 1: ${TEST_EMAIL_1}"
     local response1
-    response1=$(register_test_user "${API_BASE}" "${TEST_EMAIL_1}" "${TEST_PASSWORD}" "TestUser1_${TIMESTAMP}" "${TEST_DEVICE_ID}_1" "iOS")
+    response1=$(register_test_user "${API_BASE}" "${TEST_EMAIL_1}" "${TEST_PASSWORD}" "TestUser1_${TIMESTAMP}" "${TEST_DEVICE_ID}_1" 1)
     if check_response "$response1"; then
         USER1_ID=$(extract_user_id "$response1")
         USER1_TOKEN=$(extract_access_token "$response1")
@@ -56,7 +56,7 @@ setup_test_users() {
     # Register user 2
     print_info "Registering user 2: ${TEST_EMAIL_2}"
     local response2
-    response2=$(register_test_user "${API_BASE}" "${TEST_EMAIL_2}" "${TEST_PASSWORD}" "TestUser2_${TIMESTAMP}" "${TEST_DEVICE_ID}_2" "iOS")
+    response2=$(register_test_user "${API_BASE}" "${TEST_EMAIL_2}" "${TEST_PASSWORD}" "TestUser2_${TIMESTAMP}" "${TEST_DEVICE_ID}_2" 1)
     if check_response "$response2"; then
         USER2_ID=$(extract_user_id "$response2")
         USER2_TOKEN=$(extract_access_token "$response2")
@@ -77,9 +77,9 @@ test_send_friend_request() {
 
     local data=$(cat <<EOF
 {
-    "userId": "${USER2_ID}",
+    "user_id": "${USER2_ID}",
     "message": "Hello, I'd like to add you as a friend",
-    "source": "search"
+    "source": 1
 }
 EOF
 )
@@ -114,7 +114,7 @@ test_get_received_requests() {
 
     print_info "User 2 gets received friend requests"
 
-    local response=$(http_get "${API_BASE}/friends/requests?type=received" "$USER2_TOKEN")
+    local response=$(http_get "${API_BASE}/friends/requests?request_type=1" "$USER2_TOKEN")
     print_info "Response: $response"
 
     if check_response "$response"; then
@@ -142,7 +142,7 @@ test_get_sent_requests() {
 
     print_info "User 1 gets sent friend requests"
 
-    local response=$(http_get "${API_BASE}/friends/requests?type=sent" "$USER1_TOKEN")
+    local response=$(http_get "${API_BASE}/friends/requests?request_type=2" "$USER1_TOKEN")
     print_info "Response: $response"
 
     if check_response "$response"; then
@@ -168,7 +168,7 @@ test_accept_friend_request() {
 
     local data=$(cat <<EOF
 {
-    "action": "accept"
+    "action": 1
 }
 EOF
 )
@@ -229,7 +229,7 @@ prepare_user2_single_conversation() {
         if check_response "$response"; then
             USER2_CONVERSATION_ID=$(echo "$response" | jq -r --arg uid "$USER1_ID" '
                 .data.conversations[]? |
-                select((.conversationType // .conversation_type) == "single" and (.targetId // .target_id) == $uid) |
+                select((.conversationType // .conversation_type) == 1 and (.targetId // .target_id) == $uid) |
                 (.conversationId // .conversation_id)
             ' | head -n 1)
 
@@ -299,7 +299,7 @@ test_add_to_blacklist() {
 
     local data=$(cat <<EOF
 {
-    "userId": "${USER2_ID}"
+    "user_id": "${USER2_ID}"
 }
 EOF
 )
@@ -380,7 +380,7 @@ test_blacklist_blocks_message() {
     local data=$(cat <<EOF
 {
     "conversation_id": "${USER2_CONVERSATION_ID}",
-    "content_type": "text",
+    "content_type": 1,
     "content": "{\"text\":\"blacklist block test\"}",
     "local_id": "local-blacklist-${TIMESTAMP}"
 }
@@ -488,9 +488,9 @@ test_send_friend_request_after_unblock() {
 
     local data=$(cat <<EOF
 {
-    "userId": "${USER1_ID}",
+    "user_id": "${USER1_ID}",
     "message": "Re-applying friend after unblock",
-    "source": "search"
+    "source": 1
 }
 EOF
 )

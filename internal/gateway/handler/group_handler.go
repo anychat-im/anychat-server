@@ -65,7 +65,7 @@ func (h *GroupHandler) CreateGroup(c *gin.Context) {
 		Avatar:      avatar,
 		OwnerID:     resp.OwnerId,
 		MemberCount: resp.MemberCount,
-		MyRole:      "owner", // Creator is always the owner
+		MyRole:      groupdto.GroupRoleOwner, // Creator is always the owner
 		CreatedAt:   resp.CreatedAt.AsTime(),
 	}
 
@@ -119,7 +119,7 @@ func (h *GroupHandler) GetGroupInfo(c *gin.Context) {
 		GroupId: groupID,
 		UserId:  userID,
 	}); memberResp != nil && memberResp.IsMember {
-		result.MyRole = memberResp.Role
+		result.MyRole = groupdto.GroupRole(memberResp.Role)
 	}
 
 	response.Success(c, result)
@@ -402,7 +402,7 @@ func (h *GroupHandler) UpdateMemberRole(c *gin.Context) {
 		UserId:       userID,
 		GroupId:      groupID,
 		TargetUserId: targetUserID,
-		Role:         req.Role,
+		Role:         grouppb.GroupRole(req.Role),
 	})
 
 	if err != nil {
@@ -591,16 +591,11 @@ func (h *GroupHandler) MuteMember(c *gin.Context) {
 		return
 	}
 
-	muteType := grouppb.MuteType_MUTE_TYPE_PERMANENT
-	if req.Type == "temporary" {
-		muteType = grouppb.MuteType_MUTE_TYPE_TEMPORARY
-	}
-
 	_, err := h.clientManager.Group().MuteMember(c.Request.Context(), &grouppb.MuteMemberRequest{
 		UserId:          userID,
 		GroupId:         groupID,
 		TargetUserId:    targetUserID,
-		Type:            muteType,
+		Type:            grouppb.MuteType(req.Type),
 		DurationMinutes: req.DurationMinutes,
 	})
 	if err != nil {
@@ -636,7 +631,7 @@ func (h *GroupHandler) UnmuteMember(c *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id      path   string  true   "group ID"
-// @Param        status  query  string  false  "request status (pending/accepted/rejected)"
+// @Param        status  query  int     false  "request status: 1=pending,2=accepted,3=rejected"
 // @Success      200     {object}  response.Response{data=groupdto.JoinRequestListResponse}
 // @Failure      401     {object}  response.Response  "unauthorized"
 // @Failure      403     {object}  response.Response  "no permission"
@@ -645,9 +640,15 @@ func (h *GroupHandler) GetJoinRequests(c *gin.Context) {
 	userID := gwmiddleware.GetUserID(c)
 	groupID := c.Param("id")
 
-	var status *string
+	var status *grouppb.JoinRequestStatus
 	if s := c.Query("status"); s != "" {
-		status = &s
+		v, err := strconv.Atoi(s)
+		if err != nil || v < int(grouppb.JoinRequestStatus_JOIN_REQUEST_STATUS_PENDING) || v > int(grouppb.JoinRequestStatus_JOIN_REQUEST_STATUS_REJECTED) {
+			response.ParamError(c, "invalid status, allowed values: 1,2,3")
+			return
+		}
+		enumValue := grouppb.JoinRequestStatus(v)
+		status = &enumValue
 	}
 
 	resp, err := h.clientManager.Group().GetJoinRequests(c.Request.Context(), &grouppb.GetJoinRequestsRequest{
@@ -782,8 +783,8 @@ func (h *GroupHandler) GetGroupSettings(c *gin.Context) {
 		return
 	}
 	response.Success(c, gin.H{
-		"group_id":           resp.GroupId,
-		"join_verify":        resp.JoinVerify,
+		"group_id":            resp.GroupId,
+		"join_verify":         resp.JoinVerify,
 		"allow_member_invite": resp.AllowMemberInvite,
 		"allow_view_history":  resp.AllowViewHistory,
 		"allow_add_friend":    resp.AllowAddFriend,

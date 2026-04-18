@@ -85,7 +85,7 @@ type UpdateSettingsRequest struct {
 type UpdatePushTokenRequest struct {
 	DeviceID  string `json:"device_id" binding:"required" example:"device-uuid-123"`
 	PushToken string `json:"push_token" binding:"required" example:"push-token-xxx"`
-	Platform  string `json:"platform" binding:"required" example:"ios" enums:"ios,android"`
+	Platform  int32  `json:"platform" binding:"required,oneof=1 2" example:"1"`
 }
 
 // BindPhoneRequest bind phone request
@@ -482,7 +482,7 @@ func (h *UserHandler) UpdatePushToken(c *gin.Context) {
 		UserId:    userID,
 		DeviceId:  req.DeviceID,
 		PushToken: req.PushToken,
-		Platform:  req.Platform,
+		Platform:  userpb.PushPlatform(req.Platform),
 	})
 
 	if err != nil {

@@ -11,7 +11,7 @@ import (
 type Claims struct {
 	UserID     string `json:"userId"`
 	DeviceID   string `json:"deviceId"`
-	DeviceType string `json:"deviceType"`
+	DeviceType int16  `json:"deviceType"`
 	TokenType  string `json:"tokenType"` // access, refresh
 	jwt.RegisteredClaims
 }
@@ -36,7 +36,7 @@ func NewManager(config *Config) *Manager {
 }
 
 // GenerateAccessToken generates an access token
-func (m *Manager) GenerateAccessToken(userID, deviceID, deviceType string) (string, error) {
+func (m *Manager) GenerateAccessToken(userID, deviceID string, deviceType int16) (string, error) {
 	now := time.Now()
 	claims := Claims{
 		UserID:     userID,
@@ -55,7 +55,7 @@ func (m *Manager) GenerateAccessToken(userID, deviceID, deviceType string) (stri
 }
 
 // GenerateRefreshToken generates a refresh token
-func (m *Manager) GenerateRefreshToken(userID, deviceID, deviceType string) (string, error) {
+func (m *Manager) GenerateRefreshToken(userID, deviceID string, deviceType int16) (string, error) {
 	now := time.Now()
 	claims := Claims{
 		UserID:     userID,

@@ -1,17 +1,21 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/anychat/server/internal/friend/model"
+)
 
 // SendFriendRequestRequest is the request for sending a friend request
 type SendFriendRequestRequest struct {
-	UserID  string `json:"user_id" binding:"required" example:"user-123"`
-	Message string `json:"message" binding:"max=200" example:"Hello, I'd like to add you as a friend"`
-	Source  string `json:"source" binding:"required,oneof=search qrcode group contacts" example:"search"`
+	UserID  string                    `json:"user_id" binding:"required" example:"user-123"`
+	Message string                    `json:"message" binding:"max=200" example:"Hello, I'd like to add you as a friend"`
+	Source  model.FriendRequestSource `json:"source" binding:"required" example:"1"`
 }
 
 // HandleFriendRequestRequest is the request for handling a friend request
 type HandleFriendRequestRequest struct {
-	Action string `json:"action" binding:"required,oneof=accept reject" example:"accept"`
+	Action int16 `json:"action" binding:"required,oneof=1 2" example:"1"`
 }
 
 // UpdateRemarkRequest is the request for updating remark
@@ -41,14 +45,14 @@ type FriendListResponse struct {
 
 // FriendRequestResponse is the friend request response
 type FriendRequestResponse struct {
-	ID           int64     `json:"id" example:"1"`
-	FromUserID   string    `json:"from_user_id" example:"user-123"`
-	ToUserID     string    `json:"to_user_id" example:"user-456"`
-	Message      string    `json:"message" example:"Hello"`
-	Source       string    `json:"source" example:"search"`
-	Status       string    `json:"status" example:"pending"`
-	CreatedAt    time.Time `json:"created_at" example:"2024-01-01T00:00:00Z"`
-	FromUserInfo *UserInfo `json:"from_user_info,omitempty"`
+	ID           int64                     `json:"id" example:"1"`
+	FromUserID   string                    `json:"from_user_id" example:"user-123"`
+	ToUserID     string                    `json:"to_user_id" example:"user-456"`
+	Message      string                    `json:"message" example:"Hello"`
+	Source       model.FriendRequestSource `json:"source" example:"1"`
+	Status       model.FriendRequestStatus `json:"status" example:"1"`
+	CreatedAt    time.Time                 `json:"created_at" example:"2024-01-01T00:00:00Z"`
+	FromUserInfo *UserInfo                 `json:"from_user_info,omitempty"`
 }
 
 // FriendRequestListResponse is the friend request list response

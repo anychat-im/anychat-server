@@ -15,7 +15,7 @@ type FriendRequestRepository interface {
 	GetPendingRequest(ctx context.Context, fromUserID, toUserID string) (*model.FriendRequest, error)
 	GetReceivedRequests(ctx context.Context, userID string) ([]*model.FriendRequest, error)
 	GetSentRequests(ctx context.Context, userID string) ([]*model.FriendRequest, error)
-	UpdateStatus(ctx context.Context, id int64, status string) error
+	UpdateStatus(ctx context.Context, id int64, status model.FriendRequestStatus) error
 	Update(ctx context.Context, request *model.FriendRequest) error
 	WithTx(tx *gorm.DB) FriendRequestRepository
 }
@@ -92,7 +92,7 @@ func (r *friendRequestRepositoryImpl) GetSentRequests(ctx context.Context, userI
 }
 
 // UpdateStatus updates request status
-func (r *friendRequestRepositoryImpl) UpdateStatus(ctx context.Context, id int64, status string) error {
+func (r *friendRequestRepositoryImpl) UpdateStatus(ctx context.Context, id int64, status model.FriendRequestStatus) error {
 	return r.db.WithContext(ctx).
 		Model(&model.FriendRequest{}).
 		Where("id = ?", id).

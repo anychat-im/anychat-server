@@ -7,6 +7,12 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/anychat/server/api/proto/user;userpb";
 
+enum PushPlatform {
+  PUSH_PLATFORM_UNSPECIFIED = 0;
+  PUSH_PLATFORM_IOS = 1;
+  PUSH_PLATFORM_ANDROID = 2;
+}
+
 // UserService 用户服务
 service UserService {
   // GetProfile 获取个人资料
@@ -174,7 +180,7 @@ message UpdatePushTokenRequest {
   string user_id = 1;
   string device_id = 2;
   string push_token = 3;
-  string platform = 4;  // iOS/Android
+  PushPlatform platform = 4;  // 1-iOS/2-Android
 }
 
 message BindPhoneRequest {

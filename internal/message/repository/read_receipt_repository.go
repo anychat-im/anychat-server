@@ -5,6 +5,7 @@ import (
 
 	"github.com/anychat/server/internal/message/model"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // ReadReceiptRepository read receipt repository interface
@@ -29,13 +30,17 @@ func NewReadReceiptRepository(db *gorm.DB) ReadReceiptRepository {
 
 // Upsert creates or updates read receipt
 func (r *readReceiptRepositoryImpl) Upsert(ctx context.Context, receipt *model.MessageReadReceipt) error {
-	// Use ON CONFLICT to update
 	return r.db.WithContext(ctx).
-		Clauses(
-			// PostgreSQL upsert syntax
-			gorm.Expr("ON CONFLICT (conversation_id, user_id) DO UPDATE SET conversation_type = ?, target_id = ?, last_read_seq = ?, last_read_message_id = ?, read_at = ?",
-				receipt.ConversationType, receipt.TargetID, receipt.LastReadSeq, receipt.LastReadMessageID, receipt.ReadAt),
-		).
+		Clauses(clause.OnConflict{
+			Columns: []clause.Column{{Name: "conversation_id"}, {Name: "user_id"}},
+			DoUpdates: clause.AssignmentColumns([]string{
+				"conversation_type",
+				"target_id",
+				"last_read_seq",
+				"last_read_message_id",
+				"read_at",
+			}),
+		}).
 		Create(receipt).Error
 }
 

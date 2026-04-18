@@ -6,7 +6,7 @@ import "time"
 type MessageReadReceipt struct {
 	ID                int64     `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
 	ConversationID    string    `gorm:"column:conversation_id;not null;uniqueIndex:uk_conversation_user" json:"conversationId"`
-	ConversationType  string    `gorm:"column:conversation_type;not null" json:"conversationType"`
+	ConversationType  ConversationType `gorm:"column:conversation_type;type:smallint;not null" json:"conversationType"`
 	TargetID          string    `gorm:"column:target_id;not null;default:''" json:"targetId"`
 	UserID            string    `gorm:"column:user_id;not null;uniqueIndex:uk_conversation_user;index:idx_user" json:"userId"`
 	LastReadSeq       int64     `gorm:"column:last_read_seq;not null" json:"lastReadSeq"`

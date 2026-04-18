@@ -4,6 +4,7 @@ import (
 	"context"
 
 	pushpb "github.com/anychat/server/api/proto/push"
+	"github.com/anychat/server/internal/push/model"
 	"github.com/anychat/server/internal/push/service"
 	"github.com/anychat/server/pkg/logger"
 	"go.uber.org/zap"
@@ -36,7 +37,7 @@ func (s *Server) SendPush(ctx context.Context, req *pushpb.SendPushRequest) (*pu
 		req.UserIds,
 		req.Title,
 		req.Content,
-		req.PushType,
+		model.PushType(req.PushType),
 		req.Extras,
 	)
 	if err != nil {

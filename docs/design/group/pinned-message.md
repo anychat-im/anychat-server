@@ -63,7 +63,7 @@
 ### 4.2 业务规则
 
 - 操作者必须是群成员，且群状态为正常
-- 仅允许置顶本群消息（校验 `conversation_type=group` 且 `conversation_id=group_id`）
+- 仅允许置顶本群消息（校验 `conversation_type=2` 且 `conversation_id=group_id`）
 - 重复置顶同一消息按幂等处理（更新时间/操作者即可）
 - 已撤回或不可见消息不允许新增置顶
 - 被置顶消息若后续被“全员撤回”，自动取消置顶并广播变更
@@ -76,7 +76,7 @@
 ```sql
 ALTER TABLE group_pinned_messages
   ADD COLUMN IF NOT EXISTS message_seq BIGINT,
-  ADD COLUMN IF NOT EXISTS content_type VARCHAR(32) DEFAULT 'text',
+  ADD COLUMN IF NOT EXISTS content_type SMALLINT DEFAULT 1, -- 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
   ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_group_pinned_messages_group_updated_at
@@ -110,7 +110,7 @@ CREATE INDEX IF NOT EXISTS idx_group_pinned_messages_group_updated_at
   "topMessage": {
     "messageId": "msg_1002",
     "content": "入群后请先阅读群规",
-    "contentType": "text",
+    "contentType": 1,
     "pinnedBy": "u_admin_1",
     "pinnedAt": 1775699988,
     "messageSeq": 8123
@@ -119,7 +119,7 @@ CREATE INDEX IF NOT EXISTS idx_group_pinned_messages_group_updated_at
     {
       "messageId": "msg_1002",
       "content": "入群后请先阅读群规",
-      "contentType": "text",
+      "contentType": 1,
       "pinnedBy": "u_admin_1",
       "pinnedAt": 1775699988,
       "messageSeq": 8123
@@ -127,7 +127,7 @@ CREATE INDEX IF NOT EXISTS idx_group_pinned_messages_group_updated_at
     {
       "messageId": "msg_0950",
       "content": "周会时间调整为每周三 20:00",
-      "contentType": "text",
+      "contentType": 1,
       "pinnedBy": "u_owner_1",
       "pinnedAt": 1775600000,
       "messageSeq": 7991
@@ -149,7 +149,7 @@ message PinnedMessage {
   string content = 2;
   string pinned_by = 3;
   int64 pinned_at = 4;
-  optional string content_type = 5;
+  optional MessageContentType content_type = 5; // 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
   optional int64 message_seq = 6;
 }
 

@@ -22,15 +22,17 @@ import (
 )
 
 const (
-	maxPinnedMessagesPerGroup        = 20
-	defaultPinnedMessageContentType  = "text"
-	systemPinnedMessageOperatorUser  = "system"
-	pinnedMessagePreviewMaxRuneCount = 100
+	maxPinnedMessagesPerGroup              = 20
+	defaultPinnedMessageContentType        = model.PinnedMessageContentTypeText
+	systemPinnedMessageOperatorUser        = "system"
+	pinnedMessagePreviewMaxRuneCount       = 100
+	muteTypePermanent                int16 = 1
+	muteTypeTemporary                int16 = 2
 )
 
 type pinnedMessageSnapshot struct {
 	content     string
-	contentType string
+	contentType model.PinnedMessageContentType
 	messageSeq  *int64
 }
 
@@ -57,7 +59,7 @@ type GroupService interface {
 	// Join requests
 	JoinGroup(ctx context.Context, userID, groupID string, req *dto.JoinGroupRequest) (*dto.JoinGroupResponse, error)
 	HandleJoinRequest(ctx context.Context, userID string, requestID int64, req *dto.HandleJoinRequestRequest) error
-	GetJoinRequests(ctx context.Context, userID, groupID string, status *string) (*dto.JoinRequestListResponse, error)
+	GetJoinRequests(ctx context.Context, userID, groupID string, status *model.JoinRequestStatus) (*dto.JoinRequestListResponse, error)
 	PinGroupMessage(ctx context.Context, userID, groupID, messageID string) error
 	UnpinGroupMessage(ctx context.Context, userID, groupID, messageID string) error
 	GetPinnedMessages(ctx context.Context, userID, groupID string) (*dto.PinnedMessageListResponse, error)
@@ -77,7 +79,7 @@ type GroupService interface {
 	JoinGroupByQRCode(ctx context.Context, userID, token string) (*dto.JoinGroupByQRCodeResponse, error)
 
 	// Internal gRPC methods (called by other services)
-	IsMember(ctx context.Context, groupID, userID string) (bool, string, error)
+	IsMember(ctx context.Context, groupID, userID string) (bool, model.GroupRole, error)
 }
 
 // groupServiceImpl represents the group service implementation
@@ -252,7 +254,7 @@ func (s *groupServiceImpl) GetGroupInfo(ctx context.Context, userID, groupID str
 
 	// Get user's role in the group
 	member, err := s.memberRepo.GetMember(ctx, groupID, userID)
-	myRole := ""
+	myRole := dto.GroupRoleUnknown
 	displayName := group.Name
 	if err == nil {
 		myRole = member.Role
@@ -711,7 +713,7 @@ func (s *groupServiceImpl) UpdateMemberRole(ctx context.Context, userID, groupID
 	}
 
 	// Publish role changed notification
-	s.publishRoleChangedNotification(groupID, targetUserID, target.Role, req.Role, userID)
+	s.publishRoleChangedNotification(groupID, targetUserID, userID, target.Role, req.Role)
 
 	return nil
 }
@@ -817,10 +819,10 @@ func (s *groupServiceImpl) MuteMember(ctx context.Context, userID, groupID, targ
 
 	var mutedUntil *time.Time
 	switch req.Type {
-	case "permanent":
+	case muteTypePermanent:
 		permanent := model.PermanentMutedUntil
 		mutedUntil = &permanent
-	case "temporary":
+	case muteTypeTemporary:
 		if req.DurationMinutes <= 0 {
 			return errors.NewBusiness(errors.CodeParamError, "Temporary mute duration must be greater than 0")
 		}
@@ -1032,7 +1034,7 @@ func (s *groupServiceImpl) HandleJoinRequest(ctx context.Context, userID string,
 }
 
 // GetJoinRequests gets join request list
-func (s *groupServiceImpl) GetJoinRequests(ctx context.Context, userID, groupID string, status *string) (*dto.JoinRequestListResponse, error) {
+func (s *groupServiceImpl) GetJoinRequests(ctx context.Context, userID, groupID string, status *model.JoinRequestStatus) (*dto.JoinRequestListResponse, error) {
 	operator, err := s.memberRepo.GetMember(ctx, groupID, userID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -1357,13 +1359,13 @@ func (s *groupServiceImpl) GetGroupSettings(ctx context.Context, groupID string)
 }
 
 // IsMember checks if user is group member (called by other services)
-func (s *groupServiceImpl) IsMember(ctx context.Context, groupID, userID string) (bool, string, error) {
+func (s *groupServiceImpl) IsMember(ctx context.Context, groupID, userID string) (bool, model.GroupRole, error) {
 	member, err := s.memberRepo.GetMember(ctx, groupID, userID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return false, "", nil
+			return false, model.GroupRoleUnknown, nil
 		}
-		return false, "", err
+		return false, model.GroupRoleUnknown, err
 	}
 
 	return true, member.Role, nil
@@ -1628,7 +1630,7 @@ func (s *groupServiceImpl) getPinnedMessageSnapshot(ctx context.Context, groupID
 		return nil, errors.NewBusiness(errors.CodeMessageNotFound, "Message not found")
 	}
 
-	if msg.GetConversationType() != "group" || msg.GetConversationId() != groupID {
+	if msg.GetConversationType() != messagepb.ConversationType_CONVERSATION_TYPE_GROUP || msg.GetConversationId() != groupID {
 		return nil, errors.NewBusiness(errors.CodeMessageNotInGroup, "Message does not belong to this group")
 	}
 
@@ -1636,8 +1638,8 @@ func (s *groupServiceImpl) getPinnedMessageSnapshot(ctx context.Context, groupID
 		return nil, errors.NewBusiness(errors.CodeMessageNotFound, "Message not found or invisible")
 	}
 
-	contentType := msg.GetContentType()
-	if contentType == "" {
+	contentType := model.PinnedMessageContentType(msg.GetContentType())
+	if contentType == model.PinnedMessageContentTypeUnspecified {
 		contentType = defaultPinnedMessageContentType
 	}
 
@@ -1653,9 +1655,9 @@ func (s *groupServiceImpl) getPinnedMessageSnapshot(ctx context.Context, groupID
 	}, nil
 }
 
-func buildPinnedMessagePreview(content, contentType string) string {
+func buildPinnedMessagePreview(content string, contentType model.PinnedMessageContentType) string {
 	switch contentType {
-	case "text":
+	case model.PinnedMessageContentTypeText:
 		var textContent struct {
 			Text string `json:"text"`
 		}
@@ -1670,17 +1672,17 @@ func buildPinnedMessagePreview(content, contentType string) string {
 			return truncateWithEllipsis(rawText, pinnedMessagePreviewMaxRuneCount)
 		}
 		return "[Text]"
-	case "image":
+	case model.PinnedMessageContentTypeImage:
 		return "[Image]"
-	case "video":
+	case model.PinnedMessageContentTypeVideo:
 		return "[Video]"
-	case "audio":
+	case model.PinnedMessageContentTypeAudio:
 		return "[Voice]"
-	case "file":
+	case model.PinnedMessageContentTypeFile:
 		return "[File]"
-	case "location":
+	case model.PinnedMessageContentTypeLocation:
 		return "[Location]"
-	case "card":
+	case model.PinnedMessageContentTypeCard:
 		return "[Card]"
 	default:
 		return "[Message]"
@@ -1708,7 +1710,7 @@ func (s *groupServiceImpl) sendGroupSystemMessage(ctx context.Context, groupID, 
 	_, err = s.messageClient.SendMessage(ctx, &messagepb.SendMessageRequest{
 		SenderId:       operatorID,
 		ConversationId: groupID,
-		ContentType:    "text",
+		ContentType:    messagepb.ContentType_CONTENT_TYPE_TEXT,
 		Content:        string(content),
 		LocalId:        uuid.NewString(),
 	})
@@ -1869,7 +1871,10 @@ func (s *groupServiceImpl) publishGroupInfoUpdatedNotification(groupID, operator
 }
 
 // publishRoleChangedNotification publishes role changed notification
-func (s *groupServiceImpl) publishRoleChangedNotification(groupID, userID, oldRole, newRole, operatorID string) {
+func (s *groupServiceImpl) publishRoleChangedNotification(
+	groupID, userID, operatorID string,
+	oldRole, newRole model.GroupRole,
+) {
 	if s.notificationPub == nil {
 		return
 	}

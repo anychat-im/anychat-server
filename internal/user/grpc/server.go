@@ -6,6 +6,7 @@ import (
 	commonpb "github.com/anychat/server/api/proto/common"
 	userpb "github.com/anychat/server/api/proto/user"
 	"github.com/anychat/server/internal/user/dto"
+	"github.com/anychat/server/internal/user/model"
 	"github.com/anychat/server/internal/user/service"
 	"github.com/anychat/server/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -259,7 +260,7 @@ func (s *UserServer) UpdatePushToken(ctx context.Context, req *userpb.UpdatePush
 	dtoReq := &dto.UpdatePushTokenRequest{
 		DeviceID:  req.DeviceId,
 		PushToken: req.PushToken,
-		Platform:  req.Platform,
+		Platform:  model.PushPlatform(req.Platform),
 	}
 
 	err := s.userService.UpdatePushToken(ctx, req.UserId, dtoReq)

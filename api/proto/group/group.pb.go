@@ -23,22 +23,193 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type GroupRole int32
+
+const (
+	GroupRole_GROUP_ROLE_UNSPECIFIED GroupRole = 0
+	GroupRole_GROUP_ROLE_OWNER       GroupRole = 1
+	GroupRole_GROUP_ROLE_ADMIN       GroupRole = 2
+	GroupRole_GROUP_ROLE_MEMBER      GroupRole = 3
+)
+
+// Enum value maps for GroupRole.
+var (
+	GroupRole_name = map[int32]string{
+		0: "GROUP_ROLE_UNSPECIFIED",
+		1: "GROUP_ROLE_OWNER",
+		2: "GROUP_ROLE_ADMIN",
+		3: "GROUP_ROLE_MEMBER",
+	}
+	GroupRole_value = map[string]int32{
+		"GROUP_ROLE_UNSPECIFIED": 0,
+		"GROUP_ROLE_OWNER":       1,
+		"GROUP_ROLE_ADMIN":       2,
+		"GROUP_ROLE_MEMBER":      3,
+	}
+)
+
+func (x GroupRole) Enum() *GroupRole {
+	p := new(GroupRole)
+	*p = x
+	return p
+}
+
+func (x GroupRole) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (GroupRole) Descriptor() protoreflect.EnumDescriptor {
+	return file_group_group_proto_enumTypes[0].Descriptor()
+}
+
+func (GroupRole) Type() protoreflect.EnumType {
+	return &file_group_group_proto_enumTypes[0]
+}
+
+func (x GroupRole) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use GroupRole.Descriptor instead.
+func (GroupRole) EnumDescriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{0}
+}
+
+type JoinRequestStatus int32
+
+const (
+	JoinRequestStatus_JOIN_REQUEST_STATUS_UNSPECIFIED JoinRequestStatus = 0
+	JoinRequestStatus_JOIN_REQUEST_STATUS_PENDING     JoinRequestStatus = 1
+	JoinRequestStatus_JOIN_REQUEST_STATUS_ACCEPTED    JoinRequestStatus = 2
+	JoinRequestStatus_JOIN_REQUEST_STATUS_REJECTED    JoinRequestStatus = 3
+)
+
+// Enum value maps for JoinRequestStatus.
+var (
+	JoinRequestStatus_name = map[int32]string{
+		0: "JOIN_REQUEST_STATUS_UNSPECIFIED",
+		1: "JOIN_REQUEST_STATUS_PENDING",
+		2: "JOIN_REQUEST_STATUS_ACCEPTED",
+		3: "JOIN_REQUEST_STATUS_REJECTED",
+	}
+	JoinRequestStatus_value = map[string]int32{
+		"JOIN_REQUEST_STATUS_UNSPECIFIED": 0,
+		"JOIN_REQUEST_STATUS_PENDING":     1,
+		"JOIN_REQUEST_STATUS_ACCEPTED":    2,
+		"JOIN_REQUEST_STATUS_REJECTED":    3,
+	}
+)
+
+func (x JoinRequestStatus) Enum() *JoinRequestStatus {
+	p := new(JoinRequestStatus)
+	*p = x
+	return p
+}
+
+func (x JoinRequestStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (JoinRequestStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_group_group_proto_enumTypes[1].Descriptor()
+}
+
+func (JoinRequestStatus) Type() protoreflect.EnumType {
+	return &file_group_group_proto_enumTypes[1]
+}
+
+func (x JoinRequestStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use JoinRequestStatus.Descriptor instead.
+func (JoinRequestStatus) EnumDescriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{1}
+}
+
+type MessageContentType int32
+
+const (
+	MessageContentType_MESSAGE_CONTENT_TYPE_UNSPECIFIED MessageContentType = 0
+	MessageContentType_MESSAGE_CONTENT_TYPE_TEXT        MessageContentType = 1
+	MessageContentType_MESSAGE_CONTENT_TYPE_IMAGE       MessageContentType = 2
+	MessageContentType_MESSAGE_CONTENT_TYPE_VIDEO       MessageContentType = 3
+	MessageContentType_MESSAGE_CONTENT_TYPE_AUDIO       MessageContentType = 4
+	MessageContentType_MESSAGE_CONTENT_TYPE_FILE        MessageContentType = 5
+	MessageContentType_MESSAGE_CONTENT_TYPE_LOCATION    MessageContentType = 6
+	MessageContentType_MESSAGE_CONTENT_TYPE_CARD        MessageContentType = 7
+)
+
+// Enum value maps for MessageContentType.
+var (
+	MessageContentType_name = map[int32]string{
+		0: "MESSAGE_CONTENT_TYPE_UNSPECIFIED",
+		1: "MESSAGE_CONTENT_TYPE_TEXT",
+		2: "MESSAGE_CONTENT_TYPE_IMAGE",
+		3: "MESSAGE_CONTENT_TYPE_VIDEO",
+		4: "MESSAGE_CONTENT_TYPE_AUDIO",
+		5: "MESSAGE_CONTENT_TYPE_FILE",
+		6: "MESSAGE_CONTENT_TYPE_LOCATION",
+		7: "MESSAGE_CONTENT_TYPE_CARD",
+	}
+	MessageContentType_value = map[string]int32{
+		"MESSAGE_CONTENT_TYPE_UNSPECIFIED": 0,
+		"MESSAGE_CONTENT_TYPE_TEXT":        1,
+		"MESSAGE_CONTENT_TYPE_IMAGE":       2,
+		"MESSAGE_CONTENT_TYPE_VIDEO":       3,
+		"MESSAGE_CONTENT_TYPE_AUDIO":       4,
+		"MESSAGE_CONTENT_TYPE_FILE":        5,
+		"MESSAGE_CONTENT_TYPE_LOCATION":    6,
+		"MESSAGE_CONTENT_TYPE_CARD":        7,
+	}
+)
+
+func (x MessageContentType) Enum() *MessageContentType {
+	p := new(MessageContentType)
+	*p = x
+	return p
+}
+
+func (x MessageContentType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MessageContentType) Descriptor() protoreflect.EnumDescriptor {
+	return file_group_group_proto_enumTypes[2].Descriptor()
+}
+
+func (MessageContentType) Type() protoreflect.EnumType {
+	return &file_group_group_proto_enumTypes[2]
+}
+
+func (x MessageContentType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MessageContentType.Descriptor instead.
+func (MessageContentType) EnumDescriptor() ([]byte, []int) {
+	return file_group_group_proto_rawDescGZIP(), []int{2}
+}
+
 type MuteType int32
 
 const (
-	MuteType_MUTE_TYPE_PERMANENT MuteType = 0
-	MuteType_MUTE_TYPE_TEMPORARY MuteType = 1
+	MuteType_MUTE_TYPE_UNSPECIFIED MuteType = 0
+	MuteType_MUTE_TYPE_PERMANENT   MuteType = 1
+	MuteType_MUTE_TYPE_TEMPORARY   MuteType = 2
 )
 
 // Enum value maps for MuteType.
 var (
 	MuteType_name = map[int32]string{
-		0: "MUTE_TYPE_PERMANENT",
-		1: "MUTE_TYPE_TEMPORARY",
+		0: "MUTE_TYPE_UNSPECIFIED",
+		1: "MUTE_TYPE_PERMANENT",
+		2: "MUTE_TYPE_TEMPORARY",
 	}
 	MuteType_value = map[string]int32{
-		"MUTE_TYPE_PERMANENT": 0,
-		"MUTE_TYPE_TEMPORARY": 1,
+		"MUTE_TYPE_UNSPECIFIED": 0,
+		"MUTE_TYPE_PERMANENT":   1,
+		"MUTE_TYPE_TEMPORARY":   2,
 	}
 )
 
@@ -53,11 +224,11 @@ func (x MuteType) String() string {
 }
 
 func (MuteType) Descriptor() protoreflect.EnumDescriptor {
-	return file_group_group_proto_enumTypes[0].Descriptor()
+	return file_group_group_proto_enumTypes[3].Descriptor()
 }
 
 func (MuteType) Type() protoreflect.EnumType {
-	return &file_group_group_proto_enumTypes[0]
+	return &file_group_group_proto_enumTypes[3]
 }
 
 func (x MuteType) Number() protoreflect.EnumNumber {
@@ -66,7 +237,7 @@ func (x MuteType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use MuteType.Descriptor instead.
 func (MuteType) EnumDescriptor() ([]byte, []int) {
-	return file_group_group_proto_rawDescGZIP(), []int{0}
+	return file_group_group_proto_rawDescGZIP(), []int{3}
 }
 
 type GetGroupInfoRequest struct {
@@ -393,7 +564,7 @@ type GroupMember struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	GroupNickname *string                `protobuf:"bytes,2,opt,name=group_nickname,json=groupNickname,proto3,oneof" json:"group_nickname,omitempty"`
-	Role          string                 `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"` // owner/admin/member
+	Role          GroupRole              `protobuf:"varint,3,opt,name=role,proto3,enum=anychat.group.GroupRole" json:"role,omitempty"` // 1=owner,2=admin,3=member
 	JoinedAt      *timestamp.Timestamp   `protobuf:"bytes,5,opt,name=joined_at,json=joinedAt,proto3" json:"joined_at,omitempty"`
 	UserInfo      *common.UserInfo       `protobuf:"bytes,6,opt,name=user_info,json=userInfo,proto3,oneof" json:"user_info,omitempty"`
 	MutedUntil    *timestamp.Timestamp   `protobuf:"bytes,7,opt,name=muted_until,json=mutedUntil,proto3,oneof" json:"muted_until,omitempty"`
@@ -445,11 +616,11 @@ func (x *GroupMember) GetGroupNickname() string {
 	return ""
 }
 
-func (x *GroupMember) GetRole() string {
+func (x *GroupMember) GetRole() GroupRole {
 	if x != nil {
 		return x.Role
 	}
-	return ""
+	return GroupRole_GROUP_ROLE_UNSPECIFIED
 }
 
 func (x *GroupMember) GetJoinedAt() *timestamp.Timestamp {
@@ -528,7 +699,7 @@ func (x *IsMemberRequest) GetUserId() string {
 type IsMemberResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	IsMember      bool                   `protobuf:"varint,1,opt,name=is_member,json=isMember,proto3" json:"is_member,omitempty"`
-	Role          string                 `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
+	Role          GroupRole              `protobuf:"varint,2,opt,name=role,proto3,enum=anychat.group.GroupRole" json:"role,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -570,11 +741,11 @@ func (x *IsMemberResponse) GetIsMember() bool {
 	return false
 }
 
-func (x *IsMemberResponse) GetRole() string {
+func (x *IsMemberResponse) GetRole() GroupRole {
 	if x != nil {
 		return x.Role
 	}
-	return ""
+	return GroupRole_GROUP_ROLE_UNSPECIFIED
 }
 
 type GetUserGroupsRequest struct {
@@ -1238,7 +1409,7 @@ type UpdateMemberRoleRequest struct {
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	TargetUserId  string                 `protobuf:"bytes,3,opt,name=target_user_id,json=targetUserId,proto3" json:"target_user_id,omitempty"`
-	Role          string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"` // admin/member
+	Role          GroupRole              `protobuf:"varint,4,opt,name=role,proto3,enum=anychat.group.GroupRole" json:"role,omitempty"` // 2=admin,3=member
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1294,11 +1465,11 @@ func (x *UpdateMemberRoleRequest) GetTargetUserId() string {
 	return ""
 }
 
-func (x *UpdateMemberRoleRequest) GetRole() string {
+func (x *UpdateMemberRoleRequest) GetRole() GroupRole {
 	if x != nil {
 		return x.Role
 	}
-	return ""
+	return GroupRole_GROUP_ROLE_UNSPECIFIED
 }
 
 type UpdateMemberNicknameRequest struct {
@@ -1604,7 +1775,7 @@ func (x *HandleJoinRequestRequest) GetAccept() bool {
 type GetJoinRequestsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GroupId       string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-	Status        *string                `protobuf:"bytes,2,opt,name=status,proto3,oneof" json:"status,omitempty"` // pending/accepted/rejected
+	Status        *JoinRequestStatus     `protobuf:"varint,2,opt,name=status,proto3,enum=anychat.group.JoinRequestStatus,oneof" json:"status,omitempty"` // 1=pending,2=accepted,3=rejected
 	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1647,11 +1818,11 @@ func (x *GetJoinRequestsRequest) GetGroupId() string {
 	return ""
 }
 
-func (x *GetJoinRequestsRequest) GetStatus() string {
+func (x *GetJoinRequestsRequest) GetStatus() JoinRequestStatus {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return ""
+	return JoinRequestStatus_JOIN_REQUEST_STATUS_UNSPECIFIED
 }
 
 func (x *GetJoinRequestsRequest) GetUserId() string {
@@ -1720,7 +1891,7 @@ type JoinRequest struct {
 	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	InviterId     *string                `protobuf:"bytes,4,opt,name=inviter_id,json=inviterId,proto3,oneof" json:"inviter_id,omitempty"`
 	Message       *string                `protobuf:"bytes,5,opt,name=message,proto3,oneof" json:"message,omitempty"`
-	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	Status        JoinRequestStatus      `protobuf:"varint,6,opt,name=status,proto3,enum=anychat.group.JoinRequestStatus" json:"status,omitempty"`
 	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UserInfo      *common.UserInfo       `protobuf:"bytes,8,opt,name=user_info,json=userInfo,proto3,oneof" json:"user_info,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1792,11 +1963,11 @@ func (x *JoinRequest) GetMessage() string {
 	return ""
 }
 
-func (x *JoinRequest) GetStatus() string {
+func (x *JoinRequest) GetStatus() JoinRequestStatus {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return JoinRequestStatus_JOIN_REQUEST_STATUS_UNSPECIFIED
 }
 
 func (x *JoinRequest) GetCreatedAt() *timestamp.Timestamp {
@@ -1991,7 +2162,7 @@ type PinnedMessage struct {
 	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
 	PinnedBy      string                 `protobuf:"bytes,3,opt,name=pinned_by,json=pinnedBy,proto3" json:"pinned_by,omitempty"`
 	PinnedAt      int64                  `protobuf:"varint,4,opt,name=pinned_at,json=pinnedAt,proto3" json:"pinned_at,omitempty"`
-	ContentType   *string                `protobuf:"bytes,5,opt,name=content_type,json=contentType,proto3,oneof" json:"content_type,omitempty"`
+	ContentType   *MessageContentType    `protobuf:"varint,5,opt,name=content_type,json=contentType,proto3,enum=anychat.group.MessageContentType,oneof" json:"content_type,omitempty"`
 	MessageSeq    *int64                 `protobuf:"varint,6,opt,name=message_seq,json=messageSeq,proto3,oneof" json:"message_seq,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2055,11 +2226,11 @@ func (x *PinnedMessage) GetPinnedAt() int64 {
 	return 0
 }
 
-func (x *PinnedMessage) GetContentType() string {
+func (x *PinnedMessage) GetContentType() MessageContentType {
 	if x != nil && x.ContentType != nil {
 		return *x.ContentType
 	}
-	return ""
+	return MessageContentType_MESSAGE_CONTENT_TYPE_UNSPECIFIED
 }
 
 func (x *PinnedMessage) GetMessageSeq() int64 {
@@ -2263,7 +2434,7 @@ func (x *MuteMemberRequest) GetType() MuteType {
 	if x != nil {
 		return x.Type
 	}
-	return MuteType_MUTE_TYPE_PERMANENT
+	return MuteType_MUTE_TYPE_UNSPECIFIED
 }
 
 func (x *MuteMemberRequest) GetDurationMinutes() int32 {
@@ -3077,11 +3248,11 @@ const file_group_group_proto_rawDesc = "" +
 	"_page_size\"e\n" +
 	"\x17GetGroupMembersResponse\x124\n" +
 	"\amembers\x18\x01 \x03(\v2\x1a.anychat.group.GroupMemberR\amembers\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"\xd4\x02\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\xee\x02\n" +
 	"\vGroupMember\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12*\n" +
-	"\x0egroup_nickname\x18\x02 \x01(\tH\x00R\rgroupNickname\x88\x01\x01\x12\x12\n" +
-	"\x04role\x18\x03 \x01(\tR\x04role\x127\n" +
+	"\x0egroup_nickname\x18\x02 \x01(\tH\x00R\rgroupNickname\x88\x01\x01\x12,\n" +
+	"\x04role\x18\x03 \x01(\x0e2\x18.anychat.group.GroupRoleR\x04role\x127\n" +
 	"\tjoined_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\bjoinedAt\x12:\n" +
 	"\tuser_info\x18\x06 \x01(\v2\x18.anychat.common.UserInfoH\x01R\buserInfo\x88\x01\x01\x12@\n" +
 	"\vmuted_until\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x02R\n" +
@@ -3092,10 +3263,10 @@ const file_group_group_proto_rawDesc = "" +
 	"\f_muted_untilJ\x04\b\x04\x10\x05\"E\n" +
 	"\x0fIsMemberRequest\x12\x19\n" +
 	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"C\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"]\n" +
 	"\x10IsMemberResponse\x12\x1b\n" +
-	"\tis_member\x18\x01 \x01(\bR\bisMember\x12\x12\n" +
-	"\x04role\x18\x02 \x01(\tR\x04role\"s\n" +
+	"\tis_member\x18\x01 \x01(\bR\bisMember\x12,\n" +
+	"\x04role\x18\x02 \x01(\x0e2\x18.anychat.group.GroupRoleR\x04role\"s\n" +
 	"\x14GetUserGroupsRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12-\n" +
 	"\x10last_update_time\x18\x02 \x01(\x03H\x00R\x0elastUpdateTime\x88\x01\x01B\x13\n" +
@@ -3154,12 +3325,12 @@ const file_group_group_proto_rawDesc = "" +
 	"\x0etarget_user_id\x18\x03 \x01(\tR\ftargetUserId\"F\n" +
 	"\x10QuitGroupRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
-	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\x87\x01\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\xa1\x01\n" +
 	"\x17UpdateMemberRoleRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12$\n" +
-	"\x0etarget_user_id\x18\x03 \x01(\tR\ftargetUserId\x12\x12\n" +
-	"\x04role\x18\x04 \x01(\tR\x04role\"m\n" +
+	"\x0etarget_user_id\x18\x03 \x01(\tR\ftargetUserId\x12,\n" +
+	"\x04role\x18\x04 \x01(\x0e2\x18.anychat.group.GroupRoleR\x04role\"m\n" +
 	"\x1bUpdateMemberNicknameRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x1a\n" +
@@ -3188,23 +3359,23 @@ const file_group_group_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x02 \x01(\x03R\trequestId\x12\x16\n" +
-	"\x06accept\x18\x03 \x01(\bR\x06accept\"t\n" +
+	"\x06accept\x18\x03 \x01(\bR\x06accept\"\x96\x01\n" +
 	"\x16GetJoinRequestsRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12\x1b\n" +
-	"\x06status\x18\x02 \x01(\tH\x00R\x06status\x88\x01\x01\x12\x17\n" +
+	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12=\n" +
+	"\x06status\x18\x02 \x01(\x0e2 .anychat.group.JoinRequestStatusH\x00R\x06status\x88\x01\x01\x12\x17\n" +
 	"\auser_id\x18\x03 \x01(\tR\x06userIdB\t\n" +
 	"\a_status\"g\n" +
 	"\x17GetJoinRequestsResponse\x126\n" +
 	"\brequests\x18\x01 \x03(\v2\x1a.anychat.group.JoinRequestR\brequests\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"\xcc\x02\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\xee\x02\n" +
 	"\vJoinRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x17\n" +
 	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\"\n" +
 	"\n" +
 	"inviter_id\x18\x04 \x01(\tH\x00R\tinviterId\x88\x01\x01\x12\x1d\n" +
-	"\amessage\x18\x05 \x01(\tH\x01R\amessage\x88\x01\x01\x12\x16\n" +
-	"\x06status\x18\x06 \x01(\tR\x06status\x129\n" +
+	"\amessage\x18\x05 \x01(\tH\x01R\amessage\x88\x01\x01\x128\n" +
+	"\x06status\x18\x06 \x01(\x0e2 .anychat.group.JoinRequestStatusR\x06status\x129\n" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12:\n" +
 	"\tuser_info\x18\b \x01(\v2\x18.anychat.common.UserInfoH\x02R\buserInfo\x88\x01\x01B\r\n" +
@@ -3225,14 +3396,14 @@ const file_group_group_proto_rawDesc = "" +
 	"message_id\x18\x03 \x01(\tR\tmessageId\"N\n" +
 	"\x18GetPinnedMessagesRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
-	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\xf1\x01\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\x94\x02\n" +
 	"\rPinnedMessage\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x18\n" +
 	"\acontent\x18\x02 \x01(\tR\acontent\x12\x1b\n" +
 	"\tpinned_by\x18\x03 \x01(\tR\bpinnedBy\x12\x1b\n" +
-	"\tpinned_at\x18\x04 \x01(\x03R\bpinnedAt\x12&\n" +
-	"\fcontent_type\x18\x05 \x01(\tH\x00R\vcontentType\x88\x01\x01\x12$\n" +
+	"\tpinned_at\x18\x04 \x01(\x03R\bpinnedAt\x12I\n" +
+	"\fcontent_type\x18\x05 \x01(\x0e2!.anychat.group.MessageContentTypeH\x00R\vcontentType\x88\x01\x01\x12$\n" +
 	"\vmessage_seq\x18\x06 \x01(\x03H\x01R\n" +
 	"messageSeq\x88\x01\x01B\x0f\n" +
 	"\r_content_typeB\x0e\n" +
@@ -3318,10 +3489,30 @@ const file_group_group_proto_rawDesc = "" +
 	"needVerify\x12\"\n" +
 	"\n" +
 	"request_id\x18\x04 \x01(\x03H\x00R\trequestId\x88\x01\x01B\r\n" +
-	"\v_request_id*<\n" +
-	"\bMuteType\x12\x17\n" +
-	"\x13MUTE_TYPE_PERMANENT\x10\x00\x12\x17\n" +
-	"\x13MUTE_TYPE_TEMPORARY\x10\x012\xed\x13\n" +
+	"\v_request_id*j\n" +
+	"\tGroupRole\x12\x1a\n" +
+	"\x16GROUP_ROLE_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10GROUP_ROLE_OWNER\x10\x01\x12\x14\n" +
+	"\x10GROUP_ROLE_ADMIN\x10\x02\x12\x15\n" +
+	"\x11GROUP_ROLE_MEMBER\x10\x03*\x9d\x01\n" +
+	"\x11JoinRequestStatus\x12#\n" +
+	"\x1fJOIN_REQUEST_STATUS_UNSPECIFIED\x10\x00\x12\x1f\n" +
+	"\x1bJOIN_REQUEST_STATUS_PENDING\x10\x01\x12 \n" +
+	"\x1cJOIN_REQUEST_STATUS_ACCEPTED\x10\x02\x12 \n" +
+	"\x1cJOIN_REQUEST_STATUS_REJECTED\x10\x03*\x9a\x02\n" +
+	"\x12MessageContentType\x12$\n" +
+	" MESSAGE_CONTENT_TYPE_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19MESSAGE_CONTENT_TYPE_TEXT\x10\x01\x12\x1e\n" +
+	"\x1aMESSAGE_CONTENT_TYPE_IMAGE\x10\x02\x12\x1e\n" +
+	"\x1aMESSAGE_CONTENT_TYPE_VIDEO\x10\x03\x12\x1e\n" +
+	"\x1aMESSAGE_CONTENT_TYPE_AUDIO\x10\x04\x12\x1d\n" +
+	"\x19MESSAGE_CONTENT_TYPE_FILE\x10\x05\x12!\n" +
+	"\x1dMESSAGE_CONTENT_TYPE_LOCATION\x10\x06\x12\x1d\n" +
+	"\x19MESSAGE_CONTENT_TYPE_CARD\x10\a*W\n" +
+	"\bMuteType\x12\x19\n" +
+	"\x15MUTE_TYPE_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13MUTE_TYPE_PERMANENT\x10\x01\x12\x17\n" +
+	"\x13MUTE_TYPE_TEMPORARY\x10\x022\xed\x13\n" +
 	"\fGroupService\x12W\n" +
 	"\fGetGroupInfo\x12\".anychat.group.GetGroupInfoRequest\x1a#.anychat.group.GetGroupInfoResponse\x12`\n" +
 	"\x0fGetGroupMembers\x12%.anychat.group.GetGroupMembersRequest\x1a&.anychat.group.GetGroupMembersResponse\x12K\n" +
@@ -3366,138 +3557,147 @@ func file_group_group_proto_rawDescGZIP() []byte {
 	return file_group_group_proto_rawDescData
 }
 
-var file_group_group_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_group_group_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
 var file_group_group_proto_msgTypes = make([]protoimpl.MessageInfo, 45)
 var file_group_group_proto_goTypes = []any{
-	(MuteType)(0),                           // 0: anychat.group.MuteType
-	(*GetGroupInfoRequest)(nil),             // 1: anychat.group.GetGroupInfoRequest
-	(*GetGroupInfoResponse)(nil),            // 2: anychat.group.GetGroupInfoResponse
-	(*GetGroupMembersRequest)(nil),          // 3: anychat.group.GetGroupMembersRequest
-	(*GetGroupMembersResponse)(nil),         // 4: anychat.group.GetGroupMembersResponse
-	(*GroupMember)(nil),                     // 5: anychat.group.GroupMember
-	(*IsMemberRequest)(nil),                 // 6: anychat.group.IsMemberRequest
-	(*IsMemberResponse)(nil),                // 7: anychat.group.IsMemberResponse
-	(*GetUserGroupsRequest)(nil),            // 8: anychat.group.GetUserGroupsRequest
-	(*GetUserGroupsResponse)(nil),           // 9: anychat.group.GetUserGroupsResponse
-	(*GroupInfo)(nil),                       // 10: anychat.group.GroupInfo
-	(*CreateGroupRequest)(nil),              // 11: anychat.group.CreateGroupRequest
-	(*CreateGroupResponse)(nil),             // 12: anychat.group.CreateGroupResponse
-	(*UpdateGroupRequest)(nil),              // 13: anychat.group.UpdateGroupRequest
-	(*DissolveGroupRequest)(nil),            // 14: anychat.group.DissolveGroupRequest
-	(*InviteMembersRequest)(nil),            // 15: anychat.group.InviteMembersRequest
-	(*RemoveMemberRequest)(nil),             // 16: anychat.group.RemoveMemberRequest
-	(*QuitGroupRequest)(nil),                // 17: anychat.group.QuitGroupRequest
-	(*UpdateMemberRoleRequest)(nil),         // 18: anychat.group.UpdateMemberRoleRequest
-	(*UpdateMemberNicknameRequest)(nil),     // 19: anychat.group.UpdateMemberNicknameRequest
-	(*TransferOwnershipRequest)(nil),        // 20: anychat.group.TransferOwnershipRequest
-	(*JoinGroupRequest)(nil),                // 21: anychat.group.JoinGroupRequest
-	(*JoinGroupResponse)(nil),               // 22: anychat.group.JoinGroupResponse
-	(*HandleJoinRequestRequest)(nil),        // 23: anychat.group.HandleJoinRequestRequest
-	(*GetJoinRequestsRequest)(nil),          // 24: anychat.group.GetJoinRequestsRequest
-	(*GetJoinRequestsResponse)(nil),         // 25: anychat.group.GetJoinRequestsResponse
-	(*JoinRequest)(nil),                     // 26: anychat.group.JoinRequest
-	(*PinGroupMessageRequest)(nil),          // 27: anychat.group.PinGroupMessageRequest
-	(*UnpinGroupMessageRequest)(nil),        // 28: anychat.group.UnpinGroupMessageRequest
-	(*GetPinnedMessagesRequest)(nil),        // 29: anychat.group.GetPinnedMessagesRequest
-	(*PinnedMessage)(nil),                   // 30: anychat.group.PinnedMessage
-	(*GetPinnedMessagesResponse)(nil),       // 31: anychat.group.GetPinnedMessagesResponse
-	(*SetGroupMuteRequest)(nil),             // 32: anychat.group.SetGroupMuteRequest
-	(*MuteMemberRequest)(nil),               // 33: anychat.group.MuteMemberRequest
-	(*UnmuteMemberRequest)(nil),             // 34: anychat.group.UnmuteMemberRequest
-	(*UpdateGroupSettingsRequest)(nil),      // 35: anychat.group.UpdateGroupSettingsRequest
-	(*GetGroupSettingsRequest)(nil),         // 36: anychat.group.GetGroupSettingsRequest
-	(*GetGroupSettingsResponse)(nil),        // 37: anychat.group.GetGroupSettingsResponse
-	(*UpdateMemberRemarkRequest)(nil),       // 38: anychat.group.UpdateMemberRemarkRequest
-	(*GetGroupQRCodeRequest)(nil),           // 39: anychat.group.GetGroupQRCodeRequest
-	(*GetGroupQRCodeResponse)(nil),          // 40: anychat.group.GetGroupQRCodeResponse
-	(*RefreshGroupQRCodeRequest)(nil),       // 41: anychat.group.RefreshGroupQRCodeRequest
-	(*GetGroupPreviewByQRCodeRequest)(nil),  // 42: anychat.group.GetGroupPreviewByQRCodeRequest
-	(*GetGroupPreviewByQRCodeResponse)(nil), // 43: anychat.group.GetGroupPreviewByQRCodeResponse
-	(*JoinGroupByQRCodeRequest)(nil),        // 44: anychat.group.JoinGroupByQRCodeRequest
-	(*JoinGroupByQRCodeResponse)(nil),       // 45: anychat.group.JoinGroupByQRCodeResponse
-	(*timestamp.Timestamp)(nil),             // 46: google.protobuf.Timestamp
-	(*common.UserInfo)(nil),                 // 47: anychat.common.UserInfo
-	(*common.Empty)(nil),                    // 48: anychat.common.Empty
+	(GroupRole)(0),                          // 0: anychat.group.GroupRole
+	(JoinRequestStatus)(0),                  // 1: anychat.group.JoinRequestStatus
+	(MessageContentType)(0),                 // 2: anychat.group.MessageContentType
+	(MuteType)(0),                           // 3: anychat.group.MuteType
+	(*GetGroupInfoRequest)(nil),             // 4: anychat.group.GetGroupInfoRequest
+	(*GetGroupInfoResponse)(nil),            // 5: anychat.group.GetGroupInfoResponse
+	(*GetGroupMembersRequest)(nil),          // 6: anychat.group.GetGroupMembersRequest
+	(*GetGroupMembersResponse)(nil),         // 7: anychat.group.GetGroupMembersResponse
+	(*GroupMember)(nil),                     // 8: anychat.group.GroupMember
+	(*IsMemberRequest)(nil),                 // 9: anychat.group.IsMemberRequest
+	(*IsMemberResponse)(nil),                // 10: anychat.group.IsMemberResponse
+	(*GetUserGroupsRequest)(nil),            // 11: anychat.group.GetUserGroupsRequest
+	(*GetUserGroupsResponse)(nil),           // 12: anychat.group.GetUserGroupsResponse
+	(*GroupInfo)(nil),                       // 13: anychat.group.GroupInfo
+	(*CreateGroupRequest)(nil),              // 14: anychat.group.CreateGroupRequest
+	(*CreateGroupResponse)(nil),             // 15: anychat.group.CreateGroupResponse
+	(*UpdateGroupRequest)(nil),              // 16: anychat.group.UpdateGroupRequest
+	(*DissolveGroupRequest)(nil),            // 17: anychat.group.DissolveGroupRequest
+	(*InviteMembersRequest)(nil),            // 18: anychat.group.InviteMembersRequest
+	(*RemoveMemberRequest)(nil),             // 19: anychat.group.RemoveMemberRequest
+	(*QuitGroupRequest)(nil),                // 20: anychat.group.QuitGroupRequest
+	(*UpdateMemberRoleRequest)(nil),         // 21: anychat.group.UpdateMemberRoleRequest
+	(*UpdateMemberNicknameRequest)(nil),     // 22: anychat.group.UpdateMemberNicknameRequest
+	(*TransferOwnershipRequest)(nil),        // 23: anychat.group.TransferOwnershipRequest
+	(*JoinGroupRequest)(nil),                // 24: anychat.group.JoinGroupRequest
+	(*JoinGroupResponse)(nil),               // 25: anychat.group.JoinGroupResponse
+	(*HandleJoinRequestRequest)(nil),        // 26: anychat.group.HandleJoinRequestRequest
+	(*GetJoinRequestsRequest)(nil),          // 27: anychat.group.GetJoinRequestsRequest
+	(*GetJoinRequestsResponse)(nil),         // 28: anychat.group.GetJoinRequestsResponse
+	(*JoinRequest)(nil),                     // 29: anychat.group.JoinRequest
+	(*PinGroupMessageRequest)(nil),          // 30: anychat.group.PinGroupMessageRequest
+	(*UnpinGroupMessageRequest)(nil),        // 31: anychat.group.UnpinGroupMessageRequest
+	(*GetPinnedMessagesRequest)(nil),        // 32: anychat.group.GetPinnedMessagesRequest
+	(*PinnedMessage)(nil),                   // 33: anychat.group.PinnedMessage
+	(*GetPinnedMessagesResponse)(nil),       // 34: anychat.group.GetPinnedMessagesResponse
+	(*SetGroupMuteRequest)(nil),             // 35: anychat.group.SetGroupMuteRequest
+	(*MuteMemberRequest)(nil),               // 36: anychat.group.MuteMemberRequest
+	(*UnmuteMemberRequest)(nil),             // 37: anychat.group.UnmuteMemberRequest
+	(*UpdateGroupSettingsRequest)(nil),      // 38: anychat.group.UpdateGroupSettingsRequest
+	(*GetGroupSettingsRequest)(nil),         // 39: anychat.group.GetGroupSettingsRequest
+	(*GetGroupSettingsResponse)(nil),        // 40: anychat.group.GetGroupSettingsResponse
+	(*UpdateMemberRemarkRequest)(nil),       // 41: anychat.group.UpdateMemberRemarkRequest
+	(*GetGroupQRCodeRequest)(nil),           // 42: anychat.group.GetGroupQRCodeRequest
+	(*GetGroupQRCodeResponse)(nil),          // 43: anychat.group.GetGroupQRCodeResponse
+	(*RefreshGroupQRCodeRequest)(nil),       // 44: anychat.group.RefreshGroupQRCodeRequest
+	(*GetGroupPreviewByQRCodeRequest)(nil),  // 45: anychat.group.GetGroupPreviewByQRCodeRequest
+	(*GetGroupPreviewByQRCodeResponse)(nil), // 46: anychat.group.GetGroupPreviewByQRCodeResponse
+	(*JoinGroupByQRCodeRequest)(nil),        // 47: anychat.group.JoinGroupByQRCodeRequest
+	(*JoinGroupByQRCodeResponse)(nil),       // 48: anychat.group.JoinGroupByQRCodeResponse
+	(*timestamp.Timestamp)(nil),             // 49: google.protobuf.Timestamp
+	(*common.UserInfo)(nil),                 // 50: anychat.common.UserInfo
+	(*common.Empty)(nil),                    // 51: anychat.common.Empty
 }
 var file_group_group_proto_depIdxs = []int32{
-	46, // 0: anychat.group.GetGroupInfoResponse.created_at:type_name -> google.protobuf.Timestamp
-	46, // 1: anychat.group.GetGroupInfoResponse.updated_at:type_name -> google.protobuf.Timestamp
-	5,  // 2: anychat.group.GetGroupMembersResponse.members:type_name -> anychat.group.GroupMember
-	46, // 3: anychat.group.GroupMember.joined_at:type_name -> google.protobuf.Timestamp
-	47, // 4: anychat.group.GroupMember.user_info:type_name -> anychat.common.UserInfo
-	46, // 5: anychat.group.GroupMember.muted_until:type_name -> google.protobuf.Timestamp
-	10, // 6: anychat.group.GetUserGroupsResponse.groups:type_name -> anychat.group.GroupInfo
-	46, // 7: anychat.group.GroupInfo.updated_at:type_name -> google.protobuf.Timestamp
-	46, // 8: anychat.group.CreateGroupResponse.created_at:type_name -> google.protobuf.Timestamp
-	26, // 9: anychat.group.GetJoinRequestsResponse.requests:type_name -> anychat.group.JoinRequest
-	46, // 10: anychat.group.JoinRequest.created_at:type_name -> google.protobuf.Timestamp
-	47, // 11: anychat.group.JoinRequest.user_info:type_name -> anychat.common.UserInfo
-	30, // 12: anychat.group.GetPinnedMessagesResponse.messages:type_name -> anychat.group.PinnedMessage
-	30, // 13: anychat.group.GetPinnedMessagesResponse.top_message:type_name -> anychat.group.PinnedMessage
-	0,  // 14: anychat.group.MuteMemberRequest.type:type_name -> anychat.group.MuteType
-	1,  // 15: anychat.group.GroupService.GetGroupInfo:input_type -> anychat.group.GetGroupInfoRequest
-	3,  // 16: anychat.group.GroupService.GetGroupMembers:input_type -> anychat.group.GetGroupMembersRequest
-	6,  // 17: anychat.group.GroupService.IsMember:input_type -> anychat.group.IsMemberRequest
-	8,  // 18: anychat.group.GroupService.GetUserGroups:input_type -> anychat.group.GetUserGroupsRequest
-	11, // 19: anychat.group.GroupService.CreateGroup:input_type -> anychat.group.CreateGroupRequest
-	13, // 20: anychat.group.GroupService.UpdateGroup:input_type -> anychat.group.UpdateGroupRequest
-	14, // 21: anychat.group.GroupService.DissolveGroup:input_type -> anychat.group.DissolveGroupRequest
-	15, // 22: anychat.group.GroupService.InviteMembers:input_type -> anychat.group.InviteMembersRequest
-	16, // 23: anychat.group.GroupService.RemoveMember:input_type -> anychat.group.RemoveMemberRequest
-	17, // 24: anychat.group.GroupService.QuitGroup:input_type -> anychat.group.QuitGroupRequest
-	18, // 25: anychat.group.GroupService.UpdateMemberRole:input_type -> anychat.group.UpdateMemberRoleRequest
-	19, // 26: anychat.group.GroupService.UpdateMemberNickname:input_type -> anychat.group.UpdateMemberNicknameRequest
-	20, // 27: anychat.group.GroupService.TransferOwnership:input_type -> anychat.group.TransferOwnershipRequest
-	21, // 28: anychat.group.GroupService.JoinGroup:input_type -> anychat.group.JoinGroupRequest
-	23, // 29: anychat.group.GroupService.HandleJoinRequest:input_type -> anychat.group.HandleJoinRequestRequest
-	24, // 30: anychat.group.GroupService.GetJoinRequests:input_type -> anychat.group.GetJoinRequestsRequest
-	27, // 31: anychat.group.GroupService.PinGroupMessage:input_type -> anychat.group.PinGroupMessageRequest
-	28, // 32: anychat.group.GroupService.UnpinGroupMessage:input_type -> anychat.group.UnpinGroupMessageRequest
-	29, // 33: anychat.group.GroupService.GetPinnedMessages:input_type -> anychat.group.GetPinnedMessagesRequest
-	32, // 34: anychat.group.GroupService.SetGroupMute:input_type -> anychat.group.SetGroupMuteRequest
-	33, // 35: anychat.group.GroupService.MuteMember:input_type -> anychat.group.MuteMemberRequest
-	34, // 36: anychat.group.GroupService.UnmuteMember:input_type -> anychat.group.UnmuteMemberRequest
-	35, // 37: anychat.group.GroupService.UpdateGroupSettings:input_type -> anychat.group.UpdateGroupSettingsRequest
-	36, // 38: anychat.group.GroupService.GetGroupSettings:input_type -> anychat.group.GetGroupSettingsRequest
-	38, // 39: anychat.group.GroupService.UpdateMemberRemark:input_type -> anychat.group.UpdateMemberRemarkRequest
-	39, // 40: anychat.group.GroupService.GetGroupQRCode:input_type -> anychat.group.GetGroupQRCodeRequest
-	41, // 41: anychat.group.GroupService.RefreshGroupQRCode:input_type -> anychat.group.RefreshGroupQRCodeRequest
-	42, // 42: anychat.group.GroupService.GetGroupPreviewByQRCode:input_type -> anychat.group.GetGroupPreviewByQRCodeRequest
-	44, // 43: anychat.group.GroupService.JoinGroupByQRCode:input_type -> anychat.group.JoinGroupByQRCodeRequest
-	2,  // 44: anychat.group.GroupService.GetGroupInfo:output_type -> anychat.group.GetGroupInfoResponse
-	4,  // 45: anychat.group.GroupService.GetGroupMembers:output_type -> anychat.group.GetGroupMembersResponse
-	7,  // 46: anychat.group.GroupService.IsMember:output_type -> anychat.group.IsMemberResponse
-	9,  // 47: anychat.group.GroupService.GetUserGroups:output_type -> anychat.group.GetUserGroupsResponse
-	12, // 48: anychat.group.GroupService.CreateGroup:output_type -> anychat.group.CreateGroupResponse
-	48, // 49: anychat.group.GroupService.UpdateGroup:output_type -> anychat.common.Empty
-	48, // 50: anychat.group.GroupService.DissolveGroup:output_type -> anychat.common.Empty
-	48, // 51: anychat.group.GroupService.InviteMembers:output_type -> anychat.common.Empty
-	48, // 52: anychat.group.GroupService.RemoveMember:output_type -> anychat.common.Empty
-	48, // 53: anychat.group.GroupService.QuitGroup:output_type -> anychat.common.Empty
-	48, // 54: anychat.group.GroupService.UpdateMemberRole:output_type -> anychat.common.Empty
-	48, // 55: anychat.group.GroupService.UpdateMemberNickname:output_type -> anychat.common.Empty
-	48, // 56: anychat.group.GroupService.TransferOwnership:output_type -> anychat.common.Empty
-	22, // 57: anychat.group.GroupService.JoinGroup:output_type -> anychat.group.JoinGroupResponse
-	48, // 58: anychat.group.GroupService.HandleJoinRequest:output_type -> anychat.common.Empty
-	25, // 59: anychat.group.GroupService.GetJoinRequests:output_type -> anychat.group.GetJoinRequestsResponse
-	48, // 60: anychat.group.GroupService.PinGroupMessage:output_type -> anychat.common.Empty
-	48, // 61: anychat.group.GroupService.UnpinGroupMessage:output_type -> anychat.common.Empty
-	31, // 62: anychat.group.GroupService.GetPinnedMessages:output_type -> anychat.group.GetPinnedMessagesResponse
-	48, // 63: anychat.group.GroupService.SetGroupMute:output_type -> anychat.common.Empty
-	48, // 64: anychat.group.GroupService.MuteMember:output_type -> anychat.common.Empty
-	48, // 65: anychat.group.GroupService.UnmuteMember:output_type -> anychat.common.Empty
-	48, // 66: anychat.group.GroupService.UpdateGroupSettings:output_type -> anychat.common.Empty
-	37, // 67: anychat.group.GroupService.GetGroupSettings:output_type -> anychat.group.GetGroupSettingsResponse
-	48, // 68: anychat.group.GroupService.UpdateMemberRemark:output_type -> anychat.common.Empty
-	40, // 69: anychat.group.GroupService.GetGroupQRCode:output_type -> anychat.group.GetGroupQRCodeResponse
-	40, // 70: anychat.group.GroupService.RefreshGroupQRCode:output_type -> anychat.group.GetGroupQRCodeResponse
-	43, // 71: anychat.group.GroupService.GetGroupPreviewByQRCode:output_type -> anychat.group.GetGroupPreviewByQRCodeResponse
-	45, // 72: anychat.group.GroupService.JoinGroupByQRCode:output_type -> anychat.group.JoinGroupByQRCodeResponse
-	44, // [44:73] is the sub-list for method output_type
-	15, // [15:44] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	49, // 0: anychat.group.GetGroupInfoResponse.created_at:type_name -> google.protobuf.Timestamp
+	49, // 1: anychat.group.GetGroupInfoResponse.updated_at:type_name -> google.protobuf.Timestamp
+	8,  // 2: anychat.group.GetGroupMembersResponse.members:type_name -> anychat.group.GroupMember
+	0,  // 3: anychat.group.GroupMember.role:type_name -> anychat.group.GroupRole
+	49, // 4: anychat.group.GroupMember.joined_at:type_name -> google.protobuf.Timestamp
+	50, // 5: anychat.group.GroupMember.user_info:type_name -> anychat.common.UserInfo
+	49, // 6: anychat.group.GroupMember.muted_until:type_name -> google.protobuf.Timestamp
+	0,  // 7: anychat.group.IsMemberResponse.role:type_name -> anychat.group.GroupRole
+	13, // 8: anychat.group.GetUserGroupsResponse.groups:type_name -> anychat.group.GroupInfo
+	49, // 9: anychat.group.GroupInfo.updated_at:type_name -> google.protobuf.Timestamp
+	49, // 10: anychat.group.CreateGroupResponse.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 11: anychat.group.UpdateMemberRoleRequest.role:type_name -> anychat.group.GroupRole
+	1,  // 12: anychat.group.GetJoinRequestsRequest.status:type_name -> anychat.group.JoinRequestStatus
+	29, // 13: anychat.group.GetJoinRequestsResponse.requests:type_name -> anychat.group.JoinRequest
+	1,  // 14: anychat.group.JoinRequest.status:type_name -> anychat.group.JoinRequestStatus
+	49, // 15: anychat.group.JoinRequest.created_at:type_name -> google.protobuf.Timestamp
+	50, // 16: anychat.group.JoinRequest.user_info:type_name -> anychat.common.UserInfo
+	2,  // 17: anychat.group.PinnedMessage.content_type:type_name -> anychat.group.MessageContentType
+	33, // 18: anychat.group.GetPinnedMessagesResponse.messages:type_name -> anychat.group.PinnedMessage
+	33, // 19: anychat.group.GetPinnedMessagesResponse.top_message:type_name -> anychat.group.PinnedMessage
+	3,  // 20: anychat.group.MuteMemberRequest.type:type_name -> anychat.group.MuteType
+	4,  // 21: anychat.group.GroupService.GetGroupInfo:input_type -> anychat.group.GetGroupInfoRequest
+	6,  // 22: anychat.group.GroupService.GetGroupMembers:input_type -> anychat.group.GetGroupMembersRequest
+	9,  // 23: anychat.group.GroupService.IsMember:input_type -> anychat.group.IsMemberRequest
+	11, // 24: anychat.group.GroupService.GetUserGroups:input_type -> anychat.group.GetUserGroupsRequest
+	14, // 25: anychat.group.GroupService.CreateGroup:input_type -> anychat.group.CreateGroupRequest
+	16, // 26: anychat.group.GroupService.UpdateGroup:input_type -> anychat.group.UpdateGroupRequest
+	17, // 27: anychat.group.GroupService.DissolveGroup:input_type -> anychat.group.DissolveGroupRequest
+	18, // 28: anychat.group.GroupService.InviteMembers:input_type -> anychat.group.InviteMembersRequest
+	19, // 29: anychat.group.GroupService.RemoveMember:input_type -> anychat.group.RemoveMemberRequest
+	20, // 30: anychat.group.GroupService.QuitGroup:input_type -> anychat.group.QuitGroupRequest
+	21, // 31: anychat.group.GroupService.UpdateMemberRole:input_type -> anychat.group.UpdateMemberRoleRequest
+	22, // 32: anychat.group.GroupService.UpdateMemberNickname:input_type -> anychat.group.UpdateMemberNicknameRequest
+	23, // 33: anychat.group.GroupService.TransferOwnership:input_type -> anychat.group.TransferOwnershipRequest
+	24, // 34: anychat.group.GroupService.JoinGroup:input_type -> anychat.group.JoinGroupRequest
+	26, // 35: anychat.group.GroupService.HandleJoinRequest:input_type -> anychat.group.HandleJoinRequestRequest
+	27, // 36: anychat.group.GroupService.GetJoinRequests:input_type -> anychat.group.GetJoinRequestsRequest
+	30, // 37: anychat.group.GroupService.PinGroupMessage:input_type -> anychat.group.PinGroupMessageRequest
+	31, // 38: anychat.group.GroupService.UnpinGroupMessage:input_type -> anychat.group.UnpinGroupMessageRequest
+	32, // 39: anychat.group.GroupService.GetPinnedMessages:input_type -> anychat.group.GetPinnedMessagesRequest
+	35, // 40: anychat.group.GroupService.SetGroupMute:input_type -> anychat.group.SetGroupMuteRequest
+	36, // 41: anychat.group.GroupService.MuteMember:input_type -> anychat.group.MuteMemberRequest
+	37, // 42: anychat.group.GroupService.UnmuteMember:input_type -> anychat.group.UnmuteMemberRequest
+	38, // 43: anychat.group.GroupService.UpdateGroupSettings:input_type -> anychat.group.UpdateGroupSettingsRequest
+	39, // 44: anychat.group.GroupService.GetGroupSettings:input_type -> anychat.group.GetGroupSettingsRequest
+	41, // 45: anychat.group.GroupService.UpdateMemberRemark:input_type -> anychat.group.UpdateMemberRemarkRequest
+	42, // 46: anychat.group.GroupService.GetGroupQRCode:input_type -> anychat.group.GetGroupQRCodeRequest
+	44, // 47: anychat.group.GroupService.RefreshGroupQRCode:input_type -> anychat.group.RefreshGroupQRCodeRequest
+	45, // 48: anychat.group.GroupService.GetGroupPreviewByQRCode:input_type -> anychat.group.GetGroupPreviewByQRCodeRequest
+	47, // 49: anychat.group.GroupService.JoinGroupByQRCode:input_type -> anychat.group.JoinGroupByQRCodeRequest
+	5,  // 50: anychat.group.GroupService.GetGroupInfo:output_type -> anychat.group.GetGroupInfoResponse
+	7,  // 51: anychat.group.GroupService.GetGroupMembers:output_type -> anychat.group.GetGroupMembersResponse
+	10, // 52: anychat.group.GroupService.IsMember:output_type -> anychat.group.IsMemberResponse
+	12, // 53: anychat.group.GroupService.GetUserGroups:output_type -> anychat.group.GetUserGroupsResponse
+	15, // 54: anychat.group.GroupService.CreateGroup:output_type -> anychat.group.CreateGroupResponse
+	51, // 55: anychat.group.GroupService.UpdateGroup:output_type -> anychat.common.Empty
+	51, // 56: anychat.group.GroupService.DissolveGroup:output_type -> anychat.common.Empty
+	51, // 57: anychat.group.GroupService.InviteMembers:output_type -> anychat.common.Empty
+	51, // 58: anychat.group.GroupService.RemoveMember:output_type -> anychat.common.Empty
+	51, // 59: anychat.group.GroupService.QuitGroup:output_type -> anychat.common.Empty
+	51, // 60: anychat.group.GroupService.UpdateMemberRole:output_type -> anychat.common.Empty
+	51, // 61: anychat.group.GroupService.UpdateMemberNickname:output_type -> anychat.common.Empty
+	51, // 62: anychat.group.GroupService.TransferOwnership:output_type -> anychat.common.Empty
+	25, // 63: anychat.group.GroupService.JoinGroup:output_type -> anychat.group.JoinGroupResponse
+	51, // 64: anychat.group.GroupService.HandleJoinRequest:output_type -> anychat.common.Empty
+	28, // 65: anychat.group.GroupService.GetJoinRequests:output_type -> anychat.group.GetJoinRequestsResponse
+	51, // 66: anychat.group.GroupService.PinGroupMessage:output_type -> anychat.common.Empty
+	51, // 67: anychat.group.GroupService.UnpinGroupMessage:output_type -> anychat.common.Empty
+	34, // 68: anychat.group.GroupService.GetPinnedMessages:output_type -> anychat.group.GetPinnedMessagesResponse
+	51, // 69: anychat.group.GroupService.SetGroupMute:output_type -> anychat.common.Empty
+	51, // 70: anychat.group.GroupService.MuteMember:output_type -> anychat.common.Empty
+	51, // 71: anychat.group.GroupService.UnmuteMember:output_type -> anychat.common.Empty
+	51, // 72: anychat.group.GroupService.UpdateGroupSettings:output_type -> anychat.common.Empty
+	40, // 73: anychat.group.GroupService.GetGroupSettings:output_type -> anychat.group.GetGroupSettingsResponse
+	51, // 74: anychat.group.GroupService.UpdateMemberRemark:output_type -> anychat.common.Empty
+	43, // 75: anychat.group.GroupService.GetGroupQRCode:output_type -> anychat.group.GetGroupQRCodeResponse
+	43, // 76: anychat.group.GroupService.RefreshGroupQRCode:output_type -> anychat.group.GetGroupQRCodeResponse
+	46, // 77: anychat.group.GroupService.GetGroupPreviewByQRCode:output_type -> anychat.group.GetGroupPreviewByQRCodeResponse
+	48, // 78: anychat.group.GroupService.JoinGroupByQRCode:output_type -> anychat.group.JoinGroupByQRCodeResponse
+	50, // [50:79] is the sub-list for method output_type
+	21, // [21:50] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_group_group_proto_init() }
@@ -3525,7 +3725,7 @@ func file_group_group_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_group_group_proto_rawDesc), len(file_group_group_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      4,
 			NumMessages:   45,
 			NumExtensions: 0,
 			NumServices:   1,

@@ -2,6 +2,17 @@ package model
 
 import "time"
 
+// GroupRole represents group member role.
+type GroupRole int16
+
+// GroupRole values.
+const (
+	GroupRoleUnknown GroupRole = 0
+	GroupRoleOwner   GroupRole = 1
+	GroupRoleAdmin   GroupRole = 2
+	GroupRoleMember  GroupRole = 3
+)
+
 // GroupMember represents a group member model
 type GroupMember struct {
 	ID            int64      `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
@@ -9,7 +20,7 @@ type GroupMember struct {
 	UserID        string     `gorm:"column:user_id;not null;uniqueIndex:uk_group_user" json:"userId"`
 	GroupNickname string     `gorm:"column:group_nickname;size:50" json:"groupNickname"`
 	GroupRemark   string     `gorm:"column:group_remark;size:20" json:"groupRemark"` // Remark for this group, only visible to self
-	Role          string     `gorm:"column:role;default:member;size:20" json:"role"`
+	Role          GroupRole  `gorm:"column:role;type:smallint;not null;default:3" json:"role"`
 	MutedUntil    *time.Time `gorm:"column:muted_until" json:"mutedUntil"`
 	JoinedAt      time.Time  `gorm:"column:joined_at;not null;default:CURRENT_TIMESTAMP" json:"joinedAt"`
 	UpdatedAt     time.Time  `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP" json:"updatedAt"`
@@ -19,13 +30,6 @@ type GroupMember struct {
 func (GroupMember) TableName() string {
 	return "group_members"
 }
-
-// GroupRole represents group member role
-const (
-	GroupRoleOwner  = "owner"  // owner
-	GroupRoleAdmin  = "admin"  // admin
-	GroupRoleMember = "member" // regular member
-)
 
 var PermanentMutedUntil = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
 
@@ -45,7 +49,7 @@ func (gm *GroupMember) CanManageGroup() bool {
 }
 
 // CanRemoveMember checks if member can remove target role
-func (gm *GroupMember) CanRemoveMember(targetRole string) bool {
+func (gm *GroupMember) CanRemoveMember(targetRole GroupRole) bool {
 	if gm.IsOwner() {
 		// Owner can remove anyone (except self)
 		return true
@@ -58,7 +62,7 @@ func (gm *GroupMember) CanRemoveMember(targetRole string) bool {
 }
 
 // CanMuteMember checks if member can mute target role
-func (gm *GroupMember) CanMuteMember(targetRole string) bool {
+func (gm *GroupMember) CanMuteMember(targetRole GroupRole) bool {
 	return gm.CanRemoveMember(targetRole)
 }
 

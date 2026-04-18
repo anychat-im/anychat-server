@@ -175,7 +175,7 @@ sequenceDiagram
 {
   "message_id": "msg_xxx",
   "conversation_id": "conv_xxx",
-  "conversation_type": "group",
+  "conversation_type": 2,
   "target_id": "group_xxx",
   "operator_user_id": "u_admin",
   "sender_user_id": "u_member",

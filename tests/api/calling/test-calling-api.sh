@@ -56,7 +56,7 @@ echo ""
 echo "Test 1: Unauthenticated call initiation"
 RESP=$(curl -s -X POST "${BASE_URL}/calling/calls" \
     -H "Content-Type: application/json" \
-    -d '{"calleeId":"user-xxx","callType":"audio"}')
+    -d '{"callee_id":"user-xxx","call_type":0}')
 CODE=$(json_code "$RESP")
 if [ "$CODE" = "401" ]; then
     pass "Unauthenticated returns code 401"
@@ -170,7 +170,7 @@ echo "Test 10: Blacklist restriction (cannot initiate call)"
 RESP=$(curl -s -X POST "${BASE_URL}/friends/blacklist" \
     -H "Authorization: Bearer $TOKEN_A" \
     -H "Content-Type: application/json" \
-    -d "{\"userId\":\"${USER_B_ID}\"}")
+    -d "{\"user_id\":\"${USER_B_ID}\"}")
 CODE=$(json_code "$RESP")
 if [ "$CODE" = "0" ]; then
     pass "User A blocked User B successfully"
@@ -181,7 +181,7 @@ fi
 RESP=$(curl -s -X POST "${BASE_URL}/calling/calls" \
     -H "Authorization: Bearer $TOKEN_B" \
     -H "Content-Type: application/json" \
-    -d "{\"calleeId\":\"${USER_A_ID}\",\"callType\":\"audio\"}")
+    -d "{\"callee_id\":\"${USER_A_ID}\",\"call_type\":0}")
 CODE=$(json_code "$RESP")
 if [ "$CODE" = "403" ]; then
     pass "Blocked party call initiation intercepted (code 403)"

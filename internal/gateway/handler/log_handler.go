@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const fileTypeLog = "log"
+const fileTypeLog = filepb.FileType_FILE_TYPE_LOG
 
 type LogHandler struct {
 	clientManager *client.Manager
@@ -95,13 +95,13 @@ func (h *LogHandler) ListLogs(c *gin.Context) {
 		pageSize = 20
 	}
 
-	fileType := fileTypeLog
 	req := &filepb.ListUserFilesRequest{
 		UserId:   userID,
-		FileType: &fileType,
 		Page:     int32(page),
 		PageSize: int32(pageSize),
 	}
+	fileType := fileTypeLog
+	req.FileType = &fileType
 
 	resp, err := h.clientManager.File().ListUserFiles(c.Request.Context(), req)
 

@@ -12,7 +12,7 @@ type UserDeviceRepository interface {
 	Create(ctx context.Context, device *model.UserDevice) error
 	GetByUserIDAndDeviceID(ctx context.Context, userID, deviceID string) (*model.UserDevice, error)
 	GetByUserID(ctx context.Context, userID string) ([]*model.UserDevice, error)
-	GetByUserIDAndDeviceType(ctx context.Context, userID, deviceType string) ([]*model.UserDevice, error)
+	GetByUserIDAndDeviceType(ctx context.Context, userID string, deviceType model.DeviceType) ([]*model.UserDevice, error)
 	Update(ctx context.Context, device *model.UserDevice) error
 	UpdateLastLogin(ctx context.Context, userID, deviceID, ip string) error
 }
@@ -58,7 +58,7 @@ func (r *userDeviceRepositoryImpl) GetByUserID(ctx context.Context, userID strin
 }
 
 // GetByUserIDAndDeviceType gets devices by user ID and device type
-func (r *userDeviceRepositoryImpl) GetByUserIDAndDeviceType(ctx context.Context, userID, deviceType string) ([]*model.UserDevice, error) {
+func (r *userDeviceRepositoryImpl) GetByUserIDAndDeviceType(ctx context.Context, userID string, deviceType model.DeviceType) ([]*model.UserDevice, error) {
 	var devices []*model.UserDevice
 	err := r.db.WithContext(ctx).
 		Where("user_id = ? AND device_type = ?", userID, deviceType).

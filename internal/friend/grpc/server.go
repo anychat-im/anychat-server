@@ -6,6 +6,7 @@ import (
 	commonpb "github.com/anychat/server/api/proto/common"
 	friendpb "github.com/anychat/server/api/proto/friend"
 	"github.com/anychat/server/internal/friend/dto"
+	"github.com/anychat/server/internal/friend/model"
 	"github.com/anychat/server/internal/friend/service"
 	"github.com/anychat/server/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -61,11 +62,16 @@ func (s *FriendServer) GetFriendList(ctx context.Context, req *friendpb.GetFrien
 
 // SendFriendRequest sends a friend request
 func (s *FriendServer) SendFriendRequest(ctx context.Context, req *friendpb.SendFriendRequestRequest) (*friendpb.SendFriendRequestResponse, error) {
+	source := model.FriendRequestSource(req.Source)
+	if !source.IsValid() {
+		return nil, status.Error(codes.InvalidArgument, "invalid source")
+	}
+
 	// Proto -> DTO conversion
 	dtoReq := &dto.SendFriendRequestRequest{
 		UserID:  req.ToUserId,
 		Message: req.Message,
-		Source:  req.Source,
+		Source:  source,
 	}
 
 	// Call service layer
@@ -82,9 +88,14 @@ func (s *FriendServer) SendFriendRequest(ctx context.Context, req *friendpb.Send
 
 // HandleFriendRequest handles a friend request
 func (s *FriendServer) HandleFriendRequest(ctx context.Context, req *friendpb.HandleFriendRequestRequest) (*commonpb.Empty, error) {
+	action := model.FriendRequestAction(req.Action)
+	if !action.IsValid() {
+		return nil, status.Error(codes.InvalidArgument, "invalid action")
+	}
+
 	// Proto -> DTO conversion
 	dtoReq := &dto.HandleFriendRequestRequest{
-		Action: req.Action,
+		Action: int16(action),
 	}
 
 	// Call service layer
@@ -98,8 +109,16 @@ func (s *FriendServer) HandleFriendRequest(ctx context.Context, req *friendpb.Ha
 
 // GetFriendRequests retrieves the friend request list
 func (s *FriendServer) GetFriendRequests(ctx context.Context, req *friendpb.GetFriendRequestsRequest) (*friendpb.GetFriendRequestsResponse, error) {
+	queryType := model.FriendRequestQueryType(req.RequestType)
+	if queryType == model.FriendRequestQueryTypeUnknown {
+		queryType = model.FriendRequestQueryTypeReceived
+	}
+	if !queryType.IsValid() {
+		return nil, status.Error(codes.InvalidArgument, "invalid request_type")
+	}
+
 	// Call service layer
-	resp, err := s.friendService.GetFriendRequests(ctx, req.UserId, req.Type)
+	resp, err := s.friendService.GetFriendRequests(ctx, req.UserId, queryType)
 	if err != nil {
 		return nil, convertError(err)
 	}
@@ -112,8 +131,8 @@ func (s *FriendServer) GetFriendRequests(ctx context.Context, req *friendpb.GetF
 			FromUserId: r.FromUserID,
 			ToUserId:   r.ToUserID,
 			Message:    r.Message,
-			Source:     r.Source,
-			Status:     r.Status,
+			Source:     friendpb.FriendRequestSource(r.Source),
+			Status:     friendpb.FriendRequestStatus(r.Status),
 			CreatedAt:  timestamppb.New(r.CreatedAt),
 		}
 		if r.FromUserInfo != nil {

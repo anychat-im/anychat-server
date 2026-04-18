@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/anychat/server/internal/user/model"
+)
 
 // UpdateProfileRequest update profile request
 type UpdateProfileRequest struct {
@@ -28,7 +32,7 @@ type UpdateSettingsRequest struct {
 type UpdatePushTokenRequest struct {
 	DeviceID  string `json:"device_id" binding:"required"`
 	PushToken string `json:"push_token" binding:"required"`
-	Platform  string `json:"platform" binding:"required"` // iOS/Android
+	Platform  model.PushPlatform `json:"platform" binding:"required,oneof=1 2"` // 1-iOS/2-Android
 }
 
 // BindPhoneRequest bind phone request

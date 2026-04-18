@@ -184,7 +184,7 @@ message UpdateMemberRoleRequest {
     string user_id = 1;
     string group_id = 2;
     string target_user_id = 3;
-    string role = 4; // member/admin
+    GroupRole role = 4; // 2-admin 3-member
 }
 ```
 

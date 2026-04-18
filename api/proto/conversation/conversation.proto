@@ -43,10 +43,17 @@ service ConversationService {
   rpc SetAutoDelete(SetAutoDeleteRequest) returns (common.Empty);
 }
 
+enum ConversationType {
+  CONVERSATION_TYPE_UNSPECIFIED = 0;
+  CONVERSATION_TYPE_SINGLE = 1;
+  CONVERSATION_TYPE_GROUP = 2;
+  CONVERSATION_TYPE_SYSTEM = 3;
+}
+
 // Conversation 会话
 message Conversation {
   string conversation_id = 1;
-  string conversation_type = 2;                       // single/group/system
+  ConversationType conversation_type = 2;             // 1-single/2-group/3-system
   string user_id = 3;
   string target_id = 4;                          // 单聊为对方用户ID，群聊为群ID
   string last_message_id = 5;
@@ -84,13 +91,13 @@ message GetConversationRequest {
 // GetConversationByUserAndTargetRequest 根据用户ID、会话类型和目标ID获取会话请求
 message GetConversationByUserAndTargetRequest {
   string user_id = 1;
-  string conversation_type = 2;  // single/group
+  ConversationType conversation_type = 2;  // 1-single/2-group
   string target_id = 3;
 }
 
 // CreateOrUpdateConversationRequest 创建或更新会话请求
 message CreateOrUpdateConversationRequest {
-  string conversation_type = 1;                       // single/group/system
+  ConversationType conversation_type = 1;             // 1-single/2-group/3-system
   string user_id = 2;
   string target_id = 3;
   string last_message_id = 4;

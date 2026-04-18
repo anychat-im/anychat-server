@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/anychat/server/api/proto/auth"
+	authmodel "github.com/anychat/server/internal/auth/model"
 	"github.com/anychat/server/internal/gateway/client"
 	gwmiddleware "github.com/anychat/server/internal/gateway/middleware"
 	"github.com/anychat/server/pkg/response"
@@ -18,8 +19,8 @@ type AuthHandler struct {
 // SendCodeRequest send verification code request
 type SendCodeRequest struct {
 	Target     string `json:"target" binding:"required" example:"13800138000"`
-	TargetType string `json:"target_type" binding:"required" example:"sms" enums:"sms,email"`
-	Purpose    string `json:"purpose" binding:"required" example:"register"`
+	TargetType int16  `json:"target_type" binding:"required,oneof=1 2" example:"1"`
+	Purpose    int16  `json:"purpose" binding:"required,oneof=1 2 3 4 5 6 7" example:"1"`
 	DeviceID   string `json:"device_id" example:"device-uuid-123"`
 }
 
@@ -30,7 +31,7 @@ type RegisterRequest struct {
 	Password      string  `json:"password" binding:"required" example:"password123"`
 	VerifyCode    string  `json:"verify_code" binding:"required" example:"123456"`
 	Nickname      *string `json:"nickname" example:"张三"`
-	DeviceType    string  `json:"device_type" binding:"required" example:"ios" enums:"ios,android,web"`
+	DeviceType    int16   `json:"device_type" binding:"required,oneof=1 2 3 4 5" example:"1"`
 	DeviceID      string  `json:"device_id" binding:"required" example:"device-uuid-123"`
 	ClientVersion string  `json:"client_version" binding:"required" example:"1.0.0"`
 }
@@ -39,7 +40,7 @@ type RegisterRequest struct {
 type LoginRequest struct {
 	Account       string `json:"account" binding:"required" example:"13800138000"`
 	Password      string `json:"password" binding:"required" example:"password123"`
-	DeviceType    string `json:"device_type" binding:"required" example:"ios" enums:"ios,android,web"`
+	DeviceType    int16  `json:"device_type" binding:"required,oneof=1 2 3 4 5" example:"1"`
 	DeviceID      string `json:"device_id" binding:"required" example:"device-uuid-123"`
 	ClientVersion string `json:"client_version" binding:"required" example:"1.0.0"`
 	IpAddress     string `json:"ip_address"`
@@ -120,10 +121,21 @@ func (h *AuthHandler) SendCode(c *gin.Context) {
 		return
 	}
 
+	targetType := authmodel.VerificationTargetType(req.TargetType)
+	if !targetType.IsValid() {
+		response.ParamError(c, "invalid target_type")
+		return
+	}
+	purpose := authmodel.VerificationPurpose(req.Purpose)
+	if !purpose.IsValid() {
+		response.ParamError(c, "invalid purpose")
+		return
+	}
+
 	resp, err := h.clientManager.Auth().SendVerificationCode(c.Request.Context(), &authpb.SendVerificationCodeRequest{
 		Target:     req.Target,
-		TargetType: req.TargetType,
-		Purpose:    req.Purpose,
+		TargetType: authpb.VerificationTargetType(targetType),
+		Purpose:    authpb.VerificationPurpose(purpose),
 		DeviceId:   req.DeviceID,
 		IpAddress:  c.ClientIP(),
 	})
@@ -158,6 +170,12 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
+	deviceType := authmodel.DeviceType(req.DeviceType)
+	if !deviceType.IsValid() {
+		response.ParamError(c, "invalid device_type")
+		return
+	}
+
 	// Call auth-service gRPC
 	resp, err := h.clientManager.Auth().Register(c.Request.Context(), &authpb.RegisterRequest{
 		PhoneNumber:   req.PhoneNumber,
@@ -165,7 +183,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		Password:      req.Password,
 		VerifyCode:    req.VerifyCode,
 		Nickname:      req.Nickname,
-		DeviceType:    req.DeviceType,
+		DeviceType:    authpb.DeviceType(deviceType),
 		DeviceId:      req.DeviceID,
 		ClientVersion: req.ClientVersion,
 	})
@@ -203,11 +221,17 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	deviceType := authmodel.DeviceType(req.DeviceType)
+	if !deviceType.IsValid() {
+		response.ParamError(c, "invalid device_type")
+		return
+	}
+
 	// Call auth-service gRPC
 	resp, err := h.clientManager.Auth().Login(c.Request.Context(), &authpb.LoginRequest{
 		Account:       req.Account,
 		Password:      req.Password,
-		DeviceType:    req.DeviceType,
+		DeviceType:    authpb.DeviceType(deviceType),
 		DeviceId:      req.DeviceID,
 		ClientVersion: req.ClientVersion,
 		IpAddress:     c.ClientIP(),
@@ -227,7 +251,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	if resp.User != nil {
 		result["user"] = gin.H{
-			"user_id":   resp.User.UserId,
+			"user_id":  resp.User.UserId,
 			"nickname": resp.User.Nickname,
 			"avatar":   resp.User.Avatar,
 			"phone":    resp.User.Phone,

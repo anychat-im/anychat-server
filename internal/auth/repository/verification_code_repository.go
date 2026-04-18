@@ -11,8 +11,8 @@ import (
 type VerificationCodeRepository interface {
 	Create(ctx context.Context, code *model.VerificationCode) error
 	GetByCodeID(ctx context.Context, codeID string) (*model.VerificationCode, error)
-	GetLatestByTarget(ctx context.Context, target, targetType, purpose string) (*model.VerificationCode, error)
-	UpdateStatus(ctx context.Context, codeID, status string) error
+	GetLatestByTarget(ctx context.Context, target string, targetType model.VerificationTargetType, purpose model.VerificationPurpose) (*model.VerificationCode, error)
+	UpdateStatus(ctx context.Context, codeID string, status model.VerificationCodeStatus) error
 	UpdateVerifiedAt(ctx context.Context, codeID string, verifiedAt time.Time) error
 	IncrementAttempts(ctx context.Context, codeID string) error
 	Delete(ctx context.Context, codeID string) error
@@ -43,7 +43,7 @@ func (r *verificationCodeRepositoryImpl) GetByCodeID(ctx context.Context, codeID
 	return &code, nil
 }
 
-func (r *verificationCodeRepositoryImpl) GetLatestByTarget(ctx context.Context, target, targetType, purpose string) (*model.VerificationCode, error) {
+func (r *verificationCodeRepositoryImpl) GetLatestByTarget(ctx context.Context, target string, targetType model.VerificationTargetType, purpose model.VerificationPurpose) (*model.VerificationCode, error) {
 	var code model.VerificationCode
 	err := r.db.WithContext(ctx).
 		Where("target = ? AND target_type = ? AND purpose = ?", target, targetType, purpose).
@@ -55,7 +55,7 @@ func (r *verificationCodeRepositoryImpl) GetLatestByTarget(ctx context.Context, 
 	return &code, nil
 }
 
-func (r *verificationCodeRepositoryImpl) UpdateStatus(ctx context.Context, codeID, status string) error {
+func (r *verificationCodeRepositoryImpl) UpdateStatus(ctx context.Context, codeID string, status model.VerificationCodeStatus) error {
 	return r.db.WithContext(ctx).
 		Model(&model.VerificationCode{}).
 		Where("code_id = ?", codeID).

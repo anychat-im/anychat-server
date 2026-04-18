@@ -36,7 +36,7 @@ type UserDevice struct {
     ID            int64      // 主键ID
     UserID        string     // 用户ID
     DeviceID      string     // 设备唯一标识
-    DeviceType    string     // 设备类型 (ios/android/web/pc)
+    DeviceType    int16      // 设备类型 (1-ios/2-android/3-web/4-pc/5-h5)
     ClientVersion string     // 客户端版本
     LastLoginAt   *time.Time // 最后登录时间
     LastLoginIP   string     // 最后登录IP
@@ -105,9 +105,9 @@ message RegisterRequest {
     string email = 2;             // 邮箱
     string password = 3;          // 密码
     string verify_code = 4;       // 验证码
-    string device_id = 5;         // 设备ID
-    string device_type = 6;       // 设备类型
-    string nickname = 7;           // 昵称(可选)
+    DeviceType device_type = 6;   // 设备类型: 1-ios 2-android 3-web 4-pc 5-h5
+    string device_id = 7;         // 设备ID
+    string nickname = 8;          // 昵称(可选)
 }
 ```
 

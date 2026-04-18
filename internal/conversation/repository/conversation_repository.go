@@ -16,7 +16,7 @@ type ConversationRepository interface {
 	// GetByID retrieves a conversation by conversation ID
 	GetByID(ctx context.Context, conversationID string) (*model.Conversation, error)
 	// GetByUserAndTarget retrieves a conversation by user ID and target ID
-	GetByUserAndTarget(ctx context.Context, userID, conversationType, targetID string) (*model.Conversation, error)
+	GetByUserAndTarget(ctx context.Context, userID string, conversationType model.ConversationType, targetID string) (*model.Conversation, error)
 	// ListByUser retrieves the user's conversation list
 	ListByUser(ctx context.Context, userID string, limit int, updatedBefore *time.Time) ([]*model.Conversation, error)
 	// Delete deletes a conversation
@@ -77,7 +77,7 @@ func (r *conversationRepositoryImpl) GetByID(ctx context.Context, conversationID
 }
 
 // GetByUserAndTarget retrieves a conversation by user ID and target ID
-func (r *conversationRepositoryImpl) GetByUserAndTarget(ctx context.Context, userID, conversationType, targetID string) (*model.Conversation, error) {
+func (r *conversationRepositoryImpl) GetByUserAndTarget(ctx context.Context, userID string, conversationType model.ConversationType, targetID string) (*model.Conversation, error) {
 	var conversation model.Conversation
 	err := r.db.WithContext(ctx).
 		Where("user_id = ? AND conversation_type = ? AND target_id = ?", userID, conversationType, targetID).

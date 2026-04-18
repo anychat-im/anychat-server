@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS friend_requests (
     from_user_id VARCHAR(36) NOT NULL,
     to_user_id VARCHAR(36) NOT NULL,
     message VARCHAR(200),
-    source VARCHAR(20),  -- search/qrcode/group/contacts
-    status VARCHAR(20) DEFAULT 'pending',  -- pending/accepted/rejected/expired
+    source SMALLINT DEFAULT 1,  -- 1-search, 2-qrcode, 3-group, 4-contacts
+    status SMALLINT DEFAULT 1,  -- 1-pending, 2-accepted, 3-rejected, 4-expired
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

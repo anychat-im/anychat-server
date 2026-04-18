@@ -193,14 +193,14 @@ Header: Authorization: Bearer {token}
 
 ### 5.1 客户端日志
 
-客户端日志使用 FileService 的 `FileInfo` 模型，通过 `file_type = "log"` 区分。
+客户端日志使用 FileService 的 `FileInfo` 模型，通过 `file_type = 5(FILE_TYPE_LOG)` 区分。
 
 ```go
 type FileInfo struct {
     FileID    string    // 文件ID
     UserID    string    // 上传用户ID
     FileName  string    // 文件名
-    FileType  string    // 文件类型(log)
+    FileType  int32     // 文件类型(5=log)
     FileSize  int64     // 文件大小
     CreatedAt time.Time // 上传时间
 }
@@ -224,7 +224,7 @@ message UploadLogRequest {
   string user_id = 1;
   string file_name = 2;
   int64 file_size = 3;
-  string file_type = 4;  // 固定为 "log"
+  int32 file_type = 4;  // 固定为 5 (FILE_TYPE_LOG)
 }
 
 // UploadLogResponse 上传日志响应
@@ -243,7 +243,7 @@ message CompleteLogUploadRequest {
 // ListLogFilesRequest 获取日志列表请求
 message ListLogFilesRequest {
   string user_id = 1;
-  string file_type = 2;  // 固定为 "log"
+  int32 file_type = 2;  // 固定为 5 (FILE_TYPE_LOG)
   int32 page = 3;
   int32 page_size = 4;
 }
@@ -295,7 +295,7 @@ message DeleteLogFileResponse {
 
 - **MinIO Bucket**: `client-logs` (私有桶)
 - **文件存储路径**: `logs/{user_id}/{year}/{month}/{file_id}_{filename}`
-- **文件类型标识**: `file_type = "log"`
+- **文件类型标识**: `file_type = 5 (FILE_TYPE_LOG)`
 
 ## 8. 依赖服务
 

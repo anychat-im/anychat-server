@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/anychat/server/internal/push/model"
+	usermodel "github.com/anychat/server/internal/user/model"
 	"gorm.io/gorm"
 )
 
@@ -10,7 +11,7 @@ type PushTokenRow struct {
 	UserID   string
 	DeviceID string
 	Token    string // JPush registration_id
-	Platform string // ios / android
+	Platform usermodel.PushPlatform // 1-ios / 2-android
 }
 
 // PushLogRepository push log repository interface

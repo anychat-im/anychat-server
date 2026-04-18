@@ -7,6 +7,31 @@ import "common/common.proto";
 
 option go_package = "github.com/anychat/server/api/proto/group;grouppb";
 
+enum GroupRole {
+  GROUP_ROLE_UNSPECIFIED = 0;
+  GROUP_ROLE_OWNER = 1;
+  GROUP_ROLE_ADMIN = 2;
+  GROUP_ROLE_MEMBER = 3;
+}
+
+enum JoinRequestStatus {
+  JOIN_REQUEST_STATUS_UNSPECIFIED = 0;
+  JOIN_REQUEST_STATUS_PENDING = 1;
+  JOIN_REQUEST_STATUS_ACCEPTED = 2;
+  JOIN_REQUEST_STATUS_REJECTED = 3;
+}
+
+enum MessageContentType {
+  MESSAGE_CONTENT_TYPE_UNSPECIFIED = 0;
+  MESSAGE_CONTENT_TYPE_TEXT = 1;
+  MESSAGE_CONTENT_TYPE_IMAGE = 2;
+  MESSAGE_CONTENT_TYPE_VIDEO = 3;
+  MESSAGE_CONTENT_TYPE_AUDIO = 4;
+  MESSAGE_CONTENT_TYPE_FILE = 5;
+  MESSAGE_CONTENT_TYPE_LOCATION = 6;
+  MESSAGE_CONTENT_TYPE_CARD = 7;
+}
+
 // GroupService 群组服务
 service GroupService {
   // ========== 内部服务调用接口 ==========
@@ -140,7 +165,7 @@ message GetGroupMembersResponse {
 message GroupMember {
   string user_id = 1;
   optional string group_nickname = 2;
-  string role = 3;  // owner/admin/member
+  GroupRole role = 3;  // 1=owner,2=admin,3=member
   reserved 4;
   google.protobuf.Timestamp joined_at = 5;
   optional common.UserInfo user_info = 6;
@@ -154,7 +179,7 @@ message IsMemberRequest {
 
 message IsMemberResponse {
   bool is_member = 1;
-  string role = 2;
+  GroupRole role = 2;
 }
 
 message GetUserGroupsRequest {
@@ -231,7 +256,7 @@ message UpdateMemberRoleRequest {
   string user_id = 1;
   string group_id = 2;
   string target_user_id = 3;
-  string role = 4;  // admin/member
+  GroupRole role = 4;  // 2=admin,3=member
 }
 
 message UpdateMemberNicknameRequest {
@@ -266,7 +291,7 @@ message HandleJoinRequestRequest {
 
 message GetJoinRequestsRequest {
   string group_id = 1;
-  optional string status = 2;  // pending/accepted/rejected
+  optional JoinRequestStatus status = 2;  // 1=pending,2=accepted,3=rejected
   string user_id = 3;
 }
 
@@ -281,7 +306,7 @@ message JoinRequest {
   string user_id = 3;
   optional string inviter_id = 4;
   optional string message = 5;
-  string status = 6;
+  JoinRequestStatus status = 6;
   google.protobuf.Timestamp created_at = 7;
   optional common.UserInfo user_info = 8;
 }
@@ -308,7 +333,7 @@ message PinnedMessage {
   string content = 2;
   string pinned_by = 3;
   int64 pinned_at = 4;
-  optional string content_type = 5;
+  optional MessageContentType content_type = 5;
   optional int64 message_seq = 6;
 }
 
@@ -326,8 +351,9 @@ message SetGroupMuteRequest {
 }
 
 enum MuteType {
-  MUTE_TYPE_PERMANENT = 0;
-  MUTE_TYPE_TEMPORARY = 1;
+  MUTE_TYPE_UNSPECIFIED = 0;
+  MUTE_TYPE_PERMANENT = 1;
+  MUTE_TYPE_TEMPORARY = 2;
 }
 
 message MuteMemberRequest {

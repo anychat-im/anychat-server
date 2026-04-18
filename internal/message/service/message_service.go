@@ -196,10 +196,10 @@ func (s *messageServiceImpl) SendMessage(ctx context.Context, req *messagepb.Sen
 		newMessage := &model.Message{
 			MessageID:        uuid.New().String(),
 			ConversationID:   req.ConversationId,
-			ConversationType: conversation.ConversationType,
+			ConversationType: model.ConversationType(conversation.ConversationType),
 			TargetID:         conversation.TargetId,
 			SenderID:         req.SenderId,
-			ContentType:      req.ContentType,
+			ContentType:      model.ContentType(req.ContentType),
 			Content:          req.Content,
 			Sequence:         sequence,
 			Status:           model.MessageStatusNormal,
@@ -279,7 +279,7 @@ func (s *messageServiceImpl) SendTyping(ctx context.Context, req *messagepb.Send
 	if err != nil {
 		return err
 	}
-	if conversation.ConversationType != model.ConversationTypeSingle {
+	if conversation.ConversationType != conversationpb.ConversationType_CONVERSATION_TYPE_SINGLE {
 		return errors.NewBusiness(errors.CodeInvalidOperation, "typing is only supported in single conversation")
 	}
 
@@ -338,7 +338,8 @@ func (s *messageServiceImpl) authorizeSend(ctx context.Context, senderID, conver
 	if err != nil {
 		return nil, errors.NewBusiness(errors.CodeConversationNotFound, "conversation not found")
 	}
-	if conversation.ConversationType != model.ConversationTypeSingle && conversation.ConversationType != model.ConversationTypeGroup {
+	if conversation.ConversationType != conversationpb.ConversationType_CONVERSATION_TYPE_SINGLE &&
+		conversation.ConversationType != conversationpb.ConversationType_CONVERSATION_TYPE_GROUP {
 		return nil, errors.NewBusiness(errors.CodeParamError, "conversation_type must be single or group")
 	}
 
@@ -347,7 +348,7 @@ func (s *messageServiceImpl) authorizeSend(ctx context.Context, senderID, conver
 		return nil, errors.NewBusiness(errors.CodeParamError, "target_id is required")
 	}
 
-	if conversation.ConversationType == model.ConversationTypeGroup {
+	if conversation.ConversationType == conversationpb.ConversationType_CONVERSATION_TYPE_GROUP {
 		if s.groupClient == nil {
 			return nil, errors.NewBusiness(errors.CodeInternalError, "group client is not initialized")
 		}
@@ -362,7 +363,7 @@ func (s *messageServiceImpl) authorizeSend(ctx context.Context, senderID, conver
 			return nil, errors.NewBusiness(errors.CodeMessagePermissionDenied, "sender is not a group member")
 		}
 	}
-	if conversation.ConversationType == model.ConversationTypeSingle {
+	if conversation.ConversationType == conversationpb.ConversationType_CONVERSATION_TYPE_SINGLE {
 		if s.friendClient == nil {
 			return nil, errors.NewBusiness(errors.CodeInternalError, "friend client is not initialized")
 		}
@@ -713,7 +714,8 @@ func (s *messageServiceImpl) MarkAsRead(ctx context.Context, userID string, req 
 	if err != nil {
 		return errors.NewBusiness(errors.CodeConversationNotFound, "conversation not found")
 	}
-	if conversation.ConversationType != model.ConversationTypeSingle && conversation.ConversationType != model.ConversationTypeGroup {
+	if conversation.ConversationType != conversationpb.ConversationType_CONVERSATION_TYPE_SINGLE &&
+		conversation.ConversationType != conversationpb.ConversationType_CONVERSATION_TYPE_GROUP {
 		return errors.NewBusiness(errors.CodeParamError, "conversation_type must be single or group")
 	}
 
@@ -733,7 +735,7 @@ func (s *messageServiceImpl) MarkAsRead(ctx context.Context, userID string, req 
 	// Create or update read receipt
 	receipt := &model.MessageReadReceipt{
 		ConversationID:   req.ConversationId,
-		ConversationType: conversation.ConversationType,
+		ConversationType: model.ConversationType(conversation.ConversationType),
 		TargetID:         conversation.TargetId,
 		UserID:           userID,
 		LastReadSeq:      effectiveReadSeq,
@@ -750,7 +752,7 @@ func (s *messageServiceImpl) MarkAsRead(ctx context.Context, userID string, req 
 	}
 
 	// Publish read receipt notification (for single chat, notify the other party)
-	if conversation.ConversationType == model.ConversationTypeSingle {
+	if conversation.ConversationType == conversationpb.ConversationType_CONVERSATION_TYPE_SINGLE {
 		if err := s.publishReadReceiptNotification(receipt); err != nil {
 			logger.Error("Failed to publish read receipt notification", zap.Error(err))
 		}
@@ -1065,9 +1067,10 @@ func (s *messageServiceImpl) SearchMessages(ctx context.Context, userID string, 
 		conversationID = req.ConversationId
 	}
 
-	var contentType *string
+	var contentType *model.ContentType
 	if req.ContentType != nil {
-		contentType = req.ContentType
+		v := model.ContentType(*req.ContentType)
+		contentType = &v
 	}
 
 	messages, total, err := s.messageRepo.SearchMessages(ctx, req.Keyword, conversationID, contentType, int(req.Limit), int(req.Offset))
@@ -1232,9 +1235,9 @@ func (s *messageServiceImpl) modelToProto(msg *model.Message) *messagepb.Message
 	pbMsg := &messagepb.Message{
 		MessageId:        msg.MessageID,
 		ConversationId:   msg.ConversationID,
-		ConversationType: msg.ConversationType,
+		ConversationType: messagepb.ConversationType(msg.ConversationType),
 		SenderId:         msg.SenderID,
-		ContentType:      msg.ContentType,
+		ContentType:      messagepb.ContentType(msg.ContentType),
 		Content:          msg.Content,
 		Sequence:         msg.Sequence,
 		Status:           int32(msg.Status),
@@ -1482,7 +1485,7 @@ func (s *messageServiceImpl) publishReadReceiptNotification(receipt *model.Messa
 }
 
 // getContentPreview gets content preview
-func (s *messageServiceImpl) getContentPreview(content, contentType string) string {
+func (s *messageServiceImpl) getContentPreview(content string, contentType model.ContentType) string {
 	switch contentType {
 	case model.ContentTypeText:
 		// Parse JSON to get text content

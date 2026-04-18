@@ -408,11 +408,11 @@
      "payload": {
        "message_id": "msg-123",
        "conversation_id": "conv-456",
-       "conversation_type": "single|group",
+       "conversation_type": "1|2",
        "from_user_id": "user-789",
        "from_nickname": "发送者",
        "from_avatar": "https://cdn.example.com/avatar/xxx.jpg",
-       "content_type": "text|image|video|audio|file",
+       "content_type": "1|2|3|4|5|6|7",
        "content": "消息内容或摘要",
        "sent_at": 1234567890,
        "seq": 12345
@@ -430,7 +430,7 @@
      "type": "message.read_receipt",
      "payload": {
        "conversation_id": "conv-456",
-       "conversation_type": "single|group",
+       "conversation_type": "1|2",
        "reader_user_id": "user-789",
        "last_read_seq": 12345,
        "read_at": 1234567890
@@ -448,7 +448,7 @@
      "payload": {
        "message_id": "msg-123",
        "conversation_id": "conv-456",
-       "conversation_type": "single|group",
+       "conversation_type": "1|2",
        "operator_user_id": "user-789",
        "recalled_at": 1234567890
      }
@@ -515,7 +515,7 @@
      "type": "conversation.unread_updated",
      "payload": {
        "conversation_id": "conv-456",
-       "conversation_type": "single|group",
+       "conversation_type": "1|2",
        "unread_count": 5,
        "total_unread_count": 20,
        "last_message": {
@@ -593,7 +593,7 @@
        "file_id": "file-123",
        "file_name": "document.pdf",
        "file_size": 1024000,
-       "file_type": "image|video|audio|file",
+       "file_type": "1|2|3|4|5", // 1-image/2-video/3-audio/4-file/5-log
        "mime_type": "application/pdf",
        "download_url": "https://cdn.example.com/files/xxx",
        "thumbnail_url": "https://cdn.example.com/thumbnails/xxx",
@@ -656,7 +656,7 @@
      "type": "push.delivery_status",
      "payload": {
        "push_id": "push-123",
-       "platform": "ios|android",
+       "platform": "1|2",
        "status": "sent|failed|clicked",
        "error_message": "APNs rejected",
        "sent_at": 1234567890
@@ -673,7 +673,7 @@
      "type": "push.token_invalid",
      "payload": {
        "device_id": "device-123",
-       "platform": "ios|android",
+       "platform": "1|2",
        "old_token": "expired_token_xxx",
        "reason": "token_expired|app_uninstalled",
        "detected_at": 1234567890
@@ -749,7 +749,7 @@ Gateway Service是推送通知的核心枢纽，负责：
      "payload": {
        "call_id": "call-123",
        "room_name": "room-456",
-       "call_type": "audio|video|group_video",
+       "call_type": "0|1", // 0-audio/1-video
        "from_user_id": "user-789",
        "from_nickname": "张三",
        "from_avatar": "https://cdn.example.com/avatar/xxx.jpg",

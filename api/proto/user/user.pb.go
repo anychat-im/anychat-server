@@ -23,6 +23,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type PushPlatform int32
+
+const (
+	PushPlatform_PUSH_PLATFORM_UNSPECIFIED PushPlatform = 0
+	PushPlatform_PUSH_PLATFORM_IOS         PushPlatform = 1
+	PushPlatform_PUSH_PLATFORM_ANDROID     PushPlatform = 2
+)
+
+// Enum value maps for PushPlatform.
+var (
+	PushPlatform_name = map[int32]string{
+		0: "PUSH_PLATFORM_UNSPECIFIED",
+		1: "PUSH_PLATFORM_IOS",
+		2: "PUSH_PLATFORM_ANDROID",
+	}
+	PushPlatform_value = map[string]int32{
+		"PUSH_PLATFORM_UNSPECIFIED": 0,
+		"PUSH_PLATFORM_IOS":         1,
+		"PUSH_PLATFORM_ANDROID":     2,
+	}
+)
+
+func (x PushPlatform) Enum() *PushPlatform {
+	p := new(PushPlatform)
+	*p = x
+	return p
+}
+
+func (x PushPlatform) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PushPlatform) Descriptor() protoreflect.EnumDescriptor {
+	return file_user_user_proto_enumTypes[0].Descriptor()
+}
+
+func (PushPlatform) Type() protoreflect.EnumType {
+	return &file_user_user_proto_enumTypes[0]
+}
+
+func (x PushPlatform) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PushPlatform.Descriptor instead.
+func (PushPlatform) EnumDescriptor() ([]byte, []int) {
+	return file_user_user_proto_rawDescGZIP(), []int{0}
+}
+
 // GetProfileRequest 获取个人资料请求
 type GetProfileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1035,7 +1084,7 @@ type UpdatePushTokenRequest struct {
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	DeviceId      string                 `protobuf:"bytes,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	PushToken     string                 `protobuf:"bytes,3,opt,name=push_token,json=pushToken,proto3" json:"push_token,omitempty"`
-	Platform      string                 `protobuf:"bytes,4,opt,name=platform,proto3" json:"platform,omitempty"` // iOS/Android
+	Platform      PushPlatform           `protobuf:"varint,4,opt,name=platform,proto3,enum=anychat.user.PushPlatform" json:"platform,omitempty"` // 1-iOS/2-Android
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1091,11 +1140,11 @@ func (x *UpdatePushTokenRequest) GetPushToken() string {
 	return ""
 }
 
-func (x *UpdatePushTokenRequest) GetPlatform() string {
+func (x *UpdatePushTokenRequest) GetPlatform() PushPlatform {
 	if x != nil {
 		return x.Platform
 	}
-	return ""
+	return PushPlatform_PUSH_PLATFORM_UNSPECIFIED
 }
 
 type BindPhoneRequest struct {
@@ -1751,13 +1800,13 @@ const file_user_user_proto_rawDesc = "" +
 	"\n" +
 	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"0\n" +
 	"\x16GetUserByQRCodeRequest\x12\x16\n" +
-	"\x06qrcode\x18\x01 \x01(\tR\x06qrcode\"\x89\x01\n" +
+	"\x06qrcode\x18\x01 \x01(\tR\x06qrcode\"\xa5\x01\n" +
 	"\x16UpdatePushTokenRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\x12\x1d\n" +
 	"\n" +
-	"push_token\x18\x03 \x01(\tR\tpushToken\x12\x1a\n" +
-	"\bplatform\x18\x04 \x01(\tR\bplatform\"o\n" +
+	"push_token\x18\x03 \x01(\tR\tpushToken\x126\n" +
+	"\bplatform\x18\x04 \x01(\x0e2\x1a.anychat.user.PushPlatformR\bplatform\"o\n" +
 	"\x10BindPhoneRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12!\n" +
 	"\fphone_number\x18\x02 \x01(\tR\vphoneNumber\x12\x1f\n" +
@@ -1800,7 +1849,11 @@ const file_user_user_proto_rawDesc = "" +
 	"\tnew_email\x18\x02 \x01(\tR\bnewEmail\"J\n" +
 	"\x13InitUserDataRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1a\n" +
-	"\bnickname\x18\x02 \x01(\tR\bnickname2\x96\t\n" +
+	"\bnickname\x18\x02 \x01(\tR\bnickname*_\n" +
+	"\fPushPlatform\x12\x1d\n" +
+	"\x19PUSH_PLATFORM_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11PUSH_PLATFORM_IOS\x10\x01\x12\x19\n" +
+	"\x15PUSH_PLATFORM_ANDROID\x10\x022\x96\t\n" +
 	"\vUserService\x12P\n" +
 	"\n" +
 	"GetProfile\x12\x1f.anychat.user.GetProfileRequest\x1a!.anychat.user.UserProfileResponse\x12V\n" +
@@ -1830,74 +1883,77 @@ func file_user_user_proto_rawDescGZIP() []byte {
 	return file_user_user_proto_rawDescData
 }
 
+var file_user_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_user_user_proto_goTypes = []any{
-	(*GetProfileRequest)(nil),      // 0: anychat.user.GetProfileRequest
-	(*UpdateProfileRequest)(nil),   // 1: anychat.user.UpdateProfileRequest
-	(*UserProfileResponse)(nil),    // 2: anychat.user.UserProfileResponse
-	(*GetUserInfoRequest)(nil),     // 3: anychat.user.GetUserInfoRequest
-	(*UserInfoResponse)(nil),       // 4: anychat.user.UserInfoResponse
-	(*SearchUsersRequest)(nil),     // 5: anychat.user.SearchUsersRequest
-	(*SearchUsersResponse)(nil),    // 6: anychat.user.SearchUsersResponse
-	(*UserBriefInfo)(nil),          // 7: anychat.user.UserBriefInfo
-	(*GetSettingsRequest)(nil),     // 8: anychat.user.GetSettingsRequest
-	(*UpdateSettingsRequest)(nil),  // 9: anychat.user.UpdateSettingsRequest
-	(*UserSettingsResponse)(nil),   // 10: anychat.user.UserSettingsResponse
-	(*RefreshQRCodeRequest)(nil),   // 11: anychat.user.RefreshQRCodeRequest
-	(*QRCodeResponse)(nil),         // 12: anychat.user.QRCodeResponse
-	(*GetUserByQRCodeRequest)(nil), // 13: anychat.user.GetUserByQRCodeRequest
-	(*UpdatePushTokenRequest)(nil), // 14: anychat.user.UpdatePushTokenRequest
-	(*BindPhoneRequest)(nil),       // 15: anychat.user.BindPhoneRequest
-	(*BindPhoneResponse)(nil),      // 16: anychat.user.BindPhoneResponse
-	(*ChangePhoneRequest)(nil),     // 17: anychat.user.ChangePhoneRequest
-	(*ChangePhoneResponse)(nil),    // 18: anychat.user.ChangePhoneResponse
-	(*BindEmailRequest)(nil),       // 19: anychat.user.BindEmailRequest
-	(*BindEmailResponse)(nil),      // 20: anychat.user.BindEmailResponse
-	(*ChangeEmailRequest)(nil),     // 21: anychat.user.ChangeEmailRequest
-	(*ChangeEmailResponse)(nil),    // 22: anychat.user.ChangeEmailResponse
-	(*InitUserDataRequest)(nil),    // 23: anychat.user.InitUserDataRequest
-	(*timestamp.Timestamp)(nil),    // 24: google.protobuf.Timestamp
-	(*common.Empty)(nil),           // 25: anychat.common.Empty
+	(PushPlatform)(0),              // 0: anychat.user.PushPlatform
+	(*GetProfileRequest)(nil),      // 1: anychat.user.GetProfileRequest
+	(*UpdateProfileRequest)(nil),   // 2: anychat.user.UpdateProfileRequest
+	(*UserProfileResponse)(nil),    // 3: anychat.user.UserProfileResponse
+	(*GetUserInfoRequest)(nil),     // 4: anychat.user.GetUserInfoRequest
+	(*UserInfoResponse)(nil),       // 5: anychat.user.UserInfoResponse
+	(*SearchUsersRequest)(nil),     // 6: anychat.user.SearchUsersRequest
+	(*SearchUsersResponse)(nil),    // 7: anychat.user.SearchUsersResponse
+	(*UserBriefInfo)(nil),          // 8: anychat.user.UserBriefInfo
+	(*GetSettingsRequest)(nil),     // 9: anychat.user.GetSettingsRequest
+	(*UpdateSettingsRequest)(nil),  // 10: anychat.user.UpdateSettingsRequest
+	(*UserSettingsResponse)(nil),   // 11: anychat.user.UserSettingsResponse
+	(*RefreshQRCodeRequest)(nil),   // 12: anychat.user.RefreshQRCodeRequest
+	(*QRCodeResponse)(nil),         // 13: anychat.user.QRCodeResponse
+	(*GetUserByQRCodeRequest)(nil), // 14: anychat.user.GetUserByQRCodeRequest
+	(*UpdatePushTokenRequest)(nil), // 15: anychat.user.UpdatePushTokenRequest
+	(*BindPhoneRequest)(nil),       // 16: anychat.user.BindPhoneRequest
+	(*BindPhoneResponse)(nil),      // 17: anychat.user.BindPhoneResponse
+	(*ChangePhoneRequest)(nil),     // 18: anychat.user.ChangePhoneRequest
+	(*ChangePhoneResponse)(nil),    // 19: anychat.user.ChangePhoneResponse
+	(*BindEmailRequest)(nil),       // 20: anychat.user.BindEmailRequest
+	(*BindEmailResponse)(nil),      // 21: anychat.user.BindEmailResponse
+	(*ChangeEmailRequest)(nil),     // 22: anychat.user.ChangeEmailRequest
+	(*ChangeEmailResponse)(nil),    // 23: anychat.user.ChangeEmailResponse
+	(*InitUserDataRequest)(nil),    // 24: anychat.user.InitUserDataRequest
+	(*timestamp.Timestamp)(nil),    // 25: google.protobuf.Timestamp
+	(*common.Empty)(nil),           // 26: anychat.common.Empty
 }
 var file_user_user_proto_depIdxs = []int32{
-	24, // 0: anychat.user.UpdateProfileRequest.birthday:type_name -> google.protobuf.Timestamp
-	24, // 1: anychat.user.UserProfileResponse.birthday:type_name -> google.protobuf.Timestamp
-	24, // 2: anychat.user.UserProfileResponse.created_at:type_name -> google.protobuf.Timestamp
-	7,  // 3: anychat.user.SearchUsersResponse.users:type_name -> anychat.user.UserBriefInfo
-	24, // 4: anychat.user.QRCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
-	0,  // 5: anychat.user.UserService.GetProfile:input_type -> anychat.user.GetProfileRequest
-	1,  // 6: anychat.user.UserService.UpdateProfile:input_type -> anychat.user.UpdateProfileRequest
-	3,  // 7: anychat.user.UserService.GetUserInfo:input_type -> anychat.user.GetUserInfoRequest
-	5,  // 8: anychat.user.UserService.SearchUsers:input_type -> anychat.user.SearchUsersRequest
-	8,  // 9: anychat.user.UserService.GetSettings:input_type -> anychat.user.GetSettingsRequest
-	9,  // 10: anychat.user.UserService.UpdateSettings:input_type -> anychat.user.UpdateSettingsRequest
-	11, // 11: anychat.user.UserService.RefreshQRCode:input_type -> anychat.user.RefreshQRCodeRequest
-	13, // 12: anychat.user.UserService.GetUserByQRCode:input_type -> anychat.user.GetUserByQRCodeRequest
-	14, // 13: anychat.user.UserService.UpdatePushToken:input_type -> anychat.user.UpdatePushTokenRequest
-	15, // 14: anychat.user.UserService.BindPhone:input_type -> anychat.user.BindPhoneRequest
-	17, // 15: anychat.user.UserService.ChangePhone:input_type -> anychat.user.ChangePhoneRequest
-	19, // 16: anychat.user.UserService.BindEmail:input_type -> anychat.user.BindEmailRequest
-	21, // 17: anychat.user.UserService.ChangeEmail:input_type -> anychat.user.ChangeEmailRequest
-	23, // 18: anychat.user.UserService.InitUserData:input_type -> anychat.user.InitUserDataRequest
-	2,  // 19: anychat.user.UserService.GetProfile:output_type -> anychat.user.UserProfileResponse
-	2,  // 20: anychat.user.UserService.UpdateProfile:output_type -> anychat.user.UserProfileResponse
-	4,  // 21: anychat.user.UserService.GetUserInfo:output_type -> anychat.user.UserInfoResponse
-	6,  // 22: anychat.user.UserService.SearchUsers:output_type -> anychat.user.SearchUsersResponse
-	10, // 23: anychat.user.UserService.GetSettings:output_type -> anychat.user.UserSettingsResponse
-	10, // 24: anychat.user.UserService.UpdateSettings:output_type -> anychat.user.UserSettingsResponse
-	12, // 25: anychat.user.UserService.RefreshQRCode:output_type -> anychat.user.QRCodeResponse
-	4,  // 26: anychat.user.UserService.GetUserByQRCode:output_type -> anychat.user.UserInfoResponse
-	25, // 27: anychat.user.UserService.UpdatePushToken:output_type -> anychat.common.Empty
-	16, // 28: anychat.user.UserService.BindPhone:output_type -> anychat.user.BindPhoneResponse
-	18, // 29: anychat.user.UserService.ChangePhone:output_type -> anychat.user.ChangePhoneResponse
-	20, // 30: anychat.user.UserService.BindEmail:output_type -> anychat.user.BindEmailResponse
-	22, // 31: anychat.user.UserService.ChangeEmail:output_type -> anychat.user.ChangeEmailResponse
-	25, // 32: anychat.user.UserService.InitUserData:output_type -> anychat.common.Empty
-	19, // [19:33] is the sub-list for method output_type
-	5,  // [5:19] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	25, // 0: anychat.user.UpdateProfileRequest.birthday:type_name -> google.protobuf.Timestamp
+	25, // 1: anychat.user.UserProfileResponse.birthday:type_name -> google.protobuf.Timestamp
+	25, // 2: anychat.user.UserProfileResponse.created_at:type_name -> google.protobuf.Timestamp
+	8,  // 3: anychat.user.SearchUsersResponse.users:type_name -> anychat.user.UserBriefInfo
+	25, // 4: anychat.user.QRCodeResponse.expires_at:type_name -> google.protobuf.Timestamp
+	0,  // 5: anychat.user.UpdatePushTokenRequest.platform:type_name -> anychat.user.PushPlatform
+	1,  // 6: anychat.user.UserService.GetProfile:input_type -> anychat.user.GetProfileRequest
+	2,  // 7: anychat.user.UserService.UpdateProfile:input_type -> anychat.user.UpdateProfileRequest
+	4,  // 8: anychat.user.UserService.GetUserInfo:input_type -> anychat.user.GetUserInfoRequest
+	6,  // 9: anychat.user.UserService.SearchUsers:input_type -> anychat.user.SearchUsersRequest
+	9,  // 10: anychat.user.UserService.GetSettings:input_type -> anychat.user.GetSettingsRequest
+	10, // 11: anychat.user.UserService.UpdateSettings:input_type -> anychat.user.UpdateSettingsRequest
+	12, // 12: anychat.user.UserService.RefreshQRCode:input_type -> anychat.user.RefreshQRCodeRequest
+	14, // 13: anychat.user.UserService.GetUserByQRCode:input_type -> anychat.user.GetUserByQRCodeRequest
+	15, // 14: anychat.user.UserService.UpdatePushToken:input_type -> anychat.user.UpdatePushTokenRequest
+	16, // 15: anychat.user.UserService.BindPhone:input_type -> anychat.user.BindPhoneRequest
+	18, // 16: anychat.user.UserService.ChangePhone:input_type -> anychat.user.ChangePhoneRequest
+	20, // 17: anychat.user.UserService.BindEmail:input_type -> anychat.user.BindEmailRequest
+	22, // 18: anychat.user.UserService.ChangeEmail:input_type -> anychat.user.ChangeEmailRequest
+	24, // 19: anychat.user.UserService.InitUserData:input_type -> anychat.user.InitUserDataRequest
+	3,  // 20: anychat.user.UserService.GetProfile:output_type -> anychat.user.UserProfileResponse
+	3,  // 21: anychat.user.UserService.UpdateProfile:output_type -> anychat.user.UserProfileResponse
+	5,  // 22: anychat.user.UserService.GetUserInfo:output_type -> anychat.user.UserInfoResponse
+	7,  // 23: anychat.user.UserService.SearchUsers:output_type -> anychat.user.SearchUsersResponse
+	11, // 24: anychat.user.UserService.GetSettings:output_type -> anychat.user.UserSettingsResponse
+	11, // 25: anychat.user.UserService.UpdateSettings:output_type -> anychat.user.UserSettingsResponse
+	13, // 26: anychat.user.UserService.RefreshQRCode:output_type -> anychat.user.QRCodeResponse
+	5,  // 27: anychat.user.UserService.GetUserByQRCode:output_type -> anychat.user.UserInfoResponse
+	26, // 28: anychat.user.UserService.UpdatePushToken:output_type -> anychat.common.Empty
+	17, // 29: anychat.user.UserService.BindPhone:output_type -> anychat.user.BindPhoneResponse
+	19, // 30: anychat.user.UserService.ChangePhone:output_type -> anychat.user.ChangePhoneResponse
+	21, // 31: anychat.user.UserService.BindEmail:output_type -> anychat.user.BindEmailResponse
+	23, // 32: anychat.user.UserService.ChangeEmail:output_type -> anychat.user.ChangeEmailResponse
+	26, // 33: anychat.user.UserService.InitUserData:output_type -> anychat.common.Empty
+	20, // [20:34] is the sub-list for method output_type
+	6,  // [6:20] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_user_user_proto_init() }
@@ -1915,13 +1971,14 @@ func file_user_user_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_user_proto_rawDesc), len(file_user_user_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_user_user_proto_goTypes,
 		DependencyIndexes: file_user_user_proto_depIdxs,
+		EnumInfos:         file_user_user_proto_enumTypes,
 		MessageInfos:      file_user_user_proto_msgTypes,
 	}.Build()
 	File_user_user_proto = out.File

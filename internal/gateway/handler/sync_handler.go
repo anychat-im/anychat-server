@@ -3,6 +3,7 @@ package handler
 import (
 	"strconv"
 
+	messagepb "github.com/anychat/server/api/proto/message"
 	syncpb "github.com/anychat/server/api/proto/sync"
 	"github.com/anychat/server/internal/gateway/client"
 	gwmiddleware "github.com/anychat/server/internal/gateway/middleware"
@@ -28,7 +29,7 @@ type syncRequest struct {
 
 type conversationSeqItem struct {
 	ConversationId   string `json:"conversation_id"`
-	ConversationType string `json:"conversation_type"`
+	ConversationType int32  `json:"conversation_type"`
 	LastSeq          int64  `json:"last_seq"`
 }
 
@@ -55,9 +56,13 @@ func (h *SyncHandler) Sync(c *gin.Context) {
 
 	pbSeqs := make([]*syncpb.ConversationSeq, 0, len(req.ConversationSeqs))
 	for _, s := range req.ConversationSeqs {
+		if s.ConversationType < int32(messagepb.ConversationType_CONVERSATION_TYPE_SINGLE) || s.ConversationType > int32(messagepb.ConversationType_CONVERSATION_TYPE_GROUP) {
+			response.ParamError(c, "conversation_type must be one of 1,2")
+			return
+		}
 		pbSeqs = append(pbSeqs, &syncpb.ConversationSeq{
 			ConversationId:   s.ConversationId,
-			ConversationType: s.ConversationType,
+			ConversationType: messagepb.ConversationType(s.ConversationType),
 			LastSeq:          s.LastSeq,
 		})
 	}
@@ -112,9 +117,13 @@ func (h *SyncHandler) SyncMessages(c *gin.Context) {
 
 	pbSeqs := make([]*syncpb.ConversationSeq, 0, len(req.ConversationSeqs))
 	for _, s := range req.ConversationSeqs {
+		if s.ConversationType < int32(messagepb.ConversationType_CONVERSATION_TYPE_SINGLE) || s.ConversationType > int32(messagepb.ConversationType_CONVERSATION_TYPE_GROUP) {
+			response.ParamError(c, "conversation_type must be one of 1,2")
+			return
+		}
 		pbSeqs = append(pbSeqs, &syncpb.ConversationSeq{
 			ConversationId:   s.ConversationId,
-			ConversationType: s.ConversationType,
+			ConversationType: messagepb.ConversationType(s.ConversationType),
 			LastSeq:          s.LastSeq,
 		})
 	}

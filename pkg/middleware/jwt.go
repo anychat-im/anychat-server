@@ -73,10 +73,19 @@ func GetDeviceID(c *gin.Context) string {
 }
 
 // GetDeviceType retrieves device type from context
-func GetDeviceType(c *gin.Context) string {
+func GetDeviceType(c *gin.Context) int16 {
 	deviceType, exists := c.Get(DeviceTypeKey)
 	if !exists {
-		return ""
+		return 0
 	}
-	return deviceType.(string)
+	switch v := deviceType.(type) {
+	case int16:
+		return v
+	case int32:
+		return int16(v)
+	case int:
+		return int16(v)
+	default:
+		return 0
+	}
 }

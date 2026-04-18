@@ -47,7 +47,7 @@ sequenceDiagram
 message LoginRequest {
     string account = 1;          // 账号(手机号/邮箱/用户名)
     string password = 2;        // 密码
-    string device_type = 3;     // 设备类型 (iOS/Android/Web)
+    DeviceType device_type = 3; // 设备类型: 1-ios 2-android 3-web 4-pc 5-h5
     string device_id = 4;       // 设备ID
     string client_version = 5;  // 客户端版本号，用于客户端升级判断
     string ip_address = 6;      // 客户端IP地址

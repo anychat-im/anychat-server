@@ -4,8 +4,8 @@ CREATE TABLE IF NOT EXISTS call_sessions (
     call_id      VARCHAR(36)  NOT NULL UNIQUE,
     caller_id    VARCHAR(36)  NOT NULL,
     callee_id    VARCHAR(36)  NOT NULL,
-    call_type    VARCHAR(10)  NOT NULL DEFAULT 'audio',  -- audio/video
-    status       VARCHAR(20)  NOT NULL DEFAULT 'ringing', -- ringing/connected/ended/rejected/missed/cancelled
+    call_type    SMALLINT     NOT NULL DEFAULT 0,  -- 0-audio/1-video
+    status       SMALLINT     NOT NULL DEFAULT 0,  -- 0-ringing/1-connected/2-ended/3-rejected/4-missed/5-cancelled
     room_name    VARCHAR(100) NOT NULL,
     started_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     connected_at TIMESTAMP,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS meeting_rooms (
     room_name        VARCHAR(100) NOT NULL UNIQUE,  -- LiveKit Room name
     password_hash    VARCHAR(200),                  -- Optional password hash
     max_participants INT          NOT NULL DEFAULT 0,
-    status           VARCHAR(20)  NOT NULL DEFAULT 'active',  -- active/ended
+    status           SMALLINT     NOT NULL DEFAULT 0,  -- 0-active/1-ended
     started_at       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at         TIMESTAMP,
     created_at       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,

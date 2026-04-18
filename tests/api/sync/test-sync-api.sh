@@ -95,7 +95,7 @@ setup_user() {
     local reg_resp
     reg_resp=$(curl -s -w "\n%{http_code}" -X POST "${API_BASE}/auth/register" \
         -H "Content-Type: application/json" \
-        -d "{\"email\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"SyncTestUser\",\"deviceId\":\"${TEST_DEVICE_ID}\",\"deviceType\":\"Web\",\"clientVersion\":\"1.0.0\"}")
+        -d "{\"email\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASSWORD}\",\"verify_code\":\"123456\",\"nickname\":\"SyncTestUser\",\"device_id\":\"${TEST_DEVICE_ID}\",\"device_type\":3,\"client_version\":\"1.0.0\"}")
     local reg_status
     reg_status=$(echo "$reg_resp" | tail -1)
     local reg_body
@@ -110,7 +110,7 @@ setup_user() {
     local login_resp
     login_resp=$(curl -s -w "\n%{http_code}" -X POST "${API_BASE}/auth/login" \
         -H "Content-Type: application/json" \
-        -d "{\"account\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASSWORD}\",\"deviceId\":\"${TEST_DEVICE_ID}\",\"deviceType\":\"Web\",\"clientVersion\":\"1.0.0\"}")
+        -d "{\"account\":\"${TEST_EMAIL}\",\"password\":\"${TEST_PASSWORD}\",\"device_id\":\"${TEST_DEVICE_ID}\",\"device_type\":3,\"client_version\":\"1.0.0\"}")
     local login_status
     login_status=$(echo "$login_resp" | tail -1)
     local login_body
@@ -121,10 +121,10 @@ setup_user() {
         exit 1
     fi
 
-    USER_TOKEN=$(echo "$login_body" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['data']['accessToken'])" 2>/dev/null || \
-                 echo "$login_body" | grep -o '"accessToken":"[^"]*"' | head -1 | cut -d'"' -f4)
-    USER_ID=$(echo "$login_body" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['data']['userId'])" 2>/dev/null || \
-              echo "$login_body" | grep -o '"userId":"[^"]*"' | head -1 | cut -d'"' -f4)
+    USER_TOKEN=$(echo "$login_body" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('data', {}).get('access_token') or d.get('data', {}).get('accessToken') or '')" 2>/dev/null || \
+                 echo "$login_body" | grep -oE '\"(access_token|accessToken)\":\"[^\"]*\"' | head -1 | cut -d'"' -f4)
+    USER_ID=$(echo "$login_body" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('data', {}).get('user_id') or d.get('data', {}).get('userId') or '')" 2>/dev/null || \
+              echo "$login_body" | grep -oE '\"(user_id|userId)\":\"[^\"]*\"' | head -1 | cut -d'"' -f4)
 
     if [ -z "$USER_TOKEN" ]; then
         echo -e "${RED}Cannot get accessToken${NC}"
@@ -245,7 +245,7 @@ test_sync_with_nonexistent_conversation() {
     resp=$(curl -s -w "\n%{http_code}" -X POST "${API_BASE}/sync/messages" \
         -H "Authorization: Bearer ${USER_TOKEN}" \
         -H "Content-Type: application/json" \
-        -d '{"conversationSeqs":[{"conversationId":"nonexistent-conv-id","conversationType":"single","lastSeq":0}],"limitPerConversation":20}')
+        -d '{"conversationSeqs":[{"conversationId":"nonexistent-conv-id","conversationType":1,"lastSeq":0}],"limitPerConversation":20}')
     local status
     status=$(echo "$resp" | tail -1)
     local body

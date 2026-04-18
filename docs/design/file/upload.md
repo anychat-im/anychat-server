@@ -88,7 +88,7 @@ sequenceDiagram
 ```protobuf
 message GenerateUploadTokenRequest {
     string user_id = 1;
-    string file_type = 2; // avatar/image/video/voice/file
+    int32 file_type = 2; // 1-image/2-video/3-audio/4-file/5-log
     string file_name = 3;
     int64 file_size = 4;
 }

@@ -22,12 +22,174 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type Platform int32
+
+const (
+	Platform_PLATFORM_UNSPECIFIED Platform = 0
+	Platform_PLATFORM_IOS         Platform = 1
+	Platform_PLATFORM_ANDROID     Platform = 2
+	Platform_PLATFORM_PC          Platform = 3
+	Platform_PLATFORM_WEB         Platform = 4
+	Platform_PLATFORM_H5          Platform = 5
+)
+
+// Enum value maps for Platform.
+var (
+	Platform_name = map[int32]string{
+		0: "PLATFORM_UNSPECIFIED",
+		1: "PLATFORM_IOS",
+		2: "PLATFORM_ANDROID",
+		3: "PLATFORM_PC",
+		4: "PLATFORM_WEB",
+		5: "PLATFORM_H5",
+	}
+	Platform_value = map[string]int32{
+		"PLATFORM_UNSPECIFIED": 0,
+		"PLATFORM_IOS":         1,
+		"PLATFORM_ANDROID":     2,
+		"PLATFORM_PC":          3,
+		"PLATFORM_WEB":         4,
+		"PLATFORM_H5":          5,
+	}
+)
+
+func (x Platform) Enum() *Platform {
+	p := new(Platform)
+	*p = x
+	return p
+}
+
+func (x Platform) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Platform) Descriptor() protoreflect.EnumDescriptor {
+	return file_version_version_proto_enumTypes[0].Descriptor()
+}
+
+func (Platform) Type() protoreflect.EnumType {
+	return &file_version_version_proto_enumTypes[0]
+}
+
+func (x Platform) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Platform.Descriptor instead.
+func (Platform) EnumDescriptor() ([]byte, []int) {
+	return file_version_version_proto_rawDescGZIP(), []int{0}
+}
+
+type ReleaseType int32
+
+const (
+	ReleaseType_RELEASE_TYPE_UNSPECIFIED ReleaseType = 0
+	ReleaseType_RELEASE_TYPE_STABLE      ReleaseType = 1
+	ReleaseType_RELEASE_TYPE_BETA        ReleaseType = 2
+	ReleaseType_RELEASE_TYPE_ALPHA       ReleaseType = 3
+)
+
+// Enum value maps for ReleaseType.
+var (
+	ReleaseType_name = map[int32]string{
+		0: "RELEASE_TYPE_UNSPECIFIED",
+		1: "RELEASE_TYPE_STABLE",
+		2: "RELEASE_TYPE_BETA",
+		3: "RELEASE_TYPE_ALPHA",
+	}
+	ReleaseType_value = map[string]int32{
+		"RELEASE_TYPE_UNSPECIFIED": 0,
+		"RELEASE_TYPE_STABLE":      1,
+		"RELEASE_TYPE_BETA":        2,
+		"RELEASE_TYPE_ALPHA":       3,
+	}
+)
+
+func (x ReleaseType) Enum() *ReleaseType {
+	p := new(ReleaseType)
+	*p = x
+	return p
+}
+
+func (x ReleaseType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ReleaseType) Descriptor() protoreflect.EnumDescriptor {
+	return file_version_version_proto_enumTypes[1].Descriptor()
+}
+
+func (ReleaseType) Type() protoreflect.EnumType {
+	return &file_version_version_proto_enumTypes[1]
+}
+
+func (x ReleaseType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ReleaseType.Descriptor instead.
+func (ReleaseType) EnumDescriptor() ([]byte, []int) {
+	return file_version_version_proto_rawDescGZIP(), []int{1}
+}
+
+type VersionStatus int32
+
+const (
+	VersionStatus_VERSION_STATUS_UNSPECIFIED VersionStatus = 0
+	VersionStatus_VERSION_STATUS_DRAFT       VersionStatus = 1
+	VersionStatus_VERSION_STATUS_PUBLISHED   VersionStatus = 2
+	VersionStatus_VERSION_STATUS_ARCHIVED    VersionStatus = 3
+)
+
+// Enum value maps for VersionStatus.
+var (
+	VersionStatus_name = map[int32]string{
+		0: "VERSION_STATUS_UNSPECIFIED",
+		1: "VERSION_STATUS_DRAFT",
+		2: "VERSION_STATUS_PUBLISHED",
+		3: "VERSION_STATUS_ARCHIVED",
+	}
+	VersionStatus_value = map[string]int32{
+		"VERSION_STATUS_UNSPECIFIED": 0,
+		"VERSION_STATUS_DRAFT":       1,
+		"VERSION_STATUS_PUBLISHED":   2,
+		"VERSION_STATUS_ARCHIVED":    3,
+	}
+)
+
+func (x VersionStatus) Enum() *VersionStatus {
+	p := new(VersionStatus)
+	*p = x
+	return p
+}
+
+func (x VersionStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (VersionStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_version_version_proto_enumTypes[2].Descriptor()
+}
+
+func (VersionStatus) Type() protoreflect.EnumType {
+	return &file_version_version_proto_enumTypes[2]
+}
+
+func (x VersionStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use VersionStatus.Descriptor instead.
+func (VersionStatus) EnumDescriptor() ([]byte, []int) {
+	return file_version_version_proto_rawDescGZIP(), []int{2}
+}
+
 // CheckVersionRequest 版本检测请求
 type CheckVersionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Platform      string                 `protobuf:"bytes,1,opt,name=platform,proto3" json:"platform,omitempty"`                           // 平台: ios/android/pc/web/h5
-	Version       string                 `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`                             // 当前版本号，如 1.0.0
-	BuildNumber   int32                  `protobuf:"varint,3,opt,name=build_number,json=buildNumber,proto3" json:"build_number,omitempty"` // 构建号（iOS/Android）
+	Platform      Platform               `protobuf:"varint,1,opt,name=platform,proto3,enum=anychat.version.Platform" json:"platform,omitempty"` // 平台
+	Version       string                 `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`                                  // 当前版本号，如 1.0.0
+	BuildNumber   int32                  `protobuf:"varint,3,opt,name=build_number,json=buildNumber,proto3" json:"build_number,omitempty"`      // 构建号（iOS/Android）
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -62,11 +224,11 @@ func (*CheckVersionRequest) Descriptor() ([]byte, []int) {
 	return file_version_version_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CheckVersionRequest) GetPlatform() string {
+func (x *CheckVersionRequest) GetPlatform() Platform {
 	if x != nil {
 		return x.Platform
 	}
-	return ""
+	return Platform_PLATFORM_UNSPECIFIED
 }
 
 func (x *CheckVersionRequest) GetVersion() string {
@@ -256,8 +418,8 @@ func (x *UpdateInfo) GetFileHash() string {
 // GetLatestVersionRequest 获取最新版本请求
 type GetLatestVersionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Platform      string                 `protobuf:"bytes,1,opt,name=platform,proto3" json:"platform,omitempty"`
-	ReleaseType   string                 `protobuf:"bytes,2,opt,name=release_type,json=releaseType,proto3" json:"release_type,omitempty"` // stable/beta/alpha
+	Platform      Platform               `protobuf:"varint,1,opt,name=platform,proto3,enum=anychat.version.Platform" json:"platform,omitempty"`
+	ReleaseType   ReleaseType            `protobuf:"varint,2,opt,name=release_type,json=releaseType,proto3,enum=anychat.version.ReleaseType" json:"release_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -292,18 +454,18 @@ func (*GetLatestVersionRequest) Descriptor() ([]byte, []int) {
 	return file_version_version_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetLatestVersionRequest) GetPlatform() string {
+func (x *GetLatestVersionRequest) GetPlatform() Platform {
 	if x != nil {
 		return x.Platform
 	}
-	return ""
+	return Platform_PLATFORM_UNSPECIFIED
 }
 
-func (x *GetLatestVersionRequest) GetReleaseType() string {
+func (x *GetLatestVersionRequest) GetReleaseType() ReleaseType {
 	if x != nil {
 		return x.ReleaseType
 	}
-	return ""
+	return ReleaseType_RELEASE_TYPE_UNSPECIFIED
 }
 
 // GetLatestVersionResponse 获取最新版本响应
@@ -355,14 +517,15 @@ func (x *GetLatestVersionResponse) GetVersion() *VersionInfo {
 type VersionInfo struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Platform       string                 `protobuf:"bytes,2,opt,name=platform,proto3" json:"platform,omitempty"`
+	Platform       Platform               `protobuf:"varint,2,opt,name=platform,proto3,enum=anychat.version.Platform" json:"platform,omitempty"`
 	Version        string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
 	BuildNumber    int32                  `protobuf:"varint,4,opt,name=build_number,json=buildNumber,proto3" json:"build_number,omitempty"`
 	VersionCode    int32                  `protobuf:"varint,5,opt,name=version_code,json=versionCode,proto3" json:"version_code,omitempty"`
 	MinVersion     string                 `protobuf:"bytes,6,opt,name=min_version,json=minVersion,proto3" json:"min_version,omitempty"`
 	MinBuildNumber int32                  `protobuf:"varint,7,opt,name=min_build_number,json=minBuildNumber,proto3" json:"min_build_number,omitempty"`
 	ForceUpdate    bool                   `protobuf:"varint,8,opt,name=force_update,json=forceUpdate,proto3" json:"force_update,omitempty"`
-	ReleaseType    string                 `protobuf:"bytes,9,opt,name=release_type,json=releaseType,proto3" json:"release_type,omitempty"`
+	ReleaseType    ReleaseType            `protobuf:"varint,9,opt,name=release_type,json=releaseType,proto3,enum=anychat.version.ReleaseType" json:"release_type,omitempty"`
+	Status         VersionStatus          `protobuf:"varint,16,opt,name=status,proto3,enum=anychat.version.VersionStatus" json:"status,omitempty"`
 	Title          string                 `protobuf:"bytes,10,opt,name=title,proto3" json:"title,omitempty"`
 	Content        string                 `protobuf:"bytes,11,opt,name=content,proto3" json:"content,omitempty"`
 	DownloadUrl    string                 `protobuf:"bytes,12,opt,name=download_url,json=downloadUrl,proto3" json:"download_url,omitempty"`
@@ -410,11 +573,11 @@ func (x *VersionInfo) GetId() int64 {
 	return 0
 }
 
-func (x *VersionInfo) GetPlatform() string {
+func (x *VersionInfo) GetPlatform() Platform {
 	if x != nil {
 		return x.Platform
 	}
-	return ""
+	return Platform_PLATFORM_UNSPECIFIED
 }
 
 func (x *VersionInfo) GetVersion() string {
@@ -459,11 +622,18 @@ func (x *VersionInfo) GetForceUpdate() bool {
 	return false
 }
 
-func (x *VersionInfo) GetReleaseType() string {
+func (x *VersionInfo) GetReleaseType() ReleaseType {
 	if x != nil {
 		return x.ReleaseType
 	}
-	return ""
+	return ReleaseType_RELEASE_TYPE_UNSPECIFIED
+}
+
+func (x *VersionInfo) GetStatus() VersionStatus {
+	if x != nil {
+		return x.Status
+	}
+	return VersionStatus_VERSION_STATUS_UNSPECIFIED
 }
 
 func (x *VersionInfo) GetTitle() string {
@@ -511,8 +681,8 @@ func (x *VersionInfo) GetPublishedAt() string {
 // ListVersionsRequest 获取版本列表请求
 type ListVersionsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Platform      string                 `protobuf:"bytes,1,opt,name=platform,proto3" json:"platform,omitempty"`
-	ReleaseType   string                 `protobuf:"bytes,2,opt,name=release_type,json=releaseType,proto3" json:"release_type,omitempty"`
+	Platform      Platform               `protobuf:"varint,1,opt,name=platform,proto3,enum=anychat.version.Platform" json:"platform,omitempty"`
+	ReleaseType   ReleaseType            `protobuf:"varint,2,opt,name=release_type,json=releaseType,proto3,enum=anychat.version.ReleaseType" json:"release_type,omitempty"`
 	Page          int32                  `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
 	PageSize      int32                  `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -549,18 +719,18 @@ func (*ListVersionsRequest) Descriptor() ([]byte, []int) {
 	return file_version_version_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *ListVersionsRequest) GetPlatform() string {
+func (x *ListVersionsRequest) GetPlatform() Platform {
 	if x != nil {
 		return x.Platform
 	}
-	return ""
+	return Platform_PLATFORM_UNSPECIFIED
 }
 
-func (x *ListVersionsRequest) GetReleaseType() string {
+func (x *ListVersionsRequest) GetReleaseType() ReleaseType {
 	if x != nil {
 		return x.ReleaseType
 	}
-	return ""
+	return ReleaseType_RELEASE_TYPE_UNSPECIFIED
 }
 
 func (x *ListVersionsRequest) GetPage() int32 {
@@ -633,14 +803,14 @@ func (x *ListVersionsResponse) GetVersions() []*VersionInfo {
 // CreateVersionRequest 创建版本请求
 type CreateVersionRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Platform       string                 `protobuf:"bytes,1,opt,name=platform,proto3" json:"platform,omitempty"`
+	Platform       Platform               `protobuf:"varint,1,opt,name=platform,proto3,enum=anychat.version.Platform" json:"platform,omitempty"`
 	Version        string                 `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
 	BuildNumber    int32                  `protobuf:"varint,3,opt,name=build_number,json=buildNumber,proto3" json:"build_number,omitempty"`
 	VersionCode    int32                  `protobuf:"varint,4,opt,name=version_code,json=versionCode,proto3" json:"version_code,omitempty"`
 	MinVersion     string                 `protobuf:"bytes,5,opt,name=min_version,json=minVersion,proto3" json:"min_version,omitempty"`
 	MinBuildNumber int32                  `protobuf:"varint,6,opt,name=min_build_number,json=minBuildNumber,proto3" json:"min_build_number,omitempty"`
 	ForceUpdate    bool                   `protobuf:"varint,7,opt,name=force_update,json=forceUpdate,proto3" json:"force_update,omitempty"`
-	ReleaseType    string                 `protobuf:"bytes,8,opt,name=release_type,json=releaseType,proto3" json:"release_type,omitempty"`
+	ReleaseType    ReleaseType            `protobuf:"varint,8,opt,name=release_type,json=releaseType,proto3,enum=anychat.version.ReleaseType" json:"release_type,omitempty"`
 	Title          string                 `protobuf:"bytes,9,opt,name=title,proto3" json:"title,omitempty"`
 	Content        string                 `protobuf:"bytes,10,opt,name=content,proto3" json:"content,omitempty"`
 	DownloadUrl    string                 `protobuf:"bytes,11,opt,name=download_url,json=downloadUrl,proto3" json:"download_url,omitempty"`
@@ -680,11 +850,11 @@ func (*CreateVersionRequest) Descriptor() ([]byte, []int) {
 	return file_version_version_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *CreateVersionRequest) GetPlatform() string {
+func (x *CreateVersionRequest) GetPlatform() Platform {
 	if x != nil {
 		return x.Platform
 	}
-	return ""
+	return Platform_PLATFORM_UNSPECIFIED
 }
 
 func (x *CreateVersionRequest) GetVersion() string {
@@ -729,11 +899,11 @@ func (x *CreateVersionRequest) GetForceUpdate() bool {
 	return false
 }
 
-func (x *CreateVersionRequest) GetReleaseType() string {
+func (x *CreateVersionRequest) GetReleaseType() ReleaseType {
 	if x != nil {
 		return x.ReleaseType
 	}
-	return ""
+	return ReleaseType_RELEASE_TYPE_UNSPECIFIED
 }
 
 func (x *CreateVersionRequest) GetTitle() string {
@@ -775,7 +945,7 @@ func (x *CreateVersionRequest) GetFileHash() string {
 type CreateVersionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Platform      string                 `protobuf:"bytes,2,opt,name=platform,proto3" json:"platform,omitempty"`
+	Platform      Platform               `protobuf:"varint,2,opt,name=platform,proto3,enum=anychat.version.Platform" json:"platform,omitempty"`
 	Version       string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -818,11 +988,11 @@ func (x *CreateVersionResponse) GetId() int64 {
 	return 0
 }
 
-func (x *CreateVersionResponse) GetPlatform() string {
+func (x *CreateVersionResponse) GetPlatform() Platform {
 	if x != nil {
 		return x.Platform
 	}
-	return ""
+	return Platform_PLATFORM_UNSPECIFIED
 }
 
 func (x *CreateVersionResponse) GetVersion() string {
@@ -970,7 +1140,7 @@ func (x *DeleteVersionRequest) GetId() int64 {
 // ReportVersionRequest 上报版本请求
 type ReportVersionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Platform      string                 `protobuf:"bytes,1,opt,name=platform,proto3" json:"platform,omitempty"`
+	Platform      Platform               `protobuf:"varint,1,opt,name=platform,proto3,enum=anychat.version.Platform" json:"platform,omitempty"`
 	Version       string                 `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
 	BuildNumber   int32                  `protobuf:"varint,3,opt,name=build_number,json=buildNumber,proto3" json:"build_number,omitempty"`
 	DeviceId      string                 `protobuf:"bytes,4,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
@@ -1010,11 +1180,11 @@ func (*ReportVersionRequest) Descriptor() ([]byte, []int) {
 	return file_version_version_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *ReportVersionRequest) GetPlatform() string {
+func (x *ReportVersionRequest) GetPlatform() Platform {
 	if x != nil {
 		return x.Platform
 	}
-	return ""
+	return Platform_PLATFORM_UNSPECIFIED
 }
 
 func (x *ReportVersionRequest) GetVersion() string {
@@ -1056,9 +1226,9 @@ var File_version_version_proto protoreflect.FileDescriptor
 
 const file_version_version_proto_rawDesc = "" +
 	"\n" +
-	"\x15version/version.proto\x12\x0fanychat.version\x1a\x13common/common.proto\"n\n" +
-	"\x13CheckVersionRequest\x12\x1a\n" +
-	"\bplatform\x18\x01 \x01(\tR\bplatform\x12\x18\n" +
+	"\x15version/version.proto\x12\x0fanychat.version\x1a\x13common/common.proto\"\x89\x01\n" +
+	"\x13CheckVersionRequest\x125\n" +
+	"\bplatform\x18\x01 \x01(\x0e2\x19.anychat.version.PlatformR\bplatform\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12!\n" +
 	"\fbuild_number\x18\x03 \x01(\x05R\vbuildNumber\"\xb8\x02\n" +
 	"\x14CheckVersionResponse\x12\x1d\n" +
@@ -1078,73 +1248,91 @@ const file_version_version_proto_rawDesc = "" +
 	"\acontent\x18\x02 \x01(\tR\acontent\x12!\n" +
 	"\fdownload_url\x18\x03 \x01(\tR\vdownloadUrl\x12\x1b\n" +
 	"\tfile_size\x18\x04 \x01(\x03R\bfileSize\x12\x1b\n" +
-	"\tfile_hash\x18\x05 \x01(\tR\bfileHash\"X\n" +
-	"\x17GetLatestVersionRequest\x12\x1a\n" +
-	"\bplatform\x18\x01 \x01(\tR\bplatform\x12!\n" +
-	"\frelease_type\x18\x02 \x01(\tR\vreleaseType\"R\n" +
+	"\tfile_hash\x18\x05 \x01(\tR\bfileHash\"\x91\x01\n" +
+	"\x17GetLatestVersionRequest\x125\n" +
+	"\bplatform\x18\x01 \x01(\x0e2\x19.anychat.version.PlatformR\bplatform\x12?\n" +
+	"\frelease_type\x18\x02 \x01(\x0e2\x1c.anychat.version.ReleaseTypeR\vreleaseType\"R\n" +
 	"\x18GetLatestVersionResponse\x126\n" +
-	"\aversion\x18\x01 \x01(\v2\x1c.anychat.version.VersionInfoR\aversion\"\xda\x03\n" +
+	"\aversion\x18\x01 \x01(\v2\x1c.anychat.version.VersionInfoR\aversion\"\xcb\x04\n" +
 	"\vVersionInfo\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1a\n" +
-	"\bplatform\x18\x02 \x01(\tR\bplatform\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x125\n" +
+	"\bplatform\x18\x02 \x01(\x0e2\x19.anychat.version.PlatformR\bplatform\x12\x18\n" +
 	"\aversion\x18\x03 \x01(\tR\aversion\x12!\n" +
 	"\fbuild_number\x18\x04 \x01(\x05R\vbuildNumber\x12!\n" +
 	"\fversion_code\x18\x05 \x01(\x05R\vversionCode\x12\x1f\n" +
 	"\vmin_version\x18\x06 \x01(\tR\n" +
 	"minVersion\x12(\n" +
 	"\x10min_build_number\x18\a \x01(\x05R\x0eminBuildNumber\x12!\n" +
-	"\fforce_update\x18\b \x01(\bR\vforceUpdate\x12!\n" +
-	"\frelease_type\x18\t \x01(\tR\vreleaseType\x12\x14\n" +
+	"\fforce_update\x18\b \x01(\bR\vforceUpdate\x12?\n" +
+	"\frelease_type\x18\t \x01(\x0e2\x1c.anychat.version.ReleaseTypeR\vreleaseType\x126\n" +
+	"\x06status\x18\x10 \x01(\x0e2\x1e.anychat.version.VersionStatusR\x06status\x12\x14\n" +
 	"\x05title\x18\n" +
 	" \x01(\tR\x05title\x12\x18\n" +
 	"\acontent\x18\v \x01(\tR\acontent\x12!\n" +
 	"\fdownload_url\x18\f \x01(\tR\vdownloadUrl\x12\x1b\n" +
 	"\tfile_size\x18\r \x01(\x03R\bfileSize\x12\x1b\n" +
 	"\tfile_hash\x18\x0e \x01(\tR\bfileHash\x12!\n" +
-	"\fpublished_at\x18\x0f \x01(\tR\vpublishedAt\"\x85\x01\n" +
-	"\x13ListVersionsRequest\x12\x1a\n" +
-	"\bplatform\x18\x01 \x01(\tR\bplatform\x12!\n" +
-	"\frelease_type\x18\x02 \x01(\tR\vreleaseType\x12\x12\n" +
+	"\fpublished_at\x18\x0f \x01(\tR\vpublishedAt\"\xbe\x01\n" +
+	"\x13ListVersionsRequest\x125\n" +
+	"\bplatform\x18\x01 \x01(\x0e2\x19.anychat.version.PlatformR\bplatform\x12?\n" +
+	"\frelease_type\x18\x02 \x01(\x0e2\x1c.anychat.version.ReleaseTypeR\vreleaseType\x12\x12\n" +
 	"\x04page\x18\x03 \x01(\x05R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"f\n" +
 	"\x14ListVersionsResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x05R\x05total\x128\n" +
-	"\bversions\x18\x02 \x03(\v2\x1c.anychat.version.VersionInfoR\bversions\"\xb0\x03\n" +
-	"\x14CreateVersionRequest\x12\x1a\n" +
-	"\bplatform\x18\x01 \x01(\tR\bplatform\x12\x18\n" +
+	"\bversions\x18\x02 \x03(\v2\x1c.anychat.version.VersionInfoR\bversions\"\xe9\x03\n" +
+	"\x14CreateVersionRequest\x125\n" +
+	"\bplatform\x18\x01 \x01(\x0e2\x19.anychat.version.PlatformR\bplatform\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12!\n" +
 	"\fbuild_number\x18\x03 \x01(\x05R\vbuildNumber\x12!\n" +
 	"\fversion_code\x18\x04 \x01(\x05R\vversionCode\x12\x1f\n" +
 	"\vmin_version\x18\x05 \x01(\tR\n" +
 	"minVersion\x12(\n" +
 	"\x10min_build_number\x18\x06 \x01(\x05R\x0eminBuildNumber\x12!\n" +
-	"\fforce_update\x18\a \x01(\bR\vforceUpdate\x12!\n" +
-	"\frelease_type\x18\b \x01(\tR\vreleaseType\x12\x14\n" +
+	"\fforce_update\x18\a \x01(\bR\vforceUpdate\x12?\n" +
+	"\frelease_type\x18\b \x01(\x0e2\x1c.anychat.version.ReleaseTypeR\vreleaseType\x12\x14\n" +
 	"\x05title\x18\t \x01(\tR\x05title\x12\x18\n" +
 	"\acontent\x18\n" +
 	" \x01(\tR\acontent\x12!\n" +
 	"\fdownload_url\x18\v \x01(\tR\vdownloadUrl\x12\x1b\n" +
 	"\tfile_size\x18\f \x01(\x03R\bfileSize\x12\x1b\n" +
-	"\tfile_hash\x18\r \x01(\tR\bfileHash\"]\n" +
+	"\tfile_hash\x18\r \x01(\tR\bfileHash\"x\n" +
 	"\x15CreateVersionResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1a\n" +
-	"\bplatform\x18\x02 \x01(\tR\bplatform\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x125\n" +
+	"\bplatform\x18\x02 \x01(\x0e2\x19.anychat.version.PlatformR\bplatform\x12\x18\n" +
 	"\aversion\x18\x03 \x01(\tR\aversion\"#\n" +
 	"\x11GetVersionRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"L\n" +
 	"\x12GetVersionResponse\x126\n" +
 	"\aversion\x18\x01 \x01(\v2\x1c.anychat.version.VersionInfoR\aversion\"&\n" +
 	"\x14DeleteVersionRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"\xcc\x01\n" +
-	"\x14ReportVersionRequest\x12\x1a\n" +
-	"\bplatform\x18\x01 \x01(\tR\bplatform\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"\xe7\x01\n" +
+	"\x14ReportVersionRequest\x125\n" +
+	"\bplatform\x18\x01 \x01(\x0e2\x19.anychat.version.PlatformR\bplatform\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12!\n" +
 	"\fbuild_number\x18\x03 \x01(\x05R\vbuildNumber\x12\x1b\n" +
 	"\tdevice_id\x18\x04 \x01(\tR\bdeviceId\x12\x1d\n" +
 	"\n" +
 	"os_version\x18\x05 \x01(\tR\tosVersion\x12\x1f\n" +
 	"\vsdk_version\x18\x06 \x01(\tR\n" +
-	"sdkVersion2\x88\x05\n" +
+	"sdkVersion*\x80\x01\n" +
+	"\bPlatform\x12\x18\n" +
+	"\x14PLATFORM_UNSPECIFIED\x10\x00\x12\x10\n" +
+	"\fPLATFORM_IOS\x10\x01\x12\x14\n" +
+	"\x10PLATFORM_ANDROID\x10\x02\x12\x0f\n" +
+	"\vPLATFORM_PC\x10\x03\x12\x10\n" +
+	"\fPLATFORM_WEB\x10\x04\x12\x0f\n" +
+	"\vPLATFORM_H5\x10\x05*s\n" +
+	"\vReleaseType\x12\x1c\n" +
+	"\x18RELEASE_TYPE_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13RELEASE_TYPE_STABLE\x10\x01\x12\x15\n" +
+	"\x11RELEASE_TYPE_BETA\x10\x02\x12\x16\n" +
+	"\x12RELEASE_TYPE_ALPHA\x10\x03*\x84\x01\n" +
+	"\rVersionStatus\x12\x1e\n" +
+	"\x1aVERSION_STATUS_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14VERSION_STATUS_DRAFT\x10\x01\x12\x1c\n" +
+	"\x18VERSION_STATUS_PUBLISHED\x10\x02\x12\x1b\n" +
+	"\x17VERSION_STATUS_ARCHIVED\x10\x032\x88\x05\n" +
 	"\x0eVersionService\x12[\n" +
 	"\fCheckVersion\x12$.anychat.version.CheckVersionRequest\x1a%.anychat.version.CheckVersionResponse\x12g\n" +
 	"\x10GetLatestVersion\x12(.anychat.version.GetLatestVersionRequest\x1a).anychat.version.GetLatestVersionResponse\x12[\n" +
@@ -1167,48 +1355,64 @@ func file_version_version_proto_rawDescGZIP() []byte {
 	return file_version_version_proto_rawDescData
 }
 
+var file_version_version_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_version_version_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_version_version_proto_goTypes = []any{
-	(*CheckVersionRequest)(nil),      // 0: anychat.version.CheckVersionRequest
-	(*CheckVersionResponse)(nil),     // 1: anychat.version.CheckVersionResponse
-	(*UpdateInfo)(nil),               // 2: anychat.version.UpdateInfo
-	(*GetLatestVersionRequest)(nil),  // 3: anychat.version.GetLatestVersionRequest
-	(*GetLatestVersionResponse)(nil), // 4: anychat.version.GetLatestVersionResponse
-	(*VersionInfo)(nil),              // 5: anychat.version.VersionInfo
-	(*ListVersionsRequest)(nil),      // 6: anychat.version.ListVersionsRequest
-	(*ListVersionsResponse)(nil),     // 7: anychat.version.ListVersionsResponse
-	(*CreateVersionRequest)(nil),     // 8: anychat.version.CreateVersionRequest
-	(*CreateVersionResponse)(nil),    // 9: anychat.version.CreateVersionResponse
-	(*GetVersionRequest)(nil),        // 10: anychat.version.GetVersionRequest
-	(*GetVersionResponse)(nil),       // 11: anychat.version.GetVersionResponse
-	(*DeleteVersionRequest)(nil),     // 12: anychat.version.DeleteVersionRequest
-	(*ReportVersionRequest)(nil),     // 13: anychat.version.ReportVersionRequest
-	(*common.Empty)(nil),             // 14: anychat.common.Empty
+	(Platform)(0),                    // 0: anychat.version.Platform
+	(ReleaseType)(0),                 // 1: anychat.version.ReleaseType
+	(VersionStatus)(0),               // 2: anychat.version.VersionStatus
+	(*CheckVersionRequest)(nil),      // 3: anychat.version.CheckVersionRequest
+	(*CheckVersionResponse)(nil),     // 4: anychat.version.CheckVersionResponse
+	(*UpdateInfo)(nil),               // 5: anychat.version.UpdateInfo
+	(*GetLatestVersionRequest)(nil),  // 6: anychat.version.GetLatestVersionRequest
+	(*GetLatestVersionResponse)(nil), // 7: anychat.version.GetLatestVersionResponse
+	(*VersionInfo)(nil),              // 8: anychat.version.VersionInfo
+	(*ListVersionsRequest)(nil),      // 9: anychat.version.ListVersionsRequest
+	(*ListVersionsResponse)(nil),     // 10: anychat.version.ListVersionsResponse
+	(*CreateVersionRequest)(nil),     // 11: anychat.version.CreateVersionRequest
+	(*CreateVersionResponse)(nil),    // 12: anychat.version.CreateVersionResponse
+	(*GetVersionRequest)(nil),        // 13: anychat.version.GetVersionRequest
+	(*GetVersionResponse)(nil),       // 14: anychat.version.GetVersionResponse
+	(*DeleteVersionRequest)(nil),     // 15: anychat.version.DeleteVersionRequest
+	(*ReportVersionRequest)(nil),     // 16: anychat.version.ReportVersionRequest
+	(*common.Empty)(nil),             // 17: anychat.common.Empty
 }
 var file_version_version_proto_depIdxs = []int32{
-	2,  // 0: anychat.version.CheckVersionResponse.update_info:type_name -> anychat.version.UpdateInfo
-	5,  // 1: anychat.version.GetLatestVersionResponse.version:type_name -> anychat.version.VersionInfo
-	5,  // 2: anychat.version.ListVersionsResponse.versions:type_name -> anychat.version.VersionInfo
-	5,  // 3: anychat.version.GetVersionResponse.version:type_name -> anychat.version.VersionInfo
-	0,  // 4: anychat.version.VersionService.CheckVersion:input_type -> anychat.version.CheckVersionRequest
-	3,  // 5: anychat.version.VersionService.GetLatestVersion:input_type -> anychat.version.GetLatestVersionRequest
-	6,  // 6: anychat.version.VersionService.ListVersions:input_type -> anychat.version.ListVersionsRequest
-	8,  // 7: anychat.version.VersionService.CreateVersion:input_type -> anychat.version.CreateVersionRequest
-	10, // 8: anychat.version.VersionService.GetVersion:input_type -> anychat.version.GetVersionRequest
-	12, // 9: anychat.version.VersionService.DeleteVersion:input_type -> anychat.version.DeleteVersionRequest
-	13, // 10: anychat.version.VersionService.ReportVersion:input_type -> anychat.version.ReportVersionRequest
-	1,  // 11: anychat.version.VersionService.CheckVersion:output_type -> anychat.version.CheckVersionResponse
-	4,  // 12: anychat.version.VersionService.GetLatestVersion:output_type -> anychat.version.GetLatestVersionResponse
-	7,  // 13: anychat.version.VersionService.ListVersions:output_type -> anychat.version.ListVersionsResponse
-	9,  // 14: anychat.version.VersionService.CreateVersion:output_type -> anychat.version.CreateVersionResponse
-	11, // 15: anychat.version.VersionService.GetVersion:output_type -> anychat.version.GetVersionResponse
-	14, // 16: anychat.version.VersionService.DeleteVersion:output_type -> anychat.common.Empty
-	14, // 17: anychat.version.VersionService.ReportVersion:output_type -> anychat.common.Empty
-	11, // [11:18] is the sub-list for method output_type
-	4,  // [4:11] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	0,  // 0: anychat.version.CheckVersionRequest.platform:type_name -> anychat.version.Platform
+	5,  // 1: anychat.version.CheckVersionResponse.update_info:type_name -> anychat.version.UpdateInfo
+	0,  // 2: anychat.version.GetLatestVersionRequest.platform:type_name -> anychat.version.Platform
+	1,  // 3: anychat.version.GetLatestVersionRequest.release_type:type_name -> anychat.version.ReleaseType
+	8,  // 4: anychat.version.GetLatestVersionResponse.version:type_name -> anychat.version.VersionInfo
+	0,  // 5: anychat.version.VersionInfo.platform:type_name -> anychat.version.Platform
+	1,  // 6: anychat.version.VersionInfo.release_type:type_name -> anychat.version.ReleaseType
+	2,  // 7: anychat.version.VersionInfo.status:type_name -> anychat.version.VersionStatus
+	0,  // 8: anychat.version.ListVersionsRequest.platform:type_name -> anychat.version.Platform
+	1,  // 9: anychat.version.ListVersionsRequest.release_type:type_name -> anychat.version.ReleaseType
+	8,  // 10: anychat.version.ListVersionsResponse.versions:type_name -> anychat.version.VersionInfo
+	0,  // 11: anychat.version.CreateVersionRequest.platform:type_name -> anychat.version.Platform
+	1,  // 12: anychat.version.CreateVersionRequest.release_type:type_name -> anychat.version.ReleaseType
+	0,  // 13: anychat.version.CreateVersionResponse.platform:type_name -> anychat.version.Platform
+	8,  // 14: anychat.version.GetVersionResponse.version:type_name -> anychat.version.VersionInfo
+	0,  // 15: anychat.version.ReportVersionRequest.platform:type_name -> anychat.version.Platform
+	3,  // 16: anychat.version.VersionService.CheckVersion:input_type -> anychat.version.CheckVersionRequest
+	6,  // 17: anychat.version.VersionService.GetLatestVersion:input_type -> anychat.version.GetLatestVersionRequest
+	9,  // 18: anychat.version.VersionService.ListVersions:input_type -> anychat.version.ListVersionsRequest
+	11, // 19: anychat.version.VersionService.CreateVersion:input_type -> anychat.version.CreateVersionRequest
+	13, // 20: anychat.version.VersionService.GetVersion:input_type -> anychat.version.GetVersionRequest
+	15, // 21: anychat.version.VersionService.DeleteVersion:input_type -> anychat.version.DeleteVersionRequest
+	16, // 22: anychat.version.VersionService.ReportVersion:input_type -> anychat.version.ReportVersionRequest
+	4,  // 23: anychat.version.VersionService.CheckVersion:output_type -> anychat.version.CheckVersionResponse
+	7,  // 24: anychat.version.VersionService.GetLatestVersion:output_type -> anychat.version.GetLatestVersionResponse
+	10, // 25: anychat.version.VersionService.ListVersions:output_type -> anychat.version.ListVersionsResponse
+	12, // 26: anychat.version.VersionService.CreateVersion:output_type -> anychat.version.CreateVersionResponse
+	14, // 27: anychat.version.VersionService.GetVersion:output_type -> anychat.version.GetVersionResponse
+	17, // 28: anychat.version.VersionService.DeleteVersion:output_type -> anychat.common.Empty
+	17, // 29: anychat.version.VersionService.ReportVersion:output_type -> anychat.common.Empty
+	23, // [23:30] is the sub-list for method output_type
+	16, // [16:23] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_version_version_proto_init() }
@@ -1221,13 +1425,14 @@ func file_version_version_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_version_version_proto_rawDesc), len(file_version_version_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      3,
 			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_version_version_proto_goTypes,
 		DependencyIndexes: file_version_version_proto_depIdxs,
+		EnumInfos:         file_version_version_proto_enumTypes,
 		MessageInfos:      file_version_version_proto_msgTypes,
 	}.Build()
 	File_version_version_proto = out.File

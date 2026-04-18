@@ -93,7 +93,7 @@ message SendPushRequest {
     repeated string user_ids = 1;
     string title = 2;
     string content = 3;
-    string push_type = 4;
+    PushType push_type = 4;
     map<string, string> extras = 5;
 }
 
@@ -125,9 +125,9 @@ type PushLog struct {
     UserID      string    // 用户ID
     Title       string    // 推送标题
     Content     string    // 推送内容
-    PushType    string    // 推送类型
+    PushType    int16     // 推送类型: 1-message_new 2-message_mention 3-friend_request 4-group_invited 5-call_invite
     Platform    string    // 推送平台
-    Status      int       // 状态: 0-待发送 1-成功 2-失败
+    Status      int16     // 状态: 1-待发送 2-成功 3-失败
     ErrorMsg    string    // 错误信息
     CreatedAt   time.Time
 }

@@ -36,7 +36,7 @@ type FileService interface {
 	DeleteFile(ctx context.Context, fileID, userID string) error
 
 	// ListUserFiles lists user files
-	ListUserFiles(ctx context.Context, userID string, fileType *string, page, pageSize int) (*dto.ListFilesResponse, error)
+	ListUserFiles(ctx context.Context, userID string, fileType *model.FileType, page, pageSize int) (*dto.ListFilesResponse, error)
 
 	// BatchGetFileInfo batch gets file info
 	BatchGetFileInfo(ctx context.Context, fileIDs []string, userID string) ([]*dto.FileInfoResponse, error)
@@ -61,7 +61,8 @@ func NewFileService(fileRepo repository.FileRepository, minioClient *minioclient
 // GenerateUploadToken generates upload token
 func (s *fileServiceImpl) GenerateUploadToken(ctx context.Context, userID string, req *dto.GenerateUploadTokenRequest) (*dto.GenerateUploadTokenResponse, error) {
 	// validate file size
-	if err := s.validateFileSize(req.FileType, req.FileSize); err != nil {
+	reqFileType := model.FileType(req.FileType)
+	if err := s.validateFileSize(reqFileType, req.FileSize); err != nil {
 		return nil, err
 	}
 
@@ -69,7 +70,7 @@ func (s *fileServiceImpl) GenerateUploadToken(ctx context.Context, userID string
 	fileID := fmt.Sprintf("file-%s", uuid.New().String())
 
 	// determine bucket
-	bucketName := s.getBucketName(req.FileType)
+	bucketName := s.getBucketName(reqFileType)
 
 	// generate storage path: {bucket}/{user_id}/{date}/{uuid}.{ext}
 	now := time.Now()
@@ -95,7 +96,7 @@ func (s *fileServiceImpl) GenerateUploadToken(ctx context.Context, userID string
 		FileID:      fileID,
 		UserID:      userID,
 		FileName:    req.FileName,
-		FileType:    req.FileType,
+		FileType:    reqFileType,
 		FileSize:    req.FileSize,
 		MimeType:    req.MimeType,
 		StoragePath: storagePath,
@@ -245,7 +246,7 @@ func (s *fileServiceImpl) DeleteFile(ctx context.Context, fileID, userID string)
 }
 
 // ListUserFiles lists user files
-func (s *fileServiceImpl) ListUserFiles(ctx context.Context, userID string, fileType *string, page, pageSize int) (*dto.ListFilesResponse, error) {
+func (s *fileServiceImpl) ListUserFiles(ctx context.Context, userID string, fileType *model.FileType, page, pageSize int) (*dto.ListFilesResponse, error) {
 	files, total, err := s.fileRepo.ListByUserID(ctx, userID, fileType, page, pageSize)
 	if err != nil {
 		return nil, errors.NewBusiness(errors.CodeInternalError, "failed to list files")
@@ -287,7 +288,7 @@ func (s *fileServiceImpl) BatchGetFileInfo(ctx context.Context, fileIDs []string
 }
 
 // validateFileSize validates file size
-func (s *fileServiceImpl) validateFileSize(fileType string, fileSize int64) error {
+func (s *fileServiceImpl) validateFileSize(fileType model.FileType, fileSize int64) error {
 	var maxSize int64
 
 	switch fileType {
@@ -299,6 +300,8 @@ func (s *fileServiceImpl) validateFileSize(fileType string, fileSize int64) erro
 		maxSize = model.MaxAudioSize
 	case model.FileTypeFile:
 		maxSize = model.MaxFileSize
+	case model.FileTypeLog:
+		maxSize = model.MaxLogSize
 	default:
 		return errors.NewBusiness(errors.CodeFileTypeNotAllowed, "invalid file type")
 	}
@@ -311,7 +314,7 @@ func (s *fileServiceImpl) validateFileSize(fileType string, fileSize int64) erro
 }
 
 // getBucketName gets bucket name by file type
-func (s *fileServiceImpl) getBucketName(fileType string) string {
+func (s *fileServiceImpl) getBucketName(_ model.FileType) string {
 	// currently all files are stored in chat-file bucket
 	// in the future can separate by file type
 	return model.BucketChatFile
@@ -335,7 +338,7 @@ func (s *fileServiceImpl) toFileInfoResponse(file *model.File) *dto.FileInfoResp
 		FileID:        file.FileID,
 		UserID:        file.UserID,
 		FileName:      file.FileName,
-		FileType:      file.FileType,
+		FileType:      int32(file.FileType),
 		FileSize:      file.FileSize,
 		MimeType:      file.MimeType,
 		StoragePath:   file.StoragePath,

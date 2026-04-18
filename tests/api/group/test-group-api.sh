@@ -118,14 +118,14 @@ resolve_group_message_id_for_pin() {
     local i
 
     for i in $(seq 1 $retries); do
-        local sync_data="{\"conversationSeqs\":[{\"conversationId\":\"${GROUP_ID}\",\"conversationType\":\"group\",\"lastSeq\":0}],\"limitPerConversation\":20}"
+        local sync_data="{\"conversationSeqs\":[{\"conversationId\":\"${GROUP_ID}\",\"conversationType\":2,\"lastSeq\":0}],\"limitPerConversation\":20}"
         local sync_resp=$(http_post "${API_BASE}/sync/messages" "$sync_data" "$USER1_TOKEN")
         local sync_code=$(echo "$sync_resp" | jq -r '.code // empty')
 
         if [ "$sync_code" = "0" ]; then
             local message_id=$(echo "$sync_resp" | jq -r --arg gid "$GROUP_ID" '
                 .data.conversations[]?
-                | select((.conversationId // .conversation_id) == $gid and (.conversationType // .conversation_type) == "group")
+                | select((.conversationId // .conversation_id) == $gid and (.conversationType // .conversation_type) == 2)
                 | .messages[]?
                 | (.messageId // .message_id)
                 | select(. != null and . != "")
@@ -167,11 +167,11 @@ setup_test_users() {
 
     # Register user 1 (auto login after registration returns token)
     print_info "Registering user 1: ${TEST_EMAIL_1}"
-    local data1="{\"email\":\"${TEST_EMAIL_1}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"TestUser1_${TIMESTAMP}\",\"deviceType\":\"Web\",\"deviceId\":\"${TEST_DEVICE_ID}_1\",\"clientVersion\":\"1.0.0\"}"
+    local data1="{\"email\":\"${TEST_EMAIL_1}\",\"password\":\"${TEST_PASSWORD}\",\"verify_code\":\"123456\",\"nickname\":\"TestUser1_${TIMESTAMP}\",\"device_type\":3,\"device_id\":\"${TEST_DEVICE_ID}_1\",\"client_version\":\"1.0.0\"}"
     local response1=$(http_post "${API_BASE}/auth/register" "$data1")
 
-    USER1_ID=$(echo "$response1" | jq -r '.data.userId // empty')
-    USER1_TOKEN=$(echo "$response1" | jq -r '.data.accessToken // empty')
+    USER1_ID=$(echo "$response1" | jq -r '.data.user_id // .data.userId // empty')
+    USER1_TOKEN=$(echo "$response1" | jq -r '.data.access_token // .data.accessToken // empty')
 
     if [ -z "$USER1_TOKEN" ] || [ "$USER1_TOKEN" = "null" ]; then
         print_error "User 1 registration failed"
@@ -182,11 +182,11 @@ setup_test_users() {
 
     # Register user 2
     print_info "Registering user 2: ${TEST_EMAIL_2}"
-    local data2="{\"email\":\"${TEST_EMAIL_2}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"TestUser2_${TIMESTAMP}\",\"deviceType\":\"Web\",\"deviceId\":\"${TEST_DEVICE_ID}_2\",\"clientVersion\":\"1.0.0\"}"
+    local data2="{\"email\":\"${TEST_EMAIL_2}\",\"password\":\"${TEST_PASSWORD}\",\"verify_code\":\"123456\",\"nickname\":\"TestUser2_${TIMESTAMP}\",\"device_type\":3,\"device_id\":\"${TEST_DEVICE_ID}_2\",\"client_version\":\"1.0.0\"}"
     local response2=$(http_post "${API_BASE}/auth/register" "$data2")
 
-    USER2_ID=$(echo "$response2" | jq -r '.data.userId // empty')
-    USER2_TOKEN=$(echo "$response2" | jq -r '.data.accessToken // empty')
+    USER2_ID=$(echo "$response2" | jq -r '.data.user_id // .data.userId // empty')
+    USER2_TOKEN=$(echo "$response2" | jq -r '.data.access_token // .data.accessToken // empty')
 
     if [ -z "$USER2_TOKEN" ] || [ "$USER2_TOKEN" = "null" ]; then
         print_error "User 2 registration failed"
@@ -197,11 +197,11 @@ setup_test_users() {
 
     # Register user 3
     print_info "Registering user 3: ${TEST_EMAIL_3}"
-    local data3="{\"email\":\"${TEST_EMAIL_3}\",\"password\":\"${TEST_PASSWORD}\",\"verifyCode\":\"123456\",\"nickname\":\"TestUser3_${TIMESTAMP}\",\"deviceType\":\"Web\",\"deviceId\":\"${TEST_DEVICE_ID}_3\",\"clientVersion\":\"1.0.0\"}"
+    local data3="{\"email\":\"${TEST_EMAIL_3}\",\"password\":\"${TEST_PASSWORD}\",\"verify_code\":\"123456\",\"nickname\":\"TestUser3_${TIMESTAMP}\",\"device_type\":3,\"device_id\":\"${TEST_DEVICE_ID}_3\",\"client_version\":\"1.0.0\"}"
     local response3=$(http_post "${API_BASE}/auth/register" "$data3")
 
-    USER3_ID=$(echo "$response3" | jq -r '.data.userId // empty')
-    USER3_TOKEN=$(echo "$response3" | jq -r '.data.accessToken // empty')
+    USER3_ID=$(echo "$response3" | jq -r '.data.user_id // .data.userId // empty')
+    USER3_TOKEN=$(echo "$response3" | jq -r '.data.access_token // .data.accessToken // empty')
 
     if [ -z "$USER3_TOKEN" ] || [ "$USER3_TOKEN" = "null" ]; then
         print_error "User 3 registration failed"
@@ -322,7 +322,7 @@ test_invite_members() {
         return 1
     fi
 
-    local data="{\"userIds\":[\"${USER3_ID}\"]}"
+    local data="{\"user_ids\":[\"${USER3_ID}\"]}"
     local response=$(http_post "${API_BASE}/groups/${GROUP_ID}/members" "$data" "$USER1_TOKEN")
 
     check_response "$response" "0" "Invite members"
@@ -341,7 +341,7 @@ test_get_join_requests() {
     # Wait a moment to ensure request is created
     sleep 1
 
-    local response=$(http_get "${API_BASE}/groups/${GROUP_ID}/requests?status=pending" "$USER1_TOKEN")
+    local response=$(http_get "${API_BASE}/groups/${GROUP_ID}/requests?status=1" "$USER1_TOKEN")
     local total=$(echo "$response" | jq -r '.data.total // 0')
 
     if [ "$total" -gt "0" ]; then
@@ -401,7 +401,7 @@ test_update_member_role() {
         return 1
     fi
 
-    local data="{\"role\":\"admin\"}"
+    local data="{\"role\":2}"
     local response=$(http_put "${API_BASE}/groups/${GROUP_ID}/members/${USER2_ID}/role" "$data" "$USER1_TOKEN")
 
     check_response "$response" "0" "Set member as admin"

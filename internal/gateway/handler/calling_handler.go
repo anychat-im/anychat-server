@@ -26,7 +26,7 @@ func NewCallingHandler(clientManager *client.Manager) *CallingHandler {
 // initiateCallRequest initiate call request body
 type initiateCallRequest struct {
 	CalleeID string `json:"callee_id" binding:"required"`
-	CallType string `json:"call_type"` // audio/video (default: audio)
+	CallType int32  `json:"call_type"` // 0-audio/1-video (default: 0)
 }
 
 // InitiateCall initiate audio/video call
@@ -50,19 +50,15 @@ func (h *CallingHandler) InitiateCall(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if req.CallType == "" {
-		req.CallType = "audio"
-	}
-
-	callType := callingpb.CallType_CALL_TYPE_AUDIO
-	if req.CallType == "video" {
-		callType = callingpb.CallType_CALL_TYPE_VIDEO
+	if req.CallType < int32(callingpb.CallType_CALL_TYPE_AUDIO) || req.CallType > int32(callingpb.CallType_CALL_TYPE_VIDEO) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "call_type must be 0 or 1"})
+		return
 	}
 
 	resp, err := h.clientManager.Calling().InitiateCall(c.Request.Context(), &callingpb.InitiateCallRequest{
 		CallerId: userID,
 		CalleeId: req.CalleeID,
-		CallType: callType,
+		CallType: callingpb.CallType(req.CallType),
 	})
 	if err != nil {
 		handleGRPCError(c, err)

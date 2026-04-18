@@ -51,7 +51,7 @@ func (s *Server) GetConversation(ctx context.Context, req *conversationpb.GetCon
 
 // CreateOrUpdateConversation creates or updates a conversation
 func (s *Server) CreateOrUpdateConversation(ctx context.Context, req *conversationpb.CreateOrUpdateConversationRequest) (*conversationpb.Conversation, error) {
-	if req.UserId == "" || req.TargetId == "" || req.ConversationType == "" {
+	if req.UserId == "" || req.TargetId == "" || req.ConversationType == conversationpb.ConversationType_CONVERSATION_TYPE_UNSPECIFIED {
 		return nil, status.Error(codes.InvalidArgument, "user_id, target_id and conversation_type are required")
 	}
 	conversation, err := s.conversationService.CreateOrUpdateConversation(ctx, req)

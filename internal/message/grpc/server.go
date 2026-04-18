@@ -35,7 +35,7 @@ func (s *Server) SendMessage(ctx context.Context, req *messagepb.SendMessageRequ
 	logger.Info("SendMessage called",
 		zap.String("senderId", req.SenderId),
 		zap.String("conversationId", req.ConversationId),
-		zap.String("contentType", req.ContentType))
+		zap.Int32("contentType", int32(req.ContentType)))
 
 	// Parameter validation
 	if req.SenderId == "" {
@@ -44,7 +44,7 @@ func (s *Server) SendMessage(ctx context.Context, req *messagepb.SendMessageRequ
 	if req.ConversationId == "" {
 		return nil, status.Error(codes.InvalidArgument, "conversation_id is required")
 	}
-	if req.ContentType == "" {
+	if req.ContentType == messagepb.ContentType_CONTENT_TYPE_UNSPECIFIED {
 		return nil, status.Error(codes.InvalidArgument, "content_type is required")
 	}
 	if req.Content == "" {

@@ -150,11 +150,11 @@ setup_test_users() {
 {
     "email": "${email}",
     "password": "${TEST_PASSWORD}",
-    "verifyCode": "123456",
+    "verify_code": "123456",
     "nickname": "ConversationTest_${device_suffix}_${TIMESTAMP}",
-    "deviceType": "iOS",
-    "deviceId": "${TEST_DEVICE_ID}_${device_suffix}",
-    "clientVersion": "1.0.0"
+    "device_type": 1,
+    "device_id": "${TEST_DEVICE_ID}_${device_suffix}",
+    "client_version": "1.0.0"
 }
 EOF
 )
@@ -165,8 +165,8 @@ EOF
     local r1
     r1=$(register_user "${TEST_EMAIL_1}" "1")
     if check_response "$r1"; then
-        USER1_ID=$(echo "$r1" | jq -r '.data.userId')
-        USER1_TOKEN=$(echo "$r1" | jq -r '.data.accessToken')
+        USER1_ID=$(echo "$r1" | jq -r '.data.user_id // .data.userId')
+        USER1_TOKEN=$(echo "$r1" | jq -r '.data.access_token // .data.accessToken')
         print_success "User 1 registered successfully (ID: ${USER1_ID})"
     else
         print_error "User 1 registration failed"
@@ -179,8 +179,8 @@ EOF
     local r2
     r2=$(register_user "${TEST_EMAIL_2}" "2")
     if check_response "$r2"; then
-        USER2_ID=$(echo "$r2" | jq -r '.data.userId')
-        USER2_TOKEN=$(echo "$r2" | jq -r '.data.accessToken')
+        USER2_ID=$(echo "$r2" | jq -r '.data.user_id // .data.userId')
+        USER2_TOKEN=$(echo "$r2" | jq -r '.data.access_token // .data.accessToken')
         print_success "User 2 registered successfully (ID: ${USER2_ID})"
     else
         print_error "User 2 registration failed"
@@ -197,7 +197,7 @@ seed_conversation_via_grpc() {
     local result
     result=$(grpcurl -plaintext \
         -d "{
-            \"conversation_type\": \"single\",
+            \"conversation_type\": \"CONVERSATION_TYPE_SINGLE\",
             \"user_id\": \"${USER1_ID}\",
             \"target_id\": \"${USER2_ID}\",
             \"last_message_id\": \"test-msg-${TIMESTAMP}\",

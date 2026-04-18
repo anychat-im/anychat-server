@@ -6,6 +6,7 @@ import (
 	"github.com/anychat/server/api/proto/auth"
 	commonpb "github.com/anychat/server/api/proto/common"
 	"github.com/anychat/server/internal/auth/dto"
+	"github.com/anychat/server/internal/auth/model"
 	"github.com/anychat/server/internal/auth/service"
 	"github.com/anychat/server/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -27,10 +28,19 @@ func NewAuthServer(authService service.AuthService) *AuthServer {
 
 // SendVerificationCode sends verification code
 func (s *AuthServer) SendVerificationCode(ctx context.Context, req *authpb.SendVerificationCodeRequest) (*authpb.SendVerificationCodeResponse, error) {
+	targetType := model.VerificationTargetType(req.TargetType)
+	if !targetType.IsValid() {
+		return nil, status.Error(codes.InvalidArgument, "invalid target_type")
+	}
+	purpose := model.VerificationPurpose(req.Purpose)
+	if !purpose.IsValid() {
+		return nil, status.Error(codes.InvalidArgument, "invalid purpose")
+	}
+
 	dtoReq := &dto.SendVerificationCodeRequest{
 		Target:     req.Target,
-		TargetType: req.TargetType,
-		Purpose:    req.Purpose,
+		TargetType: targetType,
+		Purpose:    purpose,
 		DeviceID:   req.DeviceId,
 		IPAddress:  req.IpAddress,
 	}
@@ -48,11 +58,16 @@ func (s *AuthServer) SendVerificationCode(ctx context.Context, req *authpb.SendV
 
 // Register user registration
 func (s *AuthServer) Register(ctx context.Context, req *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
+	deviceType := model.DeviceType(req.DeviceType)
+	if !deviceType.IsValid() {
+		return nil, status.Error(codes.InvalidArgument, "invalid device_type")
+	}
+
 	// Proto -> DTO conversion
 	dtoReq := &dto.RegisterRequest{
 		Password:      req.Password,
 		VerifyCode:    req.VerifyCode,
-		DeviceType:    req.DeviceType,
+		DeviceType:    deviceType,
 		DeviceID:      req.DeviceId,
 		ClientVersion: req.ClientVersion,
 	}
@@ -83,11 +98,16 @@ func (s *AuthServer) Register(ctx context.Context, req *authpb.RegisterRequest) 
 
 // Login user login
 func (s *AuthServer) Login(ctx context.Context, req *authpb.LoginRequest) (*authpb.LoginResponse, error) {
+	deviceType := model.DeviceType(req.DeviceType)
+	if !deviceType.IsValid() {
+		return nil, status.Error(codes.InvalidArgument, "invalid device_type")
+	}
+
 	// Proto -> DTO conversion
 	dtoReq := &dto.LoginRequest{
 		Account:       req.Account,
 		Password:      req.Password,
-		DeviceType:    req.DeviceType,
+		DeviceType:    deviceType,
 		DeviceID:      req.DeviceId,
 		ClientVersion: req.ClientVersion,
 		IpAddress:     req.IpAddress,
@@ -210,7 +230,7 @@ func (s *AuthServer) ValidateToken(ctx context.Context, req *authpb.ValidateToke
 		Valid:      true,
 		UserId:     claims.UserID,
 		DeviceId:   claims.DeviceID,
-		DeviceType: claims.DeviceType,
+		DeviceType: authpb.DeviceType(claims.DeviceType),
 	}, nil
 }
 

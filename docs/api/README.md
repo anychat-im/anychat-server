@@ -134,21 +134,21 @@ curl -X POST http://localhost:8080/api/v1/auth/send-code \
   -H "Content-Type: application/json" \
   -d '{
     "target": "13800138000",
-    "targetType": "sms",
-    "purpose": "register",
-    "deviceId": "device-001"
+    "target_type": 1,
+    "purpose": 1,
+    "device_id": "device-001"
   }'
 
 # 2. 用户注册（开发环境默认固定验证码为 123456，可通过 VERIFY_DEBUG_FIXED_CODE 覆盖）
 curl -X POST http://localhost:8080/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "phoneNumber": "13800138000",
+    "phone_number": "13800138000",
     "password": "Test@123456",
-    "verifyCode": "123456",
+    "verify_code": "123456",
     "nickname": "测试用户",
-    "deviceType": "iOS",
-    "deviceId": "device-001"
+    "device_type": 1,
+    "device_id": "device-001"
   }'
 
 # 3. 用户登录
@@ -157,14 +157,21 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   -d '{
     "account": "13800138000",
     "password": "Test@123456",
-    "deviceType": "iOS",
-    "deviceId": "device-001"
+    "device_type": 1,
+    "device_id": "device-001"
   }'
 
 # 4. 获取个人资料（需要替换 YOUR_ACCESS_TOKEN）
 curl -X GET http://localhost:8080/api/v1/users/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
+
+枚举值说明（HTTP 入参）：
+
+- `device_type`: `1=ios` `2=android` `3=web` `4=pc` `5=h5`
+- `target_type`: `1=sms` `2=email`
+- `purpose`: `1=register` `2=login` `3=reset_password` `4=bind_phone` `5=change_phone` `6=bind_email` `7=change_email`
+- `source`（好友申请来源）: `1=search` `2=qrcode` `3=group` `4=contacts`
 
 ### 邮箱验证码联调（SMTP）
 
@@ -193,15 +200,17 @@ curl -X POST http://localhost:8080/api/v1/auth/send-code \
   -H "Content-Type: application/json" \
   -d '{
     "target": "you@example.com",
-    "targetType": "email",
-    "purpose": "register",
-    "deviceId": "web-mail-test"
+    "target_type": 2,
+    "purpose": 1,
+    "device_id": "web-mail-test"
   }'
 ```
 
 > 如果 `EMAIL_HOST` 未配置或仍为默认占位值，开发环境下接口仍会返回成功，但不会真正发送邮件。
 
 ### 使用 grpcurl 测试 gRPC API
+
+> 注意：gRPC 中 `device_type` / `target_type` / `purpose` 使用 proto 枚举名（例如 `DEVICE_TYPE_IOS`）。
 
 ```bash
 # 1. 列出所有服务
@@ -217,7 +226,7 @@ grpcurl -plaintext localhost:9003 describe anychat.auth.AuthService.Login
 grpcurl -plaintext -d '{
   "account": "13800138000",
   "password": "Test@123456",
-  "device_type": "iOS",
+  "device_type": "DEVICE_TYPE_IOS",
   "device_id": "device-001"
 }' localhost:9003 anychat.auth.AuthService/Login
 
@@ -330,7 +339,7 @@ ghz --insecure \
   -d '{
     "account": "13800138000",
     "password": "Test@123456",
-    "device_type": "iOS",
+    "device_type": "DEVICE_TYPE_IOS",
     "device_id": "device-001"
   }' \
   -c 10 \

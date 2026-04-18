@@ -27,10 +27,10 @@ const (
 
 // ConversationSeq 会话的最新已知序列号
 type ConversationSeq struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	ConversationId   string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	ConversationType string                 `protobuf:"bytes,2,opt,name=conversation_type,json=conversationType,proto3" json:"conversation_type,omitempty"` // single/group
-	LastSeq          int64                  `protobuf:"varint,3,opt,name=last_seq,json=lastSeq,proto3" json:"last_seq,omitempty"`
+	state            protoimpl.MessageState   `protogen:"open.v1"`
+	ConversationId   string                   `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	ConversationType message.ConversationType `protobuf:"varint,2,opt,name=conversation_type,json=conversationType,proto3,enum=anychat.message.ConversationType" json:"conversation_type,omitempty"` // 1-single/2-group
+	LastSeq          int64                    `protobuf:"varint,3,opt,name=last_seq,json=lastSeq,proto3" json:"last_seq,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -72,11 +72,11 @@ func (x *ConversationSeq) GetConversationId() string {
 	return ""
 }
 
-func (x *ConversationSeq) GetConversationType() string {
+func (x *ConversationSeq) GetConversationType() message.ConversationType {
 	if x != nil {
 		return x.ConversationType
 	}
-	return ""
+	return message.ConversationType(0)
 }
 
 func (x *ConversationSeq) GetLastSeq() int64 {
@@ -310,11 +310,11 @@ func (x *SyncConversationData) GetHasMore() bool {
 
 // ConversationMessages 单个会话的新消息
 type ConversationMessages struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	ConversationId   string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	ConversationType string                 `protobuf:"bytes,2,opt,name=conversation_type,json=conversationType,proto3" json:"conversation_type,omitempty"`
-	Messages         []*message.Message     `protobuf:"bytes,3,rep,name=messages,proto3" json:"messages,omitempty"`
-	HasMore          bool                   `protobuf:"varint,4,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`
+	state            protoimpl.MessageState   `protogen:"open.v1"`
+	ConversationId   string                   `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	ConversationType message.ConversationType `protobuf:"varint,2,opt,name=conversation_type,json=conversationType,proto3,enum=anychat.message.ConversationType" json:"conversation_type,omitempty"`
+	Messages         []*message.Message       `protobuf:"bytes,3,rep,name=messages,proto3" json:"messages,omitempty"`
+	HasMore          bool                     `protobuf:"varint,4,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -356,11 +356,11 @@ func (x *ConversationMessages) GetConversationId() string {
 	return ""
 }
 
-func (x *ConversationMessages) GetConversationType() string {
+func (x *ConversationMessages) GetConversationType() message.ConversationType {
 	if x != nil {
 		return x.ConversationType
 	}
-	return ""
+	return message.ConversationType(0)
 }
 
 func (x *ConversationMessages) GetMessages() []*message.Message {
@@ -566,10 +566,10 @@ var File_sync_sync_proto protoreflect.FileDescriptor
 
 const file_sync_sync_proto_rawDesc = "" +
 	"\n" +
-	"\x0fsync/sync.proto\x12\fanychat.sync\x1a\x13friend/friend.proto\x1a\x11group/group.proto\x1a\x1fconversation/conversation.proto\x1a\x15message/message.proto\"\x82\x01\n" +
+	"\x0fsync/sync.proto\x12\fanychat.sync\x1a\x13friend/friend.proto\x1a\x11group/group.proto\x1a\x1fconversation/conversation.proto\x1a\x15message/message.proto\"\xa5\x01\n" +
 	"\x0fConversationSeq\x12'\n" +
-	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12+\n" +
-	"\x11conversation_type\x18\x02 \x01(\tR\x10conversationType\x12\x19\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12N\n" +
+	"\x11conversation_type\x18\x02 \x01(\x0e2!.anychat.message.ConversationTypeR\x10conversationType\x12\x19\n" +
 	"\blast_seq\x18\x03 \x01(\x03R\alastSeq\"\x98\x01\n" +
 	"\vSyncRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12$\n" +
@@ -583,10 +583,10 @@ const file_sync_sync_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"{\n" +
 	"\x14SyncConversationData\x12H\n" +
 	"\rconversations\x18\x01 \x03(\v2\".anychat.conversation.ConversationR\rconversations\x12\x19\n" +
-	"\bhas_more\x18\x02 \x01(\bR\ahasMore\"\xbd\x01\n" +
+	"\bhas_more\x18\x02 \x01(\bR\ahasMore\"\xe0\x01\n" +
 	"\x14ConversationMessages\x12'\n" +
-	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12+\n" +
-	"\x11conversation_type\x18\x02 \x01(\tR\x10conversationType\x124\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12N\n" +
+	"\x11conversation_type\x18\x02 \x01(\x0e2!.anychat.message.ConversationTypeR\x10conversationType\x124\n" +
 	"\bmessages\x18\x03 \x03(\v2\x18.anychat.message.MessageR\bmessages\x12\x19\n" +
 	"\bhas_more\x18\x04 \x01(\bR\ahasMore\"\xb3\x02\n" +
 	"\fSyncResponse\x126\n" +
@@ -628,32 +628,35 @@ var file_sync_sync_proto_goTypes = []any{
 	(*SyncResponse)(nil),              // 6: anychat.sync.SyncResponse
 	(*SyncMessagesRequest)(nil),       // 7: anychat.sync.SyncMessagesRequest
 	(*SyncMessagesResponse)(nil),      // 8: anychat.sync.SyncMessagesResponse
-	(*friend.Friend)(nil),             // 9: anychat.friend.Friend
-	(*group.GroupInfo)(nil),           // 10: anychat.group.GroupInfo
-	(*conversation.Conversation)(nil), // 11: anychat.conversation.Conversation
-	(*message.Message)(nil),           // 12: anychat.message.Message
+	(message.ConversationType)(0),     // 9: anychat.message.ConversationType
+	(*friend.Friend)(nil),             // 10: anychat.friend.Friend
+	(*group.GroupInfo)(nil),           // 11: anychat.group.GroupInfo
+	(*conversation.Conversation)(nil), // 12: anychat.conversation.Conversation
+	(*message.Message)(nil),           // 13: anychat.message.Message
 }
 var file_sync_sync_proto_depIdxs = []int32{
-	0,  // 0: anychat.sync.SyncRequest.conversation_seqs:type_name -> anychat.sync.ConversationSeq
-	9,  // 1: anychat.sync.SyncFriendData.friends:type_name -> anychat.friend.Friend
-	10, // 2: anychat.sync.SyncGroupData.groups:type_name -> anychat.group.GroupInfo
-	11, // 3: anychat.sync.SyncConversationData.conversations:type_name -> anychat.conversation.Conversation
-	12, // 4: anychat.sync.ConversationMessages.messages:type_name -> anychat.message.Message
-	2,  // 5: anychat.sync.SyncResponse.friends:type_name -> anychat.sync.SyncFriendData
-	3,  // 6: anychat.sync.SyncResponse.groups:type_name -> anychat.sync.SyncGroupData
-	4,  // 7: anychat.sync.SyncResponse.conversation_data:type_name -> anychat.sync.SyncConversationData
-	5,  // 8: anychat.sync.SyncResponse.conversations:type_name -> anychat.sync.ConversationMessages
-	0,  // 9: anychat.sync.SyncMessagesRequest.conversation_seqs:type_name -> anychat.sync.ConversationSeq
-	5,  // 10: anychat.sync.SyncMessagesResponse.conversations:type_name -> anychat.sync.ConversationMessages
-	1,  // 11: anychat.sync.SyncService.Sync:input_type -> anychat.sync.SyncRequest
-	7,  // 12: anychat.sync.SyncService.SyncMessages:input_type -> anychat.sync.SyncMessagesRequest
-	6,  // 13: anychat.sync.SyncService.Sync:output_type -> anychat.sync.SyncResponse
-	8,  // 14: anychat.sync.SyncService.SyncMessages:output_type -> anychat.sync.SyncMessagesResponse
-	13, // [13:15] is the sub-list for method output_type
-	11, // [11:13] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	9,  // 0: anychat.sync.ConversationSeq.conversation_type:type_name -> anychat.message.ConversationType
+	0,  // 1: anychat.sync.SyncRequest.conversation_seqs:type_name -> anychat.sync.ConversationSeq
+	10, // 2: anychat.sync.SyncFriendData.friends:type_name -> anychat.friend.Friend
+	11, // 3: anychat.sync.SyncGroupData.groups:type_name -> anychat.group.GroupInfo
+	12, // 4: anychat.sync.SyncConversationData.conversations:type_name -> anychat.conversation.Conversation
+	9,  // 5: anychat.sync.ConversationMessages.conversation_type:type_name -> anychat.message.ConversationType
+	13, // 6: anychat.sync.ConversationMessages.messages:type_name -> anychat.message.Message
+	2,  // 7: anychat.sync.SyncResponse.friends:type_name -> anychat.sync.SyncFriendData
+	3,  // 8: anychat.sync.SyncResponse.groups:type_name -> anychat.sync.SyncGroupData
+	4,  // 9: anychat.sync.SyncResponse.conversation_data:type_name -> anychat.sync.SyncConversationData
+	5,  // 10: anychat.sync.SyncResponse.conversations:type_name -> anychat.sync.ConversationMessages
+	0,  // 11: anychat.sync.SyncMessagesRequest.conversation_seqs:type_name -> anychat.sync.ConversationSeq
+	5,  // 12: anychat.sync.SyncMessagesResponse.conversations:type_name -> anychat.sync.ConversationMessages
+	1,  // 13: anychat.sync.SyncService.Sync:input_type -> anychat.sync.SyncRequest
+	7,  // 14: anychat.sync.SyncService.SyncMessages:input_type -> anychat.sync.SyncMessagesRequest
+	6,  // 15: anychat.sync.SyncService.Sync:output_type -> anychat.sync.SyncResponse
+	8,  // 16: anychat.sync.SyncService.SyncMessages:output_type -> anychat.sync.SyncMessagesResponse
+	15, // [15:17] is the sub-list for method output_type
+	13, // [13:15] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_sync_sync_proto_init() }

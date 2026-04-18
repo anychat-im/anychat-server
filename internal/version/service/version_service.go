@@ -38,6 +38,9 @@ func NewVersionService(repo repository.VersionRepository, cache *pkgredis.Client
 
 func (s *versionServiceImpl) CheckVersion(ctx context.Context, req *versionpb.CheckVersionRequest) (*versionpb.CheckVersionResponse, error) {
 	platform := model.Platform(req.Platform)
+	if platform <= model.PlatformUnknown || platform > model.PlatformH5 {
+		return nil, pkgerrors.NewBusiness(pkgerrors.CodeParamError, "invalid platform")
+	}
 	releaseType := model.ReleaseTypeStable
 
 	latest, err := s.getLatestVersionFromCache(ctx, platform, releaseType)
@@ -81,8 +84,11 @@ func (s *versionServiceImpl) CheckVersion(ctx context.Context, req *versionpb.Ch
 
 func (s *versionServiceImpl) GetLatestVersion(ctx context.Context, req *versionpb.GetLatestVersionRequest) (*versionpb.GetLatestVersionResponse, error) {
 	platform := model.Platform(req.Platform)
+	if platform <= model.PlatformUnknown || platform > model.PlatformH5 {
+		return nil, pkgerrors.NewBusiness(pkgerrors.CodeParamError, "invalid platform")
+	}
 	releaseType := model.ReleaseType(req.ReleaseType)
-	if releaseType == "" {
+	if releaseType == model.ReleaseTypeUnknown {
 		releaseType = model.ReleaseTypeStable
 	}
 
@@ -103,6 +109,12 @@ func (s *versionServiceImpl) GetLatestVersion(ctx context.Context, req *versionp
 func (s *versionServiceImpl) ListVersions(ctx context.Context, req *versionpb.ListVersionsRequest) (*versionpb.ListVersionsResponse, error) {
 	platform := model.Platform(req.Platform)
 	releaseType := model.ReleaseType(req.ReleaseType)
+	if platform < model.PlatformUnknown || platform > model.PlatformH5 {
+		return nil, pkgerrors.NewBusiness(pkgerrors.CodeParamError, "invalid platform")
+	}
+	if releaseType < model.ReleaseTypeUnknown || releaseType > model.ReleaseTypeAlpha {
+		return nil, pkgerrors.NewBusiness(pkgerrors.CodeParamError, "invalid release_type")
+	}
 	page := int(req.Page)
 	pageSize := int(req.PageSize)
 
@@ -131,8 +143,11 @@ func (s *versionServiceImpl) ListVersions(ctx context.Context, req *versionpb.Li
 
 func (s *versionServiceImpl) CreateVersion(ctx context.Context, req *versionpb.CreateVersionRequest) (*versionpb.CreateVersionResponse, error) {
 	platform := model.Platform(req.Platform)
+	if platform <= model.PlatformUnknown || platform > model.PlatformH5 {
+		return nil, pkgerrors.NewBusiness(pkgerrors.CodeParamError, "invalid platform")
+	}
 	releaseType := model.ReleaseType(req.ReleaseType)
-	if releaseType == "" {
+	if releaseType == model.ReleaseTypeUnknown {
 		releaseType = model.ReleaseTypeStable
 	}
 
@@ -177,7 +192,7 @@ func (s *versionServiceImpl) CreateVersion(ctx context.Context, req *versionpb.C
 
 	return &versionpb.CreateVersionResponse{
 		Id:       version.ID,
-		Platform: string(platform),
+		Platform: versionpb.Platform(platform),
 		Version:  version.Version,
 	}, nil
 }
@@ -209,13 +224,16 @@ func (s *versionServiceImpl) DeleteVersion(ctx context.Context, req *versionpb.D
 
 func (s *versionServiceImpl) ReportVersion(ctx context.Context, req *versionpb.ReportVersionRequest) error {
 	platform := model.Platform(req.Platform)
+	if platform <= model.PlatformUnknown || platform > model.PlatformH5 {
+		return pkgerrors.NewBusiness(pkgerrors.CodeParamError, "invalid platform")
+	}
 	date := time.Now().Truncate(24 * time.Hour)
 
 	return s.repo.IncrementStats(ctx, platform, req.Version, date)
 }
 
 func (s *versionServiceImpl) getLatestVersionFromCache(ctx context.Context, platform model.Platform, releaseType model.ReleaseType) (*model.AppVersion, error) {
-	cacheKey := fmt.Sprintf("version:%s:latest:%s", platform, releaseType)
+	cacheKey := fmt.Sprintf("version:%d:latest:%d", platform, releaseType)
 
 	if s.cache != nil {
 		val, err := s.cache.Get(ctx, cacheKey)
@@ -241,7 +259,7 @@ func (s *versionServiceImpl) getLatestVersionFromCache(ctx context.Context, plat
 }
 
 func (s *versionServiceImpl) invalidateCache(ctx context.Context, platform model.Platform, releaseType model.ReleaseType) {
-	cacheKey := fmt.Sprintf("version:%s:latest:%s", platform, releaseType)
+	cacheKey := fmt.Sprintf("version:%d:latest:%d", platform, releaseType)
 	if s.cache != nil {
 		s.cache.Del(ctx, cacheKey)
 	}
@@ -250,14 +268,15 @@ func (s *versionServiceImpl) invalidateCache(ctx context.Context, platform model
 func (s *versionServiceImpl) toVersionInfo(v *model.AppVersion) *versionpb.VersionInfo {
 	info := &versionpb.VersionInfo{
 		Id:             v.ID,
-		Platform:       string(v.Platform),
+		Platform:       versionpb.Platform(v.Platform),
 		Version:        v.Version,
 		BuildNumber:    int32(v.BuildNumber),
 		VersionCode:    int32(v.VersionCode),
 		MinVersion:     v.MinVersion,
 		MinBuildNumber: int32(v.MinBuildNumber),
 		ForceUpdate:    v.ForceUpdate,
-		ReleaseType:    string(v.ReleaseType),
+		ReleaseType:    versionpb.ReleaseType(v.ReleaseType),
+		Status:         versionpb.VersionStatus(v.Status),
 		Title:          v.Title,
 		Content:        v.Content,
 		DownloadUrl:    v.DownloadURL,

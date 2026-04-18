@@ -4,10 +4,20 @@ import (
 	"time"
 )
 
+// ConversationType represents conversation category.
+type ConversationType int16
+
+const (
+	ConversationTypeUnspecified ConversationType = 0
+	ConversationTypeSingle      ConversationType = 1
+	ConversationTypeGroup       ConversationType = 2
+	ConversationTypeSystem      ConversationType = 3
+)
+
 // Conversation is the conversation model
 type Conversation struct {
 	ConversationID     string     `gorm:"column:conversation_id;primaryKey"`
-	ConversationType   string     `gorm:"column:conversation_type;not null"` // single/group/system
+	ConversationType   ConversationType `gorm:"column:conversation_type;type:smallint;not null"` // 1-single/2-group/3-system
 	UserID             string     `gorm:"column:user_id;not null"`
 	TargetID           string     `gorm:"column:target_id;not null"`
 	LastMessageID      string     `gorm:"column:last_message_id"`
@@ -27,10 +37,3 @@ type Conversation struct {
 func (Conversation) TableName() string {
 	return "conversations"
 }
-
-// ConversationType is the conversation type constant
-const (
-	ConversationTypeSingle = "single"
-	ConversationTypeGroup  = "group"
-	ConversationTypeSystem = "system"
-)

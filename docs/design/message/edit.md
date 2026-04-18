@@ -42,7 +42,7 @@
 
 - 仅发送者本人可编辑
 - 仅 `status=normal` 消息可编辑
-- 仅 `content_type=text` 可编辑
+- 仅 `content_type=1(text)` 可编辑
 - 已撤回、已删除、已过期、已自动清理消息不可编辑
 - 默认编辑窗口：消息发送后 15 分钟（可配置）
 
@@ -183,7 +183,7 @@ DROP TABLE IF EXISTS message_edits;
   "message": {
     "message_id": "msg_xxx",
     "conversation_id": "conv_xxx",
-    "content_type": "text",
+    "content_type": 1,
     "content": "{\"text\":\"hello codex\"}",
     "sequence": 1024,
     "status": 0,
@@ -216,9 +216,9 @@ message EditMessageResponse {
 message Message {
   string message_id = 1;
   string conversation_id = 2;
-  string conversation_type = 3;
+  ConversationType conversation_type = 3; // 1-single/2-group
   string sender_id = 4;
-  string content_type = 5;
+  ContentType content_type = 5; // 1-text/2-image/3-video/4-audio/5-file/6-location/7-card
   string content = 6;
   int64 sequence = 7;
   optional string reply_to = 8;
@@ -254,10 +254,10 @@ TypeMessageEdited = "message.edited"
 {
   "message_id": "msg_xxx",
   "conversation_id": "conv_xxx",
-  "conversation_type": "group",
+  "conversation_type": 2,
   "target_id": "group_xxx",
   "editor_user_id": "u1",
-  "content_type": "text",
+  "content_type": 1,
   "content": "{\"text\":\"hello codex\"}",
   "at_users": ["u2", "u3"],
   "edit_version": 1,
